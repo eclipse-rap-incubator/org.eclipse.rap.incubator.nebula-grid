@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.eclipse.nebula.widgets.grid;
 
+import org.eclipse.nebula.widgets.grid.internal.NullScrollBarProxy;
+import org.eclipse.nebula.widgets.grid.internal.ScrollBarProxyAdapter;
 import org.eclipse.rap.rwt.testfixture.Fixture;
 import org.eclipse.rwt.lifecycle.PhaseId;
 import org.eclipse.swt.SWT;
@@ -40,6 +42,18 @@ public class Grid_Test extends TestCase {
   public void testGridCreation() {
     Grid grid = new Grid( shell, SWT.NONE );
     assertNotNull( grid );
+    assertTrue( grid.getHorizontalScrollBarProxy() instanceof NullScrollBarProxy );
+    assertNull( grid.getHorizontalBar() );
+    assertTrue( grid.getVerticalScrollBarProxy() instanceof NullScrollBarProxy );
+    assertNull( grid.getVerticalBar() );
+  }
+
+  public void testGridCreationWithScrollBars() {
+    Grid grid = new Grid( shell, SWT.H_SCROLL | SWT.V_SCROLL );
+    assertTrue( grid.getHorizontalScrollBarProxy() instanceof ScrollBarProxyAdapter );
+    assertFalse( grid.getHorizontalBar().isVisible() );
+    assertTrue( grid.getVerticalScrollBarProxy() instanceof ScrollBarProxyAdapter );
+    assertFalse( grid.getVerticalBar().isVisible() );
   }
 
   public void testStyle() {

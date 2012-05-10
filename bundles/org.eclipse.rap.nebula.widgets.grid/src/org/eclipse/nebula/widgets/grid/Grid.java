@@ -10,6 +10,9 @@
  ******************************************************************************/
 package org.eclipse.nebula.widgets.grid;
 
+import org.eclipse.nebula.widgets.grid.internal.IScrollBarProxy;
+import org.eclipse.nebula.widgets.grid.internal.NullScrollBarProxy;
+import org.eclipse.nebula.widgets.grid.internal.ScrollBarProxyAdapter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
@@ -36,6 +39,36 @@ import org.eclipse.swt.widgets.Composite;
 public class Grid extends Canvas {
 
   /**
+   * Type of selection behavior. Valid values are SWT.SINGLE and SWT.MULTI.
+   */
+  private int selectionType = SWT.SINGLE;
+
+  /**
+   * Vertical scrollbar proxy.
+   * <p>
+   * Note:
+   * <ul>
+   * <li>{@link Grid#getTopIndex()} is the only method allowed to call vScroll.getSelection()
+   * (except #updateScrollbars() of course)</li>
+   * <li>{@link Grid#setTopIndex(int)} is the only method allowed to call vScroll.setSelection(int)</li>
+   * </ul>
+   */
+  private IScrollBarProxy vScroll;
+
+  /**
+   * Horizontal scrollbar proxy.
+   */
+  private IScrollBarProxy hScroll;
+
+  /**
+   * Tracks whether the scroll values are correct. If not they will be
+   * recomputed in onPaint. This allows us to get a free ride on top of the
+   * OS's paint event merging to assure that we don't perform this expensive
+   * operation when unnecessary.
+   */
+  private boolean scrollValuesObsolete = false;
+
+  /**
    * Constructs a new instance of this class given its parent and a style
    * value describing its behavior and appearance.
    * <p>
@@ -57,6 +90,56 @@ public class Grid extends Canvas {
    */
   public Grid( Composite parent, int style ) {
     super( parent, checkStyle( style ) );
+    if( ( style & SWT.MULTI ) != 0 ) {
+      selectionType = SWT.MULTI;
+    }
+    if( getVerticalBar() != null ) {
+      getVerticalBar().setVisible( false );
+      vScroll = new ScrollBarProxyAdapter( getVerticalBar() );
+    } else {
+      vScroll = new NullScrollBarProxy();
+    }
+    if( getHorizontalBar() != null ) {
+      getHorizontalBar().setVisible( false );
+      hScroll = new ScrollBarProxyAdapter( getHorizontalBar() );
+    } else {
+      hScroll = new NullScrollBarProxy();
+    }
+    scrollValuesObsolete = true;
+  }
+
+  /**
+   * Returns the externally managed horizontal scrollbar.
+   *
+   * @return the external horizontal scrollbar.
+   * @see #setHorizontalScrollBarProxy(IScrollBarProxy)
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  protected IScrollBarProxy getHorizontalScrollBarProxy() {
+    checkWidget();
+    return hScroll;
+  }
+
+  /**
+   * Returns the externally managed vertical scrollbar.
+   *
+   * @return the external vertical scrollbar.
+   * @see #setlVerticalScrollBarProxy(IScrollBarProxy)
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  protected IScrollBarProxy getVerticalScrollBarProxy() {
+    checkWidget();
+    return vScroll;
   }
 
   /**
