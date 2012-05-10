@@ -77,8 +77,8 @@ public class Grid extends Canvas {
                | SWT.NO_FOCUS
                | SWT.CHECK
                | SWT.VIRTUAL;
-    int newStyle = style & mask;
-    newStyle |= SWT.DOUBLE_BUFFERED;
-    return newStyle;
+    int result = style & mask;
+    result |= SWT.DOUBLE_BUFFERED;
+    return result;
   }
 }
