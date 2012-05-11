@@ -10,11 +10,15 @@
  ******************************************************************************/
 package org.eclipse.nebula.widgets.grid;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.eclipse.rap.rwt.testfixture.Fixture;
 import org.eclipse.rwt.lifecycle.PhaseId;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
@@ -187,6 +191,21 @@ public class GridItem_Test extends TestCase {
     assertTrue( items[ 1 ].isDisposed() );
     assertEquals( 0, grid.getItemCount() );
     assertEquals( 0, grid.getRootItemCount() );
+  }
+
+  public void testSendDisposeEvent() {
+    final List<DisposeEvent> log = new ArrayList<DisposeEvent>();
+    GridItem[] items = createGridItems( grid, 1, 1 );
+    items[ 0 ].addDisposeListener( new DisposeListener() {
+      public void widgetDisposed( DisposeEvent event ) {
+        log.add( event );
+      }
+    } );
+
+    grid.dispose();
+
+    assertEquals( 1, log.size() );
+    assertSame( items[ 0 ], log.get( 0 ).widget );
   }
 
   //////////////////

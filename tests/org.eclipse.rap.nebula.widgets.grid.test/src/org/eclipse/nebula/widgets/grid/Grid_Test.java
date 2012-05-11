@@ -196,6 +196,7 @@ public class Grid_Test extends TestCase {
     grid.dispose();
 
     assertEquals( 1, log.size() );
+    assertSame(grid, log.get( 0 ).widget );
   }
 
   //////////////////
