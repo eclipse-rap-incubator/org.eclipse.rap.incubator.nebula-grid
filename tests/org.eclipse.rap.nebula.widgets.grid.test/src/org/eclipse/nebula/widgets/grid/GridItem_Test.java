@@ -208,6 +208,13 @@ public class GridItem_Test extends TestCase {
     assertSame( items[ 0 ], log.get( 0 ).widget );
   }
 
+  public void testGetLevel() {
+    GridItem[] items = createGridItems( grid, 1, 1 );
+
+    assertEquals( 0, items[ 0 ].getLevel() );
+    assertEquals( 1, items[ 1 ].getLevel() );
+  }
+
   //////////////////
   // Helping methods
 

@@ -21,9 +21,7 @@ import org.eclipse.rwt.lifecycle.PhaseId;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
-import org.eclipse.swt.events.TypedEvent;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Shell;
 
 import junit.framework.TestCase;

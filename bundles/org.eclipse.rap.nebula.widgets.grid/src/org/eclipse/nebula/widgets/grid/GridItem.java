@@ -55,6 +55,11 @@ public class GridItem extends Item {
   private boolean hasChildren;
 
   /**
+   * Level of item in a tree.
+   */
+  private int level = 0;
+
+  /**
    * Creates a new instance of this class and places the item at the end of
    * the grid.
    *
@@ -160,7 +165,7 @@ public class GridItem extends Item {
     this.parent = parentItem.getParent();
     init();
     this.parent.newItem( this, index, false );
-//    level = parentItem.getLevel() + 1;
+    level = parentItem.getLevel() + 1;
     parentItem.newItem( this, index );
 //    if( parent.isVisible() && parent.isExpanded() ) {
 //      setVisible( true );
@@ -337,6 +342,23 @@ public class GridItem extends Item {
   public boolean hasChildren() {
     checkWidget();
     return hasChildren;
+  }
+
+  /**
+   * Returns the level of this item in the tree.
+   *
+   * @return the level of the item in the tree
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public int getLevel() {
+    checkWidget();
+    return level;
   }
 
   /**
