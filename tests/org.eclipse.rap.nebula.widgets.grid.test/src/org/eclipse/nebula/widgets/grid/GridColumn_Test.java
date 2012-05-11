@@ -52,10 +52,6 @@ public class GridColumn_Test extends TestCase {
     assertEquals( 1, grid.getColumnCount() );
   }
 
-  public void testGridItemCreation_GridGroupParent() {
-
-  }
-
   public void testGridColumnCreation_AtIndexWithGridParent() {
     createGridColumns( grid, 5 );
 
@@ -64,10 +60,6 @@ public class GridColumn_Test extends TestCase {
     assertSame( column, grid.getColumn( 2 ) );
     assertEquals( 2, grid.indexOf( column ) );
     assertEquals( 6, grid.getColumnCount() );
-  }
-
-  public void testGridColumnCreation_AtIndexWithGridGroupParent() {
-
   }
 
   public void testDispose() {
