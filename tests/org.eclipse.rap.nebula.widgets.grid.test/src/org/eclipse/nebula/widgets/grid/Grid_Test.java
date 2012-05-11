@@ -102,26 +102,25 @@ public class Grid_Test extends TestCase {
   }
 
   public void testGetRootItems() {
-    GridItem[] createdItems = createGridItems( grid, 3, 1 );
+    GridItem[] items = createGridItems( grid, 3, 1 );
 
     GridItem[] rootItems = grid.getRootItems();
-    assertSame( createdItems[ 0 ], rootItems[ 0 ] );
-    assertSame( createdItems[ 2 ], rootItems[ 1 ] );
-    assertSame( createdItems[ 4 ], rootItems[ 2 ] );
+    assertSame( items[ 0 ], rootItems[ 0 ] );
+    assertSame( items[ 2 ], rootItems[ 1 ] );
+    assertSame( items[ 4 ], rootItems[ 2 ] );
   }
 
   public void testGetItems() {
-    GridItem[] createdItems = createGridItems( grid, 3, 1 );
+    GridItem[] items = createGridItems( grid, 3, 1 );
 
-    GridItem[] items = grid.getItems();
-    assertTrue( Arrays.equals( createdItems, items ) );
+    assertTrue( Arrays.equals( items, grid.getItems() ) );
   }
 
   public void testGetRootItem() {
-    GridItem[] createdItems = createGridItems( grid, 3, 1 );
+    GridItem[] items = createGridItems( grid, 3, 1 );
 
-    assertSame( createdItems[ 2 ], grid.getRootItem( 1 ) );
-    assertSame( createdItems[ 4 ], grid.getRootItem( 2 ) );
+    assertSame( items[ 2 ], grid.getRootItem( 1 ) );
+    assertSame( items[ 4 ], grid.getRootItem( 2 ) );
   }
 
   public void testGetRootItem_InvalidIndex() {
@@ -135,10 +134,10 @@ public class Grid_Test extends TestCase {
   }
 
   public void testGetItem() {
-    GridItem[] createdItems = createGridItems( grid, 3, 1 );
+    GridItem[] items = createGridItems( grid, 3, 1 );
 
-    assertSame( createdItems[ 1 ], grid.getItem( 1 ) );
-    assertSame( createdItems[ 4 ], grid.getItem( 4 ) );
+    assertSame( items[ 1 ], grid.getItem( 1 ) );
+    assertSame( items[ 4 ], grid.getItem( 4 ) );
   }
 
   public void testGetItem_InvalidIndex() {
@@ -152,15 +151,15 @@ public class Grid_Test extends TestCase {
   }
 
   public void testIndexOf() {
-    GridItem[] createdItems = createGridItems( grid, 3, 1 );
+    GridItem[] items = createGridItems( grid, 3, 1 );
 
-    assertEquals( 1, grid.indexOf( createdItems[ 1 ] ) );
-    assertEquals( 4, grid.indexOf( createdItems[ 4 ] ) );
+    assertEquals( 1, grid.indexOf( items[ 1 ] ) );
+    assertEquals( 4, grid.indexOf( items[ 4 ] ) );
   }
 
   public void testIndexOf_NullArgument() {
     try {
-      grid.indexOf( null );
+      grid.indexOf( ( GridItem )null );
       fail();
     } catch( IllegalArgumentException expected ) {
     }
@@ -171,6 +170,74 @@ public class Grid_Test extends TestCase {
     GridItem item = new GridItem( otherGrid, SWT.NONE );
 
     assertEquals( -1, grid.indexOf( item ) );
+  }
+
+  public void testIndexOf_AfterDispose() {
+    GridItem[] items = createGridItems( grid, 3, 1 );
+
+    items[ 2 ].dispose();
+
+    assertEquals( 1, grid.indexOf( items[ 1 ] ) );
+    assertEquals( 2, grid.indexOf( items[ 4 ] ) );
+  }
+
+  public void testGetColumnCount() {
+    createGridColumns( grid, 5 );
+
+    assertEquals( 5, grid.getColumnCount() );
+  }
+
+  public void testGetColumns() {
+    GridColumn[] columns = createGridColumns( grid, 5 );
+
+    assertTrue( Arrays.equals( columns, grid.getColumns() ) );
+  }
+
+  public void testGetColumn() {
+    GridColumn[] columns = createGridColumns( grid, 5 );
+
+    assertSame( columns[ 1 ], grid.getColumn( 1 ) );
+    assertSame( columns[ 4 ], grid.getColumn( 4 ) );
+  }
+
+  public void testGetColumn_InvalidIndex() {
+    createGridColumns( grid, 3 );
+
+    try {
+      grid.getColumn( 10 );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testIndexOfColumn() {
+    GridColumn[] columns = createGridColumns( grid, 5 );
+
+    assertEquals( 1, grid.indexOf( columns[ 1 ] ) );
+    assertEquals( 4, grid.indexOf( columns[ 4 ] ) );
+  }
+
+  public void testIndexOfColumn_NullArgument() {
+    try {
+      grid.indexOf( ( GridColumn )null );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testIndexOfColumn_DifferentParent() {
+    Grid otherGrid = new Grid( shell, SWT.NONE );
+    GridColumn column = new GridColumn( otherGrid, SWT.NONE );
+
+    assertEquals( -1, grid.indexOf( column ) );
+  }
+
+  public void testIndexOfColumn_AfterDispose() {
+    GridColumn[] columns = createGridColumns( grid, 5 );
+
+    columns[ 2 ].dispose();
+
+    assertEquals( 3, grid.indexOf( columns[ 4 ] ) );
   }
 
   public void testDispose() {
@@ -189,6 +256,15 @@ public class Grid_Test extends TestCase {
     assertTrue( items[ 1 ].isDisposed() );
   }
 
+  public void testDispose_WithColumns() {
+    GridColumn[] columns = createGridColumns( grid, 2 );
+
+    grid.dispose();
+
+    assertTrue( columns[ 0 ].isDisposed() );
+    assertTrue( columns[ 1 ].isDisposed() );
+  }
+
   public void testSendDisposeEvent() {
     final List<DisposeEvent> log = new ArrayList<DisposeEvent>();
     grid.addDisposeListener( new DisposeListener() {
@@ -200,7 +276,7 @@ public class Grid_Test extends TestCase {
     grid.dispose();
 
     assertEquals( 1, log.size() );
-    assertSame(grid, log.get( 0 ).widget );
+    assertSame( grid, log.get( 0 ).widget );
   }
 
   public void testAddRemoveSelectionListener() {
@@ -238,6 +314,15 @@ public class Grid_Test extends TestCase {
         result[ counter ] = childItem;
         counter++;
       }
+    }
+    return result;
+  }
+
+  private static GridColumn[] createGridColumns( Grid grid, int columns ) {
+    GridColumn[] result = new GridColumn[ columns ];
+    for( int i = 0; i < columns; i++ ) {
+      GridColumn column = new GridColumn( grid, SWT.NONE );
+      result[ i ] = column;
     }
     return result;
   }

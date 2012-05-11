@@ -13,6 +13,7 @@ package org.eclipse.nebula.widgets.grid;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Vector;
 
 import org.eclipse.nebula.widgets.grid.internal.IScrollBarProxy;
 import org.eclipse.nebula.widgets.grid.internal.NullScrollBarProxy;
@@ -89,6 +90,16 @@ public class Grid extends Canvas {
   private List<GridItem> rootItems = new ArrayList<GridItem>();
 
   /**
+   * List of table columns in creation/index order.
+   */
+  private List<GridColumn> columns = new ArrayList<GridColumn>();
+
+  /**
+   * List of the table columns in the order they are displayed.
+   */
+  private List<GridColumn> displayOrderedColumns = new ArrayList<GridColumn>();
+
+  /**
    * True if there is at least one tree node.  This is used by accessibility and various
    * places for optimization.
    */
@@ -153,6 +164,10 @@ public class Grid extends Canvas {
     for( Iterator iterator = items.iterator(); iterator.hasNext(); ) {
       GridItem item = ( GridItem )iterator.next();
       item.dispose();
+    }
+    for( Iterator iterator = columns.iterator(); iterator.hasNext(); ) {
+      GridColumn column = ( GridColumn )iterator.next();
+      column.dispose();
     }
   }
 
@@ -395,6 +410,110 @@ public class Grid extends Canvas {
   }
 
   /**
+   * Returns the number of columns contained in the receiver. If no
+   * {@code GridColumn}s were created by the programmer, this value is
+   * zero, despite the fact that visually, one column of items may be visible.
+   * This occurs when the programmer uses the table like a list, adding items
+   * but never creating a column.
+   *
+   * @return the number of columns
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public int getColumnCount() {
+    checkWidget();
+    return columns.size();
+  }
+
+  /**
+   * Returns an array of {@code GridColumn}s which are the columns in the
+   * receiver. If no {@code GridColumn}s were created by the programmer,
+   * the array is empty, despite the fact that visually, one column of items
+   * may be visible. This occurs when the programmer uses the table like a
+   * list, adding items but never creating a column.
+   * <p>
+   * Note: This is not the actual structure used by the receiver to maintain
+   * its list of items, so modifying the array will not affect the receiver.
+   * </p>
+   *
+   * @return the items in the receiver
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public GridColumn[] getColumns() {
+    checkWidget();
+    return columns.toArray( new GridColumn[ columns.size() ] );
+  }
+
+  /**
+   * Returns the column at the given, zero-relative index in the receiver.
+   * Throws an exception if the index is out of range. If no
+   * {@code GridColumn}s were created by the programmer, this method will
+   * throw {@code ERROR_INVALID_RANGE} despite the fact that a single column
+   * of data may be visible in the table. This occurs when the programmer uses
+   * the table like a list, adding items but never creating a column.
+   *
+   * @param index the index of the column to return
+   * @return the column at the given index
+   * @throws IllegalArgumentException
+   * <ul>
+   * <li>ERROR_INVALID_RANGE - if the index is not between 0 and the number
+   * of elements in the list minus 1 (inclusive)</li>
+   * </ul>
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public GridColumn getColumn( int index ) {
+    checkWidget();
+    if( index < 0 || index > getColumnCount() - 1 ) {
+      SWT.error( SWT.ERROR_INVALID_RANGE );
+    }
+    return columns.get( index );
+  }
+
+  /**
+   * Searches the receiver's list starting at the first column (index 0) until
+   * a column is found that is equal to the argument, and returns the index of
+   * that column. If no column is found, returns -1.
+   *
+   * @param column the search column
+   * @return the index of the column
+   * @throws IllegalArgumentException
+   * <ul>
+   * <li>ERROR_NULL_ARGUMENT - if the column is null</li>
+   * </ul>
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public int indexOf( GridColumn column ) {
+    checkWidget();
+    if( column == null ) {
+      SWT.error( SWT.ERROR_NULL_ARGUMENT );
+    }
+    int result = -1;
+    if( column.getParent() == this ) {
+      result = columns.indexOf( column );
+    }
+    return result;
+  }
+
+  /**
    * Creates the new item at the given index. Only called from GridItem
    * constructor.
    *
@@ -469,6 +588,47 @@ public class Grid extends Canvas {
 
   void removeRootItem( GridItem item ) {
     rootItems.remove( item );
+  }
+
+  /**
+   * Inserts a new column into the table.
+   *
+   * @param column new column
+   * @param index index to insert new column
+   * @return current number of columns
+   */
+  int newColumn( GridColumn column, int index ) {
+    if( index == -1 ) {
+      columns.add( column );
+      displayOrderedColumns.add( column );
+    } else {
+      columns.add( index, column );
+      displayOrderedColumns.add( index, column );
+    }
+    for( Iterator iterator = items.iterator(); iterator.hasNext(); ) {
+      GridItem item = ( GridItem )iterator.next();
+      item.columnAdded( index );
+    }
+    scrollValuesObsolete = true;
+    redraw();
+    return columns.size() - 1;
+  }
+
+  /**
+   * Removes the given column from the table.
+   *
+   * @param column column to remove
+   */
+  void removeColumn( GridColumn column ) {
+    int index = indexOf( column );
+    columns.remove( column );
+    displayOrderedColumns.remove( column );
+    for( Iterator iterator = items.iterator(); iterator.hasNext(); ) {
+      GridItem item = ( GridItem )iterator.next();
+      item.columnRemoved( index );
+    }
+    scrollValuesObsolete = true;
+    redraw();
   }
 
   /**

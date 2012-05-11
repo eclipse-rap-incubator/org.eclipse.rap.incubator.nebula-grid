@@ -143,6 +143,14 @@ public class GridItem_Test extends TestCase {
     assertEquals( 5, items[ 0 ].indexOf( items[ 6 ] ) );
   }
 
+  public void testIndexOf_AfterDispose() {
+    GridItem[] items = createGridItems( grid, 1, 10 );
+
+    items[ 2 ].dispose();
+
+    assertEquals( 4, items[ 0 ].indexOf( items[ 6 ] ) );
+  }
+
   public void testIndexOf_NullArgument() {
     GridItem[] items = createGridItems( grid, 1, 10 );
 
@@ -153,7 +161,7 @@ public class GridItem_Test extends TestCase {
     }
   }
 
-  public void testIndexOf_DisposedItem() {
+  public void testIndexOf_WithDisposedItem() {
     GridItem[] items = createGridItems( grid, 1, 10 );
     items[ 6 ].dispose();
 
@@ -196,6 +204,21 @@ public class GridItem_Test extends TestCase {
   }
 
   public void testSendDisposeEvent() {
+    final List<DisposeEvent> log = new ArrayList<DisposeEvent>();
+    GridItem[] items = createGridItems( grid, 1, 1 );
+    items[ 0 ].addDisposeListener( new DisposeListener() {
+      public void widgetDisposed( DisposeEvent event ) {
+        log.add( event );
+      }
+    } );
+
+    items[ 0 ].dispose();
+
+    assertEquals( 1, log.size() );
+    assertSame( items[ 0 ], log.get( 0 ).widget );
+  }
+
+  public void testSendDisposeEventOnGridDispose() {
     final List<DisposeEvent> log = new ArrayList<DisposeEvent>();
     GridItem[] items = createGridItems( grid, 1, 1 );
     items[ 0 ].addDisposeListener( new DisposeListener() {

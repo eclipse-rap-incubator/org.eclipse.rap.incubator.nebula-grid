@@ -549,4 +549,10 @@ public class GridItem extends Item {
     hasChildren = children.size() > 0;
   }
 
+  void columnAdded( int index ) {
+  }
+
+  void columnRemoved( int index ) {
+  }
+
 }
