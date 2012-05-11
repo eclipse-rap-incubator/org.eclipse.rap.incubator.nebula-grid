@@ -11,6 +11,7 @@
 package org.eclipse.nebula.widgets.grid;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.nebula.widgets.grid.internal.IScrollBarProxy;
@@ -19,6 +20,8 @@ import org.eclipse.nebula.widgets.grid.internal.ScrollBarProxyAdapter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 
 
 /**
@@ -88,6 +91,11 @@ public class Grid extends Canvas {
   private boolean isTree = false;
 
   /**
+   * True if the widget is being disposed.  When true, events are not fired.
+   */
+  private boolean disposing = false;
+
+  /**
    * Constructs a new instance of this class given its parent and a style
    * value describing its behavior and appearance.
    * <p>
@@ -125,6 +133,17 @@ public class Grid extends Canvas {
       hScroll = new NullScrollBarProxy();
     }
     scrollValuesObsolete = true;
+    initListeners();
+  }
+
+  @Override
+  public void dispose() {
+    super.dispose();
+    disposing = true;
+    for( Iterator iterator = items.iterator(); iterator.hasNext(); ) {
+      GridItem item = ( GridItem )iterator.next();
+      item.dispose();
+    }
   }
 
   /**
@@ -313,7 +332,22 @@ public class Grid extends Canvas {
       row = flatIndex;
     }
     scrollValuesObsolete = true;
+    redraw();
     return row;
+  }
+
+  /**
+   * Removes the given item from the table. This method is only called from
+   * the item's dispose method.
+   *
+   * @param item item to remove
+   */
+  void removeItem( GridItem item ) {
+    items.remove( item );
+    if( !disposing ) {
+      scrollValuesObsolete = true;
+      redraw();
+    }
   }
 
   void newRootItem( GridItem item, int index ) {
@@ -326,6 +360,13 @@ public class Grid extends Canvas {
 
   void removeRootItem( GridItem item ) {
     rootItems.remove( item );
+  }
+
+  /**
+   * @return the disposing
+   */
+  boolean isDisposing() {
+    return disposing;
   }
 
   /**
@@ -360,6 +401,12 @@ public class Grid extends Canvas {
   protected IScrollBarProxy getVerticalScrollBarProxy() {
     checkWidget();
     return vScroll;
+  }
+
+  /**
+   * Initialize all listeners.
+   */
+  private void initListeners() {
   }
 
   /**

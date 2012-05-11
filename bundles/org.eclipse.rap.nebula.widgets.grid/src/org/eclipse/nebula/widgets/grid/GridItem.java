@@ -103,7 +103,7 @@ public class GridItem extends Item {
   public GridItem( Grid parent, int style, int index ) {
     super( parent, style, index );
     this.parent = parent;
-//    init();
+    init();
     parent.newItem( this, index, true );
     parent.newRootItem( this, index );
   }
@@ -158,7 +158,7 @@ public class GridItem extends Item {
     super( parent, style, index );
     parentItem = parent;
     this.parent = parentItem.getParent();
-//    init();
+    init();
     this.parent.newItem( this, index, false );
 //    level = parentItem.getLevel() + 1;
     parentItem.newItem( this, index );
@@ -167,6 +167,25 @@ public class GridItem extends Item {
 //    } else {
 //      setVisible( false );
 //    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void dispose() {
+    if( !parent.isDisposing() ) {
+      parent.removeItem( this );
+      if( parentItem != null ) {
+        parentItem.remove( this );
+      } else {
+        parent.removeRootItem( this );
+      }
+      for( int i = children.size() - 1; i >= 0; i-- ) {
+        children.get( i ).dispose();
+      }
+    }
+    super.dispose();
   }
 
   /**
@@ -338,6 +357,17 @@ public class GridItem extends Item {
   }
 
   /**
+   * Removes the given child item from the list of children.
+   *
+   * @param child
+   *            child to remove
+   */
+  private void remove( GridItem child ) {
+    children.remove( child );
+    hasChildren = children.size() > 0;
+  }
+
+  /**
    * Sets whether this item has children.
    *
    * @param hasChildren
@@ -346,4 +376,8 @@ public class GridItem extends Item {
   void setHasChildren( boolean hasChildren ) {
     this.hasChildren = hasChildren;
   }
+
+  private void init() {
+  }
+
 }

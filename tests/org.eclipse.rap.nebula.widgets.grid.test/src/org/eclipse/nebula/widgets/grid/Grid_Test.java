@@ -10,14 +10,20 @@
  ******************************************************************************/
 package org.eclipse.nebula.widgets.grid;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.eclipse.nebula.widgets.grid.internal.NullScrollBarProxy;
 import org.eclipse.nebula.widgets.grid.internal.ScrollBarProxyAdapter;
 import org.eclipse.rap.rwt.testfixture.Fixture;
 import org.eclipse.rwt.lifecycle.PhaseId;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.TypedEvent;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Shell;
 
 import junit.framework.TestCase;
@@ -161,6 +167,35 @@ public class Grid_Test extends TestCase {
     GridItem item = new GridItem( otherGrid, SWT.NONE );
 
     assertEquals( -1, grid.indexOf( item ) );
+  }
+
+  public void testDispose() {
+    grid.dispose();
+
+    assertTrue( grid.isDisposing() );
+    assertTrue( grid.isDisposed() );
+  }
+
+  public void testDispose_WithItems() {
+    GridItem[] items = createGridItems( grid, 1, 1 );
+
+    grid.dispose();
+
+    assertTrue( items[ 0 ].isDisposed() );
+    assertTrue( items[ 1 ].isDisposed() );
+  }
+
+  public void testSendDisposeEvent() {
+    final List<DisposeEvent> log = new ArrayList<DisposeEvent>();
+    grid.addDisposeListener( new DisposeListener() {
+      public void widgetDisposed( DisposeEvent event ) {
+        log.add( event );
+      }
+    } );
+
+    grid.dispose();
+
+    assertEquals( 1, log.size() );
   }
 
   //////////////////

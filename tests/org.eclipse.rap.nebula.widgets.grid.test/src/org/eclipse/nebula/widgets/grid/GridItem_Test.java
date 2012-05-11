@@ -98,6 +98,15 @@ public class GridItem_Test extends TestCase {
     assertEquals( 10, grid.getItem( 0 ).getItemCount() );
   }
 
+  public void testGetItemCount_AfterDispose() {
+    GridItem[] items = createGridItems( grid, 1, 10 );
+
+    items[ 5 ].dispose();
+
+    assertEquals( 10, grid.getItemCount() );
+    assertEquals( 9, grid.getItem( 0 ).getItemCount() );
+  }
+
   public void testGetItems() {
     GridItem[] items = createGridItems( grid, 1, 10 );
     GridItem[] expected = new GridItem[ 10 ];
@@ -159,6 +168,25 @@ public class GridItem_Test extends TestCase {
     GridItem[] items = createGridItems( grid, 1, 0 );
 
     assertFalse( items[ 0 ].hasChildren() );
+  }
+
+  public void testHasChildren_AfterItemRemove() {
+    GridItem[] items = createGridItems( grid, 1, 1 );
+
+    items[ 1 ].dispose();
+
+    assertFalse( items[ 0 ].hasChildren() );
+  }
+
+  public void testDispose() {
+    GridItem[] items = createGridItems( grid, 1, 1 );
+
+    items[ 0 ].dispose();
+
+    assertTrue( items[ 0 ].isDisposed() );
+    assertTrue( items[ 1 ].isDisposed() );
+    assertEquals( 0, grid.getItemCount() );
+    assertEquals( 0, grid.getRootItemCount() );
   }
 
   //////////////////
