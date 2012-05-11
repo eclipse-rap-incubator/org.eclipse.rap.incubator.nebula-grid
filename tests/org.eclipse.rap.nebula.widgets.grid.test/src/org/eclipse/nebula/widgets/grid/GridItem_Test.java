@@ -20,6 +20,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
 import junit.framework.TestCase;
@@ -234,6 +236,45 @@ public class GridItem_Test extends TestCase {
     new GridItem( items[ 0 ], SWT.NONE );
 
     assertTrue( items[ 1 ].isVisible() );
+  }
+
+  public void testFireEvent() {
+    final List<Event> log = new ArrayList<Event>();
+    GridItem item = new GridItem( grid, SWT.NONE );
+    grid.addListener( SWT.Expand, new Listener() {
+      public void handleEvent( Event event ) {
+        log.add( event );
+      }
+    } );
+
+    item.fireEvent( SWT.Expand );
+
+    assertEquals( 1, log.size() );
+    Event event = log.get( 0 );
+    assertSame( item.getDisplay(), event.display );
+    assertSame( grid, event.widget );
+    assertSame( item, event.item );
+  }
+
+  public void testFireCheckEvent() {
+    final List<Event> log = new ArrayList<Event>();
+    GridItem item = new GridItem( grid, SWT.NONE );
+    grid.addListener( SWT.Selection, new Listener() {
+      public void handleEvent( Event event ) {
+        log.add( event );
+      }
+    } );
+
+    item.fireCheckEvent( 3 );
+
+    assertEquals( 1, log.size() );
+    Event event = log.get( 0 );
+    assertSame( item.getDisplay(), event.display );
+    assertSame( grid, event.widget );
+    assertSame( item, event.item );
+    assertEquals( SWT.CHECK, event.detail );
+    // FIXME: As untyped event is wrapped around typed SelectionEvent this field is lost
+    // assertEquals( 3, event.index );
   }
 
   //////////////////

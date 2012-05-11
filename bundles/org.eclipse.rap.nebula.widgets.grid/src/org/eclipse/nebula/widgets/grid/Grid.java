@@ -18,6 +18,10 @@ import org.eclipse.nebula.widgets.grid.internal.IScrollBarProxy;
 import org.eclipse.nebula.widgets.grid.internal.NullScrollBarProxy;
 import org.eclipse.nebula.widgets.grid.internal.ScrollBarProxyAdapter;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.events.TreeEvent;
+import org.eclipse.swt.events.TreeListener;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
@@ -150,6 +154,101 @@ public class Grid extends Canvas {
       GridItem item = ( GridItem )iterator.next();
       item.dispose();
     }
+  }
+
+  /**
+   * Adds the listener to the collection of listeners who will be notified
+   * when the receiver's selection changes, by sending it one of the messages
+   * defined in the {@code SelectionListener} interface.
+   * <p>
+   * Cell selection events may have <code>Event.detail = SWT.DRAG</code> when the
+   * user is drag selecting multiple cells.  A follow up selection event will be generated
+   * when the drag is complete.
+   *
+   * @param listener the listener which should be notified
+   * @throws IllegalArgumentException
+   * <ul>
+   * <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
+   * </ul>
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public void addSelectionListener( SelectionListener listener ) {
+    checkWidget();
+    if( listener == null ) {
+      SWT.error( SWT.ERROR_NULL_ARGUMENT );
+    }
+    SelectionEvent.addListener( this, listener );
+  }
+
+  /**
+   * Removes the listener from the collection of listeners who will be
+   * notified when the receiver's selection changes.
+   *
+   * @param listener the listener which should no longer be notified
+   * @see SelectionListener
+   * @see #addSelectionListener(SelectionListener)
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public void removeSelectionListener( SelectionListener listener ) {
+    checkWidget();
+    SelectionEvent.removeListener( this, listener );
+  }
+
+  /**
+   * Adds the listener to the collection of listeners who will be notified
+   * when the receiver's items changes, by sending it one of the messages
+   * defined in the {@code TreeListener} interface.
+   *
+   * @param listener the listener which should be notified
+   * @throws IllegalArgumentException
+   * <ul>
+   * <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
+   * </ul>
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   * @see TreeListener
+   * @see #removeTreeListener
+   * @see org.eclipse.swt.events.TreeEvent
+   */
+  public void addTreeListener( TreeListener listener ) {
+    checkWidget();
+    if( listener == null ) {
+      SWT.error( SWT.ERROR_NULL_ARGUMENT );
+    }
+    TreeEvent.addListener( this, listener );
+  }
+
+  /**
+   * Removes the listener from the collection of listeners who will be
+   * notified when the receiver's items changes.
+   *
+   * @param listener the listener which should no longer be notified
+   * @see TreeListener
+   * @see #addTreeListener(TreeListener)
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public void removeTreeListener( TreeListener listener ) {
+    checkWidget();
+    TreeEvent.removeListener( this, listener );
   }
 
   /**

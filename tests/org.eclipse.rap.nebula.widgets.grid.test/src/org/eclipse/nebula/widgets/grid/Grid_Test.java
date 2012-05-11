@@ -21,6 +21,12 @@ import org.eclipse.rwt.lifecycle.PhaseId;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.events.TreeAdapter;
+import org.eclipse.swt.events.TreeEvent;
+import org.eclipse.swt.events.TreeListener;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
@@ -195,6 +201,26 @@ public class Grid_Test extends TestCase {
 
     assertEquals( 1, log.size() );
     assertSame(grid, log.get( 0 ).widget );
+  }
+
+  public void testAddRemoveSelectionListener() {
+    SelectionListener listener = new SelectionAdapter() {};
+    grid.addSelectionListener( listener );
+
+    assertTrue( SelectionEvent.hasListener( grid ) );
+
+    grid.removeSelectionListener( listener );
+    assertFalse( SelectionEvent.hasListener( grid ) );
+  }
+
+  public void testAddRemoveTreeListener() {
+    TreeListener listener = new TreeAdapter() {};
+    grid.addTreeListener( listener );
+
+    assertTrue( TreeEvent.hasListener( grid ) );
+
+    grid.removeTreeListener( listener );
+    assertFalse( TreeEvent.hasListener( grid ) );
   }
 
   //////////////////

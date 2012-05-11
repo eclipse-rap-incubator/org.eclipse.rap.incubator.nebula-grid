@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Item;
 
 
@@ -202,6 +203,61 @@ public class GridItem extends Item {
       }
     }
     super.dispose();
+  }
+
+  /**
+   * Fires the given event type on the parent Grid instance. This method
+   * should only be called from within a cell renderer. Any other use is not
+   * intended.
+   *
+   * @param eventId
+   *            SWT event constant
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public void fireEvent( int eventId ) {
+    checkWidget();
+    Event event = new Event();
+    event.display = getDisplay();
+    event.widget = this;
+    event.item = this;
+    event.type = eventId;
+    getParent().notifyListeners( eventId, event );
+  }
+
+  /**
+   * Fires the appropriate events in response to a user checking/unchecking an
+   * item. Checking an item fires both a selection event (with event.detail of
+   * SWT.CHECK) if the checkbox is in the first column and the seperate check
+   * listener (all columns). This method manages that behavior. This method
+   * should only be called from within a cell renderer. Any other use is not
+   * intended.
+   *
+   * @param column
+   *            the column where the checkbox resides
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public void fireCheckEvent( int column ) {
+    checkWidget();
+    Event event = new Event();
+    event.display = getDisplay();
+    event.widget = this;
+    event.item = this;
+    event.type = SWT.Selection;
+    event.detail = SWT.CHECK;
+    event.index = column;
+    getParent().notifyListeners( SWT.Selection, event );
   }
 
   /**
