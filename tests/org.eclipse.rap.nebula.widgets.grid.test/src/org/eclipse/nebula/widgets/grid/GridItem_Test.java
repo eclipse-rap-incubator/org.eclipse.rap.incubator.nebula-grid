@@ -215,6 +215,27 @@ public class GridItem_Test extends TestCase {
     assertEquals( 1, items[ 1 ].getLevel() );
   }
 
+  public void testSetExpanded() {
+    GridItem[] items = createGridItems( grid, 1, 1 );
+
+    assertFalse( items[ 0 ].isExpanded() );
+    assertFalse( items[ 1 ].isVisible() );
+
+    items[ 0 ].setExpanded( true );
+
+    assertTrue( items[ 0 ].isExpanded() );
+    assertTrue( items[ 1 ].isVisible() );
+  }
+
+  public void testIsVisibleOnCreation() {
+    GridItem[] items = createGridItems( grid, 1, 1 );
+    items[ 0 ].setExpanded( true );
+
+    new GridItem( items[ 0 ], SWT.NONE );
+
+    assertTrue( items[ 1 ].isVisible() );
+  }
+
   //////////////////
   // Helping methods
 

@@ -11,6 +11,7 @@
 package org.eclipse.nebula.widgets.grid;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Item;
@@ -58,6 +59,16 @@ public class GridItem extends Item {
    * Level of item in a tree.
    */
   private int level = 0;
+
+  /**
+   * Is visible?
+   */
+  private boolean visible = true;
+
+  /**
+   * Is expanded?
+   */
+  private boolean expanded = false;
 
   /**
    * Creates a new instance of this class and places the item at the end of
@@ -167,11 +178,11 @@ public class GridItem extends Item {
     this.parent.newItem( this, index, false );
     level = parentItem.getLevel() + 1;
     parentItem.newItem( this, index );
-//    if( parent.isVisible() && parent.isExpanded() ) {
-//      setVisible( true );
-//    } else {
-//      setVisible( false );
-//    }
+    if( parent.isVisible() && parent.isExpanded() ) {
+      setVisible( true );
+    } else {
+      setVisible( false );
+    }
   }
 
   /**
@@ -345,6 +356,46 @@ public class GridItem extends Item {
   }
 
   /**
+   * Returns <code>true</code> if the receiver is expanded, and false
+   * otherwise.
+   * <p>
+   *
+   * @return the expanded state
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li> <li>ERROR_THREAD_INVALID_ACCESS - if not called from
+   *             the thread that created the receiver</li>
+   *             </ul>
+   */
+  public boolean isExpanded() {
+    checkWidget();
+    return expanded;
+  }
+
+  /**
+   * Sets the expanded state of the receiver.
+   * <p>
+   *
+   * @param expanded
+   *            the new expanded state
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li> <li>ERROR_THREAD_INVALID_ACCESS - if not called from
+   *             the thread that created the receiver</li>
+   *             </ul>
+   */
+  public void setExpanded( boolean expanded ) {
+    checkWidget();
+    this.expanded = expanded;
+    for( Iterator itemIterator = children.iterator(); itemIterator.hasNext(); ) {
+      GridItem item = ( GridItem )itemIterator.next();
+      item.setVisible( expanded && visible );
+    }
+  }
+
+  /**
    * Returns the level of this item in the tree.
    *
    * @return the level of the item in the tree
@@ -362,6 +413,59 @@ public class GridItem extends Item {
   }
 
   /**
+   * Sets whether this item has children.
+   *
+   * @param hasChildren
+   *            true if this item has children
+   */
+  void setHasChildren( boolean hasChildren ) {
+    this.hasChildren = hasChildren;
+  }
+
+  /**
+   * Returns true if the item is visible because its parent items are all
+   * expanded. This method does not determine if the item is in the currently
+   * visible range.
+   *
+   * @return Returns the visible.
+   */
+  boolean isVisible() {
+    return visible;
+  }
+
+  /**
+   * Sets the visible state of this item. The visible state is determined by
+   * the expansion state of all of its parent items. If all parent items are
+   * expanded it is visible.
+   *
+   * @param visible
+   *            The visible to set.
+   */
+  void setVisible( boolean visible ) {
+    if( this.visible != visible ) {
+      this.visible = visible;
+      if( visible ) {
+        parent.updateVisibleItems( 1 );
+      } else {
+        parent.updateVisibleItems( -1 );
+      }
+      if( hasChildren ) {
+        boolean childrenVisible = visible;
+        if( visible ) {
+          childrenVisible = expanded;
+        }
+        for( Iterator itemIterator = children.iterator(); itemIterator.hasNext(); ) {
+          GridItem item = ( GridItem )itemIterator.next();
+          item.setVisible( childrenVisible );
+        }
+      }
+    }
+  }
+
+  private void init() {
+  }
+
+  /**
    * Creates a new child item in this item at the given index.
    *
    * @param item
@@ -369,7 +473,7 @@ public class GridItem extends Item {
    * @param index
    *            index
    */
-  void newItem( GridItem item, int index ) {
+  private void newItem( GridItem item, int index ) {
     setHasChildren( true );
     if( index == -1 ) {
       children.add( item );
@@ -387,19 +491,6 @@ public class GridItem extends Item {
   private void remove( GridItem child ) {
     children.remove( child );
     hasChildren = children.size() > 0;
-  }
-
-  /**
-   * Sets whether this item has children.
-   *
-   * @param hasChildren
-   *            true if this item has children
-   */
-  void setHasChildren( boolean hasChildren ) {
-    this.hasChildren = hasChildren;
-  }
-
-  private void init() {
   }
 
 }

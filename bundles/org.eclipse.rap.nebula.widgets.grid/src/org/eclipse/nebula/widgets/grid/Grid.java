@@ -96,6 +96,12 @@ public class Grid extends Canvas {
   private boolean disposing = false;
 
   /**
+   * The number of GridItems whose visible = true. Maintained for
+   * performance reasons (rather than iterating over all items).
+   */
+  private int currentVisibleItems = 0;
+
+  /**
    * Constructs a new instance of this class given its parent and a style
    * value describing its behavior and appearance.
    * <p>
@@ -332,6 +338,7 @@ public class Grid extends Canvas {
       row = flatIndex;
     }
     scrollValuesObsolete = true;
+    currentVisibleItems++;
     redraw();
     return row;
   }
@@ -346,6 +353,9 @@ public class Grid extends Canvas {
     items.remove( item );
     if( !disposing ) {
       scrollValuesObsolete = true;
+      if( item.isVisible() ) {
+        currentVisibleItems--;
+      }
       redraw();
     }
   }
@@ -367,6 +377,15 @@ public class Grid extends Canvas {
    */
   boolean isDisposing() {
     return disposing;
+  }
+
+  /**
+   * Updates the cached number of visible items by the given amount.
+   *
+   * @param amount amount to update cached total
+   */
+  void updateVisibleItems( int amount ) {
+    currentVisibleItems += amount;
   }
 
   /**
