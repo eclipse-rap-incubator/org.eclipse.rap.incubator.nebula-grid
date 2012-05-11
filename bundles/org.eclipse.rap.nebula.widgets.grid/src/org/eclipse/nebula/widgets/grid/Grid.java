@@ -10,6 +10,9 @@
  ******************************************************************************/
 package org.eclipse.nebula.widgets.grid;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.nebula.widgets.grid.internal.IScrollBarProxy;
 import org.eclipse.nebula.widgets.grid.internal.NullScrollBarProxy;
 import org.eclipse.nebula.widgets.grid.internal.ScrollBarProxyAdapter;
@@ -69,6 +72,22 @@ public class Grid extends Canvas {
   private boolean scrollValuesObsolete = false;
 
   /**
+   * All items in the table, not just root items.
+   */
+  private List<GridItem> items = new ArrayList<GridItem>();
+
+  /**
+   * All root items.
+   */
+  private List<GridItem> rootItems = new ArrayList<GridItem>();
+
+  /**
+   * True if there is at least one tree node.  This is used by accessibility and various
+   * places for optimization.
+   */
+  private boolean isTree = false;
+
+  /**
    * Constructs a new instance of this class given its parent and a style
    * value describing its behavior and appearance.
    * <p>
@@ -106,6 +125,207 @@ public class Grid extends Canvas {
       hScroll = new NullScrollBarProxy();
     }
     scrollValuesObsolete = true;
+  }
+
+  /**
+   * Returns the number of items contained in the receiver.
+   *
+   * @return the number of items
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public int getItemCount() {
+    checkWidget();
+    return items.size();
+  }
+
+  /**
+   * Returns a (possibly empty) array of {@code GridItem}s which are the
+   * items in the receiver.
+   * <p>
+   * Note: This is not the actual structure used by the receiver to maintain
+   * its list of items, so modifying the array will not affect the receiver.
+   * </p>
+   *
+   * @return the items in the receiver
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public GridItem[] getItems() {
+    checkWidget();
+    return items.toArray( new GridItem[ items.size() ] );
+  }
+
+  /**
+   * Returns the item at the given, zero-relative index in the receiver.
+   * Throws an exception if the index is out of range.
+   *
+   * @param index the index of the item to return
+   * @return the item at the given index
+   * @throws IllegalArgumentException
+   * <ul>
+   * <li>ERROR_INVALID_RANGE - if the index is not between 0 and the number of elements in the
+   * list minus 1 (inclusive) </li>     *
+   * </ul>
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public GridItem getItem( int index ) {
+    checkWidget();
+    if( index < 0 || index >= items.size() ) {
+      SWT.error( SWT.ERROR_INVALID_RANGE );
+    }
+    return items.get( index );
+  }
+
+  /**
+   * Searches the receiver's list starting at the first item (index 0) until
+   * an item is found that is equal to the argument, and returns the index of
+   * that item. If no item is found, returns -1.
+   *
+   * @param item the search item
+   * @return the index of the item
+   * @throws IllegalArgumentException
+   * <ul>
+   * <li>ERROR_NULL_ARGUMENT - if the item is null</li>
+   * </ul>
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public int indexOf( GridItem item ) {
+    checkWidget();
+    if( item == null ) {
+      SWT.error( SWT.ERROR_NULL_ARGUMENT );
+    }
+    int result = -1;
+    if( item.getParent() == this ) {
+      result = items.indexOf( item );
+    }
+    return result;
+  }
+
+  /**
+   * Returns the number of root items contained in the receiver.
+   *
+   * @return the number of items
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public int getRootItemCount() {
+    checkWidget();
+    return rootItems.size();
+  }
+
+  /**
+   * Returns a (possibly empty) array of {@code GridItem}s which are
+   * the root items in the receiver.
+   * <p>
+   * Note: This is not the actual structure used by the receiver to maintain
+   * its list of items, so modifying the array will not affect the receiver.
+   * </p>
+   *
+   * @return the root items in the receiver
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public GridItem[] getRootItems() {
+    checkWidget();
+    return rootItems.toArray( new GridItem[ rootItems.size() ] );
+  }
+
+  /**
+   * TODO: JavaDoc
+   * @param index
+   * @return the root item
+   */
+  public GridItem getRootItem( int index ) {
+    checkWidget();
+    if( index < 0 || index >= rootItems.size() ) {
+      SWT.error( SWT.ERROR_INVALID_RANGE );
+    }
+    return rootItems.get( index );
+  }
+
+  /**
+   * Creates the new item at the given index. Only called from GridItem
+   * constructor.
+   *
+   * @param item new item
+   * @param index index to insert the item at
+   * @return the index where the item was insert
+   */
+  int newItem( GridItem item, int index, boolean root ) {
+    int row = 0;
+    GridItem parentItem = item.getParentItem();
+    if( !isTree && parentItem != null ) {
+      isTree = true;
+    }
+    int flatIndex = index;
+    // Have to convert indexes, this method needs a flat index, the method is called with indexes
+    // that are relative to the level
+    if( root && index != -1 ) {
+      if( index >= rootItems.size() ) {
+        flatIndex = -1;
+      } else {
+        flatIndex = items.indexOf( rootItems.get( index ) );
+      }
+    } else if( !root ) {
+      if( index >= parentItem.getItems().length || index == -1 ) {
+        GridItem rightMostDescendent = parentItem;
+        while( rightMostDescendent.getItems().length > 0 ) {
+          GridItem[] rightMostDescendentItems = rightMostDescendent.getItems();
+          rightMostDescendent = rightMostDescendentItems[ rightMostDescendentItems.length - 1 ];
+        }
+        flatIndex = indexOf( rightMostDescendent ) + 1;
+      } else {
+        flatIndex = indexOf( parentItem.getItems()[ index ] );
+      }
+    }
+    if( flatIndex == -1 ) {
+      items.add( item );
+      row = items.size() - 1;
+    } else {
+      items.add( flatIndex, item );
+      row = flatIndex;
+    }
+    scrollValuesObsolete = true;
+    return row;
+  }
+
+  void newRootItem( GridItem item, int index ) {
+    if( index == -1 || index >= rootItems.size() ) {
+      rootItems.add( item );
+    } else {
+      rootItems.add( index, item );
+    }
+  }
+
+  void removeRootItem( GridItem item ) {
+    rootItems.remove( item );
   }
 
   /**

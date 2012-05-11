@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.eclipse.nebula.widgets.grid;
 
+import java.util.Arrays;
+
 import org.eclipse.nebula.widgets.grid.internal.NullScrollBarProxy;
 import org.eclipse.nebula.widgets.grid.internal.ScrollBarProxyAdapter;
 import org.eclipse.rap.rwt.testfixture.Fixture;
@@ -25,6 +27,7 @@ public class Grid_Test extends TestCase {
 
   private Display display;
   private Shell shell;
+  private Grid grid;
 
   @Override
   protected void setUp() {
@@ -32,6 +35,7 @@ public class Grid_Test extends TestCase {
     Fixture.fakePhase( PhaseId.PROCESS_ACTION );
     display = new Display();
     shell = new Shell( display );
+    grid = new Grid( shell, SWT.H_SCROLL | SWT.V_SCROLL );
   }
 
   @Override
@@ -40,16 +44,17 @@ public class Grid_Test extends TestCase {
   }
 
   public void testGridCreation() {
-    Grid grid = new Grid( shell, SWT.NONE );
+    grid = new Grid( shell, SWT.NONE );
     assertNotNull( grid );
     assertTrue( grid.getHorizontalScrollBarProxy() instanceof NullScrollBarProxy );
     assertNull( grid.getHorizontalBar() );
     assertTrue( grid.getVerticalScrollBarProxy() instanceof NullScrollBarProxy );
     assertNull( grid.getVerticalBar() );
+    assertEquals( 0, grid.getRootItemCount() );
   }
 
   public void testGridCreationWithScrollBars() {
-    Grid grid = new Grid( shell, SWT.H_SCROLL | SWT.V_SCROLL );
+    grid = new Grid( shell, SWT.H_SCROLL | SWT.V_SCROLL );
     assertTrue( grid.getHorizontalScrollBarProxy() instanceof ScrollBarProxyAdapter );
     assertFalse( grid.getHorizontalBar().isVisible() );
     assertTrue( grid.getVerticalScrollBarProxy() instanceof ScrollBarProxyAdapter );
@@ -72,5 +77,108 @@ public class Grid_Test extends TestCase {
     grid = new Grid( shell, SWT.VIRTUAL | SWT.CHECK );
     assertTrue( ( grid.getStyle() & SWT.VIRTUAL ) != 0 );
     assertTrue( ( grid.getStyle() & SWT.CHECK ) != 0 );
+  }
+
+  public void testGetRootItemCount() {
+    createGridItems( grid, 5, 1 );
+
+    assertEquals( 5, grid.getRootItemCount() );
+  }
+
+  public void testGetItemCount() {
+    createGridItems( grid, 5, 1 );
+
+    assertEquals( 10, grid.getItemCount() );
+  }
+
+  public void testGetRootItems() {
+    GridItem[] createdItems = createGridItems( grid, 3, 1 );
+
+    GridItem[] rootItems = grid.getRootItems();
+    assertSame( createdItems[ 0 ], rootItems[ 0 ] );
+    assertSame( createdItems[ 2 ], rootItems[ 1 ] );
+    assertSame( createdItems[ 4 ], rootItems[ 2 ] );
+  }
+
+  public void testGetItems() {
+    GridItem[] createdItems = createGridItems( grid, 3, 1 );
+
+    GridItem[] items = grid.getItems();
+    assertTrue( Arrays.equals( createdItems, items ) );
+  }
+
+  public void testGetRootItem() {
+    GridItem[] createdItems = createGridItems( grid, 3, 1 );
+
+    assertSame( createdItems[ 2 ], grid.getRootItem( 1 ) );
+    assertSame( createdItems[ 4 ], grid.getRootItem( 2 ) );
+  }
+
+  public void testGetRootItem_InvalidIndex() {
+    createGridItems( grid, 3, 1 );
+
+    try {
+      grid.getRootItem( 10 );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testGetItem() {
+    GridItem[] createdItems = createGridItems( grid, 3, 1 );
+
+    assertSame( createdItems[ 1 ], grid.getItem( 1 ) );
+    assertSame( createdItems[ 4 ], grid.getItem( 4 ) );
+  }
+
+  public void testGetItem_InvalidIndex() {
+    createGridItems( grid, 3, 1 );
+
+    try {
+      grid.getItem( 10 );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testIndexOf() {
+    GridItem[] createdItems = createGridItems( grid, 3, 1 );
+
+    assertEquals( 1, grid.indexOf( createdItems[ 1 ] ) );
+    assertEquals( 4, grid.indexOf( createdItems[ 4 ] ) );
+  }
+
+  public void testIndexOf_NullArgument() {
+    try {
+      grid.indexOf( null );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testIndexOf_DifferentParent() {
+    Grid otherGrid = new Grid( shell, SWT.NONE );
+    GridItem item = new GridItem( otherGrid, SWT.NONE );
+
+    assertEquals( -1, grid.indexOf( item ) );
+  }
+
+  //////////////////
+  // Helping methods
+
+  private static GridItem[] createGridItems( Grid grid, int rootItems, int childItems ) {
+    GridItem[] result = new GridItem[ rootItems * ( childItems + 1 ) ];
+    int counter = 0;
+    for( int i = 0; i < rootItems; i++ ) {
+      GridItem rootItem = new GridItem( grid, SWT.NONE );
+      result[ counter ] = rootItem;
+      counter++;
+      for( int j = 0; j < childItems; j++ ) {
+        GridItem childItem = new GridItem( rootItem, SWT.NONE );
+        result[ counter ] = childItem;
+        counter++;
+      }
+    }
+    return result;
   }
 }
