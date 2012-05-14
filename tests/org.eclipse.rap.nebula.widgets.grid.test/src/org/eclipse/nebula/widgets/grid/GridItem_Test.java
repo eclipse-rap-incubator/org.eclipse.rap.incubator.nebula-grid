@@ -300,6 +300,92 @@ public class GridItem_Test extends TestCase {
     // assertEquals( 3, event.index );
   }
 
+  public void testGetText_Inital() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    assertEquals( "", item.getText() );
+  }
+
+  public void testGetText_InvalidColumn() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    try {
+      item.getText( 5 );
+      fail();
+    } catch( IndexOutOfBoundsException expected ) {
+    }
+  }
+
+  public void testGetText_AfterSet() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+    item.setText( "foo" );
+
+    assertEquals( "foo", item.getText() );
+  }
+
+  public void testGetText_WithColumns() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+    createGridColumns( grid, 3 );
+    item.setText( 0, "0" );
+    item.setText( 1, "1" );
+    item.setText( 2, "2" );
+
+    assertEquals( "0", item.getText( 0 ) );
+    assertEquals( "1", item.getText( 1 ) );
+    assertEquals( "2", item.getText( 2 ) );
+  }
+
+  public void testGetText_AfterAddColumn() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+    createGridColumns( grid, 1 );
+    item.setText( "foo" );
+    new GridColumn( grid, SWT.NONE, 0 );
+
+    assertEquals( "", item.getText( 0 ) );
+    assertEquals( "foo", item.getText( 1 ) );
+  }
+
+  public void testGetText_AfterRemoveColumn() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+    GridColumn[] columns = createGridColumns( grid, 2 );
+    item.setText( 1, "foo" );
+
+    columns[ 0 ].dispose();
+
+    assertEquals( "foo", item.getText( 0 ) );
+  }
+
+  public void testGetText_AfterRemoveAllColumns() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+    GridColumn[] columns = createGridColumns( grid, 2 );
+    item.setText( 1, "foo" );
+
+    columns[ 0 ].dispose();
+    columns[ 1 ].dispose();
+
+    assertEquals( "foo", item.getText( 0 ) );
+  }
+
+  public void testSetText_InvalidColumn() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    try {
+      item.setText( 5, "foo" );
+      fail();
+    } catch( IndexOutOfBoundsException expected ) {
+    }
+  }
+
+  public void testSetText_NullArgument() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    try {
+      item.setText( 5, null );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
   //////////////////
   // Helping methods
 
@@ -315,6 +401,15 @@ public class GridItem_Test extends TestCase {
         result[ counter ] = childItem;
         counter++;
       }
+    }
+    return result;
+  }
+
+  private static GridColumn[] createGridColumns( Grid grid, int columns ) {
+    GridColumn[] result = new GridColumn[ columns ];
+    for( int i = 0; i < columns; i++ ) {
+      GridColumn column = new GridColumn( grid, SWT.NONE );
+      result[ i ] = column;
     }
     return result;
   }

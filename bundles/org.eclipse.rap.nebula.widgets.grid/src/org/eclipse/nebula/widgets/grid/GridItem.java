@@ -14,6 +14,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.internal.SerializableCompatibility;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Item;
 
@@ -34,6 +38,7 @@ import org.eclipse.swt.widgets.Item;
  * <dd>(none)</dd>
  * </dl>
  */
+@SuppressWarnings("restriction")
 public class GridItem extends Item {
 
   /**
@@ -45,6 +50,11 @@ public class GridItem extends Item {
    * Parent item (if a child item).
    */
   private GridItem parentItem;
+
+  /**
+   * List of item data for each column.
+   */
+  private ArrayList<Data> data;
 
   /**
    * List of children.
@@ -175,8 +185,8 @@ public class GridItem extends Item {
     super( parent, style, index );
     parentItem = parent;
     this.parent = parentItem.getParent();
-    init();
     this.parent.newItem( this, index, false );
+    init();
     level = parentItem.getLevel() + 1;
     parentItem.newItem( this, index );
     if( parent.isVisible() && parent.isExpanded() ) {
@@ -469,6 +479,71 @@ public class GridItem extends Item {
   }
 
   /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void setText( String string ) {
+    setText( 0, string );
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getText() {
+    return getText( 0 );
+  }
+
+  /**
+   * Sets the receiver's text at a column.
+   *
+   * @param index
+   *            the column index
+   * @param text
+   *            the new text
+   * @throws IllegalArgumentException
+   *             <ul>
+   *             <li>ERROR_NULL_ARGUMENT - if the text is null</li>
+   *             </ul>
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public void setText( int index, String text ) {
+    checkWidget();
+    if( text == null ) {
+      SWT.error( SWT.ERROR_NULL_ARGUMENT );
+    }
+    getItemData( index ).text = text;
+    parent.redraw();
+  }
+
+  /**
+   * Returns the text stored at the given column index in the receiver, or
+   * empty string if the text has not been set.
+   *
+   * @param index
+   *            the column index
+   * @return the text stored at the given column index in the receiver
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public String getText( int index ) {
+    checkWidget();
+//    handleVirtual();
+    return getItemData( index ).text;
+  }
+
+  /**
    * Sets whether this item has children.
    *
    * @param hasChildren
@@ -518,9 +593,6 @@ public class GridItem extends Item {
     }
   }
 
-  private void init() {
-  }
-
   /**
    * Creates a new child item in this item at the given index.
    *
@@ -550,9 +622,50 @@ public class GridItem extends Item {
   }
 
   void columnAdded( int index ) {
+    if( parent.getColumnCount() > 1 ) {
+      if( index == -1 ) {
+        data.add( null );
+      } else {
+        data.add( index, null );
+      }
+    }
   }
 
   void columnRemoved( int index ) {
+    if( parent.getColumnCount() > 0 ) {
+      if( data.size() > index ) {
+        data.remove( index );
+      }
+    }
+  }
+
+  private void init() {
+    data = new ArrayList<Data>();
+    data.add( new Data() );
+  }
+
+  private Data getItemData( int index ) {
+    if( data.get( index ) == null ) {
+      data.set( index, new Data() );
+    }
+    return data.get( index );
+  }
+
+  ////////////////
+  // Inner classes
+
+  private static final class Data implements SerializableCompatibility {
+    public Font font;
+    public Color background;
+    public Color foreground;
+    public boolean checked;
+    public boolean checkable = true;
+    public boolean grayed;
+    public Image image;
+    public String text = "";
+    public String tooltip;
+    public int columnSpan;
+    public int rowSpan;
   }
 
 }
