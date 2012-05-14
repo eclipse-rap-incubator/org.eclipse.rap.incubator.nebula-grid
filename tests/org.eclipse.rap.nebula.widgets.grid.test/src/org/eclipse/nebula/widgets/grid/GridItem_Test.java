@@ -19,6 +19,8 @@ import org.eclipse.rwt.lifecycle.PhaseId;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
@@ -437,6 +439,189 @@ public class GridItem_Test extends TestCase {
     items[ 2 ].getText();
 
     assertEquals( 1, eventLog.size() );
+  }
+
+  public void testGetFont_Inital() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    assertSame( grid.getFont(), item.getFont() );
+  }
+
+  public void testGetFont() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+    Font font = new Font( display, "Arial", 20, SWT.BOLD );
+
+    item.setFont( font );
+
+    assertSame( font, item.getFont() );
+  }
+
+  public void testSetFont_DisposedFont() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+    Font font = new Font( display, "Arial", 20, SWT.BOLD );
+    font.dispose();
+
+    try {
+      item.setFont( font );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testGetFontByIndex() {
+    createGridColumns( grid, 3 );
+    GridItem item = new GridItem( grid, SWT.NONE );
+    Font font = new Font( display, "Arial", 20, SWT.BOLD );
+
+    item.setFont( 1, font );
+
+    assertSame( grid.getFont(), item.getFont( 0 ) );
+    assertSame( font, item.getFont( 1 ) );
+    assertSame( grid.getFont(), item.getFont( 2 ) );
+  }
+
+  public void testGetFontByIndex_InvalidIndex() {
+    createGridColumns( grid, 3 );
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    try {
+      item.getFont( 10 );
+    } catch( IndexOutOfBoundsException expected ) {
+    }
+  }
+
+  public void testSetFontByIndex_DisposedFont() {
+    createGridColumns( grid, 3 );
+    GridItem item = new GridItem( grid, SWT.NONE );
+    Font font = new Font( display, "Arial", 20, SWT.BOLD );
+    font.dispose();
+
+    try {
+      item.setFont( 1, font );
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testGetBackground_Initial() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    assertSame( grid.getBackground(), item.getBackground() );
+  }
+
+  public void testGetBackground() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+    Color background = new Color( display, 0, 0, 255 );
+
+    item.setBackground( background );
+
+    assertSame( background, item.getBackground() );
+  }
+
+  public void testSetBackground_DisposedFont() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+    Color background = new Color( display, 0, 0, 255 );
+    background.dispose();
+
+    try {
+      item.setBackground( background );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testGetBackgroundByIndex() {
+    createGridColumns( grid, 3 );
+    GridItem item = new GridItem( grid, SWT.NONE );
+    Color background = new Color( display, 0, 0, 255 );
+
+    item.setBackground( 1, background );
+
+    assertNull( item.getBackground( 0 ) );
+    assertSame( background, item.getBackground( 1 ) );
+    assertNull( item.getBackground( 2 ) );
+  }
+
+  public void testGetBackgroundByIndex_InvalidIndex() {
+    createGridColumns( grid, 3 );
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    try {
+      item.getBackground( 10 );
+    } catch( IndexOutOfBoundsException expected ) {
+    }
+  }
+
+  public void testSetBackgroundByIndex_DisposedFont() {
+    createGridColumns( grid, 3 );
+    GridItem item = new GridItem( grid, SWT.NONE );
+    Color background = new Color( display, 0, 0, 255 );
+    background.dispose();
+
+    try {
+      item.setBackground( 1, background );
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testGetForeground_Initial() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    assertSame( grid.getForeground(), item.getForeground() );
+  }
+
+  public void testGetForeground() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+    Color foreground = new Color( display, 0, 0, 255 );
+
+    item.setForeground( foreground );
+
+    assertSame( foreground, item.getForeground() );
+  }
+
+  public void testSetForeground_DisposedFont() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+    Color foreground = new Color( display, 0, 0, 255 );
+    foreground.dispose();
+
+    try {
+      item.setForeground( foreground );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testGetForegroundByIndex() {
+    createGridColumns( grid, 3 );
+    GridItem item = new GridItem( grid, SWT.NONE );
+    Color foreground = new Color( display, 0, 0, 255 );
+
+    item.setForeground( 1, foreground );
+
+    assertSame( grid.getForeground(), item.getForeground( 0 ) );
+    assertSame( foreground, item.getForeground( 1 ) );
+    assertSame( grid.getForeground(), item.getForeground( 2 ) );
+  }
+
+  public void testGetForegroundByIndex_InvalidIndex() {
+    createGridColumns( grid, 3 );
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    try {
+      item.getForeground( 10 );
+    } catch( IndexOutOfBoundsException expected ) {
+    }
+  }
+
+  public void testSetForegroundByIndex_DisposedFont() {
+    createGridColumns( grid, 3 );
+    GridItem item = new GridItem( grid, SWT.NONE );
+    Color foreground = new Color( display, 0, 0, 255 );
+    foreground.dispose();
+
+    try {
+      item.setForeground( 1, foreground );
+    } catch( IllegalArgumentException expected ) {
+    }
   }
 
   //////////////////

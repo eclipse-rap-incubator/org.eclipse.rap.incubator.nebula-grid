@@ -88,6 +88,21 @@ public class GridItem extends Item {
   private boolean hasSetData = false;
 
   /**
+   * Default font.
+   */
+  private Font defaultFont;
+
+  /**
+   * Default background color.
+   */
+  private Color defaultBackground;
+
+  /**
+   * Default foreground color.
+   */
+  private Color defaultForeground;
+
+  /**
    * Creates a new instance of this class and places the item at the end of
    * the grid.
    *
@@ -482,6 +497,312 @@ public class GridItem extends Item {
   public int getLevel() {
     checkWidget();
     return level;
+  }
+
+  /**
+   * Sets the font that the receiver will use to paint textual information for
+   * this item to the font specified by the argument, or to the default font
+   * for that kind of control if the argument is null.
+   *
+   * @param font
+   *            the new font (or null)
+   * @throws IllegalArgumentException
+   *             <ul>
+   *             <li>ERROR_INVALID_ARGUMENT - if the argument has been
+   *             disposed</li>
+   *             </ul>
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public void setFont( Font font ) {
+    checkWidget();
+    if( font != null && font.isDisposed() ) {
+      SWT.error( SWT.ERROR_INVALID_ARGUMENT );
+    }
+    defaultFont = font;
+    parent.redraw();
+  }
+
+  /**
+   * Returns the font that the receiver will use to paint textual information
+   * for this item.
+   *
+   * @return the receiver's font
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public Font getFont() {
+    checkWidget();
+    return defaultFont == null ? parent.getFont() : defaultFont;
+  }
+
+  /**
+   * Sets the font that the receiver will use to paint textual information for
+   * the specified cell in this item to the font specified by the argument, or
+   * to the default font for that kind of control if the argument is null.
+   *
+   * @param index
+   *            the column index
+   * @param font
+   *            the new font (or null)
+   * @throws IllegalArgumentException
+   *             <ul>
+   *             <li>ERROR_INVALID_ARGUMENT - if the argument has been
+   *             disposed</li>
+   *             </ul>
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public void setFont( int index, Font font ) {
+    checkWidget();
+    if( font != null && font.isDisposed() ) {
+      SWT.error( SWT.ERROR_INVALID_ARGUMENT );
+    }
+    getItemData( index ).font = font;
+    parent.redraw();
+  }
+
+  /**
+   * Returns the font that the receiver will use to paint textual information
+   * for the specified cell in this item.
+   *
+   * @param index
+   *            the column index
+   * @return the receiver's font
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public Font getFont( int index ) {
+    checkWidget();
+    handleVirtual();
+    Font result = getItemData( index ).font;
+    if( result == null ) {
+      result = getFont();
+    }
+    return result;
+  }
+
+  /**
+   * Sets the receiver's background color to the color specified by the
+   * argument, or to the default system color for the item if the argument is
+   * null.
+   *
+   * @param background
+   *            the new color (or null)
+   * @throws IllegalArgumentException
+   *             <ul>
+   *             <li>ERROR_INVALID_ARGUMENT - if the argument has been
+   *             disposed</li>
+   *             </ul>
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public void setBackground( Color background ) {
+    checkWidget();
+    if( background != null && background.isDisposed() ) {
+      SWT.error( SWT.ERROR_INVALID_ARGUMENT );
+    }
+    defaultBackground = background;
+    parent.redraw();
+  }
+
+  /**
+   * Returns the receiver's background color.
+   *
+   * @return the background color
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public Color getBackground() {
+    checkWidget();
+    return defaultBackground == null ? parent.getBackground() : defaultBackground;
+  }
+
+  /**
+   * Sets the background color at the given column index in the receiver to
+   * the color specified by the argument, or to the default system color for
+   * the item if the argument is null.
+   *
+   * @param index
+   *            the column index
+   * @param background
+   *            the new color (or null)
+   * @throws IllegalArgumentException
+   *             <ul>
+   *             <li>ERROR_INVALID_ARGUMENT - if the argument has been
+   *             disposed</li>
+   *             </ul>
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public void setBackground( int index, Color background ) {
+    checkWidget();
+    if( background != null && background.isDisposed() ) {
+      SWT.error( SWT.ERROR_INVALID_ARGUMENT );
+    }
+    getItemData( index ).background = background;
+    parent.redraw();
+  }
+
+  /**
+   * Returns the background color at the given column index in the receiver.
+   *
+   * @param index
+   *            the column index
+   * @return the background color
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public Color getBackground( int index ) {
+    checkWidget();
+    handleVirtual();
+    Color result = getItemData( index ).background;
+    // [if] Commented in the original code
+    // if( result == null ) {
+    //  result = getBackground();
+    // }
+    return result;
+  }
+
+  /**
+   * Sets the receiver's foreground color to the color specified by the
+   * argument, or to the default system color for the item if the argument is
+   * null.
+   *
+   * @param foreground
+   *            the new color (or null)
+   * @throws IllegalArgumentException
+   *             <ul>
+   *             <li>ERROR_INVALID_ARGUMENT - if the argument has been
+   *             disposed</li>
+   *             </ul>
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public void setForeground( Color foreground ) {
+    checkWidget();
+    if( foreground != null && foreground.isDisposed() ) {
+      SWT.error( SWT.ERROR_INVALID_ARGUMENT );
+    }
+    defaultForeground = foreground;
+    parent.redraw();
+  }
+
+  /**
+   * Returns the foreground color that the receiver will use to draw.
+   *
+   * @return the receiver's foreground color
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public Color getForeground() {
+    checkWidget();
+    return defaultForeground == null ? parent.getForeground() : defaultForeground;
+  }
+
+  /**
+   * Sets the foreground color at the given column index in the receiver to
+   * the color specified by the argument, or to the default system color for
+   * the item if the argument is null.
+   *
+   * @param index
+   *            the column index
+   * @param foreground
+   *            the new color (or null)
+   * @throws IllegalArgumentException
+   *             <ul>
+   *             <li>ERROR_INVALID_ARGUMENT - if the argument has been
+   *             disposed</li>
+   *             </ul>
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public void setForeground( int index, Color foreground ) {
+    checkWidget();
+    if( foreground != null && foreground.isDisposed() ) {
+      SWT.error( SWT.ERROR_INVALID_ARGUMENT );
+    }
+    getItemData( index ).foreground = foreground;
+    parent.redraw();
+  }
+
+  /**
+   * Returns the foreground color at the given column index in the receiver.
+   *
+   * @param index
+   *            the column index
+   * @return the foreground color
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public Color getForeground( int index ) {
+    checkWidget();
+    handleVirtual();
+    Color result = getItemData( index ).foreground;
+    if( result == null ) {
+      result = getForeground();
+    }
+    return result;
   }
 
   /**
