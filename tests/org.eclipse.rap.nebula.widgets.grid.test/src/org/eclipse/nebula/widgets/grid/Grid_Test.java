@@ -28,6 +28,8 @@ import org.eclipse.swt.events.TreeAdapter;
 import org.eclipse.swt.events.TreeEvent;
 import org.eclipse.swt.events.TreeListener;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
 import junit.framework.TestCase;
@@ -297,6 +299,204 @@ public class Grid_Test extends TestCase {
 
     grid.removeTreeListener( listener );
     assertFalse( TreeEvent.hasListener( grid ) );
+  }
+
+  public void testClearAll() {
+    GridItem[] items = createGridItems( grid, 3, 3 );
+    items[ 0 ].setText( "foo" );
+    items[ 1 ].setText( "bar" );
+    items[ 4 ].setText( "root" );
+
+    // Note: The parameter allChildren has no effect as all items (not only rootItems) are cleared
+    grid.clearAll( false );
+
+    assertEquals( "", items[ 0 ].getText() );
+    assertEquals( "", items[ 1 ].getText() );
+    assertEquals( "", items[ 4 ].getText() );
+  }
+
+  public void testClearByIndex() {
+    GridItem[] items = createGridItems( grid, 3, 3 );
+    items[ 0 ].setText( "foo" );
+    items[ 1 ].setText( "bar" );
+    items[ 4 ].setText( "root" );
+
+    grid.clear( 0, false );
+
+    assertEquals( "", items[ 0 ].getText() );
+    assertEquals( "bar", items[ 1 ].getText() );
+    assertEquals( "root", items[ 4 ].getText() );
+  }
+
+  public void testClearByIndex_AllChildren() {
+    GridItem[] items = createGridItems( grid, 3, 3 );
+    items[ 0 ].setText( "foo" );
+    items[ 1 ].setText( "bar" );
+    items[ 4 ].setText( "root" );
+
+    grid.clear( 0, true );
+
+    assertEquals( "", items[ 0 ].getText() );
+    assertEquals( "", items[ 1 ].getText() );
+    assertEquals( "root", items[ 4 ].getText() );
+  }
+
+  public void testClearByIndex_InvalidIndex() {
+    createGridItems( grid, 3, 3 );
+
+    try {
+      grid.clear( 20, false );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testClearByIndexRange() {
+    GridItem[] items = createGridItems( grid, 3, 3 );
+    items[ 0 ].setText( "foo" );
+    items[ 1 ].setText( "bar" );
+    items[ 3 ].setText( "sub" );
+    items[ 4 ].setText( "root" );
+
+    grid.clear( 0, 2, false );
+
+    assertEquals( "", items[ 0 ].getText() );
+    assertEquals( "", items[ 1 ].getText() );
+    assertEquals( "sub", items[ 3 ].getText() );
+    assertEquals( "root", items[ 4 ].getText() );
+  }
+
+  public void testClearByIndexRange_AllChildren() {
+    GridItem[] items = createGridItems( grid, 3, 3 );
+    items[ 0 ].setText( "first" );
+    items[ 1 ].setText( "foo" );
+    items[ 4 ].setText( "root" );
+    items[ 5 ].setText( "bar" );
+    items[ 7 ].setText( "sub" );
+
+    grid.clear( 1, 4, true );
+
+    assertEquals( "first", items[ 0 ].getText() );
+    assertEquals( "", items[ 1 ].getText() );
+    assertEquals( "", items[ 4 ].getText() );
+    assertEquals( "", items[ 5 ].getText() );
+    assertEquals( "", items[ 7 ].getText() );
+  }
+
+  public void testClearByIndexRange_InvalidIndex1() {
+    createGridItems( grid, 3, 3 );
+
+    try {
+      grid.clear( -1, 4, false );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testClearByIndexRange_InvalidIndex2() {
+    createGridItems( grid, 3, 3 );
+
+    try {
+      grid.clear( 1, 20, false );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testClearByIndexRange_InvalidIndex3() {
+    GridItem[] items = createGridItems( grid, 3, 3 );
+    items[ 0 ].setText( "foo" );
+    items[ 1 ].setText( "bar" );
+    items[ 3 ].setText( "sub" );
+    items[ 4 ].setText( "root" );
+
+    grid.clear( 4, 1, false );
+
+    assertEquals( "foo", items[ 0 ].getText() );
+    assertEquals( "bar", items[ 1 ].getText() );
+    assertEquals( "sub", items[ 3 ].getText() );
+    assertEquals( "root", items[ 4 ].getText() );
+  }
+
+  public void testClearByIndices() {
+    GridItem[] items = createGridItems( grid, 3, 3 );
+    items[ 0 ].setText( "foo" );
+    items[ 1 ].setText( "bar" );
+    items[ 3 ].setText( "sub" );
+    items[ 4 ].setText( "root" );
+
+    grid.clear( new int[] { 0, 1 }, false );
+
+    assertEquals( "", items[ 0 ].getText() );
+    assertEquals( "", items[ 1 ].getText() );
+    assertEquals( "sub", items[ 3 ].getText() );
+    assertEquals( "root", items[ 4 ].getText() );
+  }
+
+  public void testClearByIndices_AllChildren() {
+    GridItem[] items = createGridItems( grid, 3, 3 );
+    items[ 0 ].setText( "foo" );
+    items[ 1 ].setText( "bar" );
+    items[ 3 ].setText( "sub" );
+    items[ 4 ].setText( "root" );
+
+    grid.clear( new int[] { 0, 1 }, true );
+
+    assertEquals( "", items[ 0 ].getText() );
+    assertEquals( "", items[ 1 ].getText() );
+    assertEquals( "", items[ 3 ].getText() );
+    assertEquals( "root", items[ 4 ].getText() );
+  }
+
+  public void testClearByIndices_NullArgument() {
+    createGridItems( grid, 3, 3 );
+
+    try {
+      grid.clear( null, false );
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testClearByIndices_InvalidIndex() {
+    createGridItems( grid, 3, 3 );
+
+    try {
+      grid.clear( new int[] { 0, 20 }, false );
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testSendSetDataEventAfterClear() {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    GridItem[] items = createGridItems( grid, 3, 3 );
+    items[ 0 ].setText( "foo" );
+    // Mark SetData event as fired
+    items[ 0 ].getText();
+    grid.addListener( SWT.SetData, new Listener() {
+      public void handleEvent( Event event ) {
+        GridItem item = ( GridItem )event.item;
+        item.setText( "bar" );
+      }
+    } );
+
+    grid.clear( 0, false );
+
+    assertEquals( "bar", items[ 0 ].getText() );
+  }
+
+  public void testClearWithColumns() {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    GridItem[] items = createGridItems( grid, 3, 3 );
+    createGridColumns( grid, 3 );
+    items[ 1 ].setText( 0, "item 1.0" );
+    items[ 1 ].setText( 1, "item 1.1" );
+    items[ 1 ].setText( 2, "item 1.2" );
+
+    grid.clear( 1, false );
+
+    assertEquals( "", items[ 1 ].getText( 0 ) );
+    assertEquals( "", items[ 1 ].getText( 1 ) );
+    assertEquals( "", items[ 1 ].getText( 2 ) );
   }
 
   //////////////////

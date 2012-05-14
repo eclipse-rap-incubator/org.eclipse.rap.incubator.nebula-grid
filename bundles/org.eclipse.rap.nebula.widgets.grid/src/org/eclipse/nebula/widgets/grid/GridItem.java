@@ -646,9 +646,37 @@ public class GridItem extends Item {
     }
   }
 
+  /**
+   * Clears all properties of this item and resets values to their defaults.
+   *
+   * @param allChildren
+   *            <code>true</code> if all child items should be cleared
+   *            recursively, and <code>false</code> otherwise
+   */
+  void clear( boolean allChildren ) {
+    init();
+//    defaultFont = null;
+//    defaultBackground = null;
+//    defaultForeground = null;
+    hasSetData = false;
+    // Recursively clear children if requested.
+    if( allChildren ) {
+      for( int i = children.size() - 1; i >= 0; i-- ) {
+        children.get( i ).clear( true );
+      }
+    }
+  }
+
   private void init() {
-    data = new ArrayList<Data>();
-    data.add( new Data() );
+    if( data == null ) {
+      data = new ArrayList<Data>();
+    } else {
+      data.clear();
+    }
+    data.add( null );
+    for( int i = 1; i < parent.getColumnCount(); i++ ) {
+      data.add( null );
+    }
   }
 
   private Data getItemData( int index ) {
