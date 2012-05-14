@@ -23,7 +23,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
-
 import junit.framework.TestCase;
 
 
@@ -384,6 +383,60 @@ public class GridItem_Test extends TestCase {
       fail();
     } catch( IllegalArgumentException expected ) {
     }
+  }
+
+  public void testHandleVirtual_RootItem() {
+    final java.util.List<Event> eventLog = new ArrayList<Event>();
+    grid = new Grid( shell, SWT.VIRTUAL );
+    GridItem[] items = createGridItems( grid, 3, 3 );
+    grid.addListener( SWT.SetData, new Listener() {
+      public void handleEvent( Event event ) {
+        eventLog.add( event );
+      }
+    } );
+
+    items[ 4 ].getText();
+
+    assertEquals( 1, eventLog.size() );
+    Event event = eventLog.get( 0 );
+    assertSame( grid, event.widget );
+    assertSame( items[ 4 ], event.item );
+    assertEquals( 4, event.index );
+  }
+
+  public void testHandleVirtual_SubItem() {
+    final java.util.List<Event> eventLog = new ArrayList<Event>();
+    grid = new Grid( shell, SWT.VIRTUAL );
+    GridItem[] items = createGridItems( grid, 3, 3 );
+    grid.addListener( SWT.SetData, new Listener() {
+      public void handleEvent( Event event ) {
+        eventLog.add( event );
+      }
+    } );
+
+    items[ 2 ].getText();
+
+    assertEquals( 1, eventLog.size() );
+    Event event = eventLog.get( 0 );
+    assertSame( grid, event.widget );
+    assertSame( items[ 2 ], event.item );
+    assertEquals( 1, event.index );
+  }
+
+  public void testHandleVirtual_Twice() {
+    final java.util.List<Event> eventLog = new ArrayList<Event>();
+    grid = new Grid( shell, SWT.VIRTUAL );
+    GridItem[] items = createGridItems( grid, 3, 3 );
+    grid.addListener( SWT.SetData, new Listener() {
+      public void handleEvent( Event event ) {
+        eventLog.add( event );
+      }
+    } );
+
+    items[ 2 ].getText();
+    items[ 2 ].getText();
+
+    assertEquals( 1, eventLog.size() );
   }
 
   //////////////////

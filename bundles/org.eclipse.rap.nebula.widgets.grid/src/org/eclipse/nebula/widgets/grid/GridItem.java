@@ -82,6 +82,12 @@ public class GridItem extends Item {
   private boolean expanded = false;
 
   /**
+   * (SWT.VIRTUAL only) Flag that specifies whether the client has already
+   * been sent a SWT.SetData event.
+   */
+  private boolean hasSetData = false;
+
+  /**
    * Creates a new instance of this class and places the item at the end of
    * the grid.
    *
@@ -539,7 +545,7 @@ public class GridItem extends Item {
    */
   public String getText( int index ) {
     checkWidget();
-//    handleVirtual();
+    handleVirtual();
     return getItemData( index ).text;
   }
 
@@ -628,6 +634,7 @@ public class GridItem extends Item {
       } else {
         data.add( index, null );
       }
+      hasSetData = false;
     }
   }
 
@@ -649,6 +656,20 @@ public class GridItem extends Item {
       data.set( index, new Data() );
     }
     return data.get( index );
+  }
+
+  private void handleVirtual() {
+    if( ( getParent().getStyle() & SWT.VIRTUAL ) != 0 && !hasSetData ) {
+      hasSetData = true;
+      Event event = new Event();
+      event.item = this;
+      if( parentItem == null ) {
+        event.index = getParent().indexOf( this );
+      } else {
+        event.index = parentItem.indexOf( this );
+      }
+      getParent().notifyListeners( SWT.SetData, event );
+    }
   }
 
   ////////////////
