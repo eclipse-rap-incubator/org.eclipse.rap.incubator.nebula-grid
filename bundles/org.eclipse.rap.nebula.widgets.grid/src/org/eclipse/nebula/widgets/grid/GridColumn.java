@@ -37,6 +37,20 @@ public class GridColumn extends Item {
   private Grid parent;
 
   /**
+   * Does this column contain check boxes? Did the user specify SWT.CHECK in
+   * the constructor of the column.
+   */
+  private boolean check = false;
+
+  /**
+   * Specifies if this column should display a checkbox because SWT.CHECK was
+   * passed to the parent table (not necessarily the column).
+   */
+  private boolean tableCheck = false;
+
+  private boolean checkable = true;
+
+  /**
    * Constructs a new instance of this class given its parent (which must be a
    * <code>Grid</code>) and a style value describing its behavior and
    * appearance. The item is added to the end of the items maintained by its
@@ -126,7 +140,70 @@ public class GridColumn extends Item {
     this.parent = parent;
     parent.newColumn( this, index );
     if( ( style & SWT.CHECK ) == SWT.CHECK ) {
-//      check = true;
+      check = true;
     }
+  }
+
+  /**
+   * Returns true if the column includes a check box.
+   *
+   * @return true if the column includes a check box.
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public boolean isCheck() {
+    checkWidget();
+    return check || tableCheck;
+  }
+
+  /**
+   * Sets the checkable state. If false the checkboxes in the column cannot be
+   * checked.
+   *
+   * @param checkable
+   *            the new checkable state.
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public void setCheckable( boolean checkable ) {
+    checkWidget();
+    this.checkable = checkable;
+  }
+
+  /**
+   * Returns the checkable state. If false the checkboxes in the column cannot
+   * be checked.
+   *
+   * @return true if the column is checkable (only applicable when style is
+   *         SWT.CHECK).
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public boolean getCheckable() {
+    checkWidget();
+    return checkable;
+  }
+
+  protected boolean isTableCheck() {
+    return tableCheck;
+  }
+
+  protected void setTableCheck( boolean tableCheck ) {
+    this.tableCheck = tableCheck;
   }
 }

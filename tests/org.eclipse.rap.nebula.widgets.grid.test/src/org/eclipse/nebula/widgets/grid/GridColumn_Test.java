@@ -53,7 +53,7 @@ public class GridColumn_Test extends TestCase {
   }
 
   public void testGridColumnCreation_AtIndexWithGridParent() {
-    createGridColumns( grid, 5 );
+    createGridColumns( grid, 5, SWT.NONE );
 
     GridColumn column = new GridColumn( grid, SWT.NONE, 2 );
 
@@ -101,13 +101,63 @@ public class GridColumn_Test extends TestCase {
     assertSame( column, log.get( 0 ).widget );
   }
 
+  public void testIsCheck() {
+    GridColumn column1 = new GridColumn( grid, SWT.NONE );
+    GridColumn column2 = new GridColumn( grid, SWT.CHECK );
+    GridColumn column3 = new GridColumn( grid, SWT.NONE );
+
+    assertFalse( column1.isCheck() );
+    assertTrue( column2.isCheck() );
+    assertFalse( column3.isCheck() );
+  }
+
+  public void testIsCheck_TableCheck() {
+    grid = new Grid( shell, SWT.CHECK );
+    GridColumn column1 = new GridColumn( grid, SWT.NONE );
+    GridColumn column2 = new GridColumn( grid, SWT.CHECK );
+    GridColumn column3 = new GridColumn( grid, SWT.NONE );
+
+    assertTrue( column1.isTableCheck() );
+    assertTrue( column1.isCheck() );
+    assertFalse( column2.isTableCheck() );
+    assertTrue( column2.isCheck() );
+    assertFalse( column3.isTableCheck() );
+    assertFalse( column3.isCheck() );
+  }
+
+  public void testIsCheck_OnColumnAddRemove() {
+    grid = new Grid( shell, SWT.CHECK );
+    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
+
+    GridColumn column = new GridColumn( grid, SWT.NONE, 0 );
+    assertTrue( column.isCheck() );
+    assertFalse( columns[ 0 ].isCheck() );
+
+    column.dispose();
+    assertTrue( columns[ 0 ].isCheck() );
+  }
+
+  public void testGetCheckable_Initial() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    assertTrue( column.getCheckable() );
+  }
+
+  public void testGetCheckable() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    column.setCheckable( false );
+
+    assertFalse( column.getCheckable() );
+  }
+
   //////////////////
   // Helping methods
 
-  private static GridColumn[] createGridColumns( Grid grid, int columns ) {
+  private static GridColumn[] createGridColumns( Grid grid, int columns, int style ) {
     GridColumn[] result = new GridColumn[ columns ];
     for( int i = 0; i < columns; i++ ) {
-      GridColumn column = new GridColumn( grid, SWT.NONE );
+      GridColumn column = new GridColumn( grid, style );
       result[ i ] = column;
     }
     return result;

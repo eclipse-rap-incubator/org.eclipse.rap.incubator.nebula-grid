@@ -759,6 +759,76 @@ public class GridItem_Test extends TestCase {
     }
   }
 
+  public void testGetCheckable_Inital() {
+    createGridColumns( grid, 3 );
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    assertTrue( item.getCheckable( 0 ) );
+  }
+
+  public void testGetCheckable() {
+    createGridColumns( grid, 3 );
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    item.setCheckable( 0, false );
+
+    assertFalse( item.getCheckable( 0 ) );
+  }
+
+  public void testGetCheckable_InitalNotCheckableColumn() {
+    GridColumn[] columns = createGridColumns( grid, 3 );
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    columns[ 0 ].setCheckable( false );
+
+    assertFalse( item.getCheckable( 0 ) );
+  }
+
+  public void testGetCheckable_NotCheckableColumn() {
+    GridColumn[] columns = createGridColumns( grid, 3 );
+    columns[ 1 ].setCheckable( false );
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    item.setCheckable( 1, true );
+
+    assertFalse( item.getCheckable( 1 ) );
+  }
+
+  public void testGetGrayed_Inital() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    assertFalse( item.getGrayed() );
+  }
+
+  public void testGetGrayed() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    item.setGrayed( true );
+
+    assertTrue( item.getGrayed() );
+  }
+
+  public void testGetGrayedByIndex() {
+    createGridColumns( grid, 3 );
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    item.setGrayed( 1, true );
+
+    assertFalse( item.getGrayed( 0 ) );
+    assertTrue( item.getGrayed( 1 ) );
+    assertFalse( item.getGrayed( 2 ) );
+  }
+
+  public void testGetGrayedByIndex_InvalidIndex() {
+    createGridColumns( grid, 3 );
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    try {
+      item.getGrayed( 10 );
+    } catch( IndexOutOfBoundsException expected ) {
+    }
+  }
+
   //////////////////
   // Helping methods
 

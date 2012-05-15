@@ -738,6 +738,7 @@ public class Grid extends Canvas {
       columns.add( index, column );
       displayOrderedColumns.add( index, column );
     }
+    updatePrimaryCheckColumn();
     for( Iterator iterator = items.iterator(); iterator.hasNext(); ) {
       GridItem item = ( GridItem )iterator.next();
       item.columnAdded( index );
@@ -756,6 +757,7 @@ public class Grid extends Canvas {
     int index = indexOf( column );
     columns.remove( column );
     displayOrderedColumns.remove( column );
+    updatePrimaryCheckColumn();
     for( Iterator iterator = items.iterator(); iterator.hasNext(); ) {
       GridItem item = ( GridItem )iterator.next();
       item.columnRemoved( index );
@@ -818,6 +820,22 @@ public class Grid extends Canvas {
    * Initialize all listeners.
    */
   private void initListeners() {
+  }
+
+  /**
+   * Manages the setting of the checkbox column when the SWT.CHECK style was given to the
+   * table.  This method will ensure that the first column of the table always has a checkbox
+   * when SWT.CHECK is given to the table.
+   */
+  private void updatePrimaryCheckColumn() {
+    if( ( getStyle() & SWT.CHECK ) == SWT.CHECK ) {
+      boolean firstCol = true;
+      for( Iterator iter = columns.iterator(); iter.hasNext(); ) {
+        GridColumn col = ( GridColumn )iter.next();
+        col.setTableCheck( firstCol );
+        firstCol = false;
+      }
+    }
   }
 
   /**
