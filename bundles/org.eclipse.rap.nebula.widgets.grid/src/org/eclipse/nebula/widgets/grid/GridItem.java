@@ -911,6 +911,152 @@ public class GridItem extends Item {
   }
 
   /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void setImage( Image image ) {
+    setImage( 0, image );
+    parent.redraw();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Image getImage() {
+    checkWidget();
+    return getImage( 0 );
+  }
+
+  /**
+   * Sets the receiver's image at a column.
+   *
+   * @param index
+   *            the column index
+   * @param image
+   *            the new image
+   * @throws IllegalArgumentException
+   *             <ul>
+   *             <li>ERROR_INVALID_ARGUMENT - if the image has been disposed</li>
+   *             </ul>
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public void setImage( int index, Image image ) {
+    checkWidget();
+    if( image != null && image.isDisposed() ) {
+      SWT.error( SWT.ERROR_INVALID_ARGUMENT );
+    }
+    getItemData( index ).image = image;
+// [if] TODO: implement imageSetOnItem
+//    parent.imageSetOnItem( index, this );
+    parent.redraw();
+  }
+
+  /**
+   * Returns the image stored at the given column index in the receiver, or
+   * null if the image has not been set or if the column does not exist.
+   *
+   * @param index
+   *            the column index
+   * @return the image stored at the given column index in the receiver
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public Image getImage( int index ) {
+    checkWidget();
+    handleVirtual();
+    return getItemData( index ).image;
+  }
+
+  /**
+   * Sets the checked state at the first column in the receiver.
+   *
+   * @param checked
+   *            the new checked state
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public void setChecked( boolean checked ) {
+    checkWidget();
+    setChecked( 0, checked );
+    parent.redraw();
+  }
+
+  /**
+   * Returns the checked state at the first column in the receiver.
+   *
+   * @return the checked state
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public boolean getChecked() {
+    checkWidget();
+    return getChecked( 0 );
+  }
+
+  /**
+   * Sets the checked state at the given column index in the receiver.
+   *
+   * @param index
+   *            the column index
+   * @param checked
+   *            the new checked state
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public void setChecked( int index, boolean checked ) {
+    checkWidget();
+    getItemData( index ).checked = checked;
+    parent.redraw();
+  }
+
+  /**
+   * Returns the checked state at the given column index in the receiver.
+   *
+   * @param index
+   *            the column index
+   * @return the checked state
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public boolean getChecked( int index ) {
+    checkWidget();
+    handleVirtual();
+    return getItemData( index ).checked;
+  }
+
+  /**
    * Sets whether this item has children.
    *
    * @param hasChildren

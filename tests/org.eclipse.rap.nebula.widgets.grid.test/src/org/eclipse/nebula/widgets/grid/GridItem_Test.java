@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.eclipse.nebula.widgets.grid;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -21,10 +23,12 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
+
 import junit.framework.TestCase;
 
 
@@ -659,6 +663,102 @@ public class GridItem_Test extends TestCase {
     assertNull( item.getToolTipText( 2 ) );
   }
 
+  public void testGetImage_Inital() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    assertNull( item.getImage() );
+  }
+
+  public void testGetImage() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+    Image image = loadImage( display, Fixture.IMAGE1 );
+
+    item.setImage( image );
+
+    assertSame( image, item.getImage() );
+  }
+
+  public void testSetImage_DisposedImage() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+    Image image = loadImage( display, Fixture.IMAGE1 );
+    image.dispose();
+
+    try {
+      item.setImage( image );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testGetImageByIndex() {
+    createGridColumns( grid, 3 );
+    GridItem item = new GridItem( grid, SWT.NONE );
+    Image image = loadImage( display, Fixture.IMAGE1 );
+
+    item.setImage( 1, image );
+
+    assertNull( item.getImage( 0 ) );
+    assertSame( image, item.getImage( 1 ) );
+    assertNull( item.getImage( 2 ) );
+  }
+
+  public void testGetImagetByIndex_InvalidIndex() {
+    createGridColumns( grid, 3 );
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    try {
+      item.getImage( 10 );
+    } catch( IndexOutOfBoundsException expected ) {
+    }
+  }
+
+  public void testSetImageByIndex_DisposedFont() {
+    createGridColumns( grid, 3 );
+    GridItem item = new GridItem( grid, SWT.NONE );
+    Image image = loadImage( display, Fixture.IMAGE1 );
+    image.dispose();
+
+    try {
+      item.setImage( 1, image );
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testGetChecked_Inital() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    assertFalse( item.getChecked() );
+  }
+
+  public void testGetChecked() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    item.setChecked( true );
+
+    assertTrue( item.getChecked() );
+  }
+
+  public void testGetCheckedByIndex() {
+    createGridColumns( grid, 3 );
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    item.setChecked( 1, true );
+
+    assertFalse( item.getChecked( 0 ) );
+    assertTrue( item.getChecked( 1 ) );
+    assertFalse( item.getChecked( 2 ) );
+  }
+
+  public void testGetCheckedByIndex_InvalidIndex() {
+    createGridColumns( grid, 3 );
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    try {
+      item.getChecked( 10 );
+    } catch( IndexOutOfBoundsException expected ) {
+    }
+  }
+
   //////////////////
   // Helping methods
 
@@ -683,6 +783,23 @@ public class GridItem_Test extends TestCase {
     for( int i = 0; i < columns; i++ ) {
       GridColumn column = new GridColumn( grid, SWT.NONE );
       result[ i ] = column;
+    }
+    return result;
+  }
+
+  private static Image loadImage( Display display, String name ) {
+    Image result = null;
+    InputStream stream = Fixture.class.getClassLoader().getResourceAsStream( name );
+    if( stream != null ) {
+      try {
+        result = new Image( display, stream );
+      } finally {
+        try {
+          stream.close();
+        } catch( IOException unexpected ) {
+          throw new RuntimeException( "Failed to close image input stream", unexpected );
+        }
+      }
     }
     return result;
   }
