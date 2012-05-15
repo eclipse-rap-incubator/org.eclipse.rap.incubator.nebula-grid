@@ -697,10 +697,9 @@ public class GridItem extends Item {
     checkWidget();
     handleVirtual();
     Color result = getItemData( index ).background;
-    // [if] Commented in the original code
-    // if( result == null ) {
-    //  result = getBackground();
-    // }
+     if( result == null ) {
+       result = getBackground();
+     }
     return result;
   }
 

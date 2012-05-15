@@ -540,9 +540,9 @@ public class GridItem_Test extends TestCase {
 
     item.setBackground( 1, background );
 
-    assertNull( item.getBackground( 0 ) );
+    assertSame( grid.getBackground(), item.getBackground( 0 ) );
     assertSame( background, item.getBackground( 1 ) );
-    assertNull( item.getBackground( 2 ) );
+    assertSame( grid.getBackground(), item.getBackground( 2 ) );
   }
 
   public void testGetBackgroundByIndex_InvalidIndex() {
