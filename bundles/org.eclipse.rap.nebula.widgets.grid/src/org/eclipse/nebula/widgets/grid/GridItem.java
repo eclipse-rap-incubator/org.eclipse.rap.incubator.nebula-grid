@@ -871,6 +871,46 @@ public class GridItem extends Item {
   }
 
   /**
+   * Sets the tooltip for the given column index.
+   *
+   * @param index
+   *            the column index
+   * @param tooltip
+   *            the tooltip text
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public void setToolTipText( int index, String tooltip ) {
+    checkWidget();
+    getItemData( index ).tooltip = tooltip;
+  }
+
+  /**
+   * Returns the tooltip for the given cell.
+   *
+   * @param index
+   *            the column index
+   * @return the tooltip
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public String getToolTipText( int index ) {
+    checkWidget();
+    handleVirtual();
+    return getItemData( index ).tooltip;
+  }
+
+  /**
    * Sets whether this item has children.
    *
    * @param hasChildren
@@ -1028,12 +1068,12 @@ public class GridItem extends Item {
     public Font font;
     public Color background;
     public Color foreground;
+    public String text = "";
+    public String tooltip;
+    public Image image;
     public boolean checked;
     public boolean checkable = true;
     public boolean grayed;
-    public Image image;
-    public String text = "";
-    public String tooltip;
     public int columnSpan;
     public int rowSpan;
   }

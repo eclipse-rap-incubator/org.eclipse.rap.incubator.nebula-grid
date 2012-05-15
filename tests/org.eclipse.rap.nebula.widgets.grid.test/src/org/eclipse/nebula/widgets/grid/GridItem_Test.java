@@ -640,6 +640,25 @@ public class GridItem_Test extends TestCase {
     assertSame( grid.getForeground(), item.getForeground() );
   }
 
+  public void testGetToolTipText() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    item.setToolTipText( 0, "foo" );
+
+    assertEquals( "foo", item.getToolTipText( 0 ) );
+  }
+
+  public void testGetToolTipText_WithColumns() {
+    createGridColumns( grid, 3 );
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    item.setToolTipText( 1, "foo" );
+
+    assertNull( item.getToolTipText( 0 ) );
+    assertEquals( "foo", item.getToolTipText( 1 ) );
+    assertNull( item.getToolTipText( 2 ) );
+  }
+
   //////////////////
   // Helping methods
 
