@@ -111,6 +111,12 @@ public class Grid extends Canvas {
   private boolean disposing = false;
 
   /**
+   * True if three is at least one cell spanning columns.  This is used in various places for
+   * optimizatoin.
+   */
+  private boolean hasSpanning = false;
+
+  /**
    * The number of GridItems whose visible = true. Maintained for
    * performance reasons (rather than iterating over all items).
    */
@@ -780,6 +786,10 @@ public class Grid extends Canvas {
    */
   void updateVisibleItems( int amount ) {
     currentVisibleItems += amount;
+  }
+
+  void setHasSpanning( boolean hasSpanning ) {
+    this.hasSpanning = hasSpanning;
   }
 
   /**

@@ -1192,6 +1192,90 @@ public class GridItem extends Item {
   }
 
   /**
+   * Sets the row spanning for the column at the given index to span the given
+   * number of subsequent rows.
+   *
+   * @param index
+   *            column index that should span
+   * @param span
+   *            number of subsequent rows to span
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public void setRowSpan( int index, int span ) {
+    checkWidget();
+    getItemData( index ).rowSpan = span;
+    parent.setHasSpanning( true );
+    parent.redraw();
+  }
+
+  /**
+   * Returns the row span for the given column index in the receiver.
+   *
+   * @param index
+   *            the column index
+   * @return the number of row spanned (0 equals no row spanned)
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public int getRowSpan( int index ) {
+    checkWidget();
+    return getItemData( index ).rowSpan;
+  }
+
+  /**
+   * Sets the column spanning for the column at the given index to span the
+   * given number of subsequent columns.
+   *
+   * @param index
+   *            column index that should span
+   * @param span
+   *            number of subsequent columns to span
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public void setColumnSpan( int index, int span ) {
+    checkWidget();
+    getItemData( index ).columnSpan = span;
+    parent.setHasSpanning( true );
+    parent.redraw();
+  }
+
+  /**
+   * Returns the column span for the given column index in the receiver.
+   *
+   * @param index
+   *            the column index
+   * @return the number of columns spanned (0 equals no columns spanned)
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public int getColumnSpan( int index ) {
+    checkWidget();
+    return getItemData( index ).columnSpan;
+  }
+
+  /**
    * Sets whether this item has children.
    *
    * @param hasChildren

@@ -829,6 +829,60 @@ public class GridItem_Test extends TestCase {
     }
   }
 
+  public void testGetRowSpan_Inital() {
+    createGridColumns( grid, 3 );
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    assertEquals( 0, item.getRowSpan( 0 ) );
+  }
+
+  public void testGetRowSpan() {
+    createGridColumns( grid, 3 );
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    item.setRowSpan( 0, 2 );
+
+    assertEquals( 2, item.getRowSpan( 0 ) );
+  }
+
+  public void testGetRowSpanByIndex() {
+    createGridColumns( grid, 3 );
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    item.setRowSpan( 1, 2 );
+
+    assertEquals( 0, item.getRowSpan( 0 ) );
+    assertEquals( 2, item.getRowSpan( 1 ) );
+    assertEquals( 0, item.getRowSpan( 2 ) );
+  }
+
+  public void testGetColumnSpan_Inital() {
+    createGridColumns( grid, 3 );
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    assertEquals( 0, item.getColumnSpan( 0 ) );
+  }
+
+  public void testGetColumnSpan() {
+    createGridColumns( grid, 3 );
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    item.setColumnSpan( 0, 2 );
+
+    assertEquals( 2, item.getColumnSpan( 0 ) );
+  }
+
+  public void testGetColumnSpanByIndex() {
+    createGridColumns( grid, 3 );
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    item.setColumnSpan( 1, 2 );
+
+    assertEquals( 0, item.getColumnSpan( 0 ) );
+    assertEquals( 2, item.getColumnSpan( 1 ) );
+    assertEquals( 0, item.getColumnSpan( 2 ) );
+  }
+
   //////////////////
   // Helping methods
 
