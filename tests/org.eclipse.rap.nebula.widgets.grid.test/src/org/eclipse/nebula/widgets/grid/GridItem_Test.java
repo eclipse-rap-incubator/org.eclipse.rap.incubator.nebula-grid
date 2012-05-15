@@ -624,6 +624,22 @@ public class GridItem_Test extends TestCase {
     }
   }
 
+  public void testClear() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+    Font font = new Font( display, "Arial", 20, SWT.BOLD );
+    Color background = new Color( display, 0, 255, 0 );
+    Color foreground = new Color( display, 0, 0, 255 );
+    item.setFont( font );
+    item.setBackground( background );
+    item.setForeground( foreground );
+
+    grid.clear( 0, false );
+
+    assertSame( grid.getFont(), item.getFont() );
+    assertSame( grid.getBackground(), item.getBackground() );
+    assertSame( grid.getForeground(), item.getForeground() );
+  }
+
   //////////////////
   // Helping methods
 

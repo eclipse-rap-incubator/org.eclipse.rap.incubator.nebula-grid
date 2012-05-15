@@ -976,9 +976,9 @@ public class GridItem extends Item {
    */
   void clear( boolean allChildren ) {
     init();
-//    defaultFont = null;
-//    defaultBackground = null;
-//    defaultForeground = null;
+    defaultFont = null;
+    defaultBackground = null;
+    defaultForeground = null;
     hasSetData = false;
     // Recursively clear children if requested.
     if( allChildren ) {
