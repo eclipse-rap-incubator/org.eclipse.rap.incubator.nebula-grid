@@ -197,6 +197,20 @@ public class GridColumn_Test extends TestCase {
     assertEquals( 20, column.getWidth() );
   }
 
+  public void testGetSort_Initial() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    assertEquals( SWT.NONE, column.getSort() );
+  }
+
+  public void testGetSort() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    column.setSort( SWT.DOWN );
+
+    assertEquals( SWT.DOWN, column.getSort() );
+  }
+
   //////////////////
   // Helping methods
 

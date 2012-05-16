@@ -49,6 +49,12 @@ public class GridColumn extends Item {
   private Grid parent;
 
   /**
+   * Sort style of column. Only used to draw indicator, does not actually sort
+   * data.
+   */
+  private int sortStyle = SWT.NONE;
+
+  /**
    * Does this column contain check boxes? Did the user specify SWT.CHECK in
    * the constructor of the column.
    */
@@ -195,6 +201,44 @@ public class GridColumn extends Item {
     if( minimumWidth > width ) {
       setWidth( minimumWidth, true );
     }
+  }
+
+  /**
+   * Sets the sort indicator style for the column. This method does not actual
+   * sort the data in the table. Valid values include: SWT.UP, SWT.DOWN,
+   * SWT.NONE.
+   *
+   * @param style
+   *            SWT.UP, SWT.DOWN, SWT.NONE
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public void setSort( int style ) {
+    checkWidget();
+    sortStyle = style;
+    parent.redraw();
+  }
+
+  /**
+   * Returns the sort indicator value.
+   *
+   * @return SWT.UP, SWT.DOWN, SWT.NONE
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public int getSort() {
+    checkWidget();
+    return sortStyle;
   }
 
   /**
