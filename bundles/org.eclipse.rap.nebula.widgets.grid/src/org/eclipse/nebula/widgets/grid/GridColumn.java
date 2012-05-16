@@ -32,6 +32,18 @@ import org.eclipse.swt.widgets.Item;
 public class GridColumn extends Item {
 
   /**
+   * Default width of the column.
+   */
+  private static final int DEFAULT_WIDTH = 10;
+
+  /**
+   * Width of column.
+   */
+  private int width = DEFAULT_WIDTH;
+
+  private int minimumWidth = 0;
+
+  /**
    * Parent table.
    */
   private Grid parent;
@@ -136,12 +148,61 @@ public class GridColumn extends Item {
     return parent;
   }
 
-  private void init( Grid parent, int style, int index ) {
-    this.parent = parent;
-    parent.newColumn( this, index );
-    if( ( style & SWT.CHECK ) == SWT.CHECK ) {
-      check = true;
+  /**
+   * Sets the width of the column.
+   *
+   * @param width
+   *            new width
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public void setWidth( int width ) {
+    checkWidget();
+    setWidth( width, true );
+  }
+
+  /**
+   * Returns the width of the column.
+   *
+   * @return width of column
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public int getWidth() {
+    checkWidget();
+    return width;
+  }
+
+  /**
+   * Set the minimum width of the column
+   *
+   * @param minimumWidth
+   *            the minimum width
+   */
+  public void setMinimumWidth( int minimumWidth ) {
+    checkWidget();
+    this.minimumWidth = Math.max( 0, minimumWidth );
+    if( minimumWidth > width ) {
+      setWidth( minimumWidth, true );
     }
+  }
+
+  /**
+   * @return the minimum width
+   */
+  public int getMinimumWidth() {
+    checkWidget();
+    return minimumWidth;
   }
 
   /**
@@ -199,11 +260,27 @@ public class GridColumn extends Item {
     return checkable;
   }
 
+  void setWidth( int width, boolean redraw ) {
+    this.width = Math.max( minimumWidth, width );
+    if( redraw ) {
+      parent.setScrollValuesObsolete();
+      parent.redraw();
+    }
+  }
+
   protected boolean isTableCheck() {
     return tableCheck;
   }
 
   protected void setTableCheck( boolean tableCheck ) {
     this.tableCheck = tableCheck;
+  }
+
+  private void init( Grid parent, int style, int index ) {
+    this.parent = parent;
+    parent.newColumn( this, index );
+    if( ( style & SWT.CHECK ) == SWT.CHECK ) {
+      check = true;
+    }
   }
 }

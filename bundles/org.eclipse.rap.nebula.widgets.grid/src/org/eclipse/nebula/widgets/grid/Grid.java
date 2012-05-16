@@ -827,6 +827,14 @@ public class Grid extends Canvas {
   }
 
   /**
+   * Marks the scroll values obsolete so they will be recalculated.
+   */
+  protected void setScrollValuesObsolete() {
+    this.scrollValuesObsolete = true;
+    redraw();
+  }
+
+  /**
    * Initialize all listeners.
    */
   private void initListeners() {

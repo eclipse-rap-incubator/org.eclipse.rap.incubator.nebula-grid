@@ -151,6 +151,52 @@ public class GridColumn_Test extends TestCase {
     assertFalse( column.getCheckable() );
   }
 
+  public void testGetWidth_Initial() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    assertEquals( 10, column.getWidth() );
+  }
+
+  public void testGetWidth() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    column.setWidth( 100 );
+
+    assertEquals( 100, column.getWidth() );
+  }
+
+  public void testSetWidth_BelowMinimumWidth() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    column.setMinimumWidth( 20 );
+    column.setWidth( 10 );
+
+    assertEquals( 20, column.getWidth() );
+  }
+
+  public void testGetMinimumWidth_Initial() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    assertEquals( 0, column.getMinimumWidth() );
+  }
+
+  public void testGetMinimumWidth() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    column.setMinimumWidth( 10 );
+
+    assertEquals( 10, column.getMinimumWidth() );
+  }
+
+  public void testSetMinimumWidth_AdjustWidth() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+    column.setWidth( 10 );
+
+    column.setMinimumWidth( 20 );
+
+    assertEquals( 20, column.getWidth() );
+  }
+
   //////////////////
   // Helping methods
 
