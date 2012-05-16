@@ -278,6 +278,20 @@ public class GridColumn_Test extends TestCase {
     assertEquals( 1, eventLog.size() );
   }
 
+  public void testIsTree_Initial() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    assertFalse( column.isTree() );
+  }
+
+  public void testIsTree() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    column.setTree( true );
+
+    assertTrue( column.isTree() );
+  }
+
   //////////////////
   // Helping methods
 

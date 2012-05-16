@@ -67,6 +67,11 @@ public class GridColumn extends Item {
    */
   private boolean tableCheck = false;
 
+  /**
+   * Determines if this column shows toggles.
+   */
+  private boolean tree = false;
+
   private boolean checkable = true;
 
   private boolean visible = true;
@@ -385,6 +390,42 @@ public class GridColumn extends Item {
   public boolean getCheckable() {
     checkWidget();
     return checkable;
+  }
+
+  /**
+   * Adds or removes the columns tree toggle.
+   *
+   * @param tree
+   *            true to add toggle.
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public void setTree( boolean tree ) {
+    checkWidget();
+    this.tree = tree;
+    parent.redraw();
+  }
+
+  /**
+   * Returns true if this column includes a tree toggle.
+   *
+   * @return true if the column includes the tree toggle.
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public boolean isTree() {
+    checkWidget();
+    return tree;
   }
 
   void setWidth( int width, boolean redraw ) {
