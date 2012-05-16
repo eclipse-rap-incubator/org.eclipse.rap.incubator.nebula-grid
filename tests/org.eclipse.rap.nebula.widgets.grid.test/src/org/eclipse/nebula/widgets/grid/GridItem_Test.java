@@ -19,8 +19,6 @@ import java.util.List;
 import org.eclipse.rap.rwt.testfixture.Fixture;
 import org.eclipse.rwt.lifecycle.PhaseId;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
@@ -37,6 +35,7 @@ public class GridItem_Test extends TestCase {
   private Display display;
   private Shell shell;
   private Grid grid;
+  private List<Event> eventLog;
 
   @Override
   protected void setUp() throws Exception {
@@ -45,6 +44,7 @@ public class GridItem_Test extends TestCase {
     display = new Display();
     shell = new Shell( display );
     grid = new Grid( shell, SWT.H_SCROLL | SWT.V_SCROLL );
+    eventLog = new ArrayList<Event>();
   }
 
   @Override
@@ -209,33 +209,23 @@ public class GridItem_Test extends TestCase {
   }
 
   public void testSendDisposeEvent() {
-    final List<DisposeEvent> log = new ArrayList<DisposeEvent>();
     GridItem[] items = createGridItems( grid, 1, 1 );
-    items[ 0 ].addDisposeListener( new DisposeListener() {
-      public void widgetDisposed( DisposeEvent event ) {
-        log.add( event );
-      }
-    } );
+    items[ 0 ].addListener( SWT.Dispose, new LoggingListener() );
 
     items[ 0 ].dispose();
 
-    assertEquals( 1, log.size() );
-    assertSame( items[ 0 ], log.get( 0 ).widget );
+    assertEquals( 1, eventLog.size() );
+    assertSame( items[ 0 ], eventLog.get( 0 ).widget );
   }
 
   public void testSendDisposeEventOnGridDispose() {
-    final List<DisposeEvent> log = new ArrayList<DisposeEvent>();
     GridItem[] items = createGridItems( grid, 1, 1 );
-    items[ 0 ].addDisposeListener( new DisposeListener() {
-      public void widgetDisposed( DisposeEvent event ) {
-        log.add( event );
-      }
-    } );
+    items[ 0 ].addListener( SWT.Dispose, new LoggingListener() );
 
     grid.dispose();
 
-    assertEquals( 1, log.size() );
-    assertSame( items[ 0 ], log.get( 0 ).widget );
+    assertEquals( 1, eventLog.size() );
+    assertSame( items[ 0 ], eventLog.get( 0 ).widget );
   }
 
   public void testGetLevel() {
@@ -267,36 +257,26 @@ public class GridItem_Test extends TestCase {
   }
 
   public void testFireEvent() {
-    final List<Event> log = new ArrayList<Event>();
     GridItem item = new GridItem( grid, SWT.NONE );
-    grid.addListener( SWT.Expand, new Listener() {
-      public void handleEvent( Event event ) {
-        log.add( event );
-      }
-    } );
+    grid.addListener( SWT.Expand, new LoggingListener() );
 
     item.fireEvent( SWT.Expand );
 
-    assertEquals( 1, log.size() );
-    Event event = log.get( 0 );
+    assertEquals( 1, eventLog.size() );
+    Event event = eventLog.get( 0 );
     assertSame( item.getDisplay(), event.display );
     assertSame( grid, event.widget );
     assertSame( item, event.item );
   }
 
   public void testFireCheckEvent() {
-    final List<Event> log = new ArrayList<Event>();
     GridItem item = new GridItem( grid, SWT.NONE );
-    grid.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event event ) {
-        log.add( event );
-      }
-    } );
+    grid.addListener( SWT.Selection, new LoggingListener() );
 
     item.fireCheckEvent( 3 );
 
-    assertEquals( 1, log.size() );
-    Event event = log.get( 0 );
+    assertEquals( 1, eventLog.size() );
+    Event event = eventLog.get( 0 );
     assertSame( item.getDisplay(), event.display );
     assertSame( grid, event.widget );
     assertSame( item, event.item );
@@ -392,14 +372,9 @@ public class GridItem_Test extends TestCase {
   }
 
   public void testHandleVirtual_RootItem() {
-    final java.util.List<Event> eventLog = new ArrayList<Event>();
     grid = new Grid( shell, SWT.VIRTUAL );
     GridItem[] items = createGridItems( grid, 3, 3 );
-    grid.addListener( SWT.SetData, new Listener() {
-      public void handleEvent( Event event ) {
-        eventLog.add( event );
-      }
-    } );
+    grid.addListener( SWT.SetData, new LoggingListener() );
 
     items[ 4 ].getText();
 
@@ -411,14 +386,9 @@ public class GridItem_Test extends TestCase {
   }
 
   public void testHandleVirtual_SubItem() {
-    final java.util.List<Event> eventLog = new ArrayList<Event>();
     grid = new Grid( shell, SWT.VIRTUAL );
     GridItem[] items = createGridItems( grid, 3, 3 );
-    grid.addListener( SWT.SetData, new Listener() {
-      public void handleEvent( Event event ) {
-        eventLog.add( event );
-      }
-    } );
+    grid.addListener( SWT.SetData, new LoggingListener() );
 
     items[ 2 ].getText();
 
@@ -430,14 +400,9 @@ public class GridItem_Test extends TestCase {
   }
 
   public void testHandleVirtual_Twice() {
-    final java.util.List<Event> eventLog = new ArrayList<Event>();
     grid = new Grid( shell, SWT.VIRTUAL );
     GridItem[] items = createGridItems( grid, 3, 3 );
-    grid.addListener( SWT.SetData, new Listener() {
-      public void handleEvent( Event event ) {
-        eventLog.add( event );
-      }
-    } );
+    grid.addListener( SWT.SetData, new LoggingListener() );
 
     items[ 2 ].getText();
     items[ 2 ].getText();
@@ -926,5 +891,14 @@ public class GridItem_Test extends TestCase {
       }
     }
     return result;
+  }
+
+  //////////////////
+  // Helping classes
+
+  private class LoggingListener implements Listener {
+    public void handleEvent( Event event ) {
+      eventLog.add( event );
+    }
   }
 }

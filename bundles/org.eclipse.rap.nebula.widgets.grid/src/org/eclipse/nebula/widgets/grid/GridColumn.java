@@ -11,6 +11,7 @@
 package org.eclipse.nebula.widgets.grid;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Item;
 
 
@@ -67,6 +68,8 @@ public class GridColumn extends Item {
   private boolean tableCheck = false;
 
   private boolean checkable = true;
+
+  private boolean visible = true;
 
   /**
    * Constructs a new instance of this class given its parent (which must be a
@@ -204,6 +207,14 @@ public class GridColumn extends Item {
   }
 
   /**
+   * @return the minimum width
+   */
+  public int getMinimumWidth() {
+    checkWidget();
+    return minimumWidth;
+  }
+
+  /**
    * Sets the sort indicator style for the column. This method does not actual
    * sort the data in the table. Valid values include: SWT.UP, SWT.DOWN,
    * SWT.NONE.
@@ -242,11 +253,83 @@ public class GridColumn extends Item {
   }
 
   /**
-   * @return the minimum width
+   * Sets the column's visibility.
+   *
+   * @param visible
+   *            the visible to set
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
    */
-  public int getMinimumWidth() {
+  public void setVisible( boolean visible ) {
     checkWidget();
-    return minimumWidth;
+    boolean before = isVisible();
+    this.visible = visible;
+    if( isVisible() != before ) {
+      if( visible ) {
+        notifyListeners( SWT.Show, new Event() );
+      } else {
+        notifyListeners( SWT.Hide, new Event() );
+      }
+      GridColumn[] orderedColumns = parent.getColumnsInOrder();
+      boolean fire = false;
+      for( int i = 0; i < orderedColumns.length; i++ ) {
+        GridColumn column = orderedColumns[ i ];
+        if( column == this ) {
+          fire = true;
+        } else if( fire && column.isVisible() ) {
+          column.fireMoved();
+        }
+      }
+      parent.redraw();
+    }
+  }
+
+  /**
+   * Returns the visibility state as set with {@code setVisible}.
+   *
+   * @return the visible
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public boolean getVisible() {
+    checkWidget();
+    return visible;
+  }
+
+  /**
+   * Returns true if the column is visible, false otherwise. If the column is
+   * in a group and the group is not expanded and this is a detail column,
+   * returns false (and vice versa).
+   *
+   * @return true if visible, false otherwise
+   *
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public boolean isVisible() {
+    checkWidget();
+    boolean result = visible;
+//    if( group != null ) {
+//      if( ( group.getExpanded() && !isDetail() ) || ( !group.getExpanded() && !isSummary() ) ) {
+//        result = false;
+//      }
+//    }
+    return result;
   }
 
   /**
@@ -310,6 +393,14 @@ public class GridColumn extends Item {
       parent.setScrollValuesObsolete();
       parent.redraw();
     }
+  }
+
+  void fireMoved() {
+    Event event = new Event();
+    event.display = this.getDisplay();
+    event.item = this;
+    event.widget = parent;
+    notifyListeners( SWT.Move, event );
   }
 
   protected boolean isTableCheck() {

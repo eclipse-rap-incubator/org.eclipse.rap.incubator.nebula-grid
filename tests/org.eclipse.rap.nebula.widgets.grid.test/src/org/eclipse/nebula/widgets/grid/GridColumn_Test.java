@@ -19,6 +19,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
 import junit.framework.TestCase;
@@ -29,6 +31,7 @@ public class GridColumn_Test extends TestCase {
   private Display display;
   private Shell shell;
   private Grid grid;
+  private List<Event> eventLog;
 
   @Override
   protected void setUp() throws Exception {
@@ -37,6 +40,7 @@ public class GridColumn_Test extends TestCase {
     display = new Display();
     shell = new Shell( display );
     grid = new Grid( shell, SWT.H_SCROLL | SWT.V_SCROLL );
+    eventLog = new ArrayList<Event>();
   }
 
   @Override
@@ -211,6 +215,69 @@ public class GridColumn_Test extends TestCase {
     assertEquals( SWT.DOWN, column.getSort() );
   }
 
+  public void testGetVisible_Initial() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    assertTrue( column.getVisible() );
+    assertTrue( column.isVisible() );
+  }
+
+  public void testGetVisible() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    column.setVisible( false );
+
+    assertFalse( column.getVisible() );
+  }
+
+  public void testSetVisible_FireHideEvent() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+    column.addListener( SWT.Hide, new LoggingListener() );
+
+    column.setVisible( false );
+
+    assertEquals( 1, eventLog.size() );
+    Event event = eventLog.get( 0 );
+    assertEquals( SWT.Hide, event.type );
+    assertSame( column, event.widget );
+  }
+
+  public void testSetVisible_FireShowEvent() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+    column.setVisible( false );
+    column.addListener( SWT.Show, new LoggingListener() );
+
+    column.setVisible( true );
+
+    assertEquals( 1, eventLog.size() );
+    Event event = eventLog.get( 0 );
+    assertEquals( SWT.Show, event.type );
+    assertSame( column, event.widget );
+  }
+
+  public void testSetVisible_FireMoveEventOnNextColumns() {
+    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
+    columns[ 0 ].addListener( SWT.Move, new LoggingListener() );
+    columns[ 1 ].addListener( SWT.Move, new LoggingListener() );
+    columns[ 2 ].addListener( SWT.Move, new LoggingListener() );
+
+    columns[ 1 ].setVisible( false );
+
+    assertEquals( 1, eventLog.size() );
+    Event event = eventLog.get( 0 );
+    assertSame( columns[ 2 ], event.widget );
+  }
+
+  public void testSetVisible_FireEventOnlyOnce() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+    column.addListener( SWT.Hide, new LoggingListener() );
+
+    column.setVisible( false );
+    column.setVisible( false );
+
+    assertEquals( 1, eventLog.size() );
+  }
+
   //////////////////
   // Helping methods
 
@@ -221,5 +288,14 @@ public class GridColumn_Test extends TestCase {
       result[ i ] = column;
     }
     return result;
+  }
+
+  //////////////////
+  // Helping classes
+
+  private class LoggingListener implements Listener {
+    public void handleEvent( Event event ) {
+      eventLog.add( event );
+    }
   }
 }

@@ -793,6 +793,16 @@ public class Grid extends Canvas {
   }
 
   /**
+   * Returns an array of the columns in their display order.
+   *
+   * @return columns in display order
+   */
+  GridColumn[] getColumnsInOrder() {
+    checkWidget();
+    return displayOrderedColumns.toArray( new GridColumn[ columns.size() ] );
+  }
+
+  /**
    * Returns the externally managed horizontal scrollbar.
    *
    * @return the external horizontal scrollbar.
