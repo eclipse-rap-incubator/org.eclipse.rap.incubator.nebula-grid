@@ -292,6 +292,34 @@ public class GridColumn_Test extends TestCase {
     assertTrue( column.isTree() );
   }
 
+  public void testGetAlignment_Initial() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    assertEquals( SWT.LEFT, column.getAlignment() );
+  }
+
+  public void testGetAlignment_WithStyleFlag() {
+    GridColumn column = new GridColumn( grid, SWT.RIGHT );
+
+    assertEquals( SWT.RIGHT, column.getAlignment() );
+  }
+
+  public void testSetAlignment() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    column.setAlignment( SWT.CENTER );
+
+    assertEquals( SWT.CENTER, column.getAlignment() );
+  }
+
+  public void testSetAlignment_InvalidValue() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    column.setAlignment( SWT.UP );
+
+    assertEquals( SWT.LEFT, column.getAlignment() );
+  }
+
   //////////////////
   // Helping methods
 

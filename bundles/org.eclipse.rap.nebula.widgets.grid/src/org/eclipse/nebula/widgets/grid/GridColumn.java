@@ -76,6 +76,8 @@ public class GridColumn extends Item {
 
   private boolean visible = true;
 
+  private int alignment = SWT.LEFT;
+
   /**
    * Constructs a new instance of this class given its parent (which must be a
    * <code>Grid</code>) and a style value describing its behavior and
@@ -428,6 +430,43 @@ public class GridColumn extends Item {
     return tree;
   }
 
+  /**
+   * Sets the column alignment.
+   *
+   * @param alignment
+   *            SWT.LEFT, SWT.RIGHT, SWT.CENTER
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public void setAlignment( int alignment ) {
+    checkWidget();
+    if( alignment == SWT.LEFT || alignment == SWT.CENTER || alignment == SWT.RIGHT ) {
+      this.alignment = alignment;
+    }
+  }
+
+  /**
+   * Returns the column alignment.
+   *
+   * @return SWT.LEFT, SWT.RIGHT, SWT.CENTER
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public int getAlignment() {
+    checkWidget();
+    return alignment;
+  }
+
   void setWidth( int width, boolean redraw ) {
     this.width = Math.max( minimumWidth, width );
     if( redraw ) {
@@ -457,6 +496,12 @@ public class GridColumn extends Item {
     parent.newColumn( this, index );
     if( ( style & SWT.CHECK ) == SWT.CHECK ) {
       check = true;
+    }
+    if( ( style & SWT.RIGHT ) == SWT.RIGHT ) {
+      alignment = SWT.RIGHT;
+    }
+    if( ( style & SWT.CENTER ) == SWT.CENTER ) {
+      alignment = SWT.CENTER;
     }
   }
 }
