@@ -1,0 +1,14 @@
+Grid
+----------------------------
+
+GridItem
+----------------------------
+getBounds( index )
+getCellSize( index )
+getHeight()
+setHeight( int ) - make it private
+pack()
+fireCheckEvent() - index field is missing
+
+GridColumn
+----------------------------
