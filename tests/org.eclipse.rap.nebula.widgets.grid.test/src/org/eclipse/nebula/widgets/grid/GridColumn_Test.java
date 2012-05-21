@@ -320,6 +320,62 @@ public class GridColumn_Test extends TestCase {
     assertEquals( SWT.LEFT, column.getAlignment() );
   }
 
+  public void testGetMoveable_Initial() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    assertFalse( column.getMoveable() );
+  }
+
+  public void testGetMoveable() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    column.setMoveable( true );
+
+    assertTrue( column.getMoveable() );
+  }
+
+  public void testGetResizeable_Initial() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    assertTrue( column.getResizeable() );
+  }
+
+  public void testGetResizeable() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    column.setResizeable( false );
+
+    assertFalse( column.getResizeable() );
+  }
+
+  public void testIsDetail_Initial() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    assertTrue( column.isDetail() );
+  }
+
+  public void testIsDetail() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    column.setDetail( false );
+
+    assertFalse( column.isDetail() );
+  }
+
+  public void testIsSummary_Initial() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    assertTrue( column.isSummary() );
+  }
+
+  public void testIsSummary() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    column.setDetail( false );
+
+    assertFalse( column.isSummary() );
+  }
+
   //////////////////
   // Helping methods
 
