@@ -11,6 +11,8 @@
 package org.eclipse.nebula.widgets.grid;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Event;
@@ -231,6 +233,51 @@ public class GridColumn extends Item {
   public void removeSelectionListener( SelectionListener listener ) {
     checkWidget();
     SelectionEvent.removeListener( this, listener );
+  }
+
+  /**
+   * Adds a listener to the list of listeners notified when the column is
+   * moved or resized.
+   *
+   * @param listener
+   *            listener
+   * @throws IllegalArgumentException
+   *             <ul>
+   *             <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
+   *             </ul>
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public void addControlListener( ControlListener listener ) {
+    checkWidget();
+    ControlEvent.addListener( this, listener );
+  }
+
+  /**
+   * Removes the given control listener.
+   *
+   * @param listener
+   *            listener.
+   * @throws IllegalArgumentException
+   *             <ul>
+   *             <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
+   *             </ul>
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public void removeControlListener( ControlListener listener ) {
+    checkWidget();
+    ControlEvent.removeListener( this, listener );
   }
 
   /**

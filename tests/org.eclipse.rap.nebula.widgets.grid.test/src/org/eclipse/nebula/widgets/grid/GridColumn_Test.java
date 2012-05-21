@@ -16,6 +16,9 @@ import java.util.List;
 import org.eclipse.rap.rwt.testfixture.Fixture;
 import org.eclipse.rwt.lifecycle.PhaseId;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ControlAdapter;
+import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -379,7 +382,7 @@ public class GridColumn_Test extends TestCase {
     assertFalse( column.isSummary() );
   }
 
-  public void testAddRemoveselectionListener() {
+  public void testAddRemoveSelectionListener() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
     SelectionListener listener = new SelectionAdapter() { };
     assertFalse( SelectionEvent.hasListener( column ) );
@@ -406,6 +409,38 @@ public class GridColumn_Test extends TestCase {
 
     try {
       column.removeSelectionListener( null );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testAddRemoveControlListener() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+    ControlListener listener = new ControlAdapter() { };
+    assertFalse( ControlEvent.hasListener( column ) );
+
+    column.addControlListener( listener );
+    assertTrue( ControlEvent.hasListener( column ) );
+
+    column.removeControlListener( listener );
+    assertFalse( ControlEvent.hasListener( column ) );
+  }
+
+  public void testAddControlListener_NullArgument() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    try {
+      column.addControlListener( null );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testRemoveControlListener_NullArgument() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    try {
+      column.removeControlListener( null );
       fail();
     } catch( IllegalArgumentException expected ) {
     }
