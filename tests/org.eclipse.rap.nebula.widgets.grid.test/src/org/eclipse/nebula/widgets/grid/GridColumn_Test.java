@@ -24,6 +24,7 @@ import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
@@ -441,6 +442,33 @@ public class GridColumn_Test extends TestCase {
 
     try {
       column.removeControlListener( null );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testGetHeaderFont_Initial() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    assertSame( grid.getFont(), column.getHeaderFont() );
+  }
+
+  public void testGetFont() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+    Font font = new Font( display, "Arial", 20, SWT.BOLD );
+
+    column.setHeaderFont( font );
+
+    assertSame( font, column.getHeaderFont() );
+  }
+
+  public void testSetFont_DisposedFont() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+    Font font = new Font( display, "Arial", 20, SWT.BOLD );
+    font.dispose();
+
+    try {
+      column.setHeaderFont( font );
       fail();
     } catch( IllegalArgumentException expected ) {
     }

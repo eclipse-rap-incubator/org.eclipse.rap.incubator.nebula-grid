@@ -15,3 +15,5 @@ GridColumn
 isVisible() - activate commented code after GridGroup is available
 set/getWordWrap()
 set/getHeaderWordWrap()
+pack()
+set/getHeaderTooltip()

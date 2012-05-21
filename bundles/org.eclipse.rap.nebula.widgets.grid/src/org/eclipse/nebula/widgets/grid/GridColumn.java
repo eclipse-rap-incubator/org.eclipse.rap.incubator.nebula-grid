@@ -15,6 +15,7 @@ import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Item;
 
@@ -103,6 +104,8 @@ public class GridColumn extends Item {
   private boolean visible = true;
 
   private int alignment = SWT.LEFT;
+
+  private Font headerFont;
 
   /**
    * Constructs a new instance of this class given its parent (which must be a
@@ -728,6 +731,50 @@ public class GridColumn extends Item {
   public int getAlignment() {
     checkWidget();
     return alignment;
+  }
+
+  /**
+   * Sets the Font to be used when displaying the Header text.
+   *
+   * @param font
+   *            the new header font (or null)
+   * @throws IllegalArgumentException
+   *             <ul>
+   *             <li>ERROR_INVALID_ARGUMENT - if the argument has been
+   *             disposed</li>
+   *             </ul>
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public void setHeaderFont( Font font ) {
+    checkWidget();
+    if( font != null && font.isDisposed() ) {
+      SWT.error( SWT.ERROR_INVALID_ARGUMENT );
+    }
+    headerFont = font;
+  }
+
+  /**
+   * Returns the font that the receiver will use to paint textual information
+   * for the header.
+   *
+   * @return the receiver's font
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public Font getHeaderFont() {
+    checkWidget();
+    return headerFont == null ? parent.getFont() : headerFont;
   }
 
   void setWidth( int width, boolean redraw ) {
