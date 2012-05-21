@@ -200,9 +200,6 @@ public class Grid extends Canvas {
    */
   public void addSelectionListener( SelectionListener listener ) {
     checkWidget();
-    if( listener == null ) {
-      SWT.error( SWT.ERROR_NULL_ARGUMENT );
-    }
     SelectionEvent.addListener( this, listener );
   }
 
@@ -247,9 +244,6 @@ public class Grid extends Canvas {
    */
   public void addTreeListener( TreeListener listener ) {
     checkWidget();
-    if( listener == null ) {
-      SWT.error( SWT.ERROR_NULL_ARGUMENT );
-    }
     TreeEvent.addListener( this, listener );
   }
 
