@@ -11,6 +11,8 @@
 package org.eclipse.nebula.widgets.grid;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Item;
 
@@ -184,6 +186,51 @@ public class GridColumn extends Item {
   public Grid getParent() {
     checkWidget();
     return parent;
+  }
+
+  /**
+   * Adds the listener to the collection of listeners who will be notified
+   * when the receiver's is pushed, by sending it one of the messages defined
+   * in the <code>SelectionListener</code> interface.
+   *
+   * @param listener
+   *            the listener which should be notified
+   * @throws IllegalArgumentException
+   *             <ul>
+   *             <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
+   *             </ul>
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public void addSelectionListener( SelectionListener listener ) {
+    checkWidget();
+    SelectionEvent.addListener( this, listener );
+  }
+
+  /**
+   * Removes the listener from the collection of listeners who will be
+   * notified when the receiver's selection changes.
+   *
+   * @param listener
+   *            the listener which should no longer be notified
+   * @see SelectionListener
+   * @see #addSelectionListener(SelectionListener)
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public void removeSelectionListener( SelectionListener listener ) {
+    checkWidget();
+    SelectionEvent.removeListener( this, listener );
   }
 
   /**

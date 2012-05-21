@@ -18,6 +18,9 @@ import org.eclipse.rwt.lifecycle.PhaseId;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
@@ -371,9 +374,41 @@ public class GridColumn_Test extends TestCase {
   public void testIsSummary() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
-    column.setDetail( false );
+    column.setSummary( false );
 
     assertFalse( column.isSummary() );
+  }
+
+  public void testAddRemoveselectionListener() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+    SelectionListener listener = new SelectionAdapter() { };
+    assertFalse( SelectionEvent.hasListener( column ) );
+
+    column.addSelectionListener( listener );
+    assertTrue( SelectionEvent.hasListener( column ) );
+
+    column.removeSelectionListener( listener );
+    assertFalse( SelectionEvent.hasListener( column ) );
+  }
+
+  public void testAddSelectionListener_NullArgument() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    try {
+      column.addSelectionListener( null );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testRemoveSelectionListener_NullArgument() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    try {
+      column.removeSelectionListener( null );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
   }
 
   //////////////////
