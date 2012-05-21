@@ -23,6 +23,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TreeEvent;
 import org.eclipse.swt.events.TreeListener;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
@@ -48,11 +49,6 @@ import org.eclipse.swt.widgets.Listener;
  * </dl>
  */
 public class Grid extends Canvas {
-
-  /**
-   * Type of selection behavior. Valid values are SWT.SINGLE and SWT.MULTI.
-   */
-  private int selectionType = SWT.SINGLE;
 
   /**
    * Vertical scrollbar proxy.
@@ -90,6 +86,11 @@ public class Grid extends Canvas {
   private List<GridItem> rootItems = new ArrayList<GridItem>();
 
   /**
+   * List of selected items.
+   */
+  private List<GridItem> selectedItems = new ArrayList<GridItem>();
+
+  /**
    * List of table columns in creation/index order.
    */
   private List<GridColumn> columns = new ArrayList<GridColumn>();
@@ -121,6 +122,18 @@ public class Grid extends Canvas {
    * performance reasons (rather than iterating over all items).
    */
   private int currentVisibleItems = 0;
+
+  /**
+   * Type of selection behavior. Valid values are SWT.SINGLE and SWT.MULTI.
+   */
+  private int selectionType = SWT.SINGLE;
+
+  /**
+   * True if selection highlighting is enabled.
+   */
+  private boolean selectionEnabled = true;
+
+  private boolean cellSelectionEnabled = false;
 
   /**
    * Constructs a new instance of this class given its parent and a style
@@ -644,6 +657,152 @@ public class Grid extends Canvas {
       // are cleared
       clear( 0, itemsCount - 1, allChildren );
     }
+  }
+
+  /**
+   * Enables selection highlighting if the argument is <code>true</code>.
+   *
+   * @param selectionEnabled the selection enabled state
+   *
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public void setSelectionEnabled( boolean selectionEnabled ) {
+    checkWidget();
+    if( !selectionEnabled ) {
+      selectedItems.clear();
+      redraw();
+    }
+    this.selectionEnabled = selectionEnabled;
+  }
+
+  /**
+   * Returns <code>true</code> if selection is enabled, false otherwise.
+   *
+   * @return the selection enabled state
+   *
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public boolean getSelectionEnabled() {
+    checkWidget();
+    return selectionEnabled;
+  }
+
+  /**
+   * Selects the item at the given zero-relative index in the receiver. If the
+   * item at the index was already selected, it remains selected. Indices that
+   * are out of range are ignored.
+   * <p>
+   * If cell selection is enabled, selects all cells at the given index.
+   *
+   * @param index the index of the item to select
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public void select( int index ) {
+    checkWidget();
+    if( selectionEnabled && index >= 0 && index < items.size() ) {
+      GridItem item = items.get( index );
+      if( cellSelectionEnabled ) {
+// TODO: [if] Implement cell selection
+//        selectCells( getCells( item ) );
+      } else {
+        if( selectionType == SWT.SINGLE ) {
+          selectedItems.clear();
+        }
+        if( !selectedItems.contains( item ) ) {
+          selectedItems.add( item );
+        }
+      }
+      redraw();
+    }
+  }
+
+  /**
+   * Returns a array of {@code GridItem}s that are currently selected in the
+   * receiver. The order of the items is unspecified. An empty array indicates
+   * that no items are selected.
+   * <p>
+   * Note: This is not the actual structure used by the receiver to maintain
+   * its selection, so modifying the array will not affect the receiver.
+   * <p>
+   * If cell selection is enabled, any items which contain at least one selected
+   * cell are returned.
+   *
+   * @return an array representing the selection
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public GridItem[] getSelection() {
+    checkWidget();
+    GridItem[] result = new GridItem[ 0 ];
+    if( cellSelectionEnabled ) {
+// TODO: [if] Implement cell selection
+//      List<GridItem> items = new ArrayList<GridItem>();
+//      int itemCount = getItemCount();
+//      for( Iterator iterator = selectedCells.iterator(); iterator.hasNext(); ) {
+//        Point cell = ( Point )iterator.next();
+//        if( cell.y >= 0 && cell.y < itemCount ) {
+//          GridItem item = getItem( cell.y );
+//          if( !items.contains( item ) ) {
+//            items.add( item );
+//          }
+//        }
+//      }
+//      result = items.toArray( new GridItem[ 0 ] );
+    } else {
+      result = selectedItems.toArray( new GridItem[ selectedItems.size() ] );
+    }
+    return result;
+  }
+
+  /**
+   * Returns the number of selected items contained in the receiver.  If cell selection
+   * is enabled, the number of items with at least one selected cell are returned.
+   *
+   * @return the number of selected items
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public int getSelectionCount() {
+    checkWidget();
+    int result = 0;
+    if( cellSelectionEnabled ) {
+// TODO: [if] Implement cell selection
+//      List<GridItem> items = new ArrayList<GridItem>();
+//      for( Iterator iterator = selectedCells.iterator(); iterator.hasNext(); ) {
+//        Point cell = ( Point )iterator.next();
+//        GridItem item = getItem( cell.y );
+//        if( !items.contains( item ) ) {
+//          items.add( item );
+//        }
+//      }
+//      result = items.size();
+    } else {
+      result = selectedItems.size();
+    }
+    return result;
   }
 
   /**

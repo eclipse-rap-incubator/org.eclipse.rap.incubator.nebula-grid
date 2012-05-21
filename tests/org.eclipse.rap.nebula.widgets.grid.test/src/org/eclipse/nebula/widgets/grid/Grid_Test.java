@@ -499,6 +499,98 @@ public class Grid_Test extends TestCase {
     assertEquals( "", items[ 1 ].getText( 2 ) );
   }
 
+  public void testGetSelectionEnabled_Initial() {
+    assertTrue( grid.getSelectionEnabled() );
+  }
+
+  public void testGetSelectionEnabled() {
+    grid.setSelectionEnabled( false );
+
+    assertFalse( grid.getSelectionEnabled() );
+  }
+
+  public void testSetSelectionEnabled_ClearSelectedItems() {
+    createGridItems( grid, 3, 0 );
+    grid.select( 0 );
+
+    grid.setSelectionEnabled( false );
+
+    assertEquals( 0, grid.getSelectionCount() );
+  }
+
+  public void testGetSelectionCount_Initial() {
+    assertEquals( 0, grid.getSelectionCount() );
+  }
+
+  public void testGetSelectionCount() {
+    createGridItems( grid, 3, 0 );
+    grid.select( 0 );
+
+    assertEquals( 1, grid.getSelectionCount() );
+  }
+
+  public void testGetSelection_Initial() {
+    assertTrue( Arrays.equals( new GridItem[ 0 ], grid.getSelection() ) );
+  }
+
+  public void testGetSelection() {
+    createGridItems( grid, 3, 0 );
+    grid.select( 0 );
+
+    assertSame( grid.getItem( 0 ), grid.getSelection()[ 0 ] );
+  }
+
+  public void testSelect_Single() {
+    grid = new Grid( shell, SWT.SINGLE );
+    GridItem[] items = createGridItems( grid, 3, 0 );
+    grid.select( 0 );
+    grid.select( 2 );
+
+    GridItem[] expected = new GridItem[]{ items[ 2 ] };
+    assertTrue( Arrays.equals( expected, grid.getSelection() ) );
+  }
+
+  public void testSelect_Multi() {
+    grid = new Grid( shell, SWT.MULTI );
+    GridItem[] items = createGridItems( grid, 3, 0 );
+    grid.select( 0 );
+    grid.select( 2 );
+
+    GridItem[] expected = new GridItem[]{ items[ 0 ], items[ 2 ] };
+    assertTrue( Arrays.equals( expected, grid.getSelection() ) );
+  }
+
+  public void testSelect_WithSelectionDisabled() {
+    grid.setSelectionEnabled( false );
+    createGridItems( grid, 3, 0 );
+
+    grid.select( 0 );
+
+    assertTrue( Arrays.equals( new GridItem[ 0 ], grid.getSelection() ) );
+  }
+
+  public void testSelect_WithInvalidIndex() {
+    grid = new Grid( shell, SWT.MULTI );
+    GridItem[] items = createGridItems( grid, 3, 0 );
+
+    grid.select( 0 );
+    grid.select( 5 );
+
+    GridItem[] expected = new GridItem[]{ items[ 0 ] };
+    assertTrue( Arrays.equals( expected, grid.getSelection() ) );
+  }
+
+  public void testSelect_Twice() {
+    grid = new Grid( shell, SWT.MULTI );
+    GridItem[] items = createGridItems( grid, 3, 0 );
+
+    grid.select( 0 );
+    grid.select( 0 );
+
+    GridItem[] expected = new GridItem[]{ items[ 0 ] };
+    assertTrue( Arrays.equals( expected, grid.getSelection() ) );
+  }
+
   //////////////////
   // Helping methods
 
