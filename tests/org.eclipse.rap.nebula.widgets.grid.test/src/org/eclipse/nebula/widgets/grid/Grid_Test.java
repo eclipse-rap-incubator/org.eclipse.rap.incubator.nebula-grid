@@ -963,6 +963,100 @@ public class Grid_Test extends TestCase {
     }
   }
 
+  public void testDeselectByIndex() {
+    grid = new Grid( shell, SWT.MULTI );
+    GridItem[] items = createGridItems( grid, 5, 0 );
+    grid.select( 1, 3 );
+
+    grid.deselect( 2 );
+
+    GridItem[] expected = new GridItem[]{ items[ 1 ], items[ 3 ] };
+    assertTrue( Arrays.equals( expected, grid.getSelection() ) );
+  }
+
+  public void testDeselectByIndex_InvalidIndex() {
+    grid = new Grid( shell, SWT.MULTI );
+    GridItem[] items = createGridItems( grid, 5, 0 );
+    grid.select( 1, 3 );
+
+    grid.deselect( 10 );
+
+    GridItem[] expected = new GridItem[]{ items[ 1 ], items[ 2 ], items[ 3 ] };
+    assertTrue( Arrays.equals( expected, grid.getSelection() ) );
+  }
+
+  public void testDeselectByRange() {
+    grid = new Grid( shell, SWT.MULTI );
+    GridItem[] items = createGridItems( grid, 5, 0 );
+    grid.select( 1, 4 );
+
+    grid.deselect( 2, 3 );
+
+    GridItem[] expected = new GridItem[]{ items[ 1 ], items[ 4 ] };
+    assertTrue( Arrays.equals( expected, grid.getSelection() ) );
+  }
+
+  public void testDeselectByRange_OutOfItemsSize() {
+    grid = new Grid( shell, SWT.MULTI );
+    GridItem[] items = createGridItems( grid, 5, 0 );
+    grid.select( 1, 4 );
+
+    grid.deselect( 2, 12 );
+
+    GridItem[] expected = new GridItem[]{ items[ 1 ] };
+    assertTrue( Arrays.equals( expected, grid.getSelection() ) );
+  }
+
+  public void testDeselectByIndices() {
+    grid = new Grid( shell, SWT.MULTI );
+    GridItem[] items = createGridItems( grid, 5, 0 );
+    grid.select( 1, 4 );
+
+    grid.deselect( new int[]{ 2, 3 } );
+
+    GridItem[] expected = new GridItem[]{ items[ 1 ], items[ 4 ] };
+    assertTrue( Arrays.equals( expected, grid.getSelection() ) );
+  }
+
+  public void testDeselectByIndices_NullArgument() {
+    try {
+      grid.deselect( null );
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testDeselectByIndices_DuplicateIndex() {
+    grid = new Grid( shell, SWT.MULTI );
+    GridItem[] items = createGridItems( grid, 5, 0 );
+    grid.select( 1, 4 );
+
+    grid.deselect( new int[]{ 2, 3, 2 } );
+
+    GridItem[] expected = new GridItem[]{ items[ 1 ], items[ 4 ] };
+    assertTrue( Arrays.equals( expected, grid.getSelection() ) );
+  }
+
+  public void testDeselectByIndices_InvalidIndex() {
+    grid = new Grid( shell, SWT.MULTI );
+    GridItem[] items = createGridItems( grid, 5, 0 );
+    grid.select( 1, 4 );
+
+    grid.deselect( new int[]{ 2, 3, 14 } );
+
+    GridItem[] expected = new GridItem[]{ items[ 1 ], items[ 4 ] };
+    assertTrue( Arrays.equals( expected, grid.getSelection() ) );
+  }
+
+  public void testDeselectAll() {
+    grid = new Grid( shell, SWT.MULTI );
+    createGridItems( grid, 5, 0 );
+    grid.select( 1, 4 );
+
+    grid.deselectAll();
+
+    assertTrue( Arrays.equals( new GridItem[ 0 ], grid.getSelection() ) );
+  }
+
   //////////////////
   // Helping methods
 

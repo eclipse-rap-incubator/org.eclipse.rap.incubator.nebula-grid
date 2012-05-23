@@ -829,6 +829,104 @@ public class Grid extends Canvas {
   }
 
   /**
+   * Deselects the item at the given zero-relative index in the receiver. If
+   * the item at the index was already deselected, it remains deselected.
+   * Indices that are out of range are ignored.
+   * <p>
+   * If cell selection is enabled, all cells in the specified item are deselected.
+   *
+   * @param index the index of the item to deselect
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public void deselect( int index ) {
+    checkWidget();
+    if( index >= 0 && index < items.size() ) {
+      internalDeselect( index );
+      redraw();
+    }
+  }
+
+  /**
+   * Deselects the items at the given zero-relative indices in the receiver.
+   * If the item at the given zero-relative index in the receiver is selected,
+   * it is deselected. If the item at the index was not selected, it remains
+   * deselected. The range of the indices is inclusive. Indices that are out
+   * of range are ignored.
+   * <p>
+   * If cell selection is enabled, all cells in the given range are deselected.
+   *
+   * @param start the start index of the items to deselect
+   * @param end the end index of the items to deselect
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public void deselect( int start, int end ) {
+    checkWidget();
+    for( int index = Math.max( 0, start ); index <= Math.min( items.size() - 1, end ); index++ ) {
+      internalDeselect( index );
+    }
+    redraw();
+  }
+
+  /**
+   * Deselects the items at the given zero-relative indices in the receiver.
+   * If the item at the given zero-relative index in the receiver is selected,
+   * it is deselected. If the item at the index was not selected, it remains
+   * deselected. Indices that are out of range and duplicate indices are
+   * ignored.
+   * <p>
+   * If cell selection is enabled, all cells in the given items are deselected.
+   *
+   * @param indices the array of indices for the items to deselect
+   * @throws IllegalArgumentException
+   * <ul>
+   * <li>ERROR_NULL_ARGUMENT - if the set of indices is null</li>
+   * </ul>
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public void deselect( int[] indices ) {
+    checkWidget();
+    if( indices == null ) {
+      SWT.error( SWT.ERROR_NULL_ARGUMENT );
+    }
+    for( int i = 0; i < indices.length; i++ ) {
+      internalDeselect( indices[ i ] );
+    }
+    redraw();
+  }
+
+  /**
+   * Deselects all selected items in the receiver.  If cell selection is enabled,
+   * all cells are deselected.
+   *
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public void deselectAll() {
+    checkWidget();
+    internalDeselectAll();
+    redraw();
+  }
+
+  /**
    * Selects the item at the given zero-relative index in the receiver. The
    * current selection is first cleared, then the new item is selected.
    * <p>
@@ -1248,6 +1346,17 @@ public class Grid extends Canvas {
 //        selectCells( getCells( item ) );
       } else if( !selectedItems.contains( item ) ) {
         selectedItems.add( item );
+      }
+    }
+  }
+  private void internalDeselect( int index ) {
+    if( index >= 0 && index < items.size() ) {
+      GridItem item = items.get( index );
+      if( cellSelectionEnabled ) {
+// TODO: [if] Implement cell selection
+//        deselectCells( getCells( item ) );
+      } else if( selectedItems.contains( item ) ) {
+        selectedItems.remove( item );
       }
     }
   }
