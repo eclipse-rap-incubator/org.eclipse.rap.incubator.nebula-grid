@@ -1197,6 +1197,12 @@ public class Grid extends Canvas {
   void removeItem( GridItem item ) {
     items.remove( item );
     if( !disposing ) {
+      selectedItems.remove (item );
+// TODO: [if] Implement cell selection
+//      Point[] cells = getCells( item );
+//      for( int i = 0; i < cells.length; i++ ) {
+//        selectedCells.remove( cells[ i ] );
+//      }
       scrollValuesObsolete = true;
       if( item.isVisible() ) {
         currentVisibleItems--;

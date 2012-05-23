@@ -542,6 +542,17 @@ public class Grid_Test extends TestCase {
     assertSame( grid.getItem( 0 ), grid.getSelection()[ 0 ] );
   }
 
+  public void testGetSelection_AfterDisposeItem() {
+    grid = new Grid( shell, SWT.MULTI );
+    GridItem[] items = createGridItems( grid, 5, 0 );
+    grid.select( 1, 3 );
+
+    items[ 2 ].dispose();
+
+    GridItem[] expected = new GridItem[]{ items[ 1 ], items[ 3 ] };
+    assertTrue( Arrays.equals( expected, grid.getSelection() ) );
+  }
+
   public void testSelectByIndex_Single() {
     grid = new Grid( shell, SWT.SINGLE );
     GridItem[] items = createGridItems( grid, 3, 0 );
