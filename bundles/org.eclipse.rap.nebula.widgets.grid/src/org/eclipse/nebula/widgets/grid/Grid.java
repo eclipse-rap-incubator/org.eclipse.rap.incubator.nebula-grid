@@ -715,16 +715,253 @@ public class Grid extends Canvas {
   public void select( int index ) {
     checkWidget();
     if( selectionEnabled && index >= 0 && index < items.size() ) {
-      GridItem item = items.get( index );
+      if( !cellSelectionEnabled && selectionType == SWT.SINGLE ) {
+        selectedItems.clear();
+      }
+      internalSelect( index );
+      redraw();
+    }
+  }
+
+  /**
+   * Selects the items in the range specified by the given zero-relative
+   * indices in the receiver. The range of indices is inclusive. The current
+   * selection is not cleared before the new items are selected.
+   * <p>
+   * If an item in the given range is not selected, it is selected. If an item
+   * in the given range was already selected, it remains selected. Indices
+   * that are out of range are ignored and no items will be selected if start
+   * is greater than end. If the receiver is single-select and there is more
+   * than one item in the given range, then all indices are ignored.
+   * <p>
+   * If cell selection is enabled, all cells within the given range are selected.
+   *
+   * @param start the start of the range
+   * @param end the end of the range
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   * @see Grid#setSelection(int,int)
+   */
+  public void select( int start, int end ) {
+    checkWidget();
+    if( selectionEnabled && !( selectionType == SWT.SINGLE && start != end ) ) {
+      if( !cellSelectionEnabled && selectionType == SWT.SINGLE ) {
+        selectedItems.clear();
+      }
+      for( int index = Math.max( 0, start ); index <= Math.min( items.size() - 1, end ); index++ ) {
+        internalSelect( index );
+      }
+      redraw();
+    }
+  }
+
+  /**
+   * Selects the items at the given zero-relative indices in the receiver. The
+   * current selection is not cleared before the new items are selected.
+   * <p>
+   * If the item at a given index is not selected, it is selected. If the item
+   * at a given index was already selected, it remains selected. Indices that
+   * are out of range and duplicate indices are ignored. If the receiver is
+   * single-select and multiple indices are specified, then all indices are
+   * ignored.
+   * <p>
+   * If cell selection is enabled, all cells within the given indices are
+   * selected.
+   *
+   * @param indices the array of indices for the items to select
+   * @throws IllegalArgumentException
+   * <ul>
+   * <li>ERROR_NULL_ARGUMENT - if the array of indices is null</li>
+   * </ul>
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   * @see Grid#setSelection(int[])
+   */
+  public void select( int[] indices ) {
+    checkWidget();
+    if( indices == null ) {
+      SWT.error( SWT.ERROR_NULL_ARGUMENT );
+    }
+    if( selectionEnabled && !( selectionType == SWT.SINGLE && indices.length > 1 ) ) {
+      if( !cellSelectionEnabled && selectionType == SWT.SINGLE ) {
+        selectedItems.clear();
+      }
+      for( int i = 0; i < indices.length; i++ ) {
+        internalSelect( indices[ i ] );
+      }
+      redraw();
+    }
+  }
+
+  /**
+   * Selects all of the items in the receiver.
+   * <p>
+   * If the receiver is single-select, do nothing.  If cell selection is enabled,
+   * all cells are selected.
+   *
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public void selectAll() {
+    checkWidget();
+    if( selectionEnabled && selectionType != SWT.SINGLE ) {
       if( cellSelectionEnabled ) {
 // TODO: [if] Implement cell selection
-//        selectCells( getCells( item ) );
+//        selectAllCells();
       } else {
-        if( selectionType == SWT.SINGLE ) {
-          selectedItems.clear();
-        }
-        if( !selectedItems.contains( item ) ) {
-          selectedItems.add( item );
+        selectedItems.clear();
+        selectedItems.addAll( items );
+        redraw();
+      }
+    }
+  }
+
+  /**
+   * Selects the item at the given zero-relative index in the receiver. The
+   * current selection is first cleared, then the new item is selected.
+   * <p>
+   * If cell selection is enabled, all cells within the item at the given index
+   * are selected.
+   *
+   * @param index the index of the item to select
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public void setSelection( int index ) {
+    checkWidget();
+    if( selectionEnabled && index >= 0 && index < items.size() ) {
+      internalDeselectAll();
+      internalSelect( index );
+      redraw();
+    }
+  }
+
+  /**
+   * Selects the items in the range specified by the given zero-relative
+   * indices in the receiver. The range of indices is inclusive. The current
+   * selection is cleared before the new items are selected.
+   * <p>
+   * Indices that are out of range are ignored and no items will be selected
+   * if start is greater than end. If the receiver is single-select and there
+   * is more than one item in the given range, then all indices are ignored.
+   * <p>
+   * If cell selection is enabled, all cells within the given range are selected.
+   *
+   * @param start the start index of the items to select
+   * @param end the end index of the items to select
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   * @see Grid#deselectAll()
+   * @see Grid#select(int,int)
+   */
+  public void setSelection( int start, int end ) {
+    checkWidget();
+    if( selectionEnabled && !( selectionType == SWT.SINGLE && start != end ) ) {
+      internalDeselectAll();
+      for( int index = Math.max( 0, start ); index <= Math.min( items.size() - 1, end ); index++ ) {
+        internalSelect( index );
+      }
+      redraw();
+    }
+  }
+
+  /**
+   * Selects the items at the given zero-relative indices in the receiver. The
+   * current selection is cleared before the new items are selected.
+   * <p>
+   * Indices that are out of range and duplicate indices are ignored. If the
+   * receiver is single-select and multiple indices are specified, then all
+   * indices are ignored.
+   * <p>
+   * If cell selection is enabled, all cells within the given indices are selected.
+   *
+   * @param indices the indices of the items to select
+   * @throws IllegalArgumentException
+   * <ul>
+   * <li>ERROR_NULL_ARGUMENT - if the array of indices is null</li>
+   * </ul>
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   * @see Grid#deselectAll()
+   * @see Grid#select(int[])
+   */
+  public void setSelection( int[] indices ) {
+    checkWidget();
+    if( indices == null ) {
+      SWT.error( SWT.ERROR_NULL_ARGUMENT );
+    }
+    if( selectionEnabled && !( selectionType == SWT.SINGLE && indices.length > 1 ) ) {
+      internalDeselectAll();
+      for( int i = 0; i < indices.length; i++ ) {
+        internalSelect( indices[ i ] );
+      }
+      redraw();
+    }
+  }
+
+  /**
+   * Sets the receiver's selection to be the given array of items. The current
+   * selection is cleared before the new items are selected.
+   * <p>
+   * Items that are not in the receiver are ignored. If the receiver is
+   * single-select and multiple items are specified, then all items are
+   * ignored.  If cell selection is enabled, all cells within the given items
+   * are selected.
+   *
+   * @param items the array of items
+   * @throws IllegalArgumentException
+   * <ul>
+   * <li>ERROR_NULL_ARGUMENT - if the array of items is null</li>
+   * <li>ERROR_INVALID_ARGUMENT - if one of the items has been disposed</li>
+   * </ul>
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   * @see Grid#deselectAll()
+   * @see Grid#select(int[])
+   * @see Grid#setSelection(int[])
+   */
+  public void setSelection( GridItem[] items ) {
+    checkWidget();
+    if( items == null ) {
+      SWT.error( SWT.ERROR_NULL_ARGUMENT );
+    }
+    if( selectionEnabled && !( selectionType == SWT.SINGLE && items.length > 1 ) ) {
+      internalDeselectAll();
+      for( int i = 0; i < items.length; i++ ) {
+        GridItem item = items[ i ];
+        if( item != null ) {
+          if( item.isDisposed() ) {
+            SWT.error( SWT.ERROR_INVALID_ARGUMENT );
+          }
+          internalSelect( indexOf( item ) );
         }
       }
       redraw();
@@ -1001,6 +1238,27 @@ public class Grid extends Canvas {
    * Initialize all listeners.
    */
   private void initListeners() {
+  }
+
+  private void internalSelect( int index ) {
+    if( index >= 0 && index < items.size() ) {
+      GridItem item = items.get( index );
+      if( cellSelectionEnabled ) {
+// TODO: [if] Implement cell selection
+//        selectCells( getCells( item ) );
+      } else if( !selectedItems.contains( item ) ) {
+        selectedItems.add( item );
+      }
+    }
+  }
+
+  private void internalDeselectAll() {
+    if( cellSelectionEnabled ) {
+// TODO: [if] Implement cell selection
+//      selectedCells.clear();
+    } else {
+      selectedItems.clear();
+    }
   }
 
   /**
