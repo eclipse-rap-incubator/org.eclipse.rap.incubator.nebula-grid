@@ -1141,6 +1141,116 @@ public class Grid extends Canvas {
   }
 
   /**
+   * Removes the item from the receiver at the given zero-relative index.
+   *
+   * @param index the index for the item
+   * @throws IllegalArgumentException
+   * <ul>
+   * <li>ERROR_INVALID_RANGE - if the index is not between 0 and the number
+   * of elements in the list minus 1 (inclusive)</li>
+   * </ul>
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public void remove( int index ) {
+    checkWidget();
+    if( index < 0 || index > items.size() - 1 ) {
+      SWT.error( SWT.ERROR_INVALID_RANGE );
+    }
+    items.get( index ).dispose();
+    redraw();
+  }
+
+  /**
+   * Removes the items from the receiver which are between the given
+   * zero-relative start and end indices (inclusive).
+   *
+   * @param start the start of the range
+   * @param end the end of the range
+   * @throws IllegalArgumentException
+   * <ul>
+   * <li>ERROR_INVALID_RANGE - if either the start or end are not between 0
+   * and the number of elements in the list minus 1 (inclusive)</li>
+   * </ul>
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public void remove( int start, int end ) {
+    checkWidget();
+    for( int i = end; i >= start; i-- ) {
+      if( i < 0 || i > items.size() - 1 ) {
+        SWT.error( SWT.ERROR_INVALID_RANGE );
+      }
+      items.get( i ).dispose();
+    }
+    redraw();
+  }
+
+  /**
+   * Removes the items from the receiver's list at the given zero-relative
+   * indices.
+   *
+   * @param indices the array of indices of the items
+   * @throws IllegalArgumentException
+   * <ul>
+   * <li>ERROR_INVALID_RANGE - if the index is not between 0 and the number
+   * of elements in the list minus 1 (inclusive)</li>
+   * <li>ERROR_NULL_ARGUMENT - if the indices array is null</li>
+   * </ul>
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public void remove( int[] indices ) {
+    checkWidget();
+    if( indices == null ) {
+      SWT.error( SWT.ERROR_NULL_ARGUMENT );
+    }
+    GridItem[] removeThese = new GridItem[ indices.length ];
+    for( int i = 0; i < indices.length; i++ ) {
+      int index = indices[ i ];
+      if( index >= 0 && index < items.size() ) {
+        removeThese[ i ] = items.get( index );
+      } else {
+        SWT.error( SWT.ERROR_INVALID_RANGE );
+      }
+    }
+    for( int i = 0; i < removeThese.length; i++ ) {
+      removeThese[ i ].dispose();
+    }
+    redraw();
+  }
+
+  /**
+   * Removes all of the items from the receiver.
+   *
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public void removeAll() {
+    checkWidget();
+    while( items.size() > 0 ) {
+      items.get( 0 ).dispose();
+    }
+    redraw();
+  }
+
+  /**
    * Creates the new item at the given index. Only called from GridItem
    * constructor.
    *

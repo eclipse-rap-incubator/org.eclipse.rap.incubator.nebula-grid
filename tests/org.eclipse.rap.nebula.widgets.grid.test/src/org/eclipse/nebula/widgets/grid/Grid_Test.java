@@ -1068,6 +1068,96 @@ public class Grid_Test extends TestCase {
     assertTrue( Arrays.equals( new GridItem[ 0 ], grid.getSelection() ) );
   }
 
+  public void testRemoveByIndex() {
+    createGridItems( grid, 3, 3 );
+
+    grid.remove( 4 );
+
+    assertEquals( 8, grid.getItemCount() );
+    assertEquals( 2, grid.getRootItemCount() );
+  }
+
+  public void testRemoveByIndex_InvalidIndex() {
+    try {
+      grid.remove( 50 );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testRemoveByIndex_RemoveFromSelection() {
+    createGridItems( grid, 3, 3 );
+    grid.select( 6 );
+
+    grid.remove( 4 );
+
+    assertEquals( 0, grid.getSelectionCount() );
+  }
+
+  public void testRemoveByRange() {
+    createGridItems( grid, 3, 3 );
+
+    grid.remove( 3, 9 );
+
+    assertEquals( 3, grid.getItemCount() );
+    assertEquals( 1, grid.getRootItemCount() );
+  }
+
+  public void testRemoveByRange_InvalidRange() {
+    createGridItems( grid, 3, 3 );
+
+    try {
+      grid.remove( 3, 60 );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testRemoveByIndices() {
+    createGridItems( grid, 3, 3 );
+
+    grid.remove( new int[]{ 3, 5, 8 } );
+
+    assertEquals( 6, grid.getItemCount() );
+    assertEquals( 2, grid.getRootItemCount() );
+  }
+
+  public void testRemoveByIndices_NullArgument() {
+    try {
+      grid.remove( null );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testRemoveByIndices_DuplicateIndex() {
+    createGridItems( grid, 3, 3 );
+
+    grid.remove( new int[]{ 3, 5, 3 } );
+
+    assertEquals( 10, grid.getItemCount() );
+    assertEquals( 3, grid.getRootItemCount() );
+  }
+
+  public void testRemoveByIndices_InvalidIndex() {
+    createGridItems( grid, 3, 3 );
+
+    try {
+      grid.remove(new int[]{ 3, 5, 100 } );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testRemoveAll() {
+    createGridItems( grid, 3, 3 );
+
+    grid.removeAll();
+
+    assertEquals( 0, grid.getItemCount() );
+    assertEquals( 0, grid.getRootItemCount() );
+  }
+
   //////////////////
   // Helping methods
 

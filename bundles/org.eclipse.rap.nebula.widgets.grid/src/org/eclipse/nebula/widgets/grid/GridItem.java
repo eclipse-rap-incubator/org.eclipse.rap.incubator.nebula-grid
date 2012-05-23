@@ -222,7 +222,7 @@ public class GridItem extends Item {
    */
   @Override
   public void dispose() {
-    if( !parent.isDisposing() ) {
+    if( !parent.isDisposing() && !isDisposed() ) {
       parent.removeItem( this );
       if( parentItem != null ) {
         parentItem.remove( this );

@@ -170,7 +170,7 @@ public class GridColumn extends Item {
    */
   @Override
   public void dispose() {
-    if( !parent.isDisposing() ) {
+    if( !parent.isDisposing() && !isDisposed() ) {
       parent.removeColumn( this );
     }
     super.dispose();
