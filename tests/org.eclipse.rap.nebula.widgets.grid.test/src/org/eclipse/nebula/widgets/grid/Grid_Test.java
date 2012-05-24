@@ -1249,6 +1249,16 @@ public class Grid_Test extends TestCase {
     assertFalse( grid.isSelected( items[ 1 ] ) );
   }
 
+  public void testSetHeaderVisible_Initial() {
+    assertFalse( grid.getHeaderVisible() );
+  }
+
+  public void testSetHeaderVisible() {
+    grid.setHeaderVisible( true );
+
+    assertTrue( grid.getHeaderVisible() );
+  }
+
   //////////////////
   // Helping methods
 

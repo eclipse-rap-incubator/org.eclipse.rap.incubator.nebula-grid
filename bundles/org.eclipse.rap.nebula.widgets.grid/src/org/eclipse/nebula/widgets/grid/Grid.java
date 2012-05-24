@@ -119,6 +119,11 @@ public class Grid extends Canvas {
   private boolean hasSpanning = false;
 
   /**
+   * Are column headers visible?
+   */
+  private boolean columnHeadersVisible = false;
+
+  /**
    * The number of GridItems whose visible = true. Maintained for
    * performance reasons (rather than iterating over all items).
    */
@@ -1411,6 +1416,41 @@ public class Grid extends Canvas {
       items.get( 0 ).dispose();
     }
     redraw();
+  }
+
+  /**
+   * Marks the receiver's header as visible if the argument is {@code true},
+   * and marks it invisible otherwise.
+   *
+   * @param show the new visibility state
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public void setHeaderVisible( boolean show ) {
+    checkWidget();
+    columnHeadersVisible = show;
+    redraw();
+  }
+
+  /**
+   * Returns {@code true} if the receiver's header is visible, and
+   * {@code false} otherwise.
+   *
+   * @return the receiver's header's visibility state
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public boolean getHeaderVisible() {
+    checkWidget();
+    return columnHeadersVisible;
   }
 
   /**
