@@ -1158,6 +1158,34 @@ public class Grid_Test extends TestCase {
     assertEquals( 0, grid.getRootItemCount() );
   }
 
+  public void testGetSelectionIndex() {
+    grid = new Grid( shell, SWT.MULTI );
+    createGridItems( grid, 3, 3 );
+    int indicies[] = new int[]{ 3, 4, 1, 7 };
+
+    grid.setSelection( indicies );
+
+    assertEquals( 3, grid.getSelectionIndex() );
+  }
+
+  public void testGetSelectionIndex_WithoutSelection() {
+    assertEquals( -1, grid.getSelectionIndex() );
+  }
+
+  public void testGetSelectionIndicies() {
+    grid = new Grid( shell, SWT.MULTI );
+    createGridItems( grid, 3, 3 );
+    int indicies[] = new int[]{ 3, 4, 1, 7 };
+
+    grid.setSelection( indicies );
+
+    assertTrue( Arrays.equals( indicies, grid.getSelectionIndices() ) );
+  }
+
+  public void testGetSelectionIndicies_WithoutSelection() {
+    assertTrue( Arrays.equals( new int[ 0 ], grid.getSelectionIndices() ) );
+  }
+
   //////////////////
   // Helping methods
 

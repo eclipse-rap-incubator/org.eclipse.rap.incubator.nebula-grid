@@ -91,6 +91,11 @@ public class Grid extends Canvas {
   private List<GridItem> selectedItems = new ArrayList<GridItem>();
 
   /**
+   * List of selected cells.
+   */
+  private List<Point> selectedCells = new ArrayList<Point>();
+
+  /**
    * List of table columns in creation/index order.
    */
   private List<GridColumn> columns = new ArrayList<GridColumn>();
@@ -1136,6 +1141,80 @@ public class Grid extends Canvas {
 //      result = items.size();
     } else {
       result = selectedItems.size();
+    }
+    return result;
+  }
+
+  /**
+   * Returns the zero-relative index of the item which is currently selected
+   * in the receiver, or -1 if no item is selected.  If cell selection is enabled,
+   * returns the index of first item that contains at least one selected cell.
+   *
+   * @return the index of the selected item
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public int getSelectionIndex() {
+    checkWidget();
+    int result = -1;
+    if( cellSelectionEnabled ) {
+      if( selectedCells.size() != 0 ) {
+        result = selectedCells.get( 0 ).y;
+      }
+    } else {
+      if( selectedItems.size() != 0 ) {
+        result = items.indexOf( selectedItems.get( 0 ) );
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Returns the zero-relative indices of the items which are currently
+   * selected in the receiver. The order of the indices is unspecified. The
+   * array is empty if no items are selected.
+   * <p>
+   * Note: This is not the actual structure used by the receiver to maintain
+   * its selection, so modifying the array will not affect the receiver.
+   * <p>
+   * If cell selection is enabled, returns the indices of any items which
+   * contain at least one selected cell.
+   *
+   * @return the array of indices of the selected items
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public int[] getSelectionIndices() {
+    checkWidget();
+    int[] result = new int[ 0 ];
+    if( cellSelectionEnabled ) {
+      List<GridItem> selectedRows = new ArrayList<GridItem>();
+      for( Iterator iterator = selectedCells.iterator(); iterator.hasNext(); ) {
+        Point cell = ( Point )iterator.next();
+        GridItem item = getItem( cell.y );
+        if( !selectedRows.contains( item ) ) {
+          selectedRows.add( item );
+        }
+      }
+      result = new int[ selectedRows.size() ];
+      for( int i = 0; i < result.length; i++ ) {
+        GridItem item = selectedRows.get( i );
+        result[ i ] = items.indexOf( item );
+      }
+    } else {
+      result = new int[ selectedItems.size() ];
+      for( int i = 0; i < result.length; i++ ) {
+        GridItem item = selectedItems.get( i );
+        result[ i ] = items.indexOf( item );
+      }
     }
     return result;
   }
