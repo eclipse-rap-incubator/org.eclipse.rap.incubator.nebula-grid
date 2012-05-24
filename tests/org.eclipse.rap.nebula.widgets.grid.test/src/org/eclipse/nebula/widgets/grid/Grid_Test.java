@@ -1303,6 +1303,58 @@ public class Grid_Test extends TestCase {
     assertFalse( grid.getTreeLinesVisible() );
   }
 
+  public void testGetFocusItem_Initial() {
+    assertNull( grid.getFocusItem() );
+  }
+
+  public void testSetFocusItem() {
+    GridItem[] items = createGridItems( grid, 3, 3 );
+
+    grid.setFocusItem( items[ 4 ] );
+
+    assertSame( items[ 4 ], grid.getFocusItem() );
+  }
+
+  public void testSetFocusItem_NullArgument() {
+    try {
+      grid.setFocusItem( null );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testSetFocusItem_DisposedItem() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+    item.dispose();
+
+    try {
+      grid.setFocusItem( item );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testSetFocusItem_WithOtherParent() {
+    Grid otherGrid = new Grid( shell, SWT.NONE );
+    GridItem item = new GridItem( otherGrid, SWT.NONE );
+
+    try {
+      grid.setFocusItem( item );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testSetFocusItem_InvisibleItem() {
+    GridItem[] items = createGridItems( grid, 3, 3 );
+
+    try {
+      grid.setFocusItem( items[ 2 ] );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
   //////////////////
   // Helping methods
 

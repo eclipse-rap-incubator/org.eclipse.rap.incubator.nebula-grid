@@ -88,6 +88,11 @@ public class Grid extends Canvas {
   private List<GridItem> selectedItems = new ArrayList<GridItem>();
 
   /**
+   * Reference to the item in focus.
+   */
+  private GridItem focusItem;
+
+  /**
    * List of selected cells.
    */
   private List<Point> selectedCells = new ArrayList<Point>();
@@ -1571,6 +1576,45 @@ public class Grid extends Canvas {
   }
 
   /**
+   * Sets the focused item to the given item.
+   *
+   * @param item item to focus.
+   * @throws IllegalArgumentException
+   * <ul>
+   * <li>ERROR_INVALID_ARGUMENT - if item is disposed</li>
+   * </ul>
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public void setFocusItem( GridItem item ) {
+    checkWidget();
+    if( item == null || item.isDisposed() || item.getParent() != this || !item.isVisible() ) {
+      SWT.error( SWT.ERROR_INVALID_ARGUMENT );
+    }
+    focusItem = item;
+  }
+
+  /**
+   * Returns the current item in focus.
+   *
+   * @return item in focus or {@code null}.
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public GridItem getFocusItem() {
+    checkWidget();
+    return focusItem;
+  }
+
+  /**
    * Creates the new item at the given index. Only called from GridItem
    * constructor.
    *
@@ -1633,6 +1677,9 @@ public class Grid extends Canvas {
 //      for( int i = 0; i < cells.length; i++ ) {
 //        selectedCells.remove( cells[ i ] );
 //      }
+      if( focusItem == item ) {
+        focusItem = null;
+      }
       scrollValuesObsolete = true;
       if( item.isVisible() ) {
         currentVisibleItems--;
