@@ -554,6 +554,104 @@ public class Grid extends Canvas {
   }
 
   /**
+   * Sets the order that the items in the receiver should be displayed in to
+   * the given argument which is described in terms of the zero-relative
+   * ordering of when the items were added.
+   *
+   * @param order the new order to display the items
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS -if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   * @throws IllegalArgumentException
+   * <ul>
+   * <li>ERROR_NULL_ARGUMENT - if the item order is null</li>
+   * <li>ERROR_INVALID_ARGUMENT - if the order is not the same length as the
+   * number of items, or if an item is listed twice, or if the order splits a
+   * column group</li>
+   * </ul>
+   */
+  public void setColumnOrder( int[] order ) {
+    checkWidget();
+    if( order == null ) {
+      SWT.error( SWT.ERROR_NULL_ARGUMENT );
+    }
+    if( order.length != displayOrderedColumns.size() ) {
+      SWT.error( SWT.ERROR_INVALID_ARGUMENT );
+    }
+    boolean[] seen = new boolean[ displayOrderedColumns.size() ];
+    for( int i = 0; i < order.length; i++ ) {
+      if( order[ i ] < 0 || order[ i ] >= displayOrderedColumns.size() ) {
+        SWT.error( SWT.ERROR_INVALID_ARGUMENT );
+      }
+      if( seen[ order[ i ] ] ) {
+        SWT.error( SWT.ERROR_INVALID_ARGUMENT );
+      }
+      seen[ order[ i ] ] = true;
+    }
+// TODO: [if] Implement ColumnGroup
+//    if( columnGroups.length != 0 ) {
+//      GridColumnGroup currentGroup = null;
+//      int columnsInGroup = 0;
+//      for( int i = 0; i < order.length; i++ ) {
+//        GridColumn column = getColumn( order[ i ] );
+//        if( currentGroup != null ) {
+//          if( column.getColumnGroup() != currentGroup && columnsInGroup > 0 ) {
+//            SWT.error( SWT.ERROR_INVALID_ARGUMENT );
+//          } else {
+//            columnsInGroup--;
+//            if( columnsInGroup <= 0 ) {
+//              currentGroup = null;
+//            }
+//          }
+//        } else if( column.getColumnGroup() != null ) {
+//          currentGroup = column.getColumnGroup();
+//          columnsInGroup = currentGroup.getColumns().length - 1;
+//        }
+//      }
+//    }
+    GridColumn[] columns = getColumns();
+    displayOrderedColumns.clear();
+    for( int i = 0; i < order.length; i++ ) {
+      displayOrderedColumns.add( columns[ order[ i ] ] );
+    }
+  }
+
+  /**
+   * Returns an array of zero-relative integers that map the creation order of
+   * the receiver's items to the order in which they are currently being
+   * displayed.
+   * <p>
+   * Specifically, the indices of the returned array represent the current
+   * visual order of the items, and the contents of the array represent the
+   * creation order of the items.
+   * </p>
+   * <p>
+   * Note: This is not the actual structure used by the receiver to maintain
+   * its list of items, so modifying the array will not affect the receiver.
+   * </p>
+   *
+   * @return the current visual order of the receiver's items
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public int[] getColumnOrder() {
+    checkWidget();
+    int[] result = new int[ columns.size() ];
+    for( int i = 0; i < result.length; i++ ) {
+      GridColumn column = displayOrderedColumns.get( i );
+      result[ i ] = columns.indexOf( column );
+    }
+    return result;
+  }
+
+  /**
    * Clears the item at the given zero-relative index in the receiver.
    * The text, icon and other attributes of the item are set to the default
    * value.  If the table was created with the <code>SWT.VIRTUAL</code> style,

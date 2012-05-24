@@ -1355,6 +1355,82 @@ public class Grid_Test extends TestCase {
     }
   }
 
+  public void testGetColumnOrder_Initial() {
+    createGridColumns( grid, 5 );
+
+    assertTrue( Arrays.equals( new int[]{ 0, 1, 2, 3, 4 }, grid.getColumnOrder() ) );
+  }
+
+  public void testSetColumnOrder() {
+    createGridColumns( grid, 5 );
+    int[] order = new int[]{ 4, 1, 3, 2, 0 };
+
+    grid.setColumnOrder( order );
+
+    assertTrue( Arrays.equals( order, grid.getColumnOrder() ) );
+  }
+
+  public void testSetColumnOrder_NullArgument() {
+    try {
+      grid.setColumnOrder( null );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testSetColumnOrder_DifferentArraySize() {
+    createGridColumns( grid, 5 );
+    int[] order = new int[]{ 4, 1, 3, 2, 0, 6 };
+
+    try {
+      grid.setColumnOrder( order );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testSetColumnOrder_InvalidColumnIndex() {
+    createGridColumns( grid, 5 );
+    int[] order = new int[]{ 4, 1, 33, 2, 0 };
+
+    try {
+      grid.setColumnOrder( order );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testSetColumnOrder_DuplicateColumnIndex() {
+    createGridColumns( grid, 5 );
+    int[] order = new int[]{ 3, 1, 3, 2, 0 };
+
+    try {
+      grid.setColumnOrder( order );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testGetColumnOrder_AfterColumnAdd() {
+    createGridColumns( grid, 5 );
+    grid.setColumnOrder( new int[]{ 4, 1, 3, 2, 0 } );
+
+    new GridColumn( grid, SWT.NONE, 2 );
+
+    int[] expected = new int[]{ 5, 1, 2, 4, 3, 0 };
+    assertTrue( Arrays.equals( expected, grid.getColumnOrder() ) );
+  }
+
+  public void testGetColumnOrder_AfterColumnRemove() {
+    GridColumn[] columns = createGridColumns( grid, 5 );
+    grid.setColumnOrder( new int[]{ 4, 1, 3, 2, 0 } );
+
+    columns[ 3 ].dispose();
+
+    int[] expected = new int[]{ 3, 1, 2, 0 };
+    assertTrue( Arrays.equals( expected, grid.getColumnOrder() ) );
+  }
+
   //////////////////
   // Helping methods
 
