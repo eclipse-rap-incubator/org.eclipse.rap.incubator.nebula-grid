@@ -13,8 +13,6 @@ package org.eclipse.nebula.widgets.grid;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
-
 import org.eclipse.nebula.widgets.grid.internal.IScrollBarProxy;
 import org.eclipse.nebula.widgets.grid.internal.NullScrollBarProxy;
 import org.eclipse.nebula.widgets.grid.internal.ScrollBarProxyAdapter;
@@ -26,8 +24,6 @@ import org.eclipse.swt.events.TreeListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
 
 
 /**
@@ -703,6 +699,22 @@ public class Grid extends Canvas {
   }
 
   /**
+   * Returns true if the cells are selectable in the reciever.
+   *
+   * @return cell selection enablement status.
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public boolean getCellSelectionEnabled() {
+    checkWidget();
+    return cellSelectionEnabled;
+  }
+
+  /**
    * Selects the item at the given zero-relative index in the receiver. If the
    * item at the index was already selected, it remains selected. Indices that
    * are out of range are ignored.
@@ -1215,6 +1227,78 @@ public class Grid extends Canvas {
         GridItem item = selectedItems.get( i );
         result[ i ] = items.indexOf( item );
       }
+    }
+    return result;
+  }
+
+  /**
+   * Returns {@code true} if the item is selected, and {@code false}
+   * otherwise. Indices out of range are ignored.  If cell selection is
+   * enabled, returns true if the item at the given index contains at
+   * least one selected cell.
+   *
+   * @param index the index of the item
+   * @return the visibility state of the item at the index
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public boolean isSelected( int index ) {
+    checkWidget();
+    boolean result = false;
+    if( index >= 0 && index < items.size() ) {
+      if( cellSelectionEnabled ) {
+        for( Iterator iterator = selectedCells.iterator(); iterator.hasNext(); ) {
+          Point cell = ( Point )iterator.next();
+          if( cell.y == index ) {
+            result = true;
+          }
+        }
+      } else {
+        result = isSelected( items.get( index ) );
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Returns true if the given item is selected.  If cell selection is enabled,
+   * returns true if the given item contains at least one selected cell.
+   *
+   * @param item item
+   * @return true if the item is selected.
+   * @throws IllegalArgumentException
+   * <ul>
+   * <li>ERROR_NULL_ARGUMENT - if the item is null</li>
+   * </ul>
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public boolean isSelected( GridItem item ) {
+    checkWidget();
+    if( item == null ) {
+      SWT.error( SWT.ERROR_NULL_ARGUMENT );
+    }
+    boolean result = false;
+    if( cellSelectionEnabled ) {
+      int index = indexOf( item );
+      if( index != -1 ) {
+        for( Iterator iterатор = selectedCells.iterator(); iterатор.hasNext(); ) {
+          Point cell = ( Point )iterатор.next();
+          if( cell.y == index ) {
+            result = true;
+          }
+        }
+      }
+    } else {
+      result = selectedItems.contains( item );
     }
     return result;
   }

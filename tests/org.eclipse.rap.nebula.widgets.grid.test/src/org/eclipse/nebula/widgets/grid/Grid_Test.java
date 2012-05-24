@@ -518,6 +518,10 @@ public class Grid_Test extends TestCase {
     assertEquals( 0, grid.getSelectionCount() );
   }
 
+  public void testGetCellSelectionEnabled_Initial() {
+    assertFalse( grid.getCellSelectionEnabled() );
+  }
+
   public void testGetSelectionCount_Initial() {
     assertEquals( 0, grid.getSelectionCount() );
   }
@@ -1184,6 +1188,65 @@ public class Grid_Test extends TestCase {
 
   public void testGetSelectionIndicies_WithoutSelection() {
     assertTrue( Arrays.equals( new int[ 0 ], grid.getSelectionIndices() ) );
+  }
+
+  public void testIsSelectedByIndex_Initial() {
+    createGridItems( grid, 3, 0 );
+
+    assertFalse( grid.isSelected( 0 ) );
+    assertFalse( grid.isSelected( 1 ) );
+    assertFalse( grid.isSelected( 2 ) );
+  }
+
+  public void testIsSelectedByIndex() {
+    createGridItems( grid, 3, 0 );
+
+    grid.select( 1 );
+
+    assertFalse( grid.isSelected( 0 ) );
+    assertTrue( grid.isSelected( 1 ) );
+    assertFalse( grid.isSelected( 2 ) );
+  }
+
+  public void testIsSelectedByIndex_InvalidIndex() {
+    createGridItems( grid, 3, 0 );
+
+    assertFalse( grid.isSelected( 5 ) );
+  }
+
+  public void testIsSelectedByItem_Initial() {
+    GridItem[] items = createGridItems( grid, 3, 0 );
+
+    assertFalse( grid.isSelected( items[ 0 ] ) );
+    assertFalse( grid.isSelected( items[ 1 ] ) );
+    assertFalse( grid.isSelected( items[ 2 ] ) );
+  }
+
+  public void testIsSelectedByItem() {
+    GridItem[] items = createGridItems( grid, 3, 0 );
+
+    grid.select( 1 );
+
+    assertFalse( grid.isSelected( items[ 0 ] ) );
+    assertTrue( grid.isSelected( items[ 1 ] ) );
+    assertFalse( grid.isSelected( items[ 2 ] ) );
+  }
+
+  public void testIsSelectedByItem_NullArgument() {
+    try {
+      grid.isSelected( null );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testIsSelectedByItem_DisposedItem() {
+    GridItem[] items = createGridItems( grid, 3, 0 );
+    grid.select( 1 );
+
+    items[ 1 ].dispose();
+
+    assertFalse( grid.isSelected( items[ 1 ] ) );
   }
 
   //////////////////
