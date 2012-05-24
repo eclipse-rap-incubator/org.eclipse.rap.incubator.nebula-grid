@@ -450,6 +450,72 @@ public class Grid extends Canvas {
   }
 
   /**
+   * Returns the next visible item in the table.
+   *
+   * @param item item
+   * @return next visible item or null
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public GridItem getNextVisibleItem( GridItem item ) {
+    checkWidget();
+    GridItem result = null;
+    int index = items.indexOf( item );
+    if( index != items.size() - 1 ) {
+      result = items.get( index + 1 );
+      while( result != null && !result.isVisible() ) {
+        index++;
+        if( index != items.size() - 1 ) {
+          result = items.get( index + 1 );
+        } else {
+          result = null;
+        }
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Returns the previous visible item in the table. Passing null for the item
+   * will return the last visible item in the table.
+   *
+   * @param item item or null
+   * @return previous visible item or if item==null last visible item
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public GridItem getPreviousVisibleItem( GridItem item ) {
+    checkWidget();
+    GridItem result = null;
+    int index = 0;
+    if( item == null ) {
+      index = items.size();
+    } else {
+      index = items.indexOf( item );
+    }
+    if( index > 0 ) {
+      result = items.get( index - 1 );
+      while( result != null && !result.isVisible() ) {
+        index--;
+        if( index > 0 ) {
+          result = items.get( index - 1 );
+        } else {
+          result = null;
+        }
+      }
+    }
+    return result;
+  }
+
+  /**
    * Returns the number of columns contained in the receiver. If no
    * {@code GridColumn}s were created by the programmer, this value is
    * zero, despite the fact that visually, one column of items may be visible.
@@ -647,6 +713,71 @@ public class Grid extends Canvas {
     for( int i = 0; i < result.length; i++ ) {
       GridColumn column = displayOrderedColumns.get( i );
       result[ i ] = columns.indexOf( column );
+    }
+    return result;
+  }
+
+  /**
+   * Returns the next visible column in the table.
+   *
+   * @param column column
+   * @return next visible column or null
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public GridColumn getNextVisibleColumn( GridColumn column ) {
+    checkWidget();
+    GridColumn result = null;
+    int index = displayOrderedColumns.indexOf( column );
+    if( index != displayOrderedColumns.size() - 1 ) {
+      result = displayOrderedColumns.get( index + 1 );
+      while( result != null && !result.isVisible() ) {
+        index++;
+        if( index != displayOrderedColumns.size() - 1 ) {
+          result = displayOrderedColumns.get( index + 1 );
+        } else {
+          result = null;
+        }
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Returns the previous visible column in the table.
+   *
+   * @param column column
+   * @return previous visible column or null
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public GridColumn getPreviousVisibleColumn( GridColumn column ) {
+    checkWidget();
+    GridColumn result = null;
+    int index = 0;
+    if( column == null ) {
+      index = displayOrderedColumns.size();
+    } else {
+      index = displayOrderedColumns.indexOf( column );
+    }
+    if( index > 0 ) {
+      result = displayOrderedColumns.get( index - 1 );
+      while( result != null && !result.isVisible() ) {
+        index--;
+        if( index > 0 ) {
+          result = displayOrderedColumns.get( index - 1 );
+        } else {
+          result = null;
+        }
+      }
     }
     return result;
   }

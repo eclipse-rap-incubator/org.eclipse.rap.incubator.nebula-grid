@@ -1431,6 +1431,134 @@ public class Grid_Test extends TestCase {
     assertTrue( Arrays.equals( expected, grid.getColumnOrder() ) );
   }
 
+  public void testGetNextVisibleItem_CollapsedItem() {
+    GridItem[] items = createGridItems( grid, 3, 3 );
+
+    assertSame( items[ 8 ], grid.getNextVisibleItem( items[ 4 ] ) );
+  }
+
+  public void testGetNextVisibleItem_ExpandedItem() {
+    GridItem[] items = createGridItems( grid, 3, 3 );
+    items[ 4 ].setExpanded( true );
+
+    assertSame( items[ 5 ], grid.getNextVisibleItem( items[ 4 ] ) );
+  }
+
+  public void testGetNextVisibleItem_NullArgument() {
+    GridItem[] items = createGridItems( grid, 3, 3 );
+
+    assertSame( items[ 0 ], grid.getNextVisibleItem( null ) );
+  }
+
+  public void testGetNextVisibleItem_LastItem() {
+    GridItem[] items = createGridItems( grid, 3, 3 );
+
+    assertNull( grid.getNextVisibleItem( items[ 11 ] ) );
+  }
+
+  public void testGetNextVisibleItem_AllNextNotVisible() {
+    GridItem[] items = createGridItems( grid, 3, 3 );
+
+    assertNull( grid.getNextVisibleItem( items[ 8 ] ) );
+  }
+
+  public void testGetPreviousVisibleItem_CollapsedItem() {
+    GridItem[] items = createGridItems( grid, 3, 3 );
+
+    assertSame( items[ 0 ], grid.getPreviousVisibleItem( items[ 4 ] ) );
+  }
+
+  public void testGetPreviousVisibleItem_ExpandedItem() {
+    GridItem[] items = createGridItems( grid, 3, 3 );
+    items[ 0 ].setExpanded( true );
+
+    assertSame( items[ 3 ], grid.getPreviousVisibleItem( items[ 4 ] ) );
+  }
+
+  public void testGetPreviousVisibleItem_NullArgument() {
+    GridItem[] items = createGridItems( grid, 3, 3 );
+
+    assertSame( items[ 8 ], grid.getPreviousVisibleItem( null ) );
+  }
+
+  public void testGetPreviousVisibleItem_FirstItem() {
+    GridItem[] items = createGridItems( grid, 3, 3 );
+
+    assertNull( grid.getPreviousVisibleItem( items[ 0 ] ) );
+  }
+
+  public void testGetNextVisibleColumn_NextNotVisible() {
+    GridColumn[] columns = createGridColumns( grid, 5 );
+    columns[ 3 ].setVisible( false );
+
+    assertSame( columns[ 4 ], grid.getNextVisibleColumn( columns[ 2 ] ) );
+  }
+
+  public void testGetNextVisibleColumn_NextVisible() {
+    GridColumn[] columns = createGridColumns( grid, 5 );
+
+    assertSame( columns[ 3 ], grid.getNextVisibleColumn( columns[ 2 ] ) );
+  }
+
+  public void testGetNextVisibleColumn_NullArgument() {
+    GridColumn[] columns = createGridColumns( grid, 5 );
+
+    assertSame( columns[ 0 ], grid.getNextVisibleColumn( null ) );
+  }
+
+  public void testGetNextVisibleColumn_LastColumn() {
+    GridColumn[] columns = createGridColumns( grid, 5 );
+
+    assertNull( grid.getNextVisibleColumn( columns[ 4 ] ) );
+  }
+
+  public void testGetNextVisibleColumn_AllNextNotVisible() {
+    GridColumn[] columns = createGridColumns( grid, 5 );
+    columns[ 3 ].setVisible( false );
+    columns[ 4 ].setVisible( false );
+
+    assertNull( grid.getNextVisibleColumn( columns[ 2 ] ) );
+  }
+
+  public void testGetNextVisibleColumn_WithColumnOrder() {
+    GridColumn[] columns = createGridColumns( grid, 5 );
+    grid.setColumnOrder( new int[]{ 4, 0, 2, 1, 3 } );
+
+    assertSame( columns[ 1 ], grid.getNextVisibleColumn( columns[ 2 ] ) );
+  }
+
+  public void testGetPreviousVisibleColumn_PreviousNotVisible() {
+    GridColumn[] columns = createGridColumns( grid, 5 );
+    columns[ 1 ].setVisible( false );
+
+    assertSame( columns[ 0 ], grid.getPreviousVisibleColumn( columns[ 2 ] ) );
+  }
+
+  public void testGetPreviousVisibleColumn_PreviousVisible() {
+    GridColumn[] columns = createGridColumns( grid, 5 );
+
+    assertSame( columns[ 1 ], grid.getPreviousVisibleColumn( columns[ 2 ] ) );
+  }
+
+  public void testGetPreviousVisibleColumn_NullArgument() {
+    GridColumn[] columns = createGridColumns( grid, 5 );
+
+    assertSame( columns[ 4 ], grid.getPreviousVisibleColumn( null ) );
+  }
+
+  public void testGetPreviousVisibleColumn_FirstColumn() {
+    GridColumn[] columns = createGridColumns( grid, 5 );
+
+    assertNull( grid.getPreviousVisibleColumn( columns[ 0 ] ) );
+  }
+
+  public void testGetPreviousVisibleColumn_WithColumnOrder() {
+    GridColumn[] columns = createGridColumns( grid, 5 );
+    grid.setColumnOrder( new int[]{ 4, 0, 2, 1, 3 } );
+
+    assertSame( columns[ 0 ], grid.getPreviousVisibleColumn( columns[ 2 ] ) );
+  }
+
   //////////////////
   // Helping methods
 
