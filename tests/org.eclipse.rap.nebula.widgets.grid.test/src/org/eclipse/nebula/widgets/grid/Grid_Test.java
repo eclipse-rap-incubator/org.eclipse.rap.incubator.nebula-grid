@@ -27,6 +27,7 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TreeAdapter;
 import org.eclipse.swt.events.TreeEvent;
 import org.eclipse.swt.events.TreeListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
@@ -1257,6 +1258,49 @@ public class Grid_Test extends TestCase {
     grid.setHeaderVisible( true );
 
     assertTrue( grid.getHeaderVisible() );
+  }
+
+  public void testGetLineColor_Initial() {
+    assertNull( grid.getLineColor() );
+  }
+
+  public void testGetLineColor() {
+    Color color = new Color( display, 255, 0, 0 );
+
+    grid.setLineColor( color );
+
+    assertSame( color, grid.getLineColor() );
+  }
+
+  public void testSetLineColor_DisposedColor() {
+    Color color = new Color( display, 255, 0, 0 );
+    color.dispose();
+
+    try {
+      grid.setLineColor( color );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testGetLinesVisible_Initial() {
+    assertTrue( grid.getLinesVisible() );
+  }
+
+  public void testGetLinesVisible() {
+    grid.setLinesVisible( false );
+
+    assertFalse( grid.getLinesVisible() );
+  }
+
+  public void testGetTreeLinesVisible_Initial() {
+    assertTrue( grid.getTreeLinesVisible() );
+  }
+
+  public void testGetTreeLinesVisible() {
+    grid.setTreeLinesVisible( false );
+
+    assertFalse( grid.getTreeLinesVisible() );
   }
 
   //////////////////

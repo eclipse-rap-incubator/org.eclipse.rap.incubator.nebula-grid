@@ -21,6 +21,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TreeEvent;
 import org.eclipse.swt.events.TreeListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
@@ -122,6 +123,21 @@ public class Grid extends Canvas {
    * Are column headers visible?
    */
   private boolean columnHeadersVisible = false;
+
+  /**
+   * Grid line color.
+   */
+  private Color lineColor;
+
+  /**
+   * Are the grid lines visible?
+   */
+  private boolean linesVisible = true;
+
+  /**
+   * Are tree lines visible?
+   */
+  private boolean treeLinesVisible = true;
 
   /**
    * The number of GridItems whose visible = true. Maintained for
@@ -1451,6 +1467,107 @@ public class Grid extends Canvas {
   public boolean getHeaderVisible() {
     checkWidget();
     return columnHeadersVisible;
+  }
+
+  /**
+   * Sets the line color.
+   *
+   * @param lineColor The lineColor to set.
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public void setLineColor( Color lineColor ) {
+    checkWidget();
+    if( lineColor != null && lineColor.isDisposed() ) {
+      SWT.error( SWT.ERROR_INVALID_ARGUMENT );
+    }
+    this.lineColor = lineColor;
+  }
+
+  /**
+   * Returns the line color.
+   *
+   * @return Returns the lineColor.
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public Color getLineColor() {
+    checkWidget();
+    return lineColor;
+  }
+
+  /**
+   * Sets the line visibility.
+   *
+   * @param linesVisible The linesVisible to set.
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public void setLinesVisible( boolean linesVisible ) {
+    checkWidget();
+    this.linesVisible = linesVisible;
+    redraw();
+  }
+
+  /**
+   * Returns true if the lines are visible.
+   *
+   * @return Returns the linesVisible.
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public boolean getLinesVisible() {
+    checkWidget();
+    return linesVisible;
+  }
+
+  /**
+   * Sets the tree line visibility.
+   *
+   * @param treeLinesVisible
+   * @throws org.eclipse.swt.SWTException
+     * <ul>
+     * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+     * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+     * created the receiver</li>
+     * </ul>
+   */
+  public void setTreeLinesVisible( boolean treeLinesVisible ) {
+    checkWidget();
+    this.treeLinesVisible = treeLinesVisible;
+    redraw();
+  }
+
+  /**
+   * Returns true if the tree lines are visible.
+   *
+   * @return Returns the treeLinesVisible.
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public boolean getTreeLinesVisible() {
+    checkWidget();
+    return treeLinesVisible;
   }
 
   /**
