@@ -50,10 +50,7 @@ getHeight()
 setHeight( int )                            - make it private (no different row height)
 fireCheckEvent()                            - index field is missing
 add/removeControlListener(ControlListener)
-set/getHeaderText()
-set/getHeaderImage()
-set/getHeaderBackground()
-set/getHeaderForeground()
+
 GridColumn
 ----------------------------
 ctor with ColumnGroup

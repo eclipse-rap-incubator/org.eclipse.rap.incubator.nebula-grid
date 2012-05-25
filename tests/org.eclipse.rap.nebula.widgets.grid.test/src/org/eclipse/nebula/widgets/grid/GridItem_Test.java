@@ -848,6 +848,101 @@ public class GridItem_Test extends TestCase {
     assertEquals( 0, item.getColumnSpan( 2 ) );
   }
 
+  public void testGetHeaderText_Initial() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    assertNull( item.getHeaderText() );
+  }
+
+  public void testSetHeaderText() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    item.setHeaderText( "foo" );
+
+    assertEquals( "foo", item.getHeaderText() );
+  }
+
+  public void testGetHeaderImage_Initial() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    assertNull( item.getHeaderImage() );
+  }
+
+  public void testSetHeaderImage() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+    Image image = loadImage( display, Fixture.IMAGE1 );
+
+    item.setHeaderImage( image );
+
+    assertSame( image, item.getHeaderImage() );
+  }
+
+  public void testSetHeaderImage_DisposedImage() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+    Image image = loadImage( display, Fixture.IMAGE1 );
+    image.dispose();
+
+    try {
+      item.setHeaderImage( image );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testGetHeaderBackground_Initial() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    assertNull( item.getHeaderBackground() );
+  }
+
+  public void testGetHeaderBackground() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+    Color background = new Color( display, 0, 0, 255 );
+
+    item.setHeaderBackground( background );
+
+    assertSame( background, item.getHeaderBackground() );
+  }
+
+  public void testSetHeaderBackground_DisposedFont() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+    Color background = new Color( display, 0, 0, 255 );
+    background.dispose();
+
+    try {
+      item.setHeaderBackground( background );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testGetHeaderForeground_Initial() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    assertNull( item.getHeaderForeground() );
+  }
+
+  public void testGetHeaderForeground() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+    Color foreground = new Color( display, 0, 0, 255 );
+
+    item.setHeaderForeground( foreground );
+
+    assertSame( foreground, item.getHeaderForeground() );
+  }
+
+  public void testSetHeaderForeground_DisposedFont() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+    Color foreground = new Color( display, 0, 0, 255 );
+    foreground.dispose();
+
+    try {
+      item.setHeaderForeground( foreground );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
   //////////////////
   // Helping methods
 

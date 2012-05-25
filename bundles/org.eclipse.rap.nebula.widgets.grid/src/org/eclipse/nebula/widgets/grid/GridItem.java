@@ -103,6 +103,26 @@ public class GridItem extends Item {
   private Color defaultForeground;
 
   /**
+   * Row header text.
+   */
+  private String headerText;
+
+  /**
+   * Row header image
+   */
+  private Image headerImage;
+
+  /**
+   * Background color of the header
+   */
+  private Color headerBackground;
+
+  /**
+   * Foreground color of the header
+   */
+  private Color headerForeground;
+
+  /**
    * Creates a new instance of this class and places the item at the end of
    * the grid.
    *
@@ -1273,6 +1293,177 @@ public class GridItem extends Item {
   public int getColumnSpan( int index ) {
     checkWidget();
     return getItemData( index ).columnSpan;
+  }
+
+  /**
+   * Sets the receiver's row header text. If the text is <code>null</code> the
+   * row header will display the row number.
+   *
+   * @param text
+   *            the new text
+   * @throws IllegalArgumentException
+   *             <ul>
+   *             <li>ERROR_NULL_ARGUMENT - if the text is null</li>
+   *             </ul>
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public void setHeaderText( String text ) {
+    checkWidget();
+    if( headerText != text ) {
+      headerText = text;
+// TODO: [if] Implement these methods when row header is supported on the client
+//      parent.recalculateRowHeaderWidth( this, oldWidth, newWidth );
+      parent.redraw();
+    }
+  }
+
+  /**
+   * Returns the receiver's row header text. If the text is <code>null</code>
+   * the row header will display the row number.
+   *
+   * @return the text stored for the row header or code <code>null</code> if
+   *         the default has to be displayed
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public String getHeaderText() {
+    checkWidget();
+    return headerText;
+  }
+
+  /**
+   * Sets the receiver's row header image. If the image is <code>null</code>
+   * none is shown in the header
+   *
+   * @param image
+   *            the new image
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public void setHeaderImage( Image image ) {
+    checkWidget();
+    if( image != null && image.isDisposed() ) {
+      SWT.error( SWT.ERROR_INVALID_ARGUMENT );
+    }
+    if( image != headerImage ) {
+      headerImage = image;
+// TODO: [if] Implement these methods when row header is supported on the client
+//      parent.recalculateRowHeaderWidth( this, oldWidth, newWidth );
+//      parent.recalculateRowHeaderHeight( this, oldHeight, newHeight );
+      parent.redraw();
+    }
+  }
+
+  /**
+   * Returns the receiver's row header image.
+   *
+   * @return the image stored for the header or <code>null</code> if none has
+   *         to be displayed
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public Image getHeaderImage() {
+    checkWidget();
+    return headerImage;
+  }
+
+  /**
+   * Set the new header background
+   *
+   * @param headerBackground
+   *            the color or <code>null</code>
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public void setHeaderBackground( Color headerBackground ) {
+    checkWidget();
+    if( headerBackground != null && headerBackground.isDisposed() ) {
+      SWT.error( SWT.ERROR_INVALID_ARGUMENT );
+    }
+    this.headerBackground = headerBackground;
+    parent.redraw();
+  }
+
+  /**
+   * Returns the receiver's row header background color
+   *
+   * @return the color or <code>null</code> if none
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public Color getHeaderBackground() {
+    checkWidget();
+    return headerBackground;
+  }
+
+  /**
+   * Set the new header foreground
+   *
+   * @param headerForeground
+   *            the color or <code>null</code>
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public void setHeaderForeground( Color headerForeground ) {
+    checkWidget();
+    if( headerForeground != null && headerForeground.isDisposed() ) {
+      SWT.error( SWT.ERROR_INVALID_ARGUMENT );
+    }
+    this.headerForeground = headerForeground;
+    parent.redraw();
+  }
+
+  /**
+   * Returns the receiver's row header foreground color
+   *
+   * @return the color or <code>null</code> if none
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public Color getHeaderForeground() {
+    checkWidget();
+    return headerForeground;
   }
 
   /**
