@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
@@ -254,6 +256,61 @@ public class GridItem extends Item {
       }
     }
     super.dispose();
+  }
+
+  /**
+   * Adds the listener to the collection of listeners who will be notified
+   * when the row is resized, by sending it one of the messages defined in the
+   * <code>ControlListener</code> interface.
+   * <p>
+   * Clients who wish to override the standard row resize logic should use the
+   * untyped listener mechanisms. The untyped <code>Event</code> object passed
+   * to an untyped listener will have its <code>detail</code> field populated
+   * with the new row height. Clients may alter this value to, for example,
+   * enforce minimum or maximum row sizes. Clients may also set the
+   * <code>doit</code> field to false to prevent the entire resize operation.
+   *
+   * @param listener
+   *            the listener which should be notified
+   *
+   * @exception IllegalArgumentException
+   *                <ul>
+   *                <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
+   *                </ul>
+   * @exception org.eclipse.swt.SWTException
+   *                <ul>
+   *                <li>ERROR_WIDGET_DISPOSED - if the receiver has been
+   *                disposed</li> <li>ERROR_THREAD_INVALID_ACCESS - if not
+   *                called from the thread that created the receiver</li>
+   *                </ul>
+   */
+  public void addControlListener( ControlListener listener ) {
+    checkWidget();
+    ControlEvent.addListener( this, listener );
+  }
+
+  /**
+   * Removes the listener from the collection of listeners who will be
+   * notified when the row is resized.
+   *
+   * @param listener
+   *            the listener which should no longer be notified
+   *
+   * @exception IllegalArgumentException
+   *                <ul>
+   *                <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
+   *                </ul>
+   * @exception org.eclipse.swt.SWTException
+   *                <ul>
+   *                <li>ERROR_WIDGET_DISPOSED - if the receiver has been
+   *                disposed</li>
+   *                <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *                thread that created the receiver</li>
+   *                </ul>
+   */
+  public void removeControlListener( ControlListener listener ) {
+    checkWidget();
+    ControlEvent.removeListener( this, listener );
   }
 
   /**

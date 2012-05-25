@@ -19,6 +19,9 @@ import java.util.List;
 import org.eclipse.rap.rwt.testfixture.Fixture;
 import org.eclipse.rwt.lifecycle.PhaseId;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ControlAdapter;
+import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
@@ -938,6 +941,38 @@ public class GridItem_Test extends TestCase {
 
     try {
       item.setHeaderForeground( foreground );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testAddRemoveControlListener() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+    ControlListener listener = new ControlAdapter() { };
+    assertFalse( ControlEvent.hasListener( item ) );
+
+    item.addControlListener( listener );
+    assertTrue( ControlEvent.hasListener( item ) );
+
+    item.removeControlListener( listener );
+    assertFalse( ControlEvent.hasListener( item ) );
+  }
+
+  public void testAddControlListener_NullArgument() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    try {
+      item.addControlListener( null );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testRemoveControlListener_NullArgument() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    try {
+      item.removeControlListener( null );
       fail();
     } catch( IllegalArgumentException expected ) {
     }

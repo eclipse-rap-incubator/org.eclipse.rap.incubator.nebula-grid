@@ -49,7 +49,6 @@ pack()
 getHeight()
 setHeight( int )                            - make it private (no different row height)
 fireCheckEvent()                            - index field is missing
-add/removeControlListener(ControlListener)
 
 GridColumn
 ----------------------------
