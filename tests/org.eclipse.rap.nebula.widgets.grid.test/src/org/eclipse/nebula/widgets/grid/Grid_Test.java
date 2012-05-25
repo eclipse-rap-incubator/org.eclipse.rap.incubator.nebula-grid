@@ -1586,6 +1586,22 @@ public class Grid_Test extends TestCase {
     assertSame( columns[ 0 ], grid.getPreviousVisibleColumn( columns[ 2 ] ) );
   }
 
+  public void testGetRowsResizeable_Initial() {
+    assertFalse( grid.getRowsResizeable() );
+  }
+
+  public void testIsRowHeaderVisible_Initial() {
+    assertFalse( grid.isRowHeaderVisible() );
+  }
+
+  public void testGetItemHeaderWidth_Initial() {
+    assertEquals( 0, grid.getItemHeaderWidth() );
+  }
+
+  public void testGetRowHeaderWidth_Initial() {
+    assertEquals( 0, grid.getRowHeaderWidth() );
+  }
+
   //////////////////
   // Helping methods
 

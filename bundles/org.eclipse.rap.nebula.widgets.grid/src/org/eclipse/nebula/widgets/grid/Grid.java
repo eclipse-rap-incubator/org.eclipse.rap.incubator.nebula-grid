@@ -145,6 +145,21 @@ public class Grid extends Canvas {
   private boolean treeLinesVisible = true;
 
   /**
+   * Are this <code>Grid</code>'s rows resizeable?
+   */
+  private boolean rowsResizeable = false;
+
+  /**
+   * Are row headers visible?
+   */
+  private boolean rowHeaderVisible = false;
+
+  /**
+   * Width of each row header.
+   */
+  private int rowHeaderWidth = 0;
+
+  /**
    * The number of GridItems whose visible = true. Maintained for
    * performance reasons (rather than iterating over all items).
    */
@@ -1863,6 +1878,74 @@ public class Grid extends Canvas {
   public GridItem getFocusItem() {
     checkWidget();
     return focusItem;
+  }
+
+  /**
+   * Returns true if the rows are resizable.
+   *
+   * @return the row resizeable state
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   * <!--@see #setRowsResizeable(boolean)-->
+   */
+  public boolean getRowsResizeable() {
+    checkWidget();
+    return rowsResizeable;
+  }
+
+  /**
+   * Returns {@code true} if the receiver's row header is visible, and
+   * {@code false} otherwise.
+   * <p>
+   *
+   * @return the receiver's row header's visibility state
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public boolean isRowHeaderVisible() {
+    checkWidget();
+    return rowHeaderVisible;
+  }
+
+  /**
+   * Returns the row header width or 0 if row headers are not visible.
+   *
+   * @return the width of the row headers
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public int getItemHeaderWidth() {
+    checkWidget();
+    return rowHeaderVisible ? rowHeaderWidth : 0;
+  }
+
+  /**
+   * Returns the width of the row headers.
+   *
+   * @return width of the column header row
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public int getRowHeaderWidth() {
+    checkWidget();
+    return rowHeaderWidth;
   }
 
   /**
