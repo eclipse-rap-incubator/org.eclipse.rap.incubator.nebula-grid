@@ -1,19 +1,81 @@
 Grid
 ----------------------------
+computeSize(int, int, boolean)
+getColumnGroupCount()
+getColumnGroups()
+getColumnGroup(int)
+indexOf(GridColumn)
+getHeaderHeight()
+getFooterHeight()
+getGroupHeaderHeight()
+set/getFooterVisible()
+set/getRowsResizeable()
+set/getTopIndex()
+setRowHeaderVisible(boolean)
+getRowHeaderWidth()
+isRowHeaderVisible()
+set/getFooterVisible(boolean)
+setCellSelectionEnabled(boolean)
+getCellSelectionCount()
+isCellSelected(Point)
+getCell(Point)
+getFocusCell()
+setFocusColumn(GridColumn)
+set/getColumnScrolling(boolean)
+showColumn(GridColumn)
+showItem(GridItem)
+showSelection()
+deselectCell(Point)
+deselectCells(Point[])
+deselectAllCells()
+selectCell(Point)
+selectCells(Point[])
+selectAllCells()
+setCellSelection(Point)
+setCellSelection(Point[])
+getCellSelection()
+selectColumn(int)
+selectColumnGroup(int)
+selectColumnGroup(GridColumnGroup)
+set/getItemHeaderWidth()
+setItemCount(int)
+set/getToolTipText(String)
+recalculateHeader()
+getVisibleRange()
+set/isAutoHeight(boolean)
+set/isAutoWidth(boolean)
+set/isWordWrapHeader(boolean)
+we will not implement all set/getRenderer methods!!!
 
 GridItem
 ----------------------------
 getBounds( index )
 getCellSize( index )
+pack()
 getHeight()
 setHeight( int ) - make it private
-pack()
 fireCheckEvent() - index field is missing
+add/removeControlListener(ControlListener) - resizeable row
+set/getHeaderText()
+set/getHeaderImage()
+set/getHeaderBackground()
+set/getHeaderForeground()
 
 GridColumn
 ----------------------------
+ctor with ColumnGroup
+getColumnGroup()
 isVisible() - activate commented code after GridGroup is available
+pack()
+set/getCellSelectionEnabled()
 set/getWordWrap()
 set/getHeaderWordWrap()
-pack()
 set/getHeaderTooltip()
+set/getHeaderControl(Control)
+set/getFooterImage(Image)
+set/getFooterText(String)
+set/getFooterFont(Font)
+
+GridColumnGroup
+----------------------------
+all
