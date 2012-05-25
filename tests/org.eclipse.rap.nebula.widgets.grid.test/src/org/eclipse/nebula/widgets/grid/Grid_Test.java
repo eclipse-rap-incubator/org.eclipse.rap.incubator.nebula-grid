@@ -104,6 +104,33 @@ public class Grid_Test extends TestCase {
     assertEquals( 10, grid.getItemCount() );
   }
 
+  public void testSetItemCount_MoreItems() {
+    createGridItems( grid, 3, 3 );
+
+    grid.setItemCount( 15 );
+
+    assertEquals( 15, grid.getItemCount() );
+    assertEquals( 6, grid.getRootItemCount() );
+  }
+
+  public void testSetItemCount_LessItems() {
+    GridItem[] items = createGridItems( grid, 3, 3 );
+
+    grid.setItemCount( 6 );
+
+    assertEquals( 6, grid.getItemCount() );
+    assertEquals( 2, grid.getRootItemCount() );
+    assertEquals( 1, items[ 4 ].getItemCount() );
+  }
+
+  public void testSetItemCount_NoChange() {
+    GridItem[] items = createGridItems( grid, 3, 3 );
+
+    grid.setItemCount( 12 );
+
+    assertTrue( Arrays.equals( items, grid.getItems() ) );
+  }
+
   public void testGetRootItems() {
     GridItem[] items = createGridItems( grid, 3, 1 );
 
@@ -1567,10 +1594,12 @@ public class Grid_Test extends TestCase {
     int counter = 0;
     for( int i = 0; i < rootItems; i++ ) {
       GridItem rootItem = new GridItem( grid, SWT.NONE );
+      rootItem.setText( "root_" + i );
       result[ counter ] = rootItem;
       counter++;
       for( int j = 0; j < childItems; j++ ) {
         GridItem childItem = new GridItem( rootItem, SWT.NONE );
+        childItem.setText( rootItem.getText() + "_child_" + j );
         result[ counter ] = childItem;
         counter++;
       }

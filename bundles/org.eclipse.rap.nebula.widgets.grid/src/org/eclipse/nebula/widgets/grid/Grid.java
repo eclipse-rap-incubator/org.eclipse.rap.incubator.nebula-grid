@@ -307,6 +307,28 @@ public class Grid extends Canvas {
   }
 
   /**
+   * Sets the number of items contained in the receiver.
+   *
+   * @param count the number of items
+   *
+   * @exception org.eclipse.swt.SWTException
+   * <ul>
+   *    <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver</li>
+   * </ul>
+   */
+  public void setItemCount( int count ) {
+    checkWidget();
+    int itemCount = Math.max( 0, count );
+    while( itemCount < items.size() ) {
+      items.get( items.size() - 1 ).dispose();
+    }
+    while( itemCount > items.size() ) {
+      new GridItem( this, SWT.NONE );
+    }
+  }
+
+  /**
    * Returns the number of items contained in the receiver.
    *
    * @return the number of items
