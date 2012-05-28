@@ -13,16 +13,24 @@ package org.eclipse.nebula.widgets.grid;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 import org.eclipse.nebula.widgets.grid.internal.IScrollBarProxy;
 import org.eclipse.nebula.widgets.grid.internal.NullScrollBarProxy;
 import org.eclipse.nebula.widgets.grid.internal.ScrollBarProxyAdapter;
+import org.eclipse.nebula.widgets.grid.internal.gridkit.GridThemeAdapter;
+import org.eclipse.rwt.graphics.Graphics;
+import org.eclipse.rwt.internal.theme.IThemeAdapter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TreeEvent;
 import org.eclipse.swt.events.TreeListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.internal.SerializableCompatibility;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 
@@ -45,7 +53,10 @@ import org.eclipse.swt.widgets.Composite;
  * <dd>Selection, DefaultSelection</dd>
  * </dl>
  */
+@SuppressWarnings("restriction")
 public class Grid extends Canvas {
+
+  private static final int MIN_ITEM_HEIGHT = 16;
 
   /**
    * Vertical scrollbar proxy.
@@ -120,7 +131,7 @@ public class Grid extends Canvas {
 
   /**
    * True if three is at least one cell spanning columns.  This is used in various places for
-   * optimizatoin.
+   * optimization.
    */
   private boolean hasSpanning = false;
 
@@ -175,7 +186,14 @@ public class Grid extends Canvas {
    */
   private boolean selectionEnabled = true;
 
+  /**
+   * True if cell selection highlighting is enabled.
+   */
   private boolean cellSelectionEnabled = false;
+
+  private int customItemHeight = -1;
+  private Point itemImageSize;
+  LayoutCache layoutCache;
 
   /**
    * Constructs a new instance of this class given its parent and a style
@@ -215,6 +233,7 @@ public class Grid extends Canvas {
       hScroll = new NullScrollBarProxy();
     }
     scrollValuesObsolete = true;
+    layoutCache = new LayoutCache();
     initListeners();
   }
 
@@ -949,6 +968,8 @@ public class Grid extends Canvas {
       // [if] Note: The parameter allChildren has no effect as all items (not only rootItems)
       // are cleared
       clear( 0, itemsCount - 1, allChildren );
+      itemImageSize = null;
+      layoutCache.invalidateItemHeight();
     }
   }
 
@@ -1949,6 +1970,72 @@ public class Grid extends Canvas {
   }
 
   /**
+   * Sets the default height for this <code>Grid</code>'s items.  When
+   * this method is called, all existing items are resized
+   * to the specified height and items created afterwards will be
+   * initially sized to this height.
+   * <p>
+   * As long as no default height was set by the client through this method,
+   * the preferred height of the first item in this <code>Grid</code> is
+   * used as a default for all items (and is returned by {@link #getItemHeight()}).
+   *
+   * @param height  default height in pixels
+   * @throws IllegalArgumentException
+   * <ul>
+   * <li>ERROR_INVALID_ARGUMENT - if the height is < 1</li>
+   * </ul>
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   *
+   * @see GridItem#getHeight()
+   */
+  public void setItemHeight( int height ) {
+    checkWidget();
+    if( height < 1 ) {
+      SWT.error( SWT.ERROR_INVALID_ARGUMENT );
+    }
+    customItemHeight = height;
+    setScrollValuesObsolete();
+  }
+
+  /**
+   * Returns the default height of the items
+   * in this <code>Grid</code>. See {@link #setItemHeight(int)}
+   * for details.
+   *
+   * @return default height of items
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   * @see #setItemHeight(int)
+   */
+  public int getItemHeight() {
+    checkWidget();
+    int result = customItemHeight;
+    if( result == -1 ) {
+      if( !layoutCache.hasItemHeight() ) {
+        layoutCache.itemHeight = computeItemHeight();
+      }
+      result = layoutCache.itemHeight;
+    }
+    return result;
+  }
+
+  @Override
+  public void setFont( Font font ) {
+    super.setFont( font );
+    layoutCache.invalidateItemHeight();
+    setScrollValuesObsolete();
+  }
+
+  /**
    * Creates the new item at the given index. Only called from GridItem
    * constructor.
    *
@@ -2054,6 +2141,9 @@ public class Grid extends Canvas {
       GridItem item = ( GridItem )iterator.next();
       item.columnAdded( index );
     }
+    if( column.isCheck() ) {
+      layoutCache.invalidateItemHeight();
+    }
     scrollValuesObsolete = true;
     redraw();
     return columns.size() - 1;
@@ -2072,6 +2162,9 @@ public class Grid extends Canvas {
     for( Iterator iterator = items.iterator(); iterator.hasNext(); ) {
       GridItem item = ( GridItem )iterator.next();
       item.columnRemoved( index );
+    }
+    if( column.isCheck() ) {
+      layoutCache.invalidateItemHeight();
     }
     scrollValuesObsolete = true;
     redraw();
@@ -2105,6 +2198,21 @@ public class Grid extends Canvas {
   GridColumn[] getColumnsInOrder() {
     checkWidget();
     return displayOrderedColumns.toArray( new GridColumn[ columns.size() ] );
+  }
+
+  /**
+   * Updates the row height when the first image is set on an item.
+   * @param column the column the image is change
+   * @param item item which images has just been set on.
+   */
+  void imageSetOnItem( int column, GridItem item ) {
+    Image image = item.getImage( column );
+    if( image != null && itemImageSize == null ) {
+      Rectangle imageBounds = image.getBounds();
+      itemImageSize = new Point( imageBounds.width, imageBounds.height );
+      layoutCache.invalidateItemHeight();
+      setScrollValuesObsolete();
+    }
   }
 
   /**
@@ -2203,6 +2311,70 @@ public class Grid extends Canvas {
     }
   }
 
+  private int computeItemHeight() {
+    int result = Math.max( getItemImageSize().y, Graphics.getCharHeight( getFont() ) );
+    if( hasCheckBoxes() ) {
+      result = Math.max( getCheckBoxImageOuterSize().y, result );
+    }
+    result += getCellPadding().y;
+    result += 1; // The space needed for horizontal gridline is always added, even if not visible
+    result = Math.max( result, MIN_ITEM_HEIGHT );
+    return result;
+  }
+
+  private Point getItemImageSize() {
+    Point result = new Point( 0, 0 );
+    if( itemImageSize != null ) {
+      result.x = itemImageSize.x;
+      result.y = itemImageSize.y;
+    }
+    return result;
+  }
+
+  private boolean hasCheckBoxes() {
+    boolean result = ( getStyle() & SWT.CHECK ) != 0;
+    for( int i = 0; i < getColumnCount() && !result; i++ ) {
+      GridColumn column = columns.get( i );
+      if( column.isCheck() ) {
+        result = true;
+      }
+    }
+    return result;
+  }
+
+  private Point getCheckBoxImageOuterSize() {
+    Point result = getCheckBoxImageSize();
+    Rectangle margin = getCheckBoxMargin();
+    result.x += margin.width;
+    result.y += margin.height;
+    return result;
+  }
+
+  private Point getCheckBoxImageSize() {
+    if( !layoutCache.hasCheckBoxImageSize() ) {
+      layoutCache.checkBoxImageSize = getThemeAdapter().getCheckBoxImageSize( this );
+    }
+    return layoutCache.checkBoxImageSize;
+  }
+
+  private Rectangle getCheckBoxMargin() {
+    if( !layoutCache.hasCheckBoxMargin() ) {
+      layoutCache.checkBoxMargin = getThemeAdapter().getCheckBoxMargin( this );
+    }
+    return layoutCache.checkBoxMargin;
+  }
+
+  private Rectangle getCellPadding() {
+    if( !layoutCache.hasCellPadding() ) {
+      layoutCache.cellPadding = getThemeAdapter().getCellPadding( this );
+    }
+    return layoutCache.cellPadding;
+  }
+
+  private GridThemeAdapter getThemeAdapter() {
+    return ( GridThemeAdapter )getAdapter( IThemeAdapter.class );
+  }
+
   /**
    * Filters out unnecessary styles, adds mandatory styles and generally
    * manages the style to pass to the super class.
@@ -2224,5 +2396,86 @@ public class Grid extends Canvas {
     int result = style & mask;
     result |= SWT.DOUBLE_BUFFERED;
     return result;
+  }
+
+  ////////////////
+  // Inner classes
+
+  static final class LayoutCache implements SerializableCompatibility {
+    private static final int UNKNOWN = -1;
+
+    int headerHeight = UNKNOWN;
+    int footerHeight = UNKNOWN;
+    int itemHeight = UNKNOWN;
+    int cellSpacing = UNKNOWN;
+    Rectangle cellPadding;
+    Rectangle checkBoxMargin;
+    Point checkBoxImageSize;
+
+    public boolean hasHeaderHeight() {
+      return headerHeight != UNKNOWN;
+    }
+
+    public void invalidateHeaderHeight() {
+      headerHeight = UNKNOWN;
+    }
+
+    public boolean hasFooterHeight() {
+      return footerHeight != UNKNOWN;
+    }
+
+    public void invalidateFooterHeight() {
+      footerHeight = UNKNOWN;
+    }
+
+    public boolean hasItemHeight() {
+      return itemHeight != UNKNOWN;
+    }
+
+    public void invalidateItemHeight() {
+      itemHeight = UNKNOWN;
+    }
+
+    public boolean hasCellSpacing() {
+      return cellSpacing != UNKNOWN;
+    }
+
+    public void invalidateCellSpacing() {
+      cellSpacing = UNKNOWN;
+    }
+
+    public boolean hasCellPadding() {
+      return cellPadding != null;
+    }
+
+    public void invalidateCellPadding() {
+      cellPadding = null;
+    }
+
+    public boolean hasCheckBoxMargin() {
+      return checkBoxMargin != null;
+    }
+
+    public void invalidateCheckBoxMargin() {
+      checkBoxMargin = null;
+    }
+
+    public boolean hasCheckBoxImageSize() {
+      return checkBoxImageSize != null;
+    }
+
+    public void invalidateCheckBoxImageSize() {
+      checkBoxImageSize = null;
+    }
+
+    public void invalidateAll() {
+      invalidateHeaderHeight();
+      invalidateFooterHeight();
+      invalidateItemHeight();
+      invalidateCellSpacing();
+      invalidateCellPadding();
+      invalidateCheckBoxMargin();
+      invalidateCheckBoxImageSize();
+    }
   }
 }

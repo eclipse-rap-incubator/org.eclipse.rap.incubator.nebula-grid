@@ -1029,8 +1029,7 @@ public class GridItem extends Item {
       SWT.error( SWT.ERROR_INVALID_ARGUMENT );
     }
     getItemData( index ).image = image;
-// [if] TODO: implement imageSetOnItem
-//    parent.imageSetOnItem( index, this );
+    parent.imageSetOnItem( index, this );
     parent.redraw();
   }
 
@@ -1521,6 +1520,16 @@ public class GridItem extends Item {
   public Color getHeaderForeground() {
     checkWidget();
     return headerForeground;
+  }
+
+  /**
+   * Returns the height of this <code>GridItem</code>.
+   *
+   * @return height of this <code>GridItem</code>
+   */
+  public int getHeight() {
+    checkWidget();
+    return parent.getItemHeight();
   }
 
   /**

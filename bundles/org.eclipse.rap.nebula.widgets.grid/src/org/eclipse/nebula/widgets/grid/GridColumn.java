@@ -803,7 +803,6 @@ public class GridColumn extends Item {
 
   private void init( Grid parent, int style, int index ) {
     this.parent = parent;
-    parent.newColumn( this, index );
     if( ( style & SWT.CHECK ) == SWT.CHECK ) {
       check = true;
     }
@@ -813,5 +812,6 @@ public class GridColumn extends Item {
     if( ( style & SWT.CENTER ) == SWT.CENTER ) {
       alignment = SWT.CENTER;
     }
+    parent.newColumn( this, index );
   }
 }

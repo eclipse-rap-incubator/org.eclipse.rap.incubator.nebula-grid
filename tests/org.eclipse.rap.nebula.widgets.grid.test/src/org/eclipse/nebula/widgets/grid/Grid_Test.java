@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.eclipse.nebula.widgets.grid;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -28,6 +30,8 @@ import org.eclipse.swt.events.TreeAdapter;
 import org.eclipse.swt.events.TreeEvent;
 import org.eclipse.swt.events.TreeListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
@@ -1602,6 +1606,88 @@ public class Grid_Test extends TestCase {
     assertEquals( 0, grid.getRowHeaderWidth() );
   }
 
+  public void testGetItemHeight_Initial() {
+    assertEquals( 21, grid.getItemHeight() );
+  }
+
+  public void testGetItemHeight() {
+    grid.setItemHeight( 30 );
+
+    assertEquals( 30, grid.getItemHeight() );
+  }
+
+  public void testGetItemHeight_AfterFontChange() {
+    // fill the cache
+    grid.getItemHeight();
+    Font font = new Font( display, "Arial", 20, SWT.BOLD );
+
+    grid.setFont( font );
+
+    assertEquals( 27, grid.getItemHeight() );
+  }
+
+  public void testGetItemHeight_MinHeight() {
+    Font font = new Font( display, "Arial", 8, SWT.NORMAL );
+
+    grid.setFont( font );
+
+    assertEquals( 16, grid.getItemHeight() );
+  }
+
+  public void testGetItemHeight_WithGridCheck() {
+    grid = new Grid( shell, SWT.CHECK );
+
+    assertEquals( 24, grid.getItemHeight() );
+  }
+
+  public void testGetItemHeight_WithColumnCheck() {
+    new GridColumn( grid, SWT.CHECK );
+
+    assertEquals( 24, grid.getItemHeight() );
+  }
+
+  public void testGetItemHeight_AddCheckColumn() {
+    // fill the cache
+    grid.getItemHeight();
+
+    new GridColumn( grid, SWT.CHECK );
+
+    assertEquals( 24, grid.getItemHeight() );
+  }
+
+  public void testGetItemHeight_RemoveCheckColumn() {
+    GridColumn column = new GridColumn( grid, SWT.CHECK );
+    // fill the cache
+    grid.getItemHeight();
+
+    column.dispose();
+
+    assertEquals( 21, grid.getItemHeight() );
+  }
+
+  public void testGetItemHeight_WithItemImage() {
+    createGridColumns( grid, 3 );
+    GridItem item = new GridItem( grid, SWT.NONE );
+    Image image = loadImage( display, Fixture.IMAGE_100x50 );
+    // fill the cache
+    grid.getItemHeight();
+
+    item.setImage( 1, image );
+
+    assertEquals( 57, grid.getItemHeight() );
+  }
+
+  public void testGetItemHeight_AfterClearAll() {
+    createGridColumns( grid, 3 );
+    GridItem item = new GridItem( grid, SWT.NONE );
+    Image image = loadImage( display, Fixture.IMAGE_100x50 );
+    item.setImage( 1, image );
+
+    grid.clearAll( true );
+
+    assertEquals( 21, grid.getItemHeight() );
+  }
+
   //////////////////
   // Helping methods
 
@@ -1628,6 +1714,23 @@ public class Grid_Test extends TestCase {
     for( int i = 0; i < columns; i++ ) {
       GridColumn column = new GridColumn( grid, SWT.NONE );
       result[ i ] = column;
+    }
+    return result;
+  }
+
+  private static Image loadImage( Display display, String name ) {
+    Image result = null;
+    InputStream stream = Fixture.class.getClassLoader().getResourceAsStream( name );
+    if( stream != null ) {
+      try {
+        result = new Image( display, stream );
+      } finally {
+        try {
+          stream.close();
+        } catch( IOException unexpected ) {
+          throw new RuntimeException( "Failed to close image input stream", unexpected );
+        }
+      }
     }
     return result;
   }

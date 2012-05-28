@@ -46,8 +46,7 @@ GridItem
 getBounds( index )
 getCellSize( index )
 pack()
-getHeight()
-setHeight( int )                            - make it private (no different row height)
+setHeight( int )                            - will not be implemented for now (no different row height)
 fireCheckEvent()                            - index field is missing
 
 GridColumn

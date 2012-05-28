@@ -907,7 +907,7 @@ public class GridItem_Test extends TestCase {
     assertSame( background, item.getHeaderBackground() );
   }
 
-  public void testSetHeaderBackground_DisposedFont() {
+  public void testSetHeaderBackground_DisposedColor() {
     GridItem item = new GridItem( grid, SWT.NONE );
     Color background = new Color( display, 0, 0, 255 );
     background.dispose();
@@ -934,7 +934,7 @@ public class GridItem_Test extends TestCase {
     assertSame( foreground, item.getHeaderForeground() );
   }
 
-  public void testSetHeaderForeground_DisposedFont() {
+  public void testSetHeaderForeground_DisposedColor() {
     GridItem item = new GridItem( grid, SWT.NONE );
     Color foreground = new Color( display, 0, 0, 255 );
     foreground.dispose();
@@ -976,6 +976,20 @@ public class GridItem_Test extends TestCase {
       fail();
     } catch( IllegalArgumentException expected ) {
     }
+  }
+
+  public void testGetHeight_Initial() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    assertEquals( 21, item.getHeight() );
+  }
+
+  public void testGetHeight() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    grid.setItemHeight( 30 );
+
+    assertEquals( 30, item.getHeight() );
   }
 
   //////////////////
