@@ -10,8 +10,10 @@
  ******************************************************************************/
 package org.eclipse.nebula.widgets.grid;
 
-import java.io.IOException;
-import java.io.InputStream;
+import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridColumns;
+import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridItems;
+import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -311,7 +313,7 @@ public class GridItem_Test extends TestCase {
 
   public void testGetText_WithColumns() {
     GridItem item = new GridItem( grid, SWT.NONE );
-    createGridColumns( grid, 3 );
+    createGridColumns( grid, 3, SWT.NONE );
     item.setText( 0, "0" );
     item.setText( 1, "1" );
     item.setText( 2, "2" );
@@ -323,7 +325,7 @@ public class GridItem_Test extends TestCase {
 
   public void testGetText_AfterAddColumn() {
     GridItem item = new GridItem( grid, SWT.NONE );
-    createGridColumns( grid, 1 );
+    createGridColumns( grid, 1, SWT.NONE );
     item.setText( "foo" );
     new GridColumn( grid, SWT.NONE, 0 );
 
@@ -333,7 +335,7 @@ public class GridItem_Test extends TestCase {
 
   public void testGetText_AfterRemoveColumn() {
     GridItem item = new GridItem( grid, SWT.NONE );
-    GridColumn[] columns = createGridColumns( grid, 2 );
+    GridColumn[] columns = createGridColumns( grid, 2, SWT.NONE );
     item.setText( 1, "foo" );
 
     columns[ 0 ].dispose();
@@ -343,7 +345,7 @@ public class GridItem_Test extends TestCase {
 
   public void testGetText_AfterRemoveAllColumns() {
     GridItem item = new GridItem( grid, SWT.NONE );
-    GridColumn[] columns = createGridColumns( grid, 2 );
+    GridColumn[] columns = createGridColumns( grid, 2, SWT.NONE );
     item.setText( 1, "foo" );
 
     columns[ 0 ].dispose();
@@ -439,7 +441,7 @@ public class GridItem_Test extends TestCase {
   }
 
   public void testGetFontByIndex() {
-    createGridColumns( grid, 3 );
+    createGridColumns( grid, 3, SWT.NONE );
     GridItem item = new GridItem( grid, SWT.NONE );
     Font font = new Font( display, "Arial", 20, SWT.BOLD );
 
@@ -451,7 +453,7 @@ public class GridItem_Test extends TestCase {
   }
 
   public void testGetFontByIndex_InvalidIndex() {
-    createGridColumns( grid, 3 );
+    createGridColumns( grid, 3, SWT.NONE );
     GridItem item = new GridItem( grid, SWT.NONE );
 
     try {
@@ -461,7 +463,7 @@ public class GridItem_Test extends TestCase {
   }
 
   public void testSetFontByIndex_DisposedFont() {
-    createGridColumns( grid, 3 );
+    createGridColumns( grid, 3, SWT.NONE );
     GridItem item = new GridItem( grid, SWT.NONE );
     Font font = new Font( display, "Arial", 20, SWT.BOLD );
     font.dispose();
@@ -500,7 +502,7 @@ public class GridItem_Test extends TestCase {
   }
 
   public void testGetBackgroundByIndex() {
-    createGridColumns( grid, 3 );
+    createGridColumns( grid, 3, SWT.NONE );
     GridItem item = new GridItem( grid, SWT.NONE );
     Color background = new Color( display, 0, 0, 255 );
 
@@ -512,7 +514,7 @@ public class GridItem_Test extends TestCase {
   }
 
   public void testGetBackgroundByIndex_InvalidIndex() {
-    createGridColumns( grid, 3 );
+    createGridColumns( grid, 3, SWT.NONE );
     GridItem item = new GridItem( grid, SWT.NONE );
 
     try {
@@ -522,7 +524,7 @@ public class GridItem_Test extends TestCase {
   }
 
   public void testSetBackgroundByIndex_DisposedFont() {
-    createGridColumns( grid, 3 );
+    createGridColumns( grid, 3, SWT.NONE );
     GridItem item = new GridItem( grid, SWT.NONE );
     Color background = new Color( display, 0, 0, 255 );
     background.dispose();
@@ -561,7 +563,7 @@ public class GridItem_Test extends TestCase {
   }
 
   public void testGetForegroundByIndex() {
-    createGridColumns( grid, 3 );
+    createGridColumns( grid, 3, SWT.NONE );
     GridItem item = new GridItem( grid, SWT.NONE );
     Color foreground = new Color( display, 0, 0, 255 );
 
@@ -573,7 +575,7 @@ public class GridItem_Test extends TestCase {
   }
 
   public void testGetForegroundByIndex_InvalidIndex() {
-    createGridColumns( grid, 3 );
+    createGridColumns( grid, 3, SWT.NONE );
     GridItem item = new GridItem( grid, SWT.NONE );
 
     try {
@@ -583,7 +585,7 @@ public class GridItem_Test extends TestCase {
   }
 
   public void testSetForegroundByIndex_DisposedFont() {
-    createGridColumns( grid, 3 );
+    createGridColumns( grid, 3, SWT.NONE );
     GridItem item = new GridItem( grid, SWT.NONE );
     Color foreground = new Color( display, 0, 0, 255 );
     foreground.dispose();
@@ -619,7 +621,7 @@ public class GridItem_Test extends TestCase {
   }
 
   public void testGetToolTipText_WithColumns() {
-    createGridColumns( grid, 3 );
+    createGridColumns( grid, 3, SWT.NONE );
     GridItem item = new GridItem( grid, SWT.NONE );
 
     item.setToolTipText( 1, "foo" );
@@ -657,7 +659,7 @@ public class GridItem_Test extends TestCase {
   }
 
   public void testGetImageByIndex() {
-    createGridColumns( grid, 3 );
+    createGridColumns( grid, 3, SWT.NONE );
     GridItem item = new GridItem( grid, SWT.NONE );
     Image image = loadImage( display, Fixture.IMAGE1 );
 
@@ -669,7 +671,7 @@ public class GridItem_Test extends TestCase {
   }
 
   public void testGetImagetByIndex_InvalidIndex() {
-    createGridColumns( grid, 3 );
+    createGridColumns( grid, 3, SWT.NONE );
     GridItem item = new GridItem( grid, SWT.NONE );
 
     try {
@@ -679,7 +681,7 @@ public class GridItem_Test extends TestCase {
   }
 
   public void testSetImageByIndex_DisposedFont() {
-    createGridColumns( grid, 3 );
+    createGridColumns( grid, 3, SWT.NONE );
     GridItem item = new GridItem( grid, SWT.NONE );
     Image image = loadImage( display, Fixture.IMAGE1 );
     image.dispose();
@@ -705,7 +707,7 @@ public class GridItem_Test extends TestCase {
   }
 
   public void testGetCheckedByIndex() {
-    createGridColumns( grid, 3 );
+    createGridColumns( grid, 3, SWT.NONE );
     GridItem item = new GridItem( grid, SWT.NONE );
 
     item.setChecked( 1, true );
@@ -716,7 +718,7 @@ public class GridItem_Test extends TestCase {
   }
 
   public void testGetCheckedByIndex_InvalidIndex() {
-    createGridColumns( grid, 3 );
+    createGridColumns( grid, 3, SWT.NONE );
     GridItem item = new GridItem( grid, SWT.NONE );
 
     try {
@@ -726,14 +728,14 @@ public class GridItem_Test extends TestCase {
   }
 
   public void testGetCheckable_Inital() {
-    createGridColumns( grid, 3 );
+    createGridColumns( grid, 3, SWT.NONE );
     GridItem item = new GridItem( grid, SWT.NONE );
 
     assertTrue( item.getCheckable( 0 ) );
   }
 
   public void testGetCheckable() {
-    createGridColumns( grid, 3 );
+    createGridColumns( grid, 3, SWT.NONE );
     GridItem item = new GridItem( grid, SWT.NONE );
 
     item.setCheckable( 0, false );
@@ -742,7 +744,7 @@ public class GridItem_Test extends TestCase {
   }
 
   public void testGetCheckable_InitalNotCheckableColumn() {
-    GridColumn[] columns = createGridColumns( grid, 3 );
+    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
     GridItem item = new GridItem( grid, SWT.NONE );
 
     columns[ 0 ].setCheckable( false );
@@ -751,7 +753,7 @@ public class GridItem_Test extends TestCase {
   }
 
   public void testGetCheckable_NotCheckableColumn() {
-    GridColumn[] columns = createGridColumns( grid, 3 );
+    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
     columns[ 1 ].setCheckable( false );
     GridItem item = new GridItem( grid, SWT.NONE );
 
@@ -775,7 +777,7 @@ public class GridItem_Test extends TestCase {
   }
 
   public void testGetGrayedByIndex() {
-    createGridColumns( grid, 3 );
+    createGridColumns( grid, 3, SWT.NONE );
     GridItem item = new GridItem( grid, SWT.NONE );
 
     item.setGrayed( 1, true );
@@ -786,7 +788,7 @@ public class GridItem_Test extends TestCase {
   }
 
   public void testGetGrayedByIndex_InvalidIndex() {
-    createGridColumns( grid, 3 );
+    createGridColumns( grid, 3, SWT.NONE );
     GridItem item = new GridItem( grid, SWT.NONE );
 
     try {
@@ -905,57 +907,11 @@ public class GridItem_Test extends TestCase {
   }
 
   public void testGetCellSize_WithoutSpan() {
-    createGridColumns( grid, 5 );
+    createGridColumns( grid, 5, SWT.NONE );
     createGridItems( grid, 5, 5 );
     GridItem item = grid.getRootItem( 2 );
 
     assertEquals( new Point( 60, 21 ), item.getCellSize( 2 ) );
-  }
-
-  //////////////////
-  // Helping methods
-
-  private static GridItem[] createGridItems( Grid grid, int rootItems, int childItems ) {
-    GridItem[] result = new GridItem[ rootItems * ( childItems + 1 ) ];
-    int counter = 0;
-    for( int i = 0; i < rootItems; i++ ) {
-      GridItem rootItem = new GridItem( grid, SWT.NONE );
-      result[ counter ] = rootItem;
-      counter++;
-      for( int j = 0; j < childItems; j++ ) {
-        GridItem childItem = new GridItem( rootItem, SWT.NONE );
-        result[ counter ] = childItem;
-        counter++;
-      }
-    }
-    return result;
-  }
-
-  private static GridColumn[] createGridColumns( Grid grid, int columns ) {
-    GridColumn[] result = new GridColumn[ columns ];
-    for( int i = 0; i < columns; i++ ) {
-      GridColumn column = new GridColumn( grid, SWT.NONE );
-      column.setWidth( 20 * ( i + 1 ) );
-      result[ i ] = column;
-    }
-    return result;
-  }
-
-  private static Image loadImage( Display display, String name ) {
-    Image result = null;
-    InputStream stream = Fixture.class.getClassLoader().getResourceAsStream( name );
-    if( stream != null ) {
-      try {
-        result = new Image( display, stream );
-      } finally {
-        try {
-          stream.close();
-        } catch( IOException unexpected ) {
-          throw new RuntimeException( "Failed to close image input stream", unexpected );
-        }
-      }
-    }
-    return result;
   }
 
   //////////////////

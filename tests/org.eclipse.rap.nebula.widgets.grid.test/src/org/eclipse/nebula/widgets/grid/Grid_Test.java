@@ -10,8 +10,10 @@
  ******************************************************************************/
 package org.eclipse.nebula.widgets.grid;
 
-import java.io.IOException;
-import java.io.InputStream;
+import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridColumns;
+import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridItems;
+import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -216,26 +218,26 @@ public class Grid_Test extends TestCase {
   }
 
   public void testGetColumnCount() {
-    createGridColumns( grid, 5 );
+    createGridColumns( grid, 5, SWT.NONE );
 
     assertEquals( 5, grid.getColumnCount() );
   }
 
   public void testGetColumns() {
-    GridColumn[] columns = createGridColumns( grid, 5 );
+    GridColumn[] columns = createGridColumns( grid, 5, SWT.NONE );
 
     assertTrue( Arrays.equals( columns, grid.getColumns() ) );
   }
 
   public void testGetColumn() {
-    GridColumn[] columns = createGridColumns( grid, 5 );
+    GridColumn[] columns = createGridColumns( grid, 5, SWT.NONE );
 
     assertSame( columns[ 1 ], grid.getColumn( 1 ) );
     assertSame( columns[ 4 ], grid.getColumn( 4 ) );
   }
 
   public void testGetColumn_InvalidIndex() {
-    createGridColumns( grid, 3 );
+    createGridColumns( grid, 3, SWT.NONE );
 
     try {
       grid.getColumn( 10 );
@@ -245,7 +247,7 @@ public class Grid_Test extends TestCase {
   }
 
   public void testIndexOfColumn() {
-    GridColumn[] columns = createGridColumns( grid, 5 );
+    GridColumn[] columns = createGridColumns( grid, 5, SWT.NONE );
 
     assertEquals( 1, grid.indexOf( columns[ 1 ] ) );
     assertEquals( 4, grid.indexOf( columns[ 4 ] ) );
@@ -267,7 +269,7 @@ public class Grid_Test extends TestCase {
   }
 
   public void testIndexOfColumn_AfterDispose() {
-    GridColumn[] columns = createGridColumns( grid, 5 );
+    GridColumn[] columns = createGridColumns( grid, 5, SWT.NONE );
 
     columns[ 2 ].dispose();
 
@@ -291,7 +293,7 @@ public class Grid_Test extends TestCase {
   }
 
   public void testDispose_WithColumns() {
-    GridColumn[] columns = createGridColumns( grid, 2 );
+    GridColumn[] columns = createGridColumns( grid, 2, SWT.NONE );
 
     grid.dispose();
 
@@ -519,7 +521,7 @@ public class Grid_Test extends TestCase {
   public void testClearWithColumns() {
     grid = new Grid( shell, SWT.VIRTUAL );
     GridItem[] items = createGridItems( grid, 3, 3 );
-    createGridColumns( grid, 3 );
+    createGridColumns( grid, 3, SWT.NONE );
     items[ 1 ].setText( 0, "item 1.0" );
     items[ 1 ].setText( 1, "item 1.1" );
     items[ 1 ].setText( 2, "item 1.2" );
@@ -1350,13 +1352,13 @@ public class Grid_Test extends TestCase {
   }
 
   public void testGetColumnOrder_Initial() {
-    createGridColumns( grid, 5 );
+    createGridColumns( grid, 5, SWT.NONE );
 
     assertTrue( Arrays.equals( new int[]{ 0, 1, 2, 3, 4 }, grid.getColumnOrder() ) );
   }
 
   public void testSetColumnOrder() {
-    createGridColumns( grid, 5 );
+    createGridColumns( grid, 5, SWT.NONE );
     int[] order = new int[]{ 4, 1, 3, 2, 0 };
 
     grid.setColumnOrder( order );
@@ -1373,7 +1375,7 @@ public class Grid_Test extends TestCase {
   }
 
   public void testSetColumnOrder_DifferentArraySize() {
-    createGridColumns( grid, 5 );
+    createGridColumns( grid, 5, SWT.NONE );
     int[] order = new int[]{ 4, 1, 3, 2, 0, 6 };
 
     try {
@@ -1384,7 +1386,7 @@ public class Grid_Test extends TestCase {
   }
 
   public void testSetColumnOrder_InvalidColumnIndex() {
-    createGridColumns( grid, 5 );
+    createGridColumns( grid, 5, SWT.NONE );
     int[] order = new int[]{ 4, 1, 33, 2, 0 };
 
     try {
@@ -1395,7 +1397,7 @@ public class Grid_Test extends TestCase {
   }
 
   public void testSetColumnOrder_DuplicateColumnIndex() {
-    createGridColumns( grid, 5 );
+    createGridColumns( grid, 5, SWT.NONE );
     int[] order = new int[]{ 3, 1, 3, 2, 0 };
 
     try {
@@ -1406,7 +1408,7 @@ public class Grid_Test extends TestCase {
   }
 
   public void testGetColumnOrder_AfterColumnAdd() {
-    createGridColumns( grid, 5 );
+    createGridColumns( grid, 5, SWT.NONE );
     grid.setColumnOrder( new int[]{ 4, 1, 3, 2, 0 } );
 
     new GridColumn( grid, SWT.NONE, 2 );
@@ -1416,7 +1418,7 @@ public class Grid_Test extends TestCase {
   }
 
   public void testGetColumnOrder_AfterColumnRemove() {
-    GridColumn[] columns = createGridColumns( grid, 5 );
+    GridColumn[] columns = createGridColumns( grid, 5, SWT.NONE );
     grid.setColumnOrder( new int[]{ 4, 1, 3, 2, 0 } );
 
     columns[ 3 ].dispose();
@@ -1482,32 +1484,32 @@ public class Grid_Test extends TestCase {
   }
 
   public void testGetNextVisibleColumn_NextNotVisible() {
-    GridColumn[] columns = createGridColumns( grid, 5 );
+    GridColumn[] columns = createGridColumns( grid, 5, SWT.NONE );
     columns[ 3 ].setVisible( false );
 
     assertSame( columns[ 4 ], grid.getNextVisibleColumn( columns[ 2 ] ) );
   }
 
   public void testGetNextVisibleColumn_NextVisible() {
-    GridColumn[] columns = createGridColumns( grid, 5 );
+    GridColumn[] columns = createGridColumns( grid, 5, SWT.NONE );
 
     assertSame( columns[ 3 ], grid.getNextVisibleColumn( columns[ 2 ] ) );
   }
 
   public void testGetNextVisibleColumn_NullArgument() {
-    GridColumn[] columns = createGridColumns( grid, 5 );
+    GridColumn[] columns = createGridColumns( grid, 5, SWT.NONE );
 
     assertSame( columns[ 0 ], grid.getNextVisibleColumn( null ) );
   }
 
   public void testGetNextVisibleColumn_LastColumn() {
-    GridColumn[] columns = createGridColumns( grid, 5 );
+    GridColumn[] columns = createGridColumns( grid, 5, SWT.NONE );
 
     assertNull( grid.getNextVisibleColumn( columns[ 4 ] ) );
   }
 
   public void testGetNextVisibleColumn_AllNextNotVisible() {
-    GridColumn[] columns = createGridColumns( grid, 5 );
+    GridColumn[] columns = createGridColumns( grid, 5, SWT.NONE );
     columns[ 3 ].setVisible( false );
     columns[ 4 ].setVisible( false );
 
@@ -1515,39 +1517,39 @@ public class Grid_Test extends TestCase {
   }
 
   public void testGetNextVisibleColumn_WithColumnOrder() {
-    GridColumn[] columns = createGridColumns( grid, 5 );
+    GridColumn[] columns = createGridColumns( grid, 5, SWT.NONE );
     grid.setColumnOrder( new int[]{ 4, 0, 2, 1, 3 } );
 
     assertSame( columns[ 1 ], grid.getNextVisibleColumn( columns[ 2 ] ) );
   }
 
   public void testGetPreviousVisibleColumn_PreviousNotVisible() {
-    GridColumn[] columns = createGridColumns( grid, 5 );
+    GridColumn[] columns = createGridColumns( grid, 5, SWT.NONE );
     columns[ 1 ].setVisible( false );
 
     assertSame( columns[ 0 ], grid.getPreviousVisibleColumn( columns[ 2 ] ) );
   }
 
   public void testGetPreviousVisibleColumn_PreviousVisible() {
-    GridColumn[] columns = createGridColumns( grid, 5 );
+    GridColumn[] columns = createGridColumns( grid, 5, SWT.NONE );
 
     assertSame( columns[ 1 ], grid.getPreviousVisibleColumn( columns[ 2 ] ) );
   }
 
   public void testGetPreviousVisibleColumn_NullArgument() {
-    GridColumn[] columns = createGridColumns( grid, 5 );
+    GridColumn[] columns = createGridColumns( grid, 5, SWT.NONE );
 
     assertSame( columns[ 4 ], grid.getPreviousVisibleColumn( null ) );
   }
 
   public void testGetPreviousVisibleColumn_FirstColumn() {
-    GridColumn[] columns = createGridColumns( grid, 5 );
+    GridColumn[] columns = createGridColumns( grid, 5, SWT.NONE );
 
     assertNull( grid.getPreviousVisibleColumn( columns[ 0 ] ) );
   }
 
   public void testGetPreviousVisibleColumn_WithColumnOrder() {
-    GridColumn[] columns = createGridColumns( grid, 5 );
+    GridColumn[] columns = createGridColumns( grid, 5, SWT.NONE );
     grid.setColumnOrder( new int[]{ 4, 0, 2, 1, 3 } );
 
     assertSame( columns[ 0 ], grid.getPreviousVisibleColumn( columns[ 2 ] ) );
@@ -1613,7 +1615,7 @@ public class Grid_Test extends TestCase {
   }
 
   public void testGetItemHeight_WithItemImage() {
-    createGridColumns( grid, 3 );
+    createGridColumns( grid, 3, SWT.NONE );
     GridItem item = new GridItem( grid, SWT.NONE );
     Image image = loadImage( display, Fixture.IMAGE_100x50 );
     // fill the cache
@@ -1625,7 +1627,7 @@ public class Grid_Test extends TestCase {
   }
 
   public void testGetItemHeight_AfterClearAll() {
-    createGridColumns( grid, 3 );
+    createGridColumns( grid, 3, SWT.NONE );
     GridItem item = new GridItem( grid, SWT.NONE );
     Image image = loadImage( display, Fixture.IMAGE_100x50 );
     item.setImage( 1, image );
@@ -1636,14 +1638,14 @@ public class Grid_Test extends TestCase {
   }
 
   public void testGetHeaderHeight_Initial() {
-    createGridColumns( grid, 3 );
+    createGridColumns( grid, 3, SWT.NONE );
 
     assertEquals( 0, grid.getHeaderHeight() );
   }
 
   public void testGetHeaderHeight() {
     grid.setHeaderVisible( true );
-    GridColumn[] columns = createGridColumns( grid, 3 );
+    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
     Image image = loadImage( display, Fixture.IMAGE_100x50 );
     columns[ 0 ].setImage( image );
     columns[ 1 ].setText( "foo" );
@@ -1653,7 +1655,7 @@ public class Grid_Test extends TestCase {
 
   public void testGetHeaderHeight_DifferentColumnHeaderFonts() {
     grid.setHeaderVisible( true );
-    GridColumn[] columns = createGridColumns( grid, 3 );
+    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
     columns[ 0 ].setHeaderFont( new Font( display, "Arial", 10, SWT.NORMAL ) );
     columns[ 2 ].setHeaderFont( new Font( display, "Arial", 20, SWT.NORMAL ) );
 
@@ -1662,7 +1664,7 @@ public class Grid_Test extends TestCase {
 
   public void testGetHeaderHeight_AfterColumnDispose() {
     grid.setHeaderVisible( true );
-    GridColumn[] columns = createGridColumns( grid, 3 );
+    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
     Image image = loadImage( display, Fixture.IMAGE_100x50 );
     columns[ 0 ].setImage( image );
     columns[ 1 ].setText( "foo" );
@@ -1676,7 +1678,7 @@ public class Grid_Test extends TestCase {
 
   public void testGetHeaderHeight_AfterTextChange() {
     grid.setHeaderVisible( true );
-    GridColumn[] columns = createGridColumns( grid, 3 );
+    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
     columns[ 1 ].setText( "foo" );
     // fill the cache
     grid.getHeaderHeight();
@@ -1688,7 +1690,7 @@ public class Grid_Test extends TestCase {
 
   public void testGetHeaderHeight_AfterImageChange() {
     grid.setHeaderVisible( true );
-    GridColumn[] columns = createGridColumns( grid, 3 );
+    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
     Image image = loadImage( display, Fixture.IMAGE_100x50 );
     columns[ 0 ].setImage( image );
     columns[ 1 ].setText( "foo" );
@@ -1702,7 +1704,7 @@ public class Grid_Test extends TestCase {
 
   public void testGetHeaderHeight_AfterFontChange() {
     grid.setHeaderVisible( true );
-    GridColumn[] columns = createGridColumns( grid, 3 );
+    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
     columns[ 1 ].setText( "foo" );
     // fill the cache
     grid.getHeaderHeight();
@@ -1714,7 +1716,7 @@ public class Grid_Test extends TestCase {
 
   public void testComputeSize() {
     grid = new Grid( shell, SWT.NONE );
-    createGridColumns( grid, 3 );
+    createGridColumns( grid, 3, SWT.NONE );
     createGridItems( grid, 3, 3 );
     int itemHeight = grid.getItemHeight();
 
@@ -1725,7 +1727,7 @@ public class Grid_Test extends TestCase {
   }
 
   public void testComputeSize_WithScrollBars() {
-    createGridColumns( grid, 3 );
+    createGridColumns( grid, 3, SWT.NONE );
     createGridItems( grid, 3, 3 );
     int itemHeight = grid.getItemHeight();
     int scrollbarSize = 10;
@@ -1738,7 +1740,7 @@ public class Grid_Test extends TestCase {
 
   public void testComputeSize_WithBorder() {
     grid = new Grid( shell, SWT.BORDER );
-    createGridColumns( grid, 3 );
+    createGridColumns( grid, 3, SWT.NONE );
     createGridItems( grid, 3, 3 );
     int itemHeight = grid.getItemHeight();
     int borderWidth = grid.getBorderWidth();
@@ -1751,7 +1753,7 @@ public class Grid_Test extends TestCase {
 
   public void testComputeSize_WithExpandedItems() {
     grid = new Grid( shell, SWT.NONE );
-    createGridColumns( grid, 3 );
+    createGridColumns( grid, 3, SWT.NONE );
     GridItem[] items = createGridItems( grid, 3, 3 );
     items[ 0 ].setExpanded( true );
     items[ 4 ].setExpanded( true );
@@ -1763,51 +1765,4 @@ public class Grid_Test extends TestCase {
     assertEquals( 9 * itemHeight, preferredSize.y );
   }
 
-  //////////////////
-  // Helping methods
-
-  private static GridItem[] createGridItems( Grid grid, int rootItems, int childItems ) {
-    GridItem[] result = new GridItem[ rootItems * ( childItems + 1 ) ];
-    int counter = 0;
-    for( int i = 0; i < rootItems; i++ ) {
-      GridItem rootItem = new GridItem( grid, SWT.NONE );
-      rootItem.setText( "root_" + i );
-      result[ counter ] = rootItem;
-      counter++;
-      for( int j = 0; j < childItems; j++ ) {
-        GridItem childItem = new GridItem( rootItem, SWT.NONE );
-        childItem.setText( rootItem.getText() + "_child_" + j );
-        result[ counter ] = childItem;
-        counter++;
-      }
-    }
-    return result;
-  }
-
-  private static GridColumn[] createGridColumns( Grid grid, int columns ) {
-    GridColumn[] result = new GridColumn[ columns ];
-    for( int i = 0; i < columns; i++ ) {
-      GridColumn column = new GridColumn( grid, SWT.NONE );
-      column.setWidth( 20 * ( i + 1 ) );
-      result[ i ] = column;
-    }
-    return result;
-  }
-
-  private static Image loadImage( Display display, String name ) {
-    Image result = null;
-    InputStream stream = Fixture.class.getClassLoader().getResourceAsStream( name );
-    if( stream != null ) {
-      try {
-        result = new Image( display, stream );
-      } finally {
-        try {
-          stream.close();
-        } catch( IOException unexpected ) {
-          throw new RuntimeException( "Failed to close image input stream", unexpected );
-        }
-      }
-    }
-    return result;
-  }
 }

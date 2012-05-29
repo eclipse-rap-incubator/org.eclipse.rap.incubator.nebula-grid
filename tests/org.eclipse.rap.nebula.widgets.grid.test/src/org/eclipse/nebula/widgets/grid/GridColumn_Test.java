@@ -10,8 +10,9 @@
  ******************************************************************************/
 package org.eclipse.nebula.widgets.grid;
 
-import java.io.IOException;
-import java.io.InputStream;
+import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridColumns;
+import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -498,35 +499,6 @@ public class GridColumn_Test extends TestCase {
       fail();
     } catch( IllegalArgumentException expected ) {
     }
-  }
-
-  //////////////////
-  // Helping methods
-
-  private static GridColumn[] createGridColumns( Grid grid, int columns, int style ) {
-    GridColumn[] result = new GridColumn[ columns ];
-    for( int i = 0; i < columns; i++ ) {
-      GridColumn column = new GridColumn( grid, style );
-      result[ i ] = column;
-    }
-    return result;
-  }
-
-  private static Image loadImage( Display display, String name ) {
-    Image result = null;
-    InputStream stream = Fixture.class.getClassLoader().getResourceAsStream( name );
-    if( stream != null ) {
-      try {
-        result = new Image( display, stream );
-      } finally {
-        try {
-          stream.close();
-        } catch( IOException unexpected ) {
-          throw new RuntimeException( "Failed to close image input stream", unexpected );
-        }
-      }
-    }
-    return result;
   }
 
   //////////////////
