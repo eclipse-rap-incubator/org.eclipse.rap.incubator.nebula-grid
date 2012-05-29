@@ -1692,6 +1692,83 @@ public class Grid_Test extends TestCase {
     assertEquals( 21, grid.getItemHeight() );
   }
 
+  public void testGetHeaderHeight_Initial() {
+    createGridColumns( grid, 3 );
+
+    assertEquals( 0, grid.getHeaderHeight() );
+  }
+
+  public void testGetHeaderHeight() {
+    grid.setHeaderVisible( true );
+    GridColumn[] columns = createGridColumns( grid, 3 );
+    Image image = loadImage( display, Fixture.IMAGE_100x50 );
+    columns[ 0 ].setImage( image );
+    columns[ 1 ].setText( "foo" );
+
+    assertEquals( 67, grid.getHeaderHeight() );
+  }
+
+  public void testGetHeaderHeight_DifferentColumnHeaderFonts() {
+    grid.setHeaderVisible( true );
+    GridColumn[] columns = createGridColumns( grid, 3 );
+    columns[ 0 ].setHeaderFont( new Font( display, "Arial", 10, SWT.NORMAL ) );
+    columns[ 2 ].setHeaderFont( new Font( display, "Arial", 20, SWT.NORMAL ) );
+
+    assertEquals( 37, grid.getHeaderHeight() );
+  }
+
+  public void testGetHeaderHeight_AfterColumnDispose() {
+    grid.setHeaderVisible( true );
+    GridColumn[] columns = createGridColumns( grid, 3 );
+    Image image = loadImage( display, Fixture.IMAGE_100x50 );
+    columns[ 0 ].setImage( image );
+    columns[ 1 ].setText( "foo" );
+    // fill the cache
+    grid.getHeaderHeight();
+
+    columns[ 0 ].dispose();
+
+    assertEquals( 31, grid.getHeaderHeight() );
+  }
+
+  public void testGetHeaderHeight_AfterTextChange() {
+    grid.setHeaderVisible( true );
+    GridColumn[] columns = createGridColumns( grid, 3 );
+    columns[ 1 ].setText( "foo" );
+    // fill the cache
+    grid.getHeaderHeight();
+
+    columns[ 1 ].setText( "foo\nbar" );
+
+    assertEquals( 52, grid.getHeaderHeight() );
+  }
+
+  public void testGetHeaderHeight_AfterImageChange() {
+    grid.setHeaderVisible( true );
+    GridColumn[] columns = createGridColumns( grid, 3 );
+    Image image = loadImage( display, Fixture.IMAGE_100x50 );
+    columns[ 0 ].setImage( image );
+    columns[ 1 ].setText( "foo" );
+    // fill the cache
+    grid.getHeaderHeight();
+
+    columns[ 0 ].setImage( null );
+
+    assertEquals( 31, grid.getHeaderHeight() );
+  }
+
+  public void testGetHeaderHeight_AfterFontChange() {
+    grid.setHeaderVisible( true );
+    GridColumn[] columns = createGridColumns( grid, 3 );
+    columns[ 1 ].setText( "foo" );
+    // fill the cache
+    grid.getHeaderHeight();
+
+    columns[ 1 ].setHeaderFont( new Font( display, "Arial", 20, SWT.NORMAL ) );
+
+    assertEquals( 37, grid.getHeaderHeight() );
+  }
+
   //////////////////
   // Helping methods
 

@@ -19,8 +19,12 @@ import org.eclipse.nebula.widgets.grid.internal.NullScrollBarProxy;
 import org.eclipse.nebula.widgets.grid.internal.ScrollBarProxyAdapter;
 import org.eclipse.nebula.widgets.grid.internal.gridkit.GridThemeAdapter;
 import org.eclipse.rwt.graphics.Graphics;
+import org.eclipse.rwt.internal.textsize.TextSizeUtil;
 import org.eclipse.rwt.internal.theme.IThemeAdapter;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.ControlAdapter;
+import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TreeEvent;
@@ -198,6 +202,7 @@ public class Grid extends Canvas {
 
   private int customItemHeight = -1;
   private Point itemImageSize;
+  private ControlListener resizeListener;
   LayoutCache layoutCache;
 
   /**
@@ -244,8 +249,9 @@ public class Grid extends Canvas {
 
   @Override
   public void dispose() {
-    super.dispose();
     disposing = true;
+    removeControlListener( resizeListener );
+    super.dispose();
     for( Iterator iterator = items.iterator(); iterator.hasNext(); ) {
       GridItem item = ( GridItem )iterator.next();
       item.dispose();
@@ -776,6 +782,23 @@ public class Grid extends Canvas {
       result[ i ] = columns.indexOf( column );
     }
     return result;
+  }
+
+  /**
+   * Returns the number of column groups contained in the receiver.
+   *
+   * @return the number of column groups
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public int getColumnGroupCount() {
+    checkWidget();
+    // TODO: [if] Implement it properly when GridColumnGroup is available
+    return 0;
   }
 
   /**
@@ -1746,6 +1769,7 @@ public class Grid extends Canvas {
   public void setHeaderVisible( boolean show ) {
     checkWidget();
     columnHeadersVisible = show;
+    layoutCache.invalidateHeaderHeight();
     redraw();
   }
 
@@ -1764,6 +1788,26 @@ public class Grid extends Canvas {
   public boolean getHeaderVisible() {
     checkWidget();
     return columnHeadersVisible;
+  }
+
+  /**
+   * Returns the height of the column headers. If this table has column
+   * groups, the returned value includes the height of group headers.
+   *
+   * @return height of the column header row
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public int getHeaderHeight() {
+    checkWidget();
+    if( !layoutCache.hasHeaderHeight() ) {
+      layoutCache.headerHeight = computeHeaderHeight();
+    }
+    return layoutCache.headerHeight;
   }
 
   /**
@@ -2164,6 +2208,7 @@ public class Grid extends Canvas {
     if( column.isCheck() ) {
       layoutCache.invalidateItemHeight();
     }
+    layoutCache.invalidateHeaderHeight();
     scrollValuesObsolete = true;
     redraw();
     return columns.size() - 1;
@@ -2186,6 +2231,7 @@ public class Grid extends Canvas {
     if( column.isCheck() ) {
       layoutCache.invalidateItemHeight();
     }
+    layoutCache.invalidateHeaderHeight();
     scrollValuesObsolete = true;
     redraw();
   }
@@ -2281,6 +2327,8 @@ public class Grid extends Canvas {
    * Initialize all listeners.
    */
   private void initListeners() {
+    resizeListener = new ResizeListener();
+    addControlListener( resizeListener );
   }
 
   private void internalSelect( int index ) {
@@ -2342,6 +2390,52 @@ public class Grid extends Canvas {
     return result;
   }
 
+  private int computeHeaderHeight() {
+    int result = 0;
+    if( columnHeadersVisible ) {
+      int columnHeight = 0;
+      for( int i = 0; i < getColumnCount(); i++ ) {
+        columnHeight = Math.max( columnHeight, computeColumnHeight( i ) );
+      }
+      int columnGroupHeight = 0;
+      for( int i = 0; i < getColumnGroupCount(); i++ ) {
+        columnGroupHeight = Math.max( columnGroupHeight, computeColumnGroupHeight( i ) );
+      }
+      result = columnHeight + columnGroupHeight;
+      result += getThemeAdapter().getHeaderBorderBottomWidth( this );
+    }
+    return result;
+  }
+
+  private int computeColumnHeight( int index ) {
+    GridColumn column = columns.get( index );
+    int textHeight = 0;
+    Font headerFont = column.getHeaderFont();
+    String text = column.getText();
+    if( text.contains( "\n" ) ) {
+      textHeight = Graphics.textExtent( headerFont, text, 0 ).y;
+    } else {
+      textHeight = Graphics.getCharHeight( headerFont );
+    }
+    Image image = column.getImage();
+    int imageHeight = image == null ? 0 : image.getBounds().height;
+    int result = Math.max( textHeight, imageHeight );
+    result += getThemeAdapter().getHeaderPadding( this ).height;
+    return result;
+  }
+
+  private int computeColumnGroupHeight( int index ) {
+    int result = 0;
+    // TODO: [if] Implement it properly when GridColumnGroup is available
+//    GridColumn column = columns.get( index );
+//    GridColumnGroup group = column.getColumnGroup();
+//    if( group != null ) {
+//      ...
+//      result += getThemeAdapter().getHeaderPadding( this ).height;
+//    }
+    return result;
+  }
+
   private Point getItemImageSize() {
     Point result = new Point( 0, 0 );
     if( itemImageSize != null ) {
@@ -2363,11 +2457,9 @@ public class Grid extends Canvas {
   }
 
   private Point getCheckBoxImageOuterSize() {
-    Point result = getCheckBoxImageSize();
+    Point imageSize = getCheckBoxImageSize();
     Rectangle margin = getCheckBoxMargin();
-    result.x += margin.width;
-    result.y += margin.height;
-    return result;
+    return new Point( imageSize.x + margin.width, imageSize.y + margin.y );
   }
 
   private Point getCheckBoxImageSize() {
@@ -2420,6 +2512,17 @@ public class Grid extends Canvas {
 
   ////////////////
   // Inner classes
+
+  private final class ResizeListener extends ControlAdapter {
+    @Override
+    public void controlResized( ControlEvent event ) {
+      if( TextSizeUtil.isTemporaryResize() ) {
+        layoutCache.invalidateHeaderHeight();
+        layoutCache.invalidateFooterHeight();
+        layoutCache.invalidateItemHeight();
+      }
+    }
+  }
 
   static final class LayoutCache implements SerializableCompatibility {
     private static final int UNKNOWN = -1;

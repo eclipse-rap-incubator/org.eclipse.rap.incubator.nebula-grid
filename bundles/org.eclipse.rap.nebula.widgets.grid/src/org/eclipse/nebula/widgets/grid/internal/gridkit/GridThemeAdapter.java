@@ -30,4 +30,12 @@ public final class GridThemeAdapter extends ControlThemeAdapter {
     return getCssBoxDimensions( "Tree-Cell", "padding", control );
   }
 
+  public Rectangle getHeaderPadding( Control control ) {
+    return getCssBoxDimensions( "TreeColumn", "padding", control );
+  }
+
+  public int getHeaderBorderBottomWidth( Control control ) {
+    return getCssBorderWidth( "TreeColumn", "border-bottom", control );
+  }
+
 }

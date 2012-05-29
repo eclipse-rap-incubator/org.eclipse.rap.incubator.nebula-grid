@@ -347,6 +347,18 @@ public class GridColumn extends Item {
     return minimumWidth;
   }
 
+  @Override
+  public void setText( String text ) {
+    super.setText( text );
+    parent.layoutCache.invalidateHeaderHeight();
+  }
+
+  @Override
+  public void setImage( Image image ) {
+    super.setImage( image );
+    parent.layoutCache.invalidateHeaderHeight();
+  }
+
   /**
    * Sets the sort indicator style for the column. This method does not actual
    * sort the data in the table. Valid values include: SWT.UP, SWT.DOWN,
@@ -763,6 +775,7 @@ public class GridColumn extends Item {
     if( font != null && font.isDisposed() ) {
       SWT.error( SWT.ERROR_INVALID_ARGUMENT );
     }
+    parent.layoutCache.invalidateHeaderHeight();
     headerFont = font;
   }
 
