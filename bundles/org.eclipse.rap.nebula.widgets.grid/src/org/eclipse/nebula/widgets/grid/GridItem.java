@@ -19,6 +19,7 @@ import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.internal.SerializableCompatibility;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Item;
@@ -1648,6 +1649,25 @@ public class GridItem extends Item {
         children.get( i ).clear( true );
       }
     }
+  }
+
+  protected Point getCellSize( int columnIndex ) {
+    int width = 0;
+    int span = getColumnSpan( columnIndex );
+    for( int i = 0; i <= span && i < parent.getColumnCount() - columnIndex; i++ ) {
+      width += parent.getColumn( columnIndex + i ).getWidth();
+    }
+    GridItem item = this;
+    int itemIndex = parent.indexOf( item );
+    int height = getHeight();
+    span = getRowSpan( columnIndex );
+    for( int i = 1; i <= span && i < parent.getItemCount() - itemIndex; i++ ) {
+      item = parent.getItem( itemIndex + i );
+      if( item.isVisible() ) {
+        height += item.getHeight();
+      }
+    }
+    return new Point( width, height );
   }
 
   private void init() {
