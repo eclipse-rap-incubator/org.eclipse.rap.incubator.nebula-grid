@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.eclipse.nebula.widgets.grid;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +27,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
@@ -447,13 +450,64 @@ public class GridColumn_Test extends TestCase {
     }
   }
 
+  public void testGetHeaderText_Initial() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    assertEquals( "", column.getText() );
+  }
+
+  public void testGetHeaderText() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    column.setText( "foo" );
+
+    assertEquals( "foo", column.getText() );
+  }
+
+  public void testSetHeaderText_NullArgument() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    try {
+      column.setText( null );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testGetHeaderImage_Initial() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    assertNull( column.getImage() );
+  }
+
+  public void testGetHeaderImage() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+    Image image = loadImage( display, Fixture.IMAGE1 );
+
+    column.setImage( image );
+
+    assertSame( image, column.getImage() );
+  }
+
+  public void testSetHeaderImage_DisposedImage() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+    Image image = loadImage( display, Fixture.IMAGE1 );
+    image.dispose();
+
+    try {
+      column.setImage( image );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
   public void testGetHeaderFont_Initial() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
     assertSame( grid.getFont(), column.getHeaderFont() );
   }
 
-  public void testGetFont() {
+  public void testGetHeaderFont() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
     Font font = new Font( display, "Arial", 20, SWT.BOLD );
 
@@ -462,13 +516,91 @@ public class GridColumn_Test extends TestCase {
     assertSame( font, column.getHeaderFont() );
   }
 
-  public void testSetFont_DisposedFont() {
+  public void testSetHeaderFont_DisposedFont() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
     Font font = new Font( display, "Arial", 20, SWT.BOLD );
     font.dispose();
 
     try {
       column.setHeaderFont( font );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testGetFooterText_Initial() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    assertEquals( "", column.getFooterText() );
+  }
+
+  public void testGetFooterText() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    column.setFooterText( "foo" );
+
+    assertEquals( "foo", column.getFooterText() );
+  }
+
+  public void testSetFooterText_NullArgument() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    try {
+      column.setFooterText( null );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testGetFooterImage_Initial() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    assertNull( column.getFooterImage() );
+  }
+
+  public void testGetFooterImage() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+    Image image = loadImage( display, Fixture.IMAGE1 );
+
+    column.setFooterImage( image );
+
+    assertSame( image, column.getFooterImage() );
+  }
+
+  public void testSetFooterImage_DisposedImage() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+    Image image = loadImage( display, Fixture.IMAGE1 );
+    image.dispose();
+
+    try {
+      column.setFooterImage( image );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testGetFooterFont_Initial() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    assertSame( grid.getFont(), column.getFooterFont() );
+  }
+
+  public void testGetFooterFont() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+    Font font = new Font( display, "Arial", 20, SWT.BOLD );
+
+    column.setFooterFont( font );
+
+    assertSame( font, column.getFooterFont() );
+  }
+
+  public void testSetFooterFont_DisposedFont() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+    Font font = new Font( display, "Arial", 20, SWT.BOLD );
+    font.dispose();
+
+    try {
+      column.setFooterFont( font );
       fail();
     } catch( IllegalArgumentException expected ) {
     }
@@ -482,6 +614,23 @@ public class GridColumn_Test extends TestCase {
     for( int i = 0; i < columns; i++ ) {
       GridColumn column = new GridColumn( grid, style );
       result[ i ] = column;
+    }
+    return result;
+  }
+
+  private static Image loadImage( Display display, String name ) {
+    Image result = null;
+    InputStream stream = Fixture.class.getClassLoader().getResourceAsStream( name );
+    if( stream != null ) {
+      try {
+        result = new Image( display, stream );
+      } finally {
+        try {
+          stream.close();
+        } catch( IOException unexpected ) {
+          throw new RuntimeException( "Failed to close image input stream", unexpected );
+        }
+      }
     }
     return result;
   }

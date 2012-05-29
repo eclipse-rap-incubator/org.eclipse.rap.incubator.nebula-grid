@@ -59,9 +59,6 @@ set/getWordWrap()
 set/getHeaderWordWrap()
 set/getHeaderTooltip()
 set/getHeaderControl(Control)
-set/getFooterImage(Image)
-set/getFooterText(String)
-set/getFooterFont(Font)
 
 GridColumnGroup
 ----------------------------
