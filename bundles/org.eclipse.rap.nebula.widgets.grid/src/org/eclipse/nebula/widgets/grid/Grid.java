@@ -29,7 +29,6 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TreeEvent;
 import org.eclipse.swt.events.TreeListener;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
@@ -139,19 +138,9 @@ public class Grid extends Canvas {
   private boolean columnHeadersVisible = false;
 
   /**
-   * Grid line color.
-   */
-  private Color lineColor;
-
-  /**
    * Are the grid lines visible?
    */
   private boolean linesVisible = true;
-
-  /**
-   * Are tree lines visible?
-   */
-  private boolean treeLinesVisible = true;
 
   /**
    * The number of GridItems whose visible = true. Maintained for
