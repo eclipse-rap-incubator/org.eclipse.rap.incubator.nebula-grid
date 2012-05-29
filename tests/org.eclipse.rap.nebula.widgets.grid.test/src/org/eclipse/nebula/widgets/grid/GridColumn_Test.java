@@ -358,34 +358,6 @@ public class GridColumn_Test extends TestCase {
     assertFalse( column.getResizeable() );
   }
 
-  public void testIsDetail_Initial() {
-    GridColumn column = new GridColumn( grid, SWT.NONE );
-
-    assertTrue( column.isDetail() );
-  }
-
-  public void testIsDetail() {
-    GridColumn column = new GridColumn( grid, SWT.NONE );
-
-    column.setDetail( false );
-
-    assertFalse( column.isDetail() );
-  }
-
-  public void testIsSummary_Initial() {
-    GridColumn column = new GridColumn( grid, SWT.NONE );
-
-    assertTrue( column.isSummary() );
-  }
-
-  public void testIsSummary() {
-    GridColumn column = new GridColumn( grid, SWT.NONE );
-
-    column.setSummary( false );
-
-    assertFalse( column.isSummary() );
-  }
-
   public void testAddRemoveSelectionListener() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
     SelectionListener listener = new SelectionAdapter() { };
@@ -523,84 +495,6 @@ public class GridColumn_Test extends TestCase {
 
     try {
       column.setHeaderFont( font );
-      fail();
-    } catch( IllegalArgumentException expected ) {
-    }
-  }
-
-  public void testGetFooterText_Initial() {
-    GridColumn column = new GridColumn( grid, SWT.NONE );
-
-    assertEquals( "", column.getFooterText() );
-  }
-
-  public void testGetFooterText() {
-    GridColumn column = new GridColumn( grid, SWT.NONE );
-
-    column.setFooterText( "foo" );
-
-    assertEquals( "foo", column.getFooterText() );
-  }
-
-  public void testSetFooterText_NullArgument() {
-    GridColumn column = new GridColumn( grid, SWT.NONE );
-
-    try {
-      column.setFooterText( null );
-      fail();
-    } catch( IllegalArgumentException expected ) {
-    }
-  }
-
-  public void testGetFooterImage_Initial() {
-    GridColumn column = new GridColumn( grid, SWT.NONE );
-
-    assertNull( column.getFooterImage() );
-  }
-
-  public void testGetFooterImage() {
-    GridColumn column = new GridColumn( grid, SWT.NONE );
-    Image image = loadImage( display, Fixture.IMAGE1 );
-
-    column.setFooterImage( image );
-
-    assertSame( image, column.getFooterImage() );
-  }
-
-  public void testSetFooterImage_DisposedImage() {
-    GridColumn column = new GridColumn( grid, SWT.NONE );
-    Image image = loadImage( display, Fixture.IMAGE1 );
-    image.dispose();
-
-    try {
-      column.setFooterImage( image );
-      fail();
-    } catch( IllegalArgumentException expected ) {
-    }
-  }
-
-  public void testGetFooterFont_Initial() {
-    GridColumn column = new GridColumn( grid, SWT.NONE );
-
-    assertSame( grid.getFont(), column.getFooterFont() );
-  }
-
-  public void testGetFooterFont() {
-    GridColumn column = new GridColumn( grid, SWT.NONE );
-    Font font = new Font( display, "Arial", 20, SWT.BOLD );
-
-    column.setFooterFont( font );
-
-    assertSame( font, column.getFooterFont() );
-  }
-
-  public void testSetFooterFont_DisposedFont() {
-    GridColumn column = new GridColumn( grid, SWT.NONE );
-    Font font = new Font( display, "Arial", 20, SWT.BOLD );
-    font.dispose();
-
-    try {
-      column.setFooterFont( font );
       fail();
     } catch( IllegalArgumentException expected ) {
     }

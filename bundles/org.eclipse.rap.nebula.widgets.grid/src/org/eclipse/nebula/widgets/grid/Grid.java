@@ -134,20 +134,9 @@ public class Grid extends Canvas {
   private boolean disposing = false;
 
   /**
-   * True if three is at least one cell spanning columns.  This is used in various places for
-   * optimization.
-   */
-  private boolean hasSpanning = false;
-
-  /**
    * Are column headers visible?
    */
   private boolean columnHeadersVisible = false;
-
-  /**
-   * Are column footers visible?
-   */
-  private boolean columnFootersVisible = false;
 
   /**
    * Grid line color.
@@ -163,21 +152,6 @@ public class Grid extends Canvas {
    * Are tree lines visible?
    */
   private boolean treeLinesVisible = true;
-
-  /**
-   * Are this <code>Grid</code>'s rows resizeable?
-   */
-  private boolean rowsResizeable = false;
-
-  /**
-   * Are row headers visible?
-   */
-  private boolean rowHeaderVisible = false;
-
-  /**
-   * Width of each row header.
-   */
-  private int rowHeaderWidth = 0;
 
   /**
    * The number of GridItems whose visible = true. Maintained for
@@ -260,6 +234,39 @@ public class Grid extends Canvas {
       GridColumn column = ( GridColumn )iterator.next();
       column.dispose();
     }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Point computeSize( int wHint, int hHint, boolean changed ) {
+    checkWidget();
+    Point rreferredSize = null;
+    if( wHint == SWT.DEFAULT || hHint == SWT.DEFAULT ) {
+      rreferredSize = getTableSize();
+      rreferredSize.x += 2 * getBorderWidth();
+      rreferredSize.y += 2 * getBorderWidth();
+    }
+    int width = 0;
+    int height = 0;
+    if( wHint == SWT.DEFAULT ) {
+      width += rreferredSize.x;
+      if( getVerticalBar() != null ) {
+        width += getVerticalBar().getSize().x;
+      }
+    } else {
+      width = wHint;
+    }
+    if( hHint == SWT.DEFAULT ) {
+      height += rreferredSize.y;
+      if( getHorizontalBar() != null ) {
+        height += getHorizontalBar().getSize().y;
+      }
+    } else {
+      height = hHint;
+    }
+    return new Point( width, height );
   }
 
   /**
@@ -785,23 +792,6 @@ public class Grid extends Canvas {
   }
 
   /**
-   * Returns the number of column groups contained in the receiver.
-   *
-   * @return the number of column groups
-   * @throws org.eclipse.swt.SWTException
-   * <ul>
-   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
-   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
-   * created the receiver</li>
-   * </ul>
-   */
-  public int getColumnGroupCount() {
-    checkWidget();
-    // TODO: [if] Implement it properly when GridColumnGroup is available
-    return 0;
-  }
-
-  /**
    * Returns the next visible column in the table.
    *
    * @param column column
@@ -1037,22 +1027,6 @@ public class Grid extends Canvas {
   public boolean getSelectionEnabled() {
     checkWidget();
     return selectionEnabled;
-  }
-
-  /**
-   * Returns true if the cells are selectable in the reciever.
-   *
-   * @return cell selection enablement status.
-   * @throws org.eclipse.swt.SWTException
-   * <ul>
-   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
-   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
-   * created the receiver</li>
-   * </ul>
-   */
-  public boolean getCellSelectionEnabled() {
-    checkWidget();
-    return cellSelectionEnabled;
   }
 
   /**
@@ -1811,56 +1785,6 @@ public class Grid extends Canvas {
   }
 
   /**
-   * Returns {@code true} if the receiver's footer is visible, and {@code false} otherwise
-   * @return the receiver's footer's visibility state
-   * @throws org.eclipse.swt.SWTException
-   * <ul>
-   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
-   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
-   * created the receiver</li>
-   * </ul>
-   */
-  public boolean getFooterVisible() {
-    checkWidget();
-    return columnFootersVisible;
-  }
-
-  /**
-   * Sets the line color.
-   *
-   * @param lineColor The lineColor to set.
-   * @throws org.eclipse.swt.SWTException
-   * <ul>
-   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
-   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
-   * created the receiver</li>
-   * </ul>
-   */
-  public void setLineColor( Color lineColor ) {
-    checkWidget();
-    if( lineColor != null && lineColor.isDisposed() ) {
-      SWT.error( SWT.ERROR_INVALID_ARGUMENT );
-    }
-    this.lineColor = lineColor;
-  }
-
-  /**
-   * Returns the line color.
-   *
-   * @return Returns the lineColor.
-   * @throws org.eclipse.swt.SWTException
-   * <ul>
-   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
-   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
-   * created the receiver</li>
-   * </ul>
-   */
-  public Color getLineColor() {
-    checkWidget();
-    return lineColor;
-  }
-
-  /**
    * Sets the line visibility.
    *
    * @param linesVisible The linesVisible to set.
@@ -1891,39 +1815,6 @@ public class Grid extends Canvas {
   public boolean getLinesVisible() {
     checkWidget();
     return linesVisible;
-  }
-
-  /**
-   * Sets the tree line visibility.
-   *
-   * @param treeLinesVisible
-   * @throws org.eclipse.swt.SWTException
-     * <ul>
-     * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
-     * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
-     * created the receiver</li>
-     * </ul>
-   */
-  public void setTreeLinesVisible( boolean treeLinesVisible ) {
-    checkWidget();
-    this.treeLinesVisible = treeLinesVisible;
-    redraw();
-  }
-
-  /**
-   * Returns true if the tree lines are visible.
-   *
-   * @return Returns the treeLinesVisible.
-   * @throws org.eclipse.swt.SWTException
-   * <ul>
-   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
-   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
-   * created the receiver</li>
-   * </ul>
-   */
-  public boolean getTreeLinesVisible() {
-    checkWidget();
-    return treeLinesVisible;
   }
 
   /**
@@ -1963,74 +1854,6 @@ public class Grid extends Canvas {
   public GridItem getFocusItem() {
     checkWidget();
     return focusItem;
-  }
-
-  /**
-   * Returns true if the rows are resizable.
-   *
-   * @return the row resizeable state
-   * @throws org.eclipse.swt.SWTException
-   * <ul>
-   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
-   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
-   * created the receiver</li>
-   * </ul>
-   * <!--@see #setRowsResizeable(boolean)-->
-   */
-  public boolean getRowsResizeable() {
-    checkWidget();
-    return rowsResizeable;
-  }
-
-  /**
-   * Returns {@code true} if the receiver's row header is visible, and
-   * {@code false} otherwise.
-   * <p>
-   *
-   * @return the receiver's row header's visibility state
-   * @throws org.eclipse.swt.SWTException
-   * <ul>
-   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
-   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
-   * created the receiver</li>
-   * </ul>
-   */
-  public boolean isRowHeaderVisible() {
-    checkWidget();
-    return rowHeaderVisible;
-  }
-
-  /**
-   * Returns the row header width or 0 if row headers are not visible.
-   *
-   * @return the width of the row headers
-   * @throws org.eclipse.swt.SWTException
-   * <ul>
-   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
-   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
-   * created the receiver</li>
-   * </ul>
-   */
-  public int getItemHeaderWidth() {
-    checkWidget();
-    return rowHeaderVisible ? rowHeaderWidth : 0;
-  }
-
-  /**
-   * Returns the width of the row headers.
-   *
-   * @return width of the column header row
-   * @throws org.eclipse.swt.SWTException
-   *             <ul>
-   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
-   *             </li>
-   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
-   *             thread that created the receiver</li>
-   *             </ul>
-   */
-  public int getRowHeaderWidth() {
-    checkWidget();
-    return rowHeaderWidth;
   }
 
   /**
@@ -2252,10 +2075,6 @@ public class Grid extends Canvas {
     currentVisibleItems += amount;
   }
 
-  void setHasSpanning( boolean hasSpanning ) {
-    this.hasSpanning = hasSpanning;
-  }
-
   /**
    * Returns an array of the columns in their display order.
    *
@@ -2379,6 +2198,26 @@ public class Grid extends Canvas {
     }
   }
 
+  private Point getTableSize() {
+    int width = 0;
+    int height = 0;
+    if( columnHeadersVisible ) {
+      height += getHeaderHeight();
+    }
+    height += getGridHeight();
+    for( Iterator iterator = columns.iterator(); iterator.hasNext(); ) {
+      GridColumn column = ( GridColumn )iterator.next();
+      if( column.isVisible() ) {
+        width += column.getWidth();
+      }
+    }
+    return new Point( width, height );
+  }
+
+  private int getGridHeight() {
+    return currentVisibleItems * getItemHeight();
+  }
+
   private int computeItemHeight() {
     int result = Math.max( getItemImageSize().y, Graphics.getCharHeight( getFont() ) );
     if( hasCheckBoxes() ) {
@@ -2393,21 +2232,16 @@ public class Grid extends Canvas {
   private int computeHeaderHeight() {
     int result = 0;
     if( columnHeadersVisible ) {
-      int columnHeight = 0;
+      int columnHeaderHeight = 0;
       for( int i = 0; i < getColumnCount(); i++ ) {
-        columnHeight = Math.max( columnHeight, computeColumnHeight( i ) );
+        columnHeaderHeight = Math.max( columnHeaderHeight, computeColumnHeaderHeight( i ) );
       }
-      int columnGroupHeight = 0;
-      for( int i = 0; i < getColumnGroupCount(); i++ ) {
-        columnGroupHeight = Math.max( columnGroupHeight, computeColumnGroupHeight( i ) );
-      }
-      result = columnHeight + columnGroupHeight;
-      result += getThemeAdapter().getHeaderBorderBottomWidth( this );
+      result = columnHeaderHeight + getThemeAdapter().getHeaderBorderBottomWidth( this );
     }
     return result;
   }
 
-  private int computeColumnHeight( int index ) {
+  private int computeColumnHeaderHeight( int index ) {
     GridColumn column = columns.get( index );
     int textHeight = 0;
     Font headerFont = column.getHeaderFont();
@@ -2421,18 +2255,6 @@ public class Grid extends Canvas {
     int imageHeight = image == null ? 0 : image.getBounds().height;
     int result = Math.max( textHeight, imageHeight );
     result += getThemeAdapter().getHeaderPadding( this ).height;
-    return result;
-  }
-
-  private int computeColumnGroupHeight( int index ) {
-    int result = 0;
-    // TODO: [if] Implement it properly when GridColumnGroup is available
-//    GridColumn column = columns.get( index );
-//    GridColumnGroup group = column.getColumnGroup();
-//    if( group != null ) {
-//      ...
-//      result += getThemeAdapter().getHeaderPadding( this ).height;
-//    }
     return result;
   }
 
@@ -2518,7 +2340,6 @@ public class Grid extends Canvas {
     public void controlResized( ControlEvent event ) {
       if( TextSizeUtil.isTemporaryResize() ) {
         layoutCache.invalidateHeaderHeight();
-        layoutCache.invalidateFooterHeight();
         layoutCache.invalidateItemHeight();
       }
     }
@@ -2528,7 +2349,6 @@ public class Grid extends Canvas {
     private static final int UNKNOWN = -1;
 
     int headerHeight = UNKNOWN;
-    int footerHeight = UNKNOWN;
     int itemHeight = UNKNOWN;
     int cellSpacing = UNKNOWN;
     Rectangle cellPadding;
@@ -2541,14 +2361,6 @@ public class Grid extends Canvas {
 
     public void invalidateHeaderHeight() {
       headerHeight = UNKNOWN;
-    }
-
-    public boolean hasFooterHeight() {
-      return footerHeight != UNKNOWN;
-    }
-
-    public void invalidateFooterHeight() {
-      footerHeight = UNKNOWN;
     }
 
     public boolean hasItemHeight() {
@@ -2593,7 +2405,6 @@ public class Grid extends Canvas {
 
     public void invalidateAll() {
       invalidateHeaderHeight();
-      invalidateFooterHeight();
       invalidateItemHeight();
       invalidateCellSpacing();
       invalidateCellPadding();

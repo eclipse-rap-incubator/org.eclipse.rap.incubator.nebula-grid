@@ -29,9 +29,9 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TreeAdapter;
 import org.eclipse.swt.events.TreeEvent;
 import org.eclipse.swt.events.TreeListener;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
@@ -548,10 +548,6 @@ public class Grid_Test extends TestCase {
     grid.setSelectionEnabled( false );
 
     assertEquals( 0, grid.getSelectionCount() );
-  }
-
-  public void testGetCellSelectionEnabled_Initial() {
-    assertFalse( grid.getCellSelectionEnabled() );
   }
 
   public void testGetSelectionCount_Initial() {
@@ -1291,33 +1287,6 @@ public class Grid_Test extends TestCase {
     assertTrue( grid.getHeaderVisible() );
   }
 
-  public void testGetFooterVisible_Initial() {
-    assertFalse( grid.getFooterVisible() );
-  }
-
-  public void testGetLineColor_Initial() {
-    assertNull( grid.getLineColor() );
-  }
-
-  public void testGetLineColor() {
-    Color color = new Color( display, 255, 0, 0 );
-
-    grid.setLineColor( color );
-
-    assertSame( color, grid.getLineColor() );
-  }
-
-  public void testSetLineColor_DisposedColor() {
-    Color color = new Color( display, 255, 0, 0 );
-    color.dispose();
-
-    try {
-      grid.setLineColor( color );
-      fail();
-    } catch( IllegalArgumentException expected ) {
-    }
-  }
-
   public void testGetLinesVisible_Initial() {
     assertTrue( grid.getLinesVisible() );
   }
@@ -1326,16 +1295,6 @@ public class Grid_Test extends TestCase {
     grid.setLinesVisible( false );
 
     assertFalse( grid.getLinesVisible() );
-  }
-
-  public void testGetTreeLinesVisible_Initial() {
-    assertTrue( grid.getTreeLinesVisible() );
-  }
-
-  public void testGetTreeLinesVisible() {
-    grid.setTreeLinesVisible( false );
-
-    assertFalse( grid.getTreeLinesVisible() );
   }
 
   public void testGetFocusItem_Initial() {
@@ -1594,22 +1553,6 @@ public class Grid_Test extends TestCase {
     assertSame( columns[ 0 ], grid.getPreviousVisibleColumn( columns[ 2 ] ) );
   }
 
-  public void testGetRowsResizeable_Initial() {
-    assertFalse( grid.getRowsResizeable() );
-  }
-
-  public void testIsRowHeaderVisible_Initial() {
-    assertFalse( grid.isRowHeaderVisible() );
-  }
-
-  public void testGetItemHeaderWidth_Initial() {
-    assertEquals( 0, grid.getItemHeaderWidth() );
-  }
-
-  public void testGetRowHeaderWidth_Initial() {
-    assertEquals( 0, grid.getRowHeaderWidth() );
-  }
-
   public void testGetItemHeight_Initial() {
     assertEquals( 21, grid.getItemHeight() );
   }
@@ -1769,6 +1712,57 @@ public class Grid_Test extends TestCase {
     assertEquals( 37, grid.getHeaderHeight() );
   }
 
+  public void testComputeSize() {
+    grid = new Grid( shell, SWT.NONE );
+    createGridColumns( grid, 3 );
+    createGridItems( grid, 3, 3 );
+    int itemHeight = grid.getItemHeight();
+
+    Point preferredSize = grid.computeSize( SWT.DEFAULT, SWT.DEFAULT );
+
+    assertEquals( 120, preferredSize.x );
+    assertEquals( 3 * itemHeight, preferredSize.y );
+  }
+
+  public void testComputeSize_WithScrollBars() {
+    createGridColumns( grid, 3 );
+    createGridItems( grid, 3, 3 );
+    int itemHeight = grid.getItemHeight();
+    int scrollbarSize = 10;
+
+    Point preferredSize = grid.computeSize( SWT.DEFAULT, SWT.DEFAULT );
+
+    assertEquals( 120 + scrollbarSize, preferredSize.x );
+    assertEquals( 3 * itemHeight + scrollbarSize, preferredSize.y );
+  }
+
+  public void testComputeSize_WithBorder() {
+    grid = new Grid( shell, SWT.BORDER );
+    createGridColumns( grid, 3 );
+    createGridItems( grid, 3, 3 );
+    int itemHeight = grid.getItemHeight();
+    int borderWidth = grid.getBorderWidth();
+
+    Point preferredSize = grid.computeSize( SWT.DEFAULT, SWT.DEFAULT );
+
+    assertEquals( 120 + 2 * borderWidth, preferredSize.x );
+    assertEquals( 3 * itemHeight + 2 * borderWidth, preferredSize.y );
+  }
+
+  public void testComputeSize_WithExpandedItems() {
+    grid = new Grid( shell, SWT.NONE );
+    createGridColumns( grid, 3 );
+    GridItem[] items = createGridItems( grid, 3, 3 );
+    items[ 0 ].setExpanded( true );
+    items[ 4 ].setExpanded( true );
+    int itemHeight = grid.getItemHeight();
+
+    Point preferredSize = grid.computeSize( SWT.DEFAULT, SWT.DEFAULT );
+
+    assertEquals( 120, preferredSize.x );
+    assertEquals( 9 * itemHeight, preferredSize.y );
+  }
+
   //////////////////
   // Helping methods
 
@@ -1794,6 +1788,7 @@ public class Grid_Test extends TestCase {
     GridColumn[] result = new GridColumn[ columns ];
     for( int i = 0; i < columns; i++ ) {
       GridColumn column = new GridColumn( grid, SWT.NONE );
+      column.setWidth( 20 * ( i + 1 ) );
       result[ i ] = column;
     }
     return result;

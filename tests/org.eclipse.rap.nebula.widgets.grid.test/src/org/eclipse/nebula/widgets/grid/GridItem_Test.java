@@ -19,9 +19,6 @@ import java.util.List;
 import org.eclipse.rap.rwt.testfixture.Fixture;
 import org.eclipse.rwt.lifecycle.PhaseId;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ControlAdapter;
-import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
@@ -798,60 +795,6 @@ public class GridItem_Test extends TestCase {
     }
   }
 
-  public void testGetRowSpan_Inital() {
-    createGridColumns( grid, 3 );
-    GridItem item = new GridItem( grid, SWT.NONE );
-
-    assertEquals( 0, item.getRowSpan( 0 ) );
-  }
-
-  public void testGetRowSpan() {
-    createGridColumns( grid, 3 );
-    GridItem item = new GridItem( grid, SWT.NONE );
-
-    item.setRowSpan( 0, 2 );
-
-    assertEquals( 2, item.getRowSpan( 0 ) );
-  }
-
-  public void testGetRowSpanByIndex() {
-    createGridColumns( grid, 3 );
-    GridItem item = new GridItem( grid, SWT.NONE );
-
-    item.setRowSpan( 1, 2 );
-
-    assertEquals( 0, item.getRowSpan( 0 ) );
-    assertEquals( 2, item.getRowSpan( 1 ) );
-    assertEquals( 0, item.getRowSpan( 2 ) );
-  }
-
-  public void testGetColumnSpan_Inital() {
-    createGridColumns( grid, 3 );
-    GridItem item = new GridItem( grid, SWT.NONE );
-
-    assertEquals( 0, item.getColumnSpan( 0 ) );
-  }
-
-  public void testGetColumnSpan() {
-    createGridColumns( grid, 3 );
-    GridItem item = new GridItem( grid, SWT.NONE );
-
-    item.setColumnSpan( 0, 2 );
-
-    assertEquals( 2, item.getColumnSpan( 0 ) );
-  }
-
-  public void testGetColumnSpanByIndex() {
-    createGridColumns( grid, 3 );
-    GridItem item = new GridItem( grid, SWT.NONE );
-
-    item.setColumnSpan( 1, 2 );
-
-    assertEquals( 0, item.getColumnSpan( 0 ) );
-    assertEquals( 2, item.getColumnSpan( 1 ) );
-    assertEquals( 0, item.getColumnSpan( 2 ) );
-  }
-
   public void testGetHeaderText_Initial() {
     GridItem item = new GridItem( grid, SWT.NONE );
 
@@ -947,38 +890,6 @@ public class GridItem_Test extends TestCase {
     }
   }
 
-  public void testAddRemoveControlListener() {
-    GridItem item = new GridItem( grid, SWT.NONE );
-    ControlListener listener = new ControlAdapter() { };
-    assertFalse( ControlEvent.hasListener( item ) );
-
-    item.addControlListener( listener );
-    assertTrue( ControlEvent.hasListener( item ) );
-
-    item.removeControlListener( listener );
-    assertFalse( ControlEvent.hasListener( item ) );
-  }
-
-  public void testAddControlListener_NullArgument() {
-    GridItem item = new GridItem( grid, SWT.NONE );
-
-    try {
-      item.addControlListener( null );
-      fail();
-    } catch( IllegalArgumentException expected ) {
-    }
-  }
-
-  public void testRemoveControlListener_NullArgument() {
-    GridItem item = new GridItem( grid, SWT.NONE );
-
-    try {
-      item.removeControlListener( null );
-      fail();
-    } catch( IllegalArgumentException expected ) {
-    }
-  }
-
   public void testGetHeight_Initial() {
     GridItem item = new GridItem( grid, SWT.NONE );
 
@@ -999,64 +910,6 @@ public class GridItem_Test extends TestCase {
     GridItem item = grid.getRootItem( 2 );
 
     assertEquals( new Point( 60, 21 ), item.getCellSize( 2 ) );
-  }
-
-  public void testGetCellSize_CollapsedWithRowSpan() {
-    createGridColumns( grid, 5 );
-    createGridItems( grid, 5, 5 );
-    GridItem item = grid.getRootItem( 2 );
-    item.setRowSpan( 2, 2 );
-
-    assertEquals( new Point( 60, 21 ), item.getCellSize( 2 ) );
-  }
-
-  public void testGetCellSize_ExpandedWithRowSpan() {
-    createGridColumns( grid, 5 );
-    createGridItems( grid, 5, 5 );
-    GridItem item = grid.getRootItem( 2 );
-    item.setExpanded( true );
-    item.setRowSpan( 2, 2 );
-
-    assertEquals( new Point( 60, 63 ), item.getCellSize( 2 ) );
-  }
-
-  public void testGetCellSize_OutOfItemCount() {
-    createGridColumns( grid, 5 );
-    createGridItems( grid, 5, 5 );
-    GridItem item = grid.getRootItem( 4 );
-    item.setExpanded( true );
-    item.setRowSpan( 2, 10 );
-
-    assertEquals( new Point( 60, 126 ), item.getCellSize( 2 ) );
-  }
-
-  public void testGetCellSize_WithColumnSpan() {
-    createGridColumns( grid, 5 );
-    createGridItems( grid, 5, 5 );
-    GridItem item = grid.getRootItem( 2 );
-    item.setColumnSpan( 2, 2 );
-
-    assertEquals( new Point( 240, 21 ), item.getCellSize( 2 ) );
-  }
-
-  public void testGetCellSize_OutOfColumnCount() {
-    createGridColumns( grid, 5 );
-    createGridItems( grid, 5, 5 );
-    GridItem item = grid.getRootItem( 2 );
-    item.setColumnSpan( 2, 10 );
-
-    assertEquals( new Point( 240, 21 ), item.getCellSize( 2 ) );
-  }
-
-  public void testGetSellSize_WithRowColumnSpan() {
-    createGridColumns( grid, 5 );
-    createGridItems( grid, 5, 5 );
-    GridItem item = grid.getRootItem( 2 );
-    item.setExpanded( true );
-    item.setRowSpan( 2, 3 );
-    item.setColumnSpan( 2, 1 );
-
-    assertEquals( new Point( 140, 84 ), item.getCellSize( 2 ) );
   }
 
   //////////////////

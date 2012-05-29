@@ -1,6 +1,5 @@
 Grid
 ----------------------------
-computeSize(int, int, boolean)
 getColumnGroupCount()
 getColumnGroups()
 getColumnGroup(int)

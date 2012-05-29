@@ -14,8 +14,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
@@ -257,61 +255,6 @@ public class GridItem extends Item {
       }
     }
     super.dispose();
-  }
-
-  /**
-   * Adds the listener to the collection of listeners who will be notified
-   * when the row is resized, by sending it one of the messages defined in the
-   * <code>ControlListener</code> interface.
-   * <p>
-   * Clients who wish to override the standard row resize logic should use the
-   * untyped listener mechanisms. The untyped <code>Event</code> object passed
-   * to an untyped listener will have its <code>detail</code> field populated
-   * with the new row height. Clients may alter this value to, for example,
-   * enforce minimum or maximum row sizes. Clients may also set the
-   * <code>doit</code> field to false to prevent the entire resize operation.
-   *
-   * @param listener
-   *            the listener which should be notified
-   *
-   * @exception IllegalArgumentException
-   *                <ul>
-   *                <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
-   *                </ul>
-   * @exception org.eclipse.swt.SWTException
-   *                <ul>
-   *                <li>ERROR_WIDGET_DISPOSED - if the receiver has been
-   *                disposed</li> <li>ERROR_THREAD_INVALID_ACCESS - if not
-   *                called from the thread that created the receiver</li>
-   *                </ul>
-   */
-  public void addControlListener( ControlListener listener ) {
-    checkWidget();
-    ControlEvent.addListener( this, listener );
-  }
-
-  /**
-   * Removes the listener from the collection of listeners who will be
-   * notified when the row is resized.
-   *
-   * @param listener
-   *            the listener which should no longer be notified
-   *
-   * @exception IllegalArgumentException
-   *                <ul>
-   *                <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
-   *                </ul>
-   * @exception org.eclipse.swt.SWTException
-   *                <ul>
-   *                <li>ERROR_WIDGET_DISPOSED - if the receiver has been
-   *                disposed</li>
-   *                <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
-   *                thread that created the receiver</li>
-   *                </ul>
-   */
-  public void removeControlListener( ControlListener listener ) {
-    checkWidget();
-    ControlEvent.removeListener( this, listener );
   }
 
   /**
@@ -1269,90 +1212,6 @@ public class GridItem extends Item {
   }
 
   /**
-   * Sets the row spanning for the column at the given index to span the given
-   * number of subsequent rows.
-   *
-   * @param index
-   *            column index that should span
-   * @param span
-   *            number of subsequent rows to span
-   * @throws org.eclipse.swt.SWTException
-   *             <ul>
-   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
-   *             </li>
-   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
-   *             thread that created the receiver</li>
-   *             </ul>
-   */
-  public void setRowSpan( int index, int span ) {
-    checkWidget();
-    getItemData( index ).rowSpan = span;
-    parent.setHasSpanning( true );
-    parent.redraw();
-  }
-
-  /**
-   * Returns the row span for the given column index in the receiver.
-   *
-   * @param index
-   *            the column index
-   * @return the number of row spanned (0 equals no row spanned)
-   * @throws org.eclipse.swt.SWTException
-   *             <ul>
-   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
-   *             </li>
-   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
-   *             thread that created the receiver</li>
-   *             </ul>
-   */
-  public int getRowSpan( int index ) {
-    checkWidget();
-    return getItemData( index ).rowSpan;
-  }
-
-  /**
-   * Sets the column spanning for the column at the given index to span the
-   * given number of subsequent columns.
-   *
-   * @param index
-   *            column index that should span
-   * @param span
-   *            number of subsequent columns to span
-   * @throws org.eclipse.swt.SWTException
-   *             <ul>
-   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
-   *             </li>
-   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
-   *             thread that created the receiver</li>
-   *             </ul>
-   */
-  public void setColumnSpan( int index, int span ) {
-    checkWidget();
-    getItemData( index ).columnSpan = span;
-    parent.setHasSpanning( true );
-    parent.redraw();
-  }
-
-  /**
-   * Returns the column span for the given column index in the receiver.
-   *
-   * @param index
-   *            the column index
-   * @return the number of columns spanned (0 equals no columns spanned)
-   * @throws org.eclipse.swt.SWTException
-   *             <ul>
-   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
-   *             </li>
-   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
-   *             thread that created the receiver</li>
-   *             </ul>
-   */
-  public int getColumnSpan( int index ) {
-    checkWidget();
-    return getItemData( index ).columnSpan;
-  }
-
-  /**
    * Sets the receiver's row header text. If the text is <code>null</code> the
    * row header will display the row number.
    *
@@ -1374,8 +1233,6 @@ public class GridItem extends Item {
     checkWidget();
     if( headerText != text ) {
       headerText = text;
-// TODO: [if] Implement these methods when row header is supported on the client
-//      parent.recalculateRowHeaderWidth( this, oldWidth, newWidth );
       parent.redraw();
     }
   }
@@ -1420,9 +1277,6 @@ public class GridItem extends Item {
     }
     if( image != headerImage ) {
       headerImage = image;
-// TODO: [if] Implement these methods when row header is supported on the client
-//      parent.recalculateRowHeaderWidth( this, oldWidth, newWidth );
-//      parent.recalculateRowHeaderHeight( this, oldHeight, newHeight );
       parent.redraw();
     }
   }
@@ -1653,14 +1507,14 @@ public class GridItem extends Item {
 
   protected Point getCellSize( int columnIndex ) {
     int width = 0;
-    int span = getColumnSpan( columnIndex );
+    int span = 0; // getColumnSpan( columnIndex );
     for( int i = 0; i <= span && i < parent.getColumnCount() - columnIndex; i++ ) {
       width += parent.getColumn( columnIndex + i ).getWidth();
     }
     GridItem item = this;
     int itemIndex = parent.indexOf( item );
     int height = getHeight();
-    span = getRowSpan( columnIndex );
+    span = 0; // getRowSpan( columnIndex );
     for( int i = 1; i <= span && i < parent.getItemCount() - itemIndex; i++ ) {
       item = parent.getItem( itemIndex + i );
       if( item.isVisible() ) {
@@ -1716,8 +1570,6 @@ public class GridItem extends Item {
     public boolean checked;
     public boolean checkable = true;
     public boolean grayed;
-    public int columnSpan;
-    public int rowSpan;
   }
 
 }
