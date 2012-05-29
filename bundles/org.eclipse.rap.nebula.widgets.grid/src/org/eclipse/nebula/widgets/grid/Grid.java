@@ -141,6 +141,11 @@ public class Grid extends Canvas {
   private boolean columnHeadersVisible = false;
 
   /**
+   * Are column footers visible?
+   */
+  private boolean columnFootersVisible = false;
+
+  /**
    * Grid line color.
    */
   private Color lineColor;
@@ -1759,6 +1764,21 @@ public class Grid extends Canvas {
   public boolean getHeaderVisible() {
     checkWidget();
     return columnHeadersVisible;
+  }
+
+  /**
+   * Returns {@code true} if the receiver's footer is visible, and {@code false} otherwise
+   * @return the receiver's footer's visibility state
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public boolean getFooterVisible() {
+    checkWidget();
+    return columnFootersVisible;
   }
 
   /**

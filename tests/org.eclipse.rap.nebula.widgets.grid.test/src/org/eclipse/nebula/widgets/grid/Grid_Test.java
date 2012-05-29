@@ -1281,7 +1281,7 @@ public class Grid_Test extends TestCase {
     assertFalse( grid.isSelected( items[ 1 ] ) );
   }
 
-  public void testSetHeaderVisible_Initial() {
+  public void testGetHeaderVisible_Initial() {
     assertFalse( grid.getHeaderVisible() );
   }
 
@@ -1289,6 +1289,10 @@ public class Grid_Test extends TestCase {
     grid.setHeaderVisible( true );
 
     assertTrue( grid.getHeaderVisible() );
+  }
+
+  public void testGetFooterVisible_Initial() {
+    assertFalse( grid.getFooterVisible() );
   }
 
   public void testGetLineColor_Initial() {
