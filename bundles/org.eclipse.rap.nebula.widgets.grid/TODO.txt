@@ -42,7 +42,6 @@ set/getXXXRenderer                          - will not implement all set/getRend
 GridItem
 ----------------------------
 getBounds( index )
-pack()
 setHeight( int )                            - will not be implemented for now (no different row height)
 fireCheckEvent()                            - index field is missing
 
