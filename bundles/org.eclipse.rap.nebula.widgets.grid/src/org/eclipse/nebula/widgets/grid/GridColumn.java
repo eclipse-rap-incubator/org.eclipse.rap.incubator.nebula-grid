@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.eclipse.nebula.widgets.grid;
 
+import org.eclipse.rwt.graphics.Graphics;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
@@ -38,63 +39,24 @@ import org.eclipse.swt.widgets.Item;
  */
 public class GridColumn extends Item {
 
-  /**
-   * Default width of the column.
-   */
+  private static final int SORT_INDICATOR_WIDTH = 10;
+  private static final int MARGIN_IMAGE = 3;
   private static final int DEFAULT_WIDTH = 10;
 
-  /**
-   * Width of column.
-   */
   private int width = DEFAULT_WIDTH;
-
-  private int minimumWidth = 0;
-
-  /**
-   * Parent table.
-   */
+  private int minimumWidth;
   private Grid parent;
-
-  /**
-   * Sort style of column. Only used to draw indicator, does not actually sort
-   * data.
-   */
   private int sortStyle = SWT.NONE;
-
-  /**
-   * Does this column contain check boxes? Did the user specify SWT.CHECK in
-   * the constructor of the column.
-   */
-  private boolean check = false;
-
-  /**
-   * Specifies if this column should display a checkbox because SWT.CHECK was
-   * passed to the parent table (not necessarily the column).
-   */
-  private boolean tableCheck = false;
-
-  /**
-   * Determines if this column shows toggles.
-   */
-  private boolean tree = false;
-
-  /**
-   * Is this column moveable?
-   */
-  private boolean moveable = false;
-
-  /**
-   * Is this column resizable?
-   */
+  private boolean check;
+  private boolean tableCheck;
+  private boolean tree;
+  private boolean moveable;
   private boolean resizeable = true;
-
   private boolean checkable = true;
-
   private boolean visible = true;
-
   private int alignment = SWT.LEFT;
-
   private Font headerFont;
+  private boolean packed;
 
   /**
    * Constructs a new instance of this class given its parent (which must be a
@@ -703,8 +665,61 @@ public class GridColumn extends Item {
     return headerFont == null ? parent.getFont() : headerFont;
   }
 
-  void setWidth( int width, boolean redraw ) {
+  /**
+   * Causes the receiver to be resized to its preferred size.
+   *
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public void pack() {
+    checkWidget();
+    int newWidth = Math.max( getPreferredWidth(), parent.getMaxContentWidth( this ) );
+    setWidth( newWidth );
+    packed = true;
+    parent.redraw();
+  }
+
+  void repack() {
+    if( packed ) {
+      pack();
+    }
+  }
+
+  private int getPreferredWidth() {
+    return parent.getHeaderVisible() ? getContentWidth() : 0;
+  }
+
+  private int getContentWidth() {
+    int contentWidth = 0;
+    String text = getText();
+    Image image = getImage();
+    if( text.length() > 0 ) {
+      contentWidth += Graphics.textExtent( getHeaderFont(), text, 0 ).x;
+    }
+    if( image != null ) {
+      contentWidth += image.getBounds().width;
+      if( text.length() > 0 ) {
+        contentWidth += MARGIN_IMAGE;
+      }
+    }
+    if( sortStyle != SWT.NONE ) {
+      contentWidth += SORT_INDICATOR_WIDTH;
+      if( text.length() > 0 || image != null ) {
+        contentWidth += MARGIN_IMAGE;
+      }
+    }
+    contentWidth += parent.getHeaderPadding().width;
+    return contentWidth;
+  }
+
+  private void setWidth( int width, boolean redraw ) {
     this.width = Math.max( minimumWidth, width );
+    packed = false;
     if( redraw ) {
       parent.setScrollValuesObsolete();
       parent.redraw();

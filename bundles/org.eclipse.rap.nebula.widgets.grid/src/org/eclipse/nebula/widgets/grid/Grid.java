@@ -60,113 +60,31 @@ import org.eclipse.swt.widgets.Composite;
 public class Grid extends Canvas {
 
   private static final int MIN_ITEM_HEIGHT = 16;
+  private static final int GRID_WIDTH = 1;
 
-  /**
-   * Vertical scrollbar proxy.
-   * <p>
-   * Note:
-   * <ul>
-   * <li>{@link Grid#getTopIndex()} is the only method allowed to call vScroll.getSelection()
-   * (except #updateScrollbars() of course)</li>
-   * <li>{@link Grid#setTopIndex(int)} is the only method allowed to call vScroll.setSelection(int)</li>
-   * </ul>
-   */
-  private IScrollBarProxy vScroll;
-
-  /**
-   * Horizontal scrollbar proxy.
-   */
-  private IScrollBarProxy hScroll;
-
-  /**
-   * Tracks whether the scroll values are correct. If not they will be
-   * recomputed in onPaint. This allows us to get a free ride on top of the
-   * OS's paint event merging to assure that we don't perform this expensive
-   * operation when unnecessary.
-   */
-  private boolean scrollValuesObsolete = false;
-
-  /**
-   * All items in the table, not just root items.
-   */
   private List<GridItem> items = new ArrayList<GridItem>();
-
-  /**
-   * All root items.
-   */
   private List<GridItem> rootItems = new ArrayList<GridItem>();
-
-  /**
-   * List of selected items.
-   */
   private List<GridItem> selectedItems = new ArrayList<GridItem>();
-
-  /**
-   * Reference to the item in focus.
-   */
-  private GridItem focusItem;
-
-  /**
-   * List of selected cells.
-   */
   private List<Point> selectedCells = new ArrayList<Point>();
-
-  /**
-   * List of table columns in creation/index order.
-   */
   private List<GridColumn> columns = new ArrayList<GridColumn>();
-
-  /**
-   * List of the table columns in the order they are displayed.
-   */
   private List<GridColumn> displayOrderedColumns = new ArrayList<GridColumn>();
-
-  /**
-   * True if there is at least one tree node.  This is used by accessibility and various
-   * places for optimization.
-   */
-  private boolean isTree = false;
-
-  /**
-   * True if the widget is being disposed.  When true, events are not fired.
-   */
-  private boolean disposing = false;
-
-  /**
-   * Are column headers visible?
-   */
-  private boolean columnHeadersVisible = false;
-
-  /**
-   * Are the grid lines visible?
-   */
+  private GridItem focusItem;
+  private boolean isTree;
+  private boolean disposing;
+  private boolean columnHeadersVisible;
   private boolean linesVisible = true;
-
-  /**
-   * The number of GridItems whose visible = true. Maintained for
-   * performance reasons (rather than iterating over all items).
-   */
-  private int currentVisibleItems = 0;
-
-  /**
-   * Type of selection behavior. Valid values are SWT.SINGLE and SWT.MULTI.
-   */
+  private int currentVisibleItems;
   private int selectionType = SWT.SINGLE;
-
-  /**
-   * True if selection highlighting is enabled.
-   */
   private boolean selectionEnabled = true;
-
-  /**
-   * True if cell selection highlighting is enabled.
-   */
-  private boolean cellSelectionEnabled = false;
-
+  private boolean cellSelectionEnabled;
   private int customItemHeight = -1;
   private Point itemImageSize;
   private ControlListener resizeListener;
   LayoutCache layoutCache;
+  private boolean isTemporaryResize;
+  private IScrollBarProxy vScroll;
+  private IScrollBarProxy hScroll;
+  private boolean scrollValuesObsolete;
 
   /**
    * Constructs a new instance of this class given its parent and a style
@@ -2089,6 +2007,32 @@ public class Grid extends Canvas {
     }
   }
 
+  int getMaxContentWidth( GridColumn column ) {
+    return getMaxInnerWidth( getRootItems(), indexOf( column ) );
+  }
+
+  private int getMaxInnerWidth( GridItem[] items, int index ) {
+    int maxInnerWidth = 0;
+    for( int i = 0; i < items.length; i++ ) {
+      GridItem item = items[ i ];
+      maxInnerWidth = Math.max( maxInnerWidth, item.getPreferredWidth( index ) );
+      if( item.isExpanded() ) {
+        int innerWidth = getMaxInnerWidth( item.getItems(), index );
+        maxInnerWidth = Math.max( maxInnerWidth, innerWidth );
+      }
+    }
+    return maxInnerWidth;
+  }
+
+  boolean isTreeColumn( int index ) {
+    boolean result = false;
+    if( isTree ) {
+      int columnCount = getColumnCount();
+      result = columnCount == 0 && index == 0 || columnCount > 0 && index == getColumnOrder()[ 0 ];
+    }
+    return result;
+  }
+
   /**
    * Returns the externally managed horizontal scrollbar.
    *
@@ -2213,7 +2157,7 @@ public class Grid extends Canvas {
       result = Math.max( getCheckBoxImageOuterSize().y, result );
     }
     result += getCellPadding().y;
-    result += 1; // The space needed for horizontal gridline is always added, even if not visible
+    result += GRID_WIDTH;
     result = Math.max( result, MIN_ITEM_HEIGHT );
     return result;
   }
@@ -2243,8 +2187,14 @@ public class Grid extends Canvas {
     Image image = column.getImage();
     int imageHeight = image == null ? 0 : image.getBounds().height;
     int result = Math.max( textHeight, imageHeight );
-    result += getThemeAdapter().getHeaderPadding( this ).height;
+    result += getHeaderPadding().height;
     return result;
+  }
+
+  private void repackColumns() {
+    for( int i = 0; i < getColumnCount(); i++ ) {
+      columns.get( i ).repack();
+    }
   }
 
   private Point getItemImageSize() {
@@ -2267,7 +2217,7 @@ public class Grid extends Canvas {
     return result;
   }
 
-  private Point getCheckBoxImageOuterSize() {
+  Point getCheckBoxImageOuterSize() {
     Point imageSize = getCheckBoxImageSize();
     Rectangle margin = getCheckBoxMargin();
     return new Point( imageSize.x + margin.width, imageSize.y + margin.y );
@@ -2287,11 +2237,32 @@ public class Grid extends Canvas {
     return layoutCache.checkBoxMargin;
   }
 
-  private Rectangle getCellPadding() {
+  Rectangle getCellPadding() {
     if( !layoutCache.hasCellPadding() ) {
       layoutCache.cellPadding = getThemeAdapter().getCellPadding( this );
     }
     return layoutCache.cellPadding;
+  }
+
+  Rectangle getHeaderPadding() {
+    if( !layoutCache.hasHeaderPadding() ) {
+      layoutCache.headerPadding = getThemeAdapter().getHeaderPadding( this );
+    }
+    return layoutCache.headerPadding;
+  }
+
+  int getIndentationWidth() {
+    if( !layoutCache.hasIndentationWidth() ) {
+      layoutCache.indentationWidth = getThemeAdapter().getIndentationWidth( this );
+    }
+    return layoutCache.indentationWidth;
+  }
+
+  int getCellSpacing() {
+    if( !layoutCache.hasCellSpacing() ) {
+      layoutCache.cellSpacing = getThemeAdapter().getCellSpacing( this );
+    }
+    return layoutCache.cellSpacing;
   }
 
   private GridThemeAdapter getThemeAdapter() {
@@ -2328,8 +2299,12 @@ public class Grid extends Canvas {
     @Override
     public void controlResized( ControlEvent event ) {
       if( TextSizeUtil.isTemporaryResize() ) {
+        isTemporaryResize = true;
         layoutCache.invalidateHeaderHeight();
         layoutCache.invalidateItemHeight();
+      } else if( isTemporaryResize) {
+        isTemporaryResize = false;
+        repackColumns();
       }
     }
   }
@@ -2340,9 +2315,19 @@ public class Grid extends Canvas {
     int headerHeight = UNKNOWN;
     int itemHeight = UNKNOWN;
     int cellSpacing = UNKNOWN;
+    int indentationWidth = UNKNOWN;
     Rectangle cellPadding;
     Rectangle checkBoxMargin;
     Point checkBoxImageSize;
+    Rectangle headerPadding;
+
+    public boolean hasHeaderPadding() {
+      return headerPadding != null;
+    }
+
+    public void invalidateHeaderPadding() {
+      headerPadding = null;
+    }
 
     public boolean hasHeaderHeight() {
       return headerHeight != UNKNOWN;
@@ -2366,6 +2351,14 @@ public class Grid extends Canvas {
 
     public void invalidateCellSpacing() {
       cellSpacing = UNKNOWN;
+    }
+
+    public boolean hasIndentationWidth() {
+      return indentationWidth != UNKNOWN;
+    }
+
+    public void invalidateIndentationWidth() {
+      indentationWidth = UNKNOWN;
     }
 
     public boolean hasCellPadding() {
@@ -2393,12 +2386,14 @@ public class Grid extends Canvas {
     }
 
     public void invalidateAll() {
+      invalidateHeaderPadding();
       invalidateHeaderHeight();
       invalidateItemHeight();
       invalidateCellSpacing();
       invalidateCellPadding();
       invalidateCheckBoxMargin();
       invalidateCheckBoxImageSize();
+      invalidateIndentationWidth();
     }
   }
 }

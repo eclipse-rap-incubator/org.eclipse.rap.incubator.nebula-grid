@@ -17,7 +17,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.rap.rwt.testfixture.Fixture;
+import org.eclipse.rwt.internal.service.ContextProvider;
 import org.eclipse.rwt.lifecycle.PhaseId;
+import org.eclipse.rwt.service.IServiceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
@@ -37,6 +39,7 @@ import org.eclipse.swt.widgets.Shell;
 import junit.framework.TestCase;
 
 
+@SuppressWarnings("restriction")
 public class GridColumn_Test extends TestCase {
 
   private Display display;
@@ -499,6 +502,107 @@ public class GridColumn_Test extends TestCase {
       fail();
     } catch( IllegalArgumentException expected ) {
     }
+  }
+
+  public void testPack_TreeColumnEmpty() {
+    GridColumn[] columns = createGridColumns( grid, 2, SWT.NONE );
+    GridItem item = new GridItem( grid, SWT.NONE );
+    item.setExpanded( true );
+    new GridItem( item, SWT.NONE );
+
+    columns[ 0 ].pack();
+
+    assertEquals( 38, columns[ 0 ].getWidth() );
+  }
+
+  public void testPack_NonTreeColumnEmpty() {
+    GridColumn[] columns = createGridColumns( grid, 2, SWT.NONE );
+    GridItem item = new GridItem( grid, SWT.NONE );
+    item.setExpanded( true );
+    new GridItem( item, SWT.NONE );
+
+    columns[ 1 ].pack();
+
+    assertEquals( 12, columns[ 1 ].getWidth() );
+  }
+
+  public void testPack_TreeColumn() {
+    GridColumn[] columns = createGridColumns( grid, 2, SWT.CHECK );
+    Image image = loadImage( display, Fixture.IMAGE1 );
+    GridItem item = new GridItem( grid, SWT.NONE );
+    item.setExpanded( true );
+    item.setImage( 0, image );
+    item.setText( 0, "foo" );
+    GridItem subitem = new GridItem( item, SWT.NONE );
+    subitem.setImage( 0, image );
+    subitem.setText( 0, "foo" );
+
+    columns[ 0 ].pack();
+
+    assertEquals( 139, columns[ 0 ].getWidth() );
+  }
+
+  public void testPack_NonTreeColumn() {
+    GridColumn[] columns = createGridColumns( grid, 2, SWT.CHECK );
+    Image image = loadImage( display, Fixture.IMAGE1 );
+    GridItem item = new GridItem( grid, SWT.NONE );
+    item.setExpanded( true );
+    item.setImage( 1, image );
+    item.setText( 1, "foo" );
+    GridItem subitem = new GridItem( item, SWT.NONE );
+    subitem.setImage( 1, image );
+    subitem.setText( 1, "foo" );
+
+    columns[ 1 ].pack();
+
+    assertEquals( 113, columns[ 1 ].getWidth() );
+  }
+
+  public void testPack_WithHeaderVisible() {
+    grid.setHeaderVisible( true );
+    GridColumn[] columns = createGridColumns( grid, 2, SWT.CHECK );
+    Image image = loadImage( display, Fixture.IMAGE1 );
+    GridItem item = new GridItem( grid, SWT.NONE );
+    item.setExpanded( true );
+    item.setImage( 0, image );
+    item.setText( 0, "foo" );
+    GridItem subitem = new GridItem( item, SWT.NONE );
+    subitem.setImage( 0, image );
+    subitem.setText( 0, "foo" );
+    columns[ 0 ].setImage( image );
+    columns[ 0 ].setText( "Column header text wider than its content" );
+
+    columns[ 0 ].pack();
+
+    assertEquals( 353, columns[ 0 ].getWidth() );
+  }
+
+  public void testRepackAfterTextSizeDetermination() {
+    grid.setHeaderVisible( true );
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+    column.setText( "foo" );
+    column.pack();
+    int packedWidth = column.getWidth();
+
+    // simulate TSD resize
+    markTemporaryResize( true);
+    grid.setSize( 1000, 1000 );
+    // change preferred size
+    column.setText( "foo bar" );
+    markTemporaryResize( false);
+    grid.setSize( 100, 100 );
+    int repackedWidth = column.getWidth();
+
+    assertTrue( repackedWidth > packedWidth );
+  }
+
+  //////////////////
+  // Helping methods
+
+  private void markTemporaryResize( boolean value ) {
+    IServiceStore serviceStore = ContextProvider.getServiceStore();
+    String key = "org.eclipse.rwt.internal.textsize.TextSizeRecalculation#temporaryResize";
+    serviceStore.setAttribute( key, Boolean.valueOf( value ) );
   }
 
   //////////////////

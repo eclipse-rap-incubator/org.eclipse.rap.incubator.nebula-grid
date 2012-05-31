@@ -13,6 +13,7 @@ package org.eclipse.nebula.widgets.grid;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.eclipse.rwt.graphics.Graphics;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
@@ -42,85 +43,21 @@ import org.eclipse.swt.widgets.Item;
 @SuppressWarnings("restriction")
 public class GridItem extends Item {
 
-  /**
-   * Parent grid instance.
-   */
   private Grid parent;
-
-  /**
-   * Parent item (if a child item).
-   */
   private GridItem parentItem;
-
-  /**
-   * List of item data for each column.
-   */
   private ArrayList<Data> data;
-
-  /**
-   * List of children.
-   */
   private ArrayList<GridItem> children = new ArrayList<GridItem>();
-
-  /**
-   * True if has children.
-   */
   private boolean hasChildren;
-
-  /**
-   * Level of item in a tree.
-   */
-  private int level = 0;
-
-  /**
-   * Is visible?
-   */
+  private int level;
   private boolean visible = true;
-
-  /**
-   * Is expanded?
-   */
-  private boolean expanded = false;
-
-  /**
-   * (SWT.VIRTUAL only) Flag that specifies whether the client has already
-   * been sent a SWT.SetData event.
-   */
-  private boolean hasSetData = false;
-
-  /**
-   * Default font.
-   */
+  private boolean expanded;
+  private boolean hasSetData;
   private Font defaultFont;
-
-  /**
-   * Default background color.
-   */
   private Color defaultBackground;
-
-  /**
-   * Default foreground color.
-   */
   private Color defaultForeground;
-
-  /**
-   * Row header text.
-   */
   private String headerText;
-
-  /**
-   * Row header image
-   */
   private Image headerImage;
-
-  /**
-   * Background color of the header
-   */
   private Color headerBackground;
-
-  /**
-   * Foreground color of the header
-   */
   private Color headerForeground;
 
   /**
@@ -616,11 +553,7 @@ public class GridItem extends Item {
   public Font getFont( int index ) {
     checkWidget();
     handleVirtual();
-    Font result = getItemData( index ).font;
-    if( result == null ) {
-      result = getFont();
-    }
-    return result;
+    return internalGetFont( index );
   }
 
   /**
@@ -1522,16 +1455,82 @@ public class GridItem extends Item {
     }
   }
 
-  protected Point getCellSize( int columnIndex ) {
+  int getPreferredWidth( int index ) {
+    int result = getIndentationWidth( index );
+    result += getPaddingWidth( index );
+    result += getCheckBoxWidth( index );
+    result += getImageWidth( index );
+    result += getSpacing( index );
+    result += getTextWidth( index );
+    return result;
+  }
+
+  private int getIndentationWidth( int index ) {
+    int result = 0;
+    if( parent.isTreeColumn( index ) ) {
+      result = ( level + 1 ) * parent.getIndentationWidth();
+    }
+    return result;
+  }
+
+  private int getPaddingWidth( int index ) {
+    int result = parent.getCellPadding().width;
+    if( parent.isTreeColumn( index ) ) {
+      result -= parent.getCellPadding().x;
+    }
+    return result;
+  }
+
+  private int getCheckBoxWidth( int index ) {
+    return parent.getColumn( index ).isCheck() ? parent.getCheckBoxImageOuterSize().x : 0;
+  }
+
+  private int getImageWidth( int index ) {
+    int result = 0;
+    Image image = getItemData( index ).image;
+    if( image != null ) {
+      result = image.getBounds().width;
+    }
+    return result;
+  }
+
+  private int getSpacing( int index ) {
+    int result = 0;
+    Image image = getItemData( index ).image;
+    String text = getItemData( index ).text;
+    if( image != null && text.length() > 0 ) {
+      result = parent.getCellSpacing();
+    }
+    return result;
+  }
+
+  private int getTextWidth( int index ) {
+    int result = 0;
+    String text = getItemData( index ).text;
+    if( text.length() > 0 ) {
+      result += Graphics.stringExtent( internalGetFont( index ), text ).x;
+    }
+    return result;
+  }
+
+  private Font internalGetFont( int index ) {
+    Font result = getItemData( index ).font;
+    if( result == null ) {
+      result = getFont();
+    }
+    return result;
+  }
+
+  protected Point getCellSize( int index ) {
     int width = 0;
-    int span = 0; // getColumnSpan( columnIndex );
-    for( int i = 0; i <= span && i < parent.getColumnCount() - columnIndex; i++ ) {
-      width += parent.getColumn( columnIndex + i ).getWidth();
+    int span = 0; // getColumnSpan( index );
+    for( int i = 0; i <= span && i < parent.getColumnCount() - index; i++ ) {
+      width += parent.getColumn( index + i ).getWidth();
     }
     GridItem item = this;
     int itemIndex = parent.indexOf( item );
     int height = getHeight();
-    span = 0; // getRowSpan( columnIndex );
+    span = 0; // getRowSpan( index );
     for( int i = 1; i <= span && i < parent.getItemCount() - itemIndex; i++ ) {
       item = parent.getItem( itemIndex + i );
       if( item.isVisible() ) {

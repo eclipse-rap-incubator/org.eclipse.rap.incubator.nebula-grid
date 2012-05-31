@@ -914,6 +914,107 @@ public class GridItem_Test extends TestCase {
     assertEquals( new Point( 60, 21 ), item.getCellSize( 2 ) );
   }
 
+  public void testGetPreferredWidth_Initial() {
+    createGridColumns( grid, 2, SWT.NONE );
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    // padding left (6) + padding right (6) = 12
+    assertEquals( 12, item.getPreferredWidth( 0 ) );
+    // padding left (6) + padding right (6) = 12
+    assertEquals( 12, item.getPreferredWidth( 1 ) );
+  }
+
+  public void testGetPreferredWidth_InitialTree() {
+    createGridColumns( grid, 2, SWT.NONE );
+    GridItem item = new GridItem( grid, SWT.NONE );
+    GridItem subitem = new GridItem( item, SWT.NONE );
+
+    // indentation (16) + padding right (6) = 22
+    assertEquals( 22, item.getPreferredWidth( 0 ) );
+    // padding left (6) + padding right (6) = 12
+    assertEquals( 12, item.getPreferredWidth( 1 ) );
+    // 2 * indentation (16) + padding right (6) = 38
+    assertEquals( 38, subitem.getPreferredWidth( 0 ) );
+  }
+
+  public void testGetPreferredWidth_WithCheck() {
+    createGridColumns( grid, 2, SWT.CHECK );
+    GridItem item = new GridItem( grid, SWT.NONE );
+    GridItem subitem = new GridItem( item, SWT.NONE );
+
+    // indentation (16) + check width (23) + padding right (6) = 45
+    assertEquals( 45, item.getPreferredWidth( 0 ) );
+    // padding left (6) + check width (23) + padding right (6) = 35
+    assertEquals( 35, item.getPreferredWidth( 1 ) );
+    // 2 * indentation (16) + check width (23) + padding right (6) = 61
+    assertEquals( 61, subitem.getPreferredWidth( 0 ) );
+  }
+
+  public void testGetPreferredWidth_WithImage() {
+    createGridColumns( grid, 2, SWT.NONE );
+    Image image = loadImage( display, Fixture.IMAGE1 );
+    GridItem item = new GridItem( grid, SWT.NONE );
+    item.setImage( 0, image );
+    item.setImage( 1, image );
+    GridItem subitem = new GridItem( item, SWT.NONE );
+    subitem.setImage( 0, image );
+    subitem.setImage( 1, image );
+
+    // indentation (16) + image width (58) + padding right (6) = 80
+    assertEquals( 80, item.getPreferredWidth( 0 ) );
+    // padding left (6) + image width (58) + padding right (6) = 70
+    assertEquals( 70, item.getPreferredWidth( 1 ) );
+    // 2 * indentation (16) + image width (58) + padding right (6) = 96
+    assertEquals( 96, subitem.getPreferredWidth( 0 ) );
+  }
+
+  public void testGetPreferredWidth_WithText() {
+    createGridColumns( grid, 2, SWT.NONE );
+    GridItem item = new GridItem( grid, SWT.NONE );
+    item.setText( 0, "foo" );
+    item.setText( 1, "foo" );
+    GridItem subitem = new GridItem( item, SWT.NONE );
+    subitem.setText( 0, "foo" );
+    subitem.setText( 1, "foo" );
+
+    // indentation (16) + text width (20) + padding right (6) = 42
+    assertEquals( 42, item.getPreferredWidth( 0 ) );
+    // padding left (6) + text width (20) + padding right (6) = 32
+    assertEquals( 32, item.getPreferredWidth( 1 ) );
+    // 2 * indentation (16) + text width (20) + padding right (6) = 58
+    assertEquals( 58, subitem.getPreferredWidth( 0 ) );
+  }
+
+  public void testGetPreferredWidth_WithImageAndText() {
+    createGridColumns( grid, 2, SWT.NONE );
+    Image image = loadImage( display, Fixture.IMAGE1 );
+    GridItem item = new GridItem( grid, SWT.NONE );
+    item.setImage( 0, image );
+    item.setImage( 1, image );
+    item.setText( 0, "foo" );
+    item.setText( 1, "foo" );
+    GridItem subitem = new GridItem( item, SWT.NONE );
+    subitem.setImage( 0, image );
+    subitem.setImage( 1, image );
+    subitem.setText( 0, "foo" );
+    subitem.setText( 1, "foo" );
+    fakeSpacing( grid, 3 );
+
+    // indentation (16) + image width (58) + spacing (3) + text width (20) + padding right (6) = 103
+    assertEquals( 103, item.getPreferredWidth( 0 ) );
+    // padding left (6) + image width (58) + spacing (3) + text width (20) + padding right (6) = 93
+    assertEquals( 93, item.getPreferredWidth( 1 ) );
+    // 2 * indentation (16) + image width (58) + spacing (3) + text width (20) + padding right (6) = 119
+    assertEquals( 119, subitem.getPreferredWidth( 0 ) );
+  }
+
+  //////////////////
+  // Helping methods
+
+  private void fakeSpacing( Grid grid, int spacing ) {
+    grid.layoutCache.cellSpacing = spacing;
+  }
+
   //////////////////
   // Helping classes
 

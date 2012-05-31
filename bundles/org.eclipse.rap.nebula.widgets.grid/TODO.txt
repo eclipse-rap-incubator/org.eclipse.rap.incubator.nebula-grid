@@ -50,7 +50,6 @@ GridColumn
 ctor with ColumnGroup
 getColumnGroup()
 isVisible()                                 - activate commented code after GridGroup is available
-pack()
 set/getCellSelectionEnabled()
 set/getWordWrap()
 set/getHeaderWordWrap()
