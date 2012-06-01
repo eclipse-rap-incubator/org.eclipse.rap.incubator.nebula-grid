@@ -1905,6 +1905,68 @@ public class Grid extends Canvas {
   }
 
   /**
+   * Shows the item. If the item is already showing in the receiver, this
+   * method simply returns. Otherwise, the items are scrolled until the item
+   * is visible.
+   *
+   * @param item the item to be shown
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * <li>ERROR_INVALID_ARGUMENT - if 'item' is not contained in the receiver</li>
+   * </ul>
+   */
+  public void showItem( GridItem item ) {
+    checkWidget();
+    if( item == null ) {
+      SWT.error( SWT.ERROR_NULL_ARGUMENT );
+    }
+    if( item.isDisposed() ) {
+      SWT.error( SWT.ERROR_INVALID_ARGUMENT );
+    }
+    if( item.getParent() == this ) {
+      int visibleGridHeight = getVisibleGridHeight();
+      if( visibleGridHeight >= 1 ) {
+        GridItem parent = item.getParentItem();
+        while( parent != null ) {
+          if( !parent.isExpanded() ) {
+            parent.setExpanded( true );
+            parent.fireEvent( SWT.Expand );
+          }
+          parent = parent.getParentItem();
+        }
+        int counter = 0;
+        int itemFlatIndex = -1;
+        int topItemFlatIndex = -1;
+        int topIndex = getTopIndex();
+        for( int i = 0; i < items.size() || itemFlatIndex == -1 || topItemFlatIndex == -1; i++ ) {
+          GridItem currentItem = items.get( i );
+          if( item == currentItem ) {
+            itemFlatIndex = counter;
+          }
+          if( topIndex == i ) {
+            topItemFlatIndex = counter;
+          }
+          if( currentItem.isVisible() ) {
+            counter++;
+          }
+        }
+        int newTopIndex = items.indexOf( item );
+        if( itemFlatIndex <= topItemFlatIndex ) {
+          setTopIndex( newTopIndex );
+        } else {
+          int rows = ( int )Math.floor( visibleGridHeight / getItemHeight() );
+          if( itemFlatIndex >= topItemFlatIndex + rows ) {
+            setTopIndex( newTopIndex );
+          }
+        }
+      }
+    }
+  }
+
+  /**
    * Creates the new item at the given index. Only called from GridItem
    * constructor.
    *

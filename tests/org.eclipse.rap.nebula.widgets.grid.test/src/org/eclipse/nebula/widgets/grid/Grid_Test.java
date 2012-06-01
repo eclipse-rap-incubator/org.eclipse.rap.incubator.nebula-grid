@@ -49,6 +49,7 @@ public class Grid_Test extends TestCase {
   private Grid grid;
   private ScrollBar verticalBar;
   private ScrollBar horizontalBar;
+  private List<Event> eventLog;
 
   @Override
   protected void setUp() {
@@ -60,6 +61,7 @@ public class Grid_Test extends TestCase {
     grid.setSize( 200, 200 );
     verticalBar = grid.getVerticalBar();
     horizontalBar = grid.getHorizontalBar();
+    eventLog = new ArrayList<Event>();
   }
 
   @Override
@@ -1888,4 +1890,78 @@ public class Grid_Test extends TestCase {
     assertEquals( 0, grid.getTopIndex() );
   }
 
+  public void testShowItem_NullArgument() {
+    try {
+      grid.showItem( null );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testShowItem_DisposedItem() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+    item.dispose();
+
+    try {
+      grid.showItem( item );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testShowItem_ScrollDown() {
+    GridItem[] items = createGridItems( grid, 20, 3 );
+
+    grid.showItem( items[ 40 ] );
+
+    assertEquals( 40, grid.getTopIndex() );
+  }
+
+  public void testShowItem_ScrollUp() {
+    GridItem[] items = createGridItems( grid, 20, 3 );
+    grid.setTopIndex( 12 );
+
+    grid.showItem( items[ 4 ] );
+
+    assertEquals( 4, grid.getTopIndex() );
+  }
+
+  public void testShowItem_SubItemScrollDown() {
+    GridItem[] items = createGridItems( grid, 20, 3 );
+
+    grid.showItem( items[ 41 ] );
+
+    assertEquals( 41, grid.getTopIndex() );
+    assertTrue( items[ 40 ].isExpanded() );
+  }
+
+  public void testShowItem_SubItemScrollUp() {
+    GridItem[] items = createGridItems( grid, 20, 3 );
+    grid.setTopIndex( 12 );
+
+    grid.showItem( items[ 5 ] );
+
+    assertEquals( 5, grid.getTopIndex() );
+    assertTrue( items[ 4 ].isExpanded() );
+  }
+
+  public void testShowItem_FireExpandEvent() {
+    grid.addListener( SWT.Expand, new LoggingListener() );
+    GridItem[] items = createGridItems( grid, 20, 3 );
+
+    grid.showItem( items[ 41 ] );
+
+    assertEquals( 1, eventLog.size() );
+    assertSame( items[ 40 ], eventLog.get( 0 ).item );
+  }
+
+  //////////////////
+  // Helping classes
+
+  private class LoggingListener implements Listener {
+
+    public void handleEvent( Event event ) {
+      eventLog.add( event );
+    }
+  }
 }
