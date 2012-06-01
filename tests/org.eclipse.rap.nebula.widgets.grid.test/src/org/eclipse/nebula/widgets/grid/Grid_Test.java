@@ -1881,6 +1881,15 @@ public class Grid_Test extends TestCase {
     assertEquals( 11, grid.getTopIndex() );
   }
 
+  public void testGetTopIndex_OnItemAdd() {
+    createGridItems( grid, 20, 3 );
+    grid.setTopIndex( 12 );
+
+    new GridItem( grid, SWT.NONE, 0 );
+
+    assertEquals( 9, grid.getTopIndex() );
+  }
+
   public void testAdjustTopIndexOnResize() {
     createGridItems( grid, 20, 3 );
     grid.setTopIndex( 4 );

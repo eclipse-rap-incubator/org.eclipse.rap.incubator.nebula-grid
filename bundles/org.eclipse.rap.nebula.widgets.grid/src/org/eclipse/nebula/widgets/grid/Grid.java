@@ -2093,6 +2093,7 @@ public class Grid extends Canvas {
       items.add( flatIndex, item );
       row = flatIndex;
     }
+    invalidateTopIndex();
     currentVisibleItems++;
     return row;
   }
@@ -2115,6 +2116,7 @@ public class Grid extends Canvas {
       if( focusItem == item ) {
         focusItem = null;
       }
+      invalidateTopIndex();
       if( item.isVisible() ) {
         currentVisibleItems--;
       }
