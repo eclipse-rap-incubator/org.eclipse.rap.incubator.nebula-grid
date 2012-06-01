@@ -1929,6 +1929,7 @@ public class Grid extends Canvas {
     if( item.getParent() == this ) {
       int visibleGridHeight = getVisibleGridHeight();
       if( visibleGridHeight >= 1 ) {
+        updateScrollBars();
         GridItem parent = item.getParentItem();
         while( parent != null ) {
           if( !parent.isExpanded() ) {
@@ -1989,6 +1990,7 @@ public class Grid extends Canvas {
       SWT.error( SWT.ERROR_INVALID_ARGUMENT );
     }
     if( column.getParent() == this ) {
+      updateScrollBars();
       // TODO: [if] Enable this code when GridColumnGroup is implemented
 //      if( !column.isVisible() ) {
 //        GridColumnGroup group = column.getColumnGroup();
@@ -2032,7 +2034,6 @@ public class Grid extends Canvas {
    */
   public void showSelection() {
     checkWidget();
-    updateScrollBars();
     GridItem item = null;
     if( cellSelectionEnabled ) {
       if( selectedCells.size() != 0 ) {
