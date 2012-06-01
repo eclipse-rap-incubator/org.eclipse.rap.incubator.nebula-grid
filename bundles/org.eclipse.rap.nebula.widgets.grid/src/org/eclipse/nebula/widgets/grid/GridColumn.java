@@ -249,7 +249,7 @@ public class GridColumn extends Item {
    */
   public void setWidth( int width ) {
     checkWidget();
-    setWidth( width, true );
+    internalSetWidth( width );
   }
 
   /**
@@ -279,7 +279,7 @@ public class GridColumn extends Item {
     checkWidget();
     this.minimumWidth = Math.max( 0, minimumWidth );
     if( minimumWidth > width ) {
-      setWidth( minimumWidth, true );
+      internalSetWidth( minimumWidth );
     }
   }
 
@@ -717,13 +717,10 @@ public class GridColumn extends Item {
     return contentWidth;
   }
 
-  private void setWidth( int width, boolean redraw ) {
+  private void internalSetWidth( int width ) {
     this.width = Math.max( minimumWidth, width );
     packed = false;
-    if( redraw ) {
-      parent.setScrollValuesObsolete();
-      parent.redraw();
-    }
+    parent.updateScrollBars();
   }
 
   void fireMoved() {

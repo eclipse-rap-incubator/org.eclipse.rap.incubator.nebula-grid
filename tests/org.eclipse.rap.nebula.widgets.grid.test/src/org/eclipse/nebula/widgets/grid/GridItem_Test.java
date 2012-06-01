@@ -250,6 +250,39 @@ public class GridItem_Test extends TestCase {
     assertTrue( items[ 1 ].isVisible() );
   }
 
+  public void testSetExpanded_ChangedFocusItem() {
+    GridItem[] items = createGridItems( grid, 1, 1 );
+    items[ 0 ].setExpanded( true );
+    grid.setFocusItem( items[ 1 ] );
+
+    items[ 0 ].setExpanded( false );
+
+    assertSame( items[ 0 ], grid.getFocusItem() );
+  }
+
+  public void testSetExpanded_ChangeSelection() {
+    GridItem[] items = createGridItems( grid, 1, 1 );
+    items[ 0 ].setExpanded( true );
+    grid.setSelection( 1 );
+
+    items[ 0 ].setExpanded( false );
+
+    assertFalse( grid.isSelected( 1 ) );
+  }
+
+  public void testSetExpanded_FireSelectionEvent() {
+    GridItem[] items = createGridItems( grid, 1, 1 );
+    items[ 0 ].setExpanded( true );
+    grid.setSelection( 1 );
+    grid.addListener( SWT.Selection, new LoggingListener() );
+
+    items[ 0 ].setExpanded( false );
+
+    assertEquals( 1, eventLog.size() );
+    Event event = eventLog.get( 0 );
+    assertSame( items[ 0 ], event.item );
+  }
+
   public void testIsVisibleOnCreation() {
     GridItem[] items = createGridItems( grid, 1, 1 );
     items[ 0 ].setExpanded( true );

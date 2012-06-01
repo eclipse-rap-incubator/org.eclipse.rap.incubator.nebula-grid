@@ -112,6 +112,7 @@ public class GridItem extends Item {
     init();
     parent.newItem( this, index, true );
     parent.newRootItem( this, index );
+    parent.updateScrollBars();
   }
 
   /**
@@ -173,6 +174,7 @@ public class GridItem extends Item {
     } else {
       setVisible( false );
     }
+    this.parent.updateScrollBars();
   }
 
   /**
@@ -434,9 +436,29 @@ public class GridItem extends Item {
   public void setExpanded( boolean expanded ) {
     checkWidget();
     this.expanded = expanded;
+    boolean unselected = false;
     for( Iterator itemIterator = children.iterator(); itemIterator.hasNext(); ) {
       GridItem item = ( GridItem )itemIterator.next();
       item.setVisible( expanded && visible );
+      if( !expanded ) {
+        if( parent.isSelected( item ) ) {
+          parent.deselect( parent.indexOf( item ) );
+          unselected = true;
+        }
+        if( deselectChildren( item ) ) {
+          unselected = true;
+        }
+      }
+    }
+    parent.invalidateTopIndex();
+    parent.updateScrollBars();
+    if( unselected ) {
+      Event event = new Event();
+      event.item = this;
+      parent.notifyListeners( SWT.Selection, event );
+    }
+    if( parent.getFocusItem() != null && !parent.getFocusItem().isVisible() ) {
+      parent.setFocusItem( this );
     }
   }
 
@@ -1571,6 +1593,21 @@ public class GridItem extends Item {
       }
       getParent().notifyListeners( SWT.SetData, event );
     }
+  }
+
+  private boolean deselectChildren( GridItem item ) {
+    boolean flag = false;
+    GridItem[] kids = item.getItems();
+    for( int i = 0; i < kids.length; i++ ) {
+      if( parent.isSelected( kids[ i ] ) ) {
+        flag = true;
+      }
+      parent.deselect( parent.indexOf( kids[ i ] ) );
+      if( deselectChildren( kids[ i ] ) ) {
+        flag = true;
+      }
+    }
+    return flag;
   }
 
   ////////////////

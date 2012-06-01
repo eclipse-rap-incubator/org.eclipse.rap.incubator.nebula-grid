@@ -37,8 +37,8 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
-
 import junit.framework.TestCase;
 
 
@@ -47,6 +47,8 @@ public class Grid_Test extends TestCase {
   private Display display;
   private Shell shell;
   private Grid grid;
+  private ScrollBar verticalBar;
+  private ScrollBar horizontalBar;
 
   @Override
   protected void setUp() {
@@ -55,6 +57,9 @@ public class Grid_Test extends TestCase {
     display = new Display();
     shell = new Shell( display );
     grid = new Grid( shell, SWT.H_SCROLL | SWT.V_SCROLL );
+    grid.setSize( 200, 200 );
+    verticalBar = grid.getVerticalBar();
+    horizontalBar = grid.getHorizontalBar();
   }
 
   @Override
@@ -1763,6 +1768,124 @@ public class Grid_Test extends TestCase {
 
     assertEquals( 120, preferredSize.x );
     assertEquals( 9 * itemHeight, preferredSize.y );
+  }
+
+  public void testUpdateScrollBars_Initial() {
+    assertFalse( verticalBar.getVisible() );
+    assertEquals( 0, verticalBar.getSelection() );
+    assertEquals( 1, verticalBar.getMaximum() );
+    assertFalse( horizontalBar.getVisible() );
+    assertEquals( 0, horizontalBar.getSelection() );
+    assertEquals( 1, horizontalBar.getMaximum() );
+  }
+
+  public void testUpdateScrollBars() {
+    createGridColumns( grid, 5, SWT.NONE );
+    createGridItems( grid, 20, 3 );
+
+    assertTrue( verticalBar.getVisible() );
+    assertEquals( 0, verticalBar.getSelection() );
+    assertEquals( 20, verticalBar.getMaximum() );
+    assertTrue( horizontalBar.getVisible() );
+    assertEquals( 0, horizontalBar.getSelection() );
+    assertEquals( 300, horizontalBar.getMaximum() );
+  }
+
+  public void testUpdateScrollBars_OnColumnChange() {
+    createGridColumns( grid, 4, SWT.NONE );
+
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+    assertTrue( horizontalBar.getVisible() );
+
+    column.dispose();
+    assertFalse( horizontalBar.getVisible() );
+  }
+
+  public void testUpdateScrollBars_OnColumnWidthChange() {
+    createGridColumns( grid, 4, SWT.NONE );
+
+    grid.getColumn( 3 ).setWidth( 90 );
+    assertTrue( horizontalBar.getVisible() );
+
+    grid.getColumn( 3 ).setWidth( 70 );
+    assertFalse( horizontalBar.getVisible() );
+  }
+
+  public void testUpdateScrollBars_OnItemExpandChange() {
+    createGridItems( grid, 8, 3 );
+
+    grid.getItem( 0 ).setExpanded( true );
+    assertTrue( verticalBar.getVisible() );
+
+    grid.getItem( 0 ).setExpanded( false );
+    assertFalse( verticalBar.getVisible() );
+  }
+
+  public void testUpdateScrollBars_OnResize() {
+    createGridColumns( grid, 5, SWT.NONE );
+    createGridItems( grid, 20, 3 );
+
+    grid.setSize( 500, 500 );
+
+    assertFalse( verticalBar.getVisible() );
+    assertFalse( horizontalBar.getVisible() );
+  }
+
+  public void testUpdateScrollBars_OnHeaderVisible() {
+    createGridColumns( grid, 1, SWT.NONE );
+    createGridItems( grid, 9, 3 );
+
+    grid.setHeaderVisible( true );
+
+    assertTrue( verticalBar.getVisible() );
+  }
+
+  public void testGetTopIndex_Initial() {
+    createGridItems( grid, 20, 3 );
+
+    assertEquals( 0, grid.getTopIndex() );
+  }
+
+  public void testSetTopIndex() {
+    createGridItems( grid, 20, 3 );
+
+    grid.setTopIndex( 4 );
+
+    assertEquals( 4, grid.getTopIndex() );
+  }
+
+  public void testSetTopIndex_InvisibleSubItem() {
+    createGridItems( grid, 20, 3 );
+
+    grid.setTopIndex( 3 );
+
+    assertEquals( 0, grid.getTopIndex() );
+  }
+
+  public void testSetTopIndex_VisibleSubItem() {
+    createGridItems( grid, 20, 3 );
+    grid.getItem( 4 ).setExpanded( true );
+
+    grid.setTopIndex( 6 );
+
+    assertEquals( 6, grid.getTopIndex() );
+  }
+
+  public void testSetTopIndex_AdjustTopIndex() {
+    createGridItems( grid, 20, 0 );
+
+    grid.setTopIndex( 18 );
+
+    assertEquals( 11, grid.getTopIndex() );
+  }
+
+  public void testAdjustTopIndexOnResize() {
+    createGridItems( grid, 20, 3 );
+    grid.setTopIndex( 4 );
+
+    grid.setSize( 500, 500 );
+
+    assertEquals( 0, grid.getTopIndex() );
   }
 
 }

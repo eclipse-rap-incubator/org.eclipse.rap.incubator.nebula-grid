@@ -25,6 +25,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlListener;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TreeEvent;
@@ -36,6 +37,7 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.internal.SerializableCompatibility;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.ScrollBar;
 
 
 /**
@@ -84,7 +86,7 @@ public class Grid extends Canvas {
   private boolean isTemporaryResize;
   private IScrollBarProxy vScroll;
   private IScrollBarProxy hScroll;
-  private boolean scrollValuesObsolete;
+  private int topIndex = -1;
 
   /**
    * Constructs a new instance of this class given its parent and a style
@@ -123,7 +125,6 @@ public class Grid extends Canvas {
     } else {
       hScroll = new NullScrollBarProxy();
     }
-    scrollValuesObsolete = true;
     layoutCache = new LayoutCache();
     initListeners();
   }
@@ -1649,9 +1650,12 @@ public class Grid extends Canvas {
    */
   public void setHeaderVisible( boolean show ) {
     checkWidget();
-    columnHeadersVisible = show;
-    layoutCache.invalidateHeaderHeight();
-    redraw();
+    if( columnHeadersVisible != show ) {
+      columnHeadersVisible = show;
+      layoutCache.invalidateHeaderHeight();
+      updateScrollBars();
+      redraw();
+    }
   }
 
   /**
@@ -1793,7 +1797,8 @@ public class Grid extends Canvas {
       SWT.error( SWT.ERROR_INVALID_ARGUMENT );
     }
     customItemHeight = height;
-    setScrollValuesObsolete();
+    updateScrollBars();
+    redraw();
   }
 
   /**
@@ -1826,7 +1831,77 @@ public class Grid extends Canvas {
   public void setFont( Font font ) {
     super.setFont( font );
     layoutCache.invalidateItemHeight();
-    setScrollValuesObsolete();
+    updateScrollBars();
+    redraw();
+  }
+
+  /**
+   * Sets the zero-relative index of the item which is currently at the top of
+   * the receiver. This index can change when items are scrolled or new items
+   * are added and removed.
+   *
+   * @param index the index of the top item
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public void setTopIndex( int index ) {
+    checkWidget();
+    if( index >= 0 && index < items.size() ) {
+      GridItem item = items.get( index );
+      if( item.isVisible() && vScroll.getVisible() ) {
+        int vScrollAmount = 0;
+        for( int i = 0; i < index; i++ ) {
+          if( items.get( i ).isVisible() ) {
+            vScrollAmount++;
+          }
+        }
+        vScroll.setSelection( vScrollAmount );
+        invalidateTopIndex();
+      }
+    }
+  }
+
+  /**
+   * Returns the zero-relative index of the item which is currently at the top
+   * of the receiver. This index can change when items are scrolled or new
+   * items are added or removed.
+   *
+   * @return the index of the top item
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public int getTopIndex() {
+    checkWidget();
+    if( topIndex == -1 ) {
+      if( vScroll.getVisible() ) {
+        int firstVisibleIndex = vScroll.getSelection();
+        if( isTree ) {
+          Iterator iterator = items.iterator();
+          int row = firstVisibleIndex + 1;
+          while( row > 0 && iterator.hasNext() ) {
+            GridItem item = ( GridItem )iterator.next();
+            if( item.isVisible() ) {
+              row--;
+              if( row == 0 ) {
+                firstVisibleIndex = items.indexOf( item );
+              }
+            }
+          }
+        }
+        topIndex = firstVisibleIndex;
+      } else {
+        topIndex = 0;
+      }
+    }
+    return topIndex;
   }
 
   /**
@@ -1871,9 +1946,7 @@ public class Grid extends Canvas {
       items.add( flatIndex, item );
       row = flatIndex;
     }
-    scrollValuesObsolete = true;
     currentVisibleItems++;
-    redraw();
     return row;
   }
 
@@ -1895,10 +1968,10 @@ public class Grid extends Canvas {
       if( focusItem == item ) {
         focusItem = null;
       }
-      scrollValuesObsolete = true;
       if( item.isVisible() ) {
         currentVisibleItems--;
       }
+      updateScrollBars();
       redraw();
     }
   }
@@ -1939,7 +2012,7 @@ public class Grid extends Canvas {
       layoutCache.invalidateItemHeight();
     }
     layoutCache.invalidateHeaderHeight();
-    scrollValuesObsolete = true;
+    updateScrollBars();
     redraw();
     return columns.size() - 1;
   }
@@ -1962,7 +2035,7 @@ public class Grid extends Canvas {
       layoutCache.invalidateItemHeight();
     }
     layoutCache.invalidateHeaderHeight();
-    scrollValuesObsolete = true;
+    updateScrollBars();
     redraw();
   }
 
@@ -2003,7 +2076,8 @@ public class Grid extends Canvas {
       Rectangle imageBounds = image.getBounds();
       itemImageSize = new Point( imageBounds.width, imageBounds.height );
       layoutCache.invalidateItemHeight();
-      setScrollValuesObsolete();
+      updateScrollBars();
+      redraw();
     }
   }
 
@@ -2067,12 +2141,43 @@ public class Grid extends Canvas {
     return vScroll;
   }
 
-  /**
-   * Marks the scroll values obsolete so they will be recalculated.
-   */
-  protected void setScrollValuesObsolete() {
-    this.scrollValuesObsolete = true;
-    redraw();
+  void invalidateTopIndex() {
+    topIndex = -1;
+  }
+
+  void updateScrollBars() {
+    Point preferredSize = getTableSize();
+    Rectangle clientArea = getClientArea();
+    for( int doublePass = 1; doublePass <= 2; doublePass++ ) {
+      if( preferredSize.y > clientArea.height ) {
+        vScroll.setVisible( true );
+      } else {
+        vScroll.setVisible( false );
+        vScroll.setValues( 0, 0, 1, 1, 1, 1 );
+      }
+      if( preferredSize.x > clientArea.width ) {
+        hScroll.setVisible( true );
+      } else {
+        hScroll.setVisible( false );
+        hScroll.setValues( 0, 0, 1, 1, 1, 1 );
+      }
+      clientArea = getClientArea();
+    }
+    if( vScroll.getVisible() ) {
+      int thumb = getVisibleGridHeight() / getItemHeight();
+      int selection = Math.min( vScroll.getSelection(), currentVisibleItems );
+      vScroll.setValues( selection, 0, currentVisibleItems, thumb, 1, thumb );
+    }
+    if( hScroll.getVisible() ) {
+      int hiddenArea = preferredSize.x - clientArea.width;
+      int selection = Math.min( hScroll.getSelection(), hiddenArea );
+      hScroll.setValues( selection, 0, preferredSize.x, clientArea.width, 5, clientArea.width );
+    }
+  }
+
+  private int getVisibleGridHeight() {
+    int headerHeight = columnHeadersVisible ? getHeaderHeight() : 0;
+    return getClientArea().height - headerHeight;
   }
 
   /**
@@ -2081,6 +2186,15 @@ public class Grid extends Canvas {
   private void initListeners() {
     resizeListener = new ResizeListener();
     addControlListener( resizeListener );
+    ScrollBar verticalBar = getVerticalBar();
+    if( verticalBar != null ) {
+      verticalBar.addSelectionListener( new SelectionAdapter() {
+        @Override
+        public void widgetSelected( SelectionEvent eevent ) {
+          invalidateTopIndex();
+        }
+      } );
+    }
   }
 
   private void internalSelect( int index ) {
@@ -2302,9 +2416,14 @@ public class Grid extends Canvas {
         isTemporaryResize = true;
         layoutCache.invalidateHeaderHeight();
         layoutCache.invalidateItemHeight();
-      } else if( isTemporaryResize) {
-        isTemporaryResize = false;
-        repackColumns();
+      } else {
+        if( isTemporaryResize) {
+          isTemporaryResize = false;
+          repackColumns();
+        }
+        invalidateTopIndex();
+        updateScrollBars();
+        redraw();
       }
     }
   }

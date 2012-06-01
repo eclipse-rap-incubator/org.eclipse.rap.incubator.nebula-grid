@@ -17,6 +17,11 @@ public class ScrollBarProxyAdapter implements IScrollBarProxy
      */
     private ScrollBar scrollBar;
 
+// RAP [if] Replacement for missing ScrollBar increment and pageIncrement fields
+    private int increment;
+    private int pageIncrement;
+
+
     /**
      * Contructs this adapter by delegating to the given scroll bar.
      *
@@ -35,7 +40,7 @@ public class ScrollBarProxyAdapter implements IScrollBarProxy
     {
 // RAP [if]: ScrollBar#.getIncrement() is missing
 //        return scrollBar.getIncrement();
-        return 1;
+        return increment;
     }
 
     /**
@@ -61,7 +66,7 @@ public class ScrollBarProxyAdapter implements IScrollBarProxy
     {
 // RAP [if]: ScrollBar#.getPageIncrement() is missing
 //        return scrollBar.getPageIncrement();
-        return 10;
+        return pageIncrement;
     }
 
     /**
@@ -95,6 +100,7 @@ public class ScrollBarProxyAdapter implements IScrollBarProxy
     {
 // RAP [if]: ScrollBar#.setIncrement() is missing
 //        scrollBar.setIncrement(value);
+        increment = value;
     }
 
     /**
@@ -120,6 +126,7 @@ public class ScrollBarProxyAdapter implements IScrollBarProxy
     {
 // RAP [if]: ScrollBar#.setPageIncrement() is missing
 //        scrollBar.setPageIncrement(value);
+        pageIncrement = value;
     }
 
     /**
@@ -127,7 +134,18 @@ public class ScrollBarProxyAdapter implements IScrollBarProxy
      */
     public void setSelection(int selection)
     {
-        scrollBar.setSelection(selection);
+// RAP [if]: ScrollBar#setSelection() does not limit the value
+//        scrollBar.setSelection(selection);
+        int minimum = scrollBar.getMinimum();
+        int maximum = scrollBar.getMaximum();
+        int thumb = scrollBar.getThumb();
+        if( selection < minimum ) {
+          scrollBar.setSelection( minimum );
+        } else if ( selection > maximum - thumb ) {
+          scrollBar.setSelection( maximum - thumb );
+        } else {
+          scrollBar.setSelection( selection );
+        }
     }
 
     /**
@@ -144,12 +162,36 @@ public class ScrollBarProxyAdapter implements IScrollBarProxy
     public void setValues(int selection, int minimum, int maximum, int thumb, int increment,
                           int pageIncrement)
     {
-// RAP [if]: ScrollBar#.setValues() is missing
+// RAP [if]: ScrollBar#.setValues() is missing. Use setValue implementation from Slider.
 //        scrollBar.setValues(selection, minimum, maximum, thumb, increment, pageIncrement);
-        scrollBar.setSelection( selection );
-        scrollBar.setMinimum( minimum );
-        scrollBar.setMaximum( maximum );
-        scrollBar.setThumb( thumb );
+        if( selection >= minimum && selection <= maximum ) {
+          scrollBar.setSelection( selection );
+        }
+        if( 0 <= minimum && minimum < maximum ) {
+          scrollBar.setMinimum( minimum );
+          if( selection < minimum ) {
+            scrollBar.setSelection( minimum );
+          }
+        }
+        if( 0 <= minimum && minimum < maximum ) {
+          scrollBar.setMaximum( maximum );
+          if( selection > maximum - thumb ) {
+            scrollBar.setSelection( maximum - thumb );
+          }
+        }
+        if( thumb >= 1 ) {
+          scrollBar.setThumb( thumb );
+        }
+        if( increment >= 1 && increment <= ( maximum - minimum ) ) {
+          this.increment = increment;
+        }
+        if( pageIncrement >= 1 && pageIncrement <= ( maximum - minimum ) ) {
+          this.pageIncrement = pageIncrement;
+        }
+        if( thumb >= maximum - minimum ) {
+          scrollBar.setThumb( maximum - minimum );
+          scrollBar.setSelection( minimum );
+        }
     }
 
     /**
