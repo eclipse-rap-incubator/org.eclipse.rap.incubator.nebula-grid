@@ -1941,7 +1941,8 @@ public class Grid extends Canvas {
         int itemFlatIndex = -1;
         int topItemFlatIndex = -1;
         int topIndex = getTopIndex();
-        for( int i = 0; i < items.size() || itemFlatIndex == -1 || topItemFlatIndex == -1; i++ ) {
+        for( int i = 0; i < items.size() && ( itemFlatIndex == -1 || topItemFlatIndex == -1 ); i++ )
+        {
           GridItem currentItem = items.get( i );
           if( item == currentItem ) {
             itemFlatIndex = counter;
@@ -1962,6 +1963,89 @@ public class Grid extends Canvas {
             setTopIndex( newTopIndex );
           }
         }
+      }
+    }
+  }
+
+  /**
+   * Shows the column. If the column is already showing in the receiver, this
+   * method simply returns. Otherwise, the columns are scrolled until the
+   * column is visible.
+   *
+   * @param column the column to be shown
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public void showColumn( GridColumn column ) {
+    checkWidget();
+    if( column == null ) {
+      SWT.error( SWT.ERROR_NULL_ARGUMENT );
+    }
+    if( column.isDisposed() ) {
+      SWT.error( SWT.ERROR_INVALID_ARGUMENT );
+    }
+    if( column.getParent() == this ) {
+      // TODO: [if] Enable this code when GridColumnGroup is implemented
+//      if( !column.isVisible() ) {
+//        GridColumnGroup group = column.getColumnGroup();
+//        group.setExpanded( !group.getExpanded() );
+//        if( group.getExpanded() ) {
+//          group.notifyListeners( SWT.Expand, new Event() );
+//        } else {
+//          group.notifyListeners( SWT.Collapse, new Event() );
+//        }
+//      }
+      if( hScroll.getVisible() ) {
+        int offset = hScroll.getSelection();
+        int x = getColumnHeaderXPosition( column );
+        if( x < 0 || x + column.getWidth() > getClientArea().width ) {
+          if( x < 0 ) {
+            hScroll.setSelection( offset + x );
+          } else {
+            if( column.getWidth() > getClientArea().width ) {
+              hScroll.setSelection( offset + x );
+            } else {
+              x -= getClientArea().width - column.getWidth();
+              hScroll.setSelection( offset + x );
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Shows the selection. If the selection is already showing in the receiver,
+   * this method simply returns. Otherwise, the items are scrolled until the
+   * selection is visible.
+   *
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public void showSelection() {
+    checkWidget();
+    updateScrollBars();
+    GridItem item = null;
+    if( cellSelectionEnabled ) {
+      if( selectedCells.size() != 0 ) {
+        Point cell = selectedCells.get( 0 );
+        item = getItem( cell.y );
+        showItem( item );
+        GridColumn column = getColumn( cell.x );
+        showColumn( column );
+      }
+    } else {
+      if( selectedItems.size() != 0 ) {
+        item = selectedItems.get( 0 );
+        showItem( item );
       }
     }
   }
@@ -2371,6 +2455,25 @@ public class Grid extends Canvas {
     for( int i = 0; i < getColumnCount(); i++ ) {
       columns.get( i ).repack();
     }
+  }
+
+  private int getColumnHeaderXPosition( GridColumn column ) {
+    int result = -1;
+    if( column.isVisible() ) {
+      result = -hScroll.getSelection();
+      boolean found = false;
+      for( Iterator iterator = displayOrderedColumns.iterator(); iterator.hasNext() && !found; ) {
+        GridColumn currentColumn = ( GridColumn )iterator.next();
+        if( currentColumn.isVisible() ) {
+          if( currentColumn == column ) {
+            found = true;
+          } else {
+            result += currentColumn.getWidth();
+          }
+        }
+      }
+    }
+    return result;
   }
 
   private Point getItemImageSize() {

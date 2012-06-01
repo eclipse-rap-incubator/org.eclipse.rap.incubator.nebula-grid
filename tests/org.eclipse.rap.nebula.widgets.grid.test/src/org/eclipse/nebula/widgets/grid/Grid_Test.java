@@ -1926,6 +1926,15 @@ public class Grid_Test extends TestCase {
     assertEquals( 4, grid.getTopIndex() );
   }
 
+  public void testShowItem_NoScroll() {
+    GridItem[] items = createGridItems( grid, 20, 3 );
+    grid.setTopIndex( 12 );
+
+    grid.showItem( items[ 14 ] );
+
+    assertEquals( 12, grid.getTopIndex() );
+  }
+
   public void testShowItem_SubItemScrollDown() {
     GridItem[] items = createGridItems( grid, 20, 3 );
 
@@ -1953,6 +1962,63 @@ public class Grid_Test extends TestCase {
 
     assertEquals( 1, eventLog.size() );
     assertSame( items[ 40 ], eventLog.get( 0 ).item );
+  }
+
+  public void testShowColumn_NullArgument() {
+    try {
+      grid.showColumn( null );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testShowColumn_DisposedColumn() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+    column.dispose();
+
+    try {
+      grid.showColumn( column );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testShowColumn_ScrollRight() {
+    GridColumn[] columns = createGridColumns( grid, 10, SWT.NONE );
+
+    grid.showColumn( columns[ 4 ] );
+
+    assertEquals( 100, horizontalBar.getSelection() );
+  }
+
+  public void testShowColumn_ScrollLeft() {
+    GridColumn[] columns = createGridColumns( grid, 10, SWT.NONE );
+    horizontalBar.setSelection( 150 );
+
+    grid.showColumn( columns[ 2 ] );
+
+    assertEquals( 60, horizontalBar.getSelection() );
+  }
+
+  public void testShowColumn_NoScroll() {
+    GridColumn[] columns = createGridColumns( grid, 10, SWT.NONE );
+    horizontalBar.setSelection( 30 );
+
+    grid.showColumn( columns[ 2 ] );
+
+    assertEquals( 30, horizontalBar.getSelection() );
+  }
+
+  public void testShowSelection() {
+    grid = new Grid( shell, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL );
+    grid.setSize( 200, 200 );
+    createGridItems( grid, 20, 3 );
+    grid.setSelection( new int[]{ 4, 8, 24 } );
+    grid.setTopIndex( 12 );
+
+    grid.showSelection();
+
+    assertEquals( 4, grid.getTopIndex() );
   }
 
   //////////////////
