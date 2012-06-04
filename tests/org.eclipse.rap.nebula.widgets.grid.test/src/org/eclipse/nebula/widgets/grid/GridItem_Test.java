@@ -25,6 +25,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
@@ -47,6 +48,7 @@ public class GridItem_Test extends TestCase {
     display = new Display();
     shell = new Shell( display );
     grid = new Grid( shell, SWT.H_SCROLL | SWT.V_SCROLL );
+    grid.setSize( 200, 200 );
     eventLog = new ArrayList<Event>();
   }
 
@@ -1039,6 +1041,43 @@ public class GridItem_Test extends TestCase {
     assertEquals( 93, item.getPreferredWidth( 1 ) );
     // 2 * indentation (16) + image width (58) + spacing (3) + text width (20) + padding right (6) = 119
     assertEquals( 119, subitem.getPreferredWidth( 0 ) );
+  }
+
+  public void testGetBounds() {
+    createGridColumns( grid, 3, SWT.NONE );
+    createGridItems( grid, 3, 3 );
+
+    assertEquals( new Rectangle( 0, 21, 20, 21 ), grid.getItem( 4 ).getBounds( 0 ) );
+    assertEquals( new Rectangle( 20, 21, 40, 21 ), grid.getItem( 4 ).getBounds( 1 ) );
+    assertEquals( new Rectangle( 60, 21, 60, 21 ), grid.getItem( 4 ).getBounds( 2 ) );
+  }
+
+  public void testGetBounds_WithOffset() {
+    createGridColumns( grid, 3, SWT.NONE );
+    createGridItems( grid, 20, 3 );
+    grid.getHorizontalBar().setSelection( 30 );
+    grid.setTopIndex( 12 );
+
+    assertEquals( new Rectangle( -30, 42, 20, 21 ), grid.getItem( 20 ).getBounds( 0 ) );
+    assertEquals( new Rectangle( -10, 42, 40, 21 ), grid.getItem( 20 ).getBounds( 1 ) );
+    assertEquals( new Rectangle( 30, 42, 60, 21 ), grid.getItem( 20 ).getBounds( 2 ) );
+  }
+
+  public void testGetBounds_InvisibleItem() {
+    createGridColumns( grid, 3, SWT.NONE );
+    createGridItems( grid, 3, 3 );
+
+    Rectangle expected = new Rectangle( -1000, -1000, 0, 0 );
+    assertEquals( expected, grid.getItem( 1 ).getBounds( 0 ) );
+  }
+
+  public void testGetBounds_HiddenItem() {
+    createGridColumns( grid, 3, SWT.NONE );
+    createGridItems( grid, 20, 3 );
+    grid.setTopIndex( 12 );
+
+    Rectangle expected = new Rectangle( -1000, -1000, 0, 0 );
+    assertEquals( expected, grid.getItem( 8 ).getBounds( 0 ) );
   }
 
   //////////////////

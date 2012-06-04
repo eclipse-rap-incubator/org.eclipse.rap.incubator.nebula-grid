@@ -19,6 +19,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.internal.SerializableCompatibility;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Item;
@@ -1357,6 +1358,33 @@ public class GridItem extends Item {
     checkWidget();
     // [if] As different item heights are not supported, we only invalidate the cache here
     parent.layoutCache.invalidateItemHeight();
+  }
+
+  /**
+   * Returns a rectangle describing the receiver's size and location relative
+   * to its parent at a column in the table.
+   *
+   * @param columnIndex
+   *            the index that specifies the column
+   * @return the receiver's bounding column rectangle
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public Rectangle getBounds( int columnIndex ) {
+    checkWidget();
+    // [if] -1000 is used in the original implementation
+    Rectangle result = new Rectangle( -1000, -1000, 0, 0 );
+    if( isVisible() && parent.isShown( this ) ) {
+      Point origin = parent.getOrigin( parent.getColumn( columnIndex ), this );
+      Point cellSize = getCellSize( columnIndex );
+      result = new Rectangle( origin.x, origin.y, cellSize.x, cellSize.y );
+    }
+    return result;
   }
 
   /**

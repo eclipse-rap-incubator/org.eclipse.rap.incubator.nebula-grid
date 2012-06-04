@@ -2211,17 +2211,18 @@ public class Grid extends Canvas {
       } else if( visibleGridHeight < 1 ) {
         bottomIndex = topIndex;
       } else {
+        bottomIndex = topIndex;
         int counter = topIndex;
         int visibleItemHeight = items.get( counter ).getHeight();
-        while( visibleItemHeight < visibleGridHeight ) {
+        while( visibleItemHeight < visibleGridHeight && counter < items.size() - 1 ) {
           counter++;
           GridItem currentItem = items.get( counter );
           if( currentItem.isVisible() ) {
             visibleItemHeight += currentItem.getHeight();
+            bottomIndex = counter;
           }
-          bottomIndex = counter;
         }
-        bottomIndexShownCompletely = visibleItemHeight == visibleGridHeight;
+        bottomIndexShownCompletely = visibleItemHeight <= visibleGridHeight;
       }
     }
     return bottomIndex;
