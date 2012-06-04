@@ -87,6 +87,8 @@ public class Grid extends Canvas {
   private IScrollBarProxy vScroll;
   private IScrollBarProxy hScroll;
   private int topIndex = -1;
+  private int bottomIndex = -1;
+  private boolean bottomIndexShownCompletely;
 
   /**
    * Constructs a new instance of this class given its parent and a style
@@ -2234,19 +2236,6 @@ public class Grid extends Canvas {
     return getMaxInnerWidth( getRootItems(), indexOf( column ) );
   }
 
-  private int getMaxInnerWidth( GridItem[] items, int index ) {
-    int maxInnerWidth = 0;
-    for( int i = 0; i < items.length; i++ ) {
-      GridItem item = items[ i ];
-      maxInnerWidth = Math.max( maxInnerWidth, item.getPreferredWidth( index ) );
-      if( item.isExpanded() ) {
-        int innerWidth = getMaxInnerWidth( item.getItems(), index );
-        maxInnerWidth = Math.max( maxInnerWidth, innerWidth );
-      }
-    }
-    return maxInnerWidth;
-  }
-
   boolean isTreeColumn( int index ) {
     boolean result = false;
     if( isTree ) {
@@ -2257,10 +2246,18 @@ public class Grid extends Canvas {
   }
 
   /**
-   * Returns the externally managed horizontal scrollbar.
+   * Returns the zero-relative index of the item which is currently at the bottom
+   * of the receiver. This index can change when items are scrolled, expanded
+   * or collapsed or new items are added or removed.
+   * <p>
+   * Note that the item with this index is often only partly visible; maybe only
+   * a single line of pixels is visible. Use {@link #isShown(GridItem)} to find
+   * out.
+   * <p>
+   * In extreme cases, getBottomIndex() may return the same value as
+   * {@link #getTopIndex()}.
    *
-   * @return the external horizontal scrollbar.
-   * @see #setHorizontalScrollBarProxy(IScrollBarProxy)
+   * @return the index of the bottom item
    * @throws org.eclipse.swt.SWTException
    * <ul>
    * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
@@ -2268,60 +2265,35 @@ public class Grid extends Canvas {
    * created the receiver</li>
    * </ul>
    */
-  protected IScrollBarProxy getHorizontalScrollBarProxy() {
+  int getBottomIndex() {
     checkWidget();
-    return hScroll;
-  }
-
-  /**
-   * Returns the externally managed vertical scrollbar.
-   *
-   * @return the external vertical scrollbar.
-   * @see #setlVerticalScrollBarProxy(IScrollBarProxy)
-   * @throws org.eclipse.swt.SWTException
-   * <ul>
-   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
-   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
-   * created the receiver</li>
-   * </ul>
-   */
-  protected IScrollBarProxy getVerticalScrollBarProxy() {
-    checkWidget();
-    return vScroll;
+    if( bottomIndex == -1 ) {
+      int topIndex = getTopIndex();
+      int visibleGridHeight = getVisibleGridHeight();
+      if( items.size() == 0 ) {
+        bottomIndex = 0;
+      } else if( visibleGridHeight < 1 ) {
+        bottomIndex = topIndex;
+      } else {
+        int counter = topIndex;
+        int visibleItemHeight = items.get( counter ).getHeight();
+        while( visibleItemHeight < visibleGridHeight ) {
+          counter++;
+          GridItem currentItem = items.get( counter );
+          if( currentItem.isVisible() ) {
+            visibleItemHeight += currentItem.getHeight();
+          }
+          bottomIndex = counter;
+        }
+        bottomIndexShownCompletely = visibleItemHeight == visibleGridHeight;
+      }
+    }
+    return bottomIndex;
   }
 
   void invalidateTopIndex() {
     topIndex = -1;
-  }
-
-  void updateScrollBars() {
-    Point preferredSize = getTableSize();
-    Rectangle clientArea = getClientArea();
-    for( int doublePass = 1; doublePass <= 2; doublePass++ ) {
-      if( preferredSize.y > clientArea.height ) {
-        vScroll.setVisible( true );
-      } else {
-        vScroll.setVisible( false );
-        vScroll.setValues( 0, 0, 1, 1, 1, 1 );
-      }
-      if( preferredSize.x > clientArea.width ) {
-        hScroll.setVisible( true );
-      } else {
-        hScroll.setVisible( false );
-        hScroll.setValues( 0, 0, 1, 1, 1, 1 );
-      }
-      clientArea = getClientArea();
-    }
-    if( vScroll.getVisible() ) {
-      int thumb = getVisibleGridHeight() / getItemHeight();
-      int selection = Math.min( vScroll.getSelection(), currentVisibleItems );
-      vScroll.setValues( selection, 0, currentVisibleItems, thumb, 1, thumb );
-    }
-    if( hScroll.getVisible() ) {
-      int hiddenArea = preferredSize.x - clientArea.width;
-      int selection = Math.min( hScroll.getSelection(), hiddenArea );
-      hScroll.setValues( selection, 0, preferredSize.x, clientArea.width, 5, clientArea.width );
-    }
+    bottomIndex = -1;
   }
 
   Point getOrigin( GridColumn column, GridItem item ) {
@@ -2366,14 +2338,86 @@ public class Grid extends Canvas {
     return new Point( x, y );
   }
 
-  private int getVisibleGridHeight() {
-    int headerHeight = columnHeadersVisible ? getHeaderHeight() : 0;
-    return getClientArea().height - headerHeight;
+  boolean isShown( GridItem item ) {
+    checkWidget();
+    boolean result = false;
+    if( item.isVisible() ) {
+      int itemIndex = items.indexOf( item );
+      if( itemIndex == -1 ) {
+        SWT.error( SWT.ERROR_INVALID_ARGUMENT );
+      }
+      int firstVisibleIndex = getTopIndex();
+      int lastVisibleIndex = getBottomIndex();
+      result =    ( itemIndex >= firstVisibleIndex && itemIndex < lastVisibleIndex )
+               || ( itemIndex == lastVisibleIndex && bottomIndexShownCompletely );
+    }
+    return result;
+  }
+
+  void updateScrollBars() {
+    Point preferredSize = getTableSize();
+    Rectangle clientArea = getClientArea();
+    for( int doublePass = 1; doublePass <= 2; doublePass++ ) {
+      if( preferredSize.y > clientArea.height ) {
+        vScroll.setVisible( true );
+      } else {
+        vScroll.setVisible( false );
+        vScroll.setValues( 0, 0, 1, 1, 1, 1 );
+      }
+      if( preferredSize.x > clientArea.width ) {
+        hScroll.setVisible( true );
+      } else {
+        hScroll.setVisible( false );
+        hScroll.setValues( 0, 0, 1, 1, 1, 1 );
+      }
+      clientArea = getClientArea();
+    }
+    if( vScroll.getVisible() ) {
+      int thumb = getVisibleGridHeight() / getItemHeight();
+      int selection = Math.min( vScroll.getSelection(), currentVisibleItems );
+      vScroll.setValues( selection, 0, currentVisibleItems, thumb, 1, thumb );
+    }
+    if( hScroll.getVisible() ) {
+      int hiddenArea = preferredSize.x - clientArea.width;
+      int selection = Math.min( hScroll.getSelection(), hiddenArea );
+      hScroll.setValues( selection, 0, preferredSize.x, clientArea.width, 5, clientArea.width );
+    }
   }
 
   /**
-   * Initialize all listeners.
+   * Returns the externally managed horizontal scrollbar.
+   *
+   * @return the external horizontal scrollbar.
+   * @see #setHorizontalScrollBarProxy(IScrollBarProxy)
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
    */
+  protected IScrollBarProxy getHorizontalScrollBarProxy() {
+    checkWidget();
+    return hScroll;
+  }
+
+  /**
+   * Returns the externally managed vertical scrollbar.
+   *
+   * @return the external vertical scrollbar.
+   * @see #setlVerticalScrollBarProxy(IScrollBarProxy)
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  protected IScrollBarProxy getVerticalScrollBarProxy() {
+    checkWidget();
+    return vScroll;
+  }
+
   private void initListeners() {
     resizeListener = new ResizeListener();
     addControlListener( resizeListener );
@@ -2386,6 +2430,44 @@ public class Grid extends Canvas {
         }
       } );
     }
+  }
+
+  private Point getTableSize() {
+    int width = 0;
+    int height = 0;
+    if( columnHeadersVisible ) {
+      height += getHeaderHeight();
+    }
+    height += getGridHeight();
+    for( Iterator iterator = columns.iterator(); iterator.hasNext(); ) {
+      GridColumn column = ( GridColumn )iterator.next();
+      if( column.isVisible() ) {
+        width += column.getWidth();
+      }
+    }
+    return new Point( width, height );
+  }
+
+  private int getGridHeight() {
+    return currentVisibleItems * getItemHeight();
+  }
+
+  private int getVisibleGridHeight() {
+    int headerHeight = columnHeadersVisible ? getHeaderHeight() : 0;
+    return getClientArea().height - headerHeight;
+  }
+
+  private static int getMaxInnerWidth( GridItem[] items, int index ) {
+    int maxInnerWidth = 0;
+    for( int i = 0; i < items.length; i++ ) {
+      GridItem item = items[ i ];
+      maxInnerWidth = Math.max( maxInnerWidth, item.getPreferredWidth( index ) );
+      if( item.isExpanded() ) {
+        int innerWidth = getMaxInnerWidth( item.getItems(), index );
+        maxInnerWidth = Math.max( maxInnerWidth, innerWidth );
+      }
+    }
+    return maxInnerWidth;
   }
 
   private void internalSelect( int index ) {
@@ -2434,26 +2516,6 @@ public class Grid extends Canvas {
         firstCol = false;
       }
     }
-  }
-
-  private Point getTableSize() {
-    int width = 0;
-    int height = 0;
-    if( columnHeadersVisible ) {
-      height += getHeaderHeight();
-    }
-    height += getGridHeight();
-    for( Iterator iterator = columns.iterator(); iterator.hasNext(); ) {
-      GridColumn column = ( GridColumn )iterator.next();
-      if( column.isVisible() ) {
-        width += column.getWidth();
-      }
-    }
-    return new Point( width, height );
-  }
-
-  private int getGridHeight() {
-    return currentVisibleItems * getItemHeight();
   }
 
   private int computeItemHeight() {

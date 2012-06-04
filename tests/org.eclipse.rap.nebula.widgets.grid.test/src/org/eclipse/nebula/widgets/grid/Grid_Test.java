@@ -2062,6 +2062,35 @@ public class Grid_Test extends TestCase {
     assertEquals( expected, grid.getOrigin( columns[ 3 ], items[ 48 ] ) );
   }
 
+  public void testIsShown() {
+    GridItem[] items = createGridItems( grid, 20, 0 );
+    grid.setTopIndex( 5 );
+
+    assertTrue( grid.isShown( items[ 6 ] ) );
+  }
+
+  public void testIsShown_HiddenItem() {
+    GridItem[] items = createGridItems( grid, 20, 0 );
+    grid.setTopIndex( 5 );
+
+    assertFalse( grid.isShown( items[ 4 ] ) );
+  }
+
+  public void testIsShown_InvisibleItem() {
+    GridItem[] items = createGridItems( grid, 20, 3 );
+    grid.setTopIndex( 20 );
+
+    assertFalse( grid.isShown( items[ 22 ] ) );
+  }
+
+  public void testIsShown_PartlyVisibleItem() {
+    GridItem[] items = createGridItems( grid, 20, 0 );
+    grid.setTopIndex( 5 );
+
+    assertTrue( grid.isShown( items[ 13 ] ) );
+    assertFalse( grid.isShown( items[ 14 ] ) );
+  }
+
   //////////////////
   // Helping classes
 
