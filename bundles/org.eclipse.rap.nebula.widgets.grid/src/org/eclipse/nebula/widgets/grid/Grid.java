@@ -2053,14 +2053,6 @@ public class Grid extends Canvas {
     }
   }
 
-  /**
-   * Creates the new item at the given index. Only called from GridItem
-   * constructor.
-   *
-   * @param item new item
-   * @param index index to insert the item at
-   * @return the index where the item was insert
-   */
   int newItem( GridItem item, int index, boolean root ) {
     int row = 0;
     GridItem parentItem = item.getParentItem();
@@ -2100,12 +2092,6 @@ public class Grid extends Canvas {
     return row;
   }
 
-  /**
-   * Removes the given item from the table. This method is only called from
-   * the item's dispose method.
-   *
-   * @param item item to remove
-   */
   void removeItem( GridItem item ) {
     items.remove( item );
     if( !disposing ) {
@@ -2139,13 +2125,6 @@ public class Grid extends Canvas {
     rootItems.remove( item );
   }
 
-  /**
-   * Inserts a new column into the table.
-   *
-   * @param column new column
-   * @param index index to insert new column
-   * @return current number of columns
-   */
   int newColumn( GridColumn column, int index ) {
     if( index == -1 ) {
       columns.add( column );
@@ -2168,11 +2147,6 @@ public class Grid extends Canvas {
     return columns.size() - 1;
   }
 
-  /**
-   * Removes the given column from the table.
-   *
-   * @param column column to remove
-   */
   void removeColumn( GridColumn column ) {
     int index = indexOf( column );
     columns.remove( column );
@@ -2190,37 +2164,19 @@ public class Grid extends Canvas {
     redraw();
   }
 
-  /**
-   * @return the disposing
-   */
   boolean isDisposing() {
     return disposing;
   }
 
-  /**
-   * Updates the cached number of visible items by the given amount.
-   *
-   * @param amount amount to update cached total
-   */
   void updateVisibleItems( int amount ) {
     currentVisibleItems += amount;
   }
 
-  /**
-   * Returns an array of the columns in their display order.
-   *
-   * @return columns in display order
-   */
   GridColumn[] getColumnsInOrder() {
     checkWidget();
     return displayOrderedColumns.toArray( new GridColumn[ columns.size() ] );
   }
 
-  /**
-   * Updates the row height when the first image is set on an item.
-   * @param column the column the image is change
-   * @param item item which images has just been set on.
-   */
   void imageSetOnItem( int column, GridItem item ) {
     Image image = item.getImage( column );
     if( image != null && itemImageSize == null ) {
@@ -2245,26 +2201,6 @@ public class Grid extends Canvas {
     return result;
   }
 
-  /**
-   * Returns the zero-relative index of the item which is currently at the bottom
-   * of the receiver. This index can change when items are scrolled, expanded
-   * or collapsed or new items are added or removed.
-   * <p>
-   * Note that the item with this index is often only partly visible; maybe only
-   * a single line of pixels is visible. Use {@link #isShown(GridItem)} to find
-   * out.
-   * <p>
-   * In extreme cases, getBottomIndex() may return the same value as
-   * {@link #getTopIndex()}.
-   *
-   * @return the index of the bottom item
-   * @throws org.eclipse.swt.SWTException
-   * <ul>
-   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
-   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
-   * created the receiver</li>
-   * </ul>
-   */
   int getBottomIndex() {
     checkWidget();
     if( bottomIndex == -1 ) {
@@ -2384,35 +2320,11 @@ public class Grid extends Canvas {
     }
   }
 
-  /**
-   * Returns the externally managed horizontal scrollbar.
-   *
-   * @return the external horizontal scrollbar.
-   * @see #setHorizontalScrollBarProxy(IScrollBarProxy)
-   * @throws org.eclipse.swt.SWTException
-   * <ul>
-   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
-   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
-   * created the receiver</li>
-   * </ul>
-   */
   protected IScrollBarProxy getHorizontalScrollBarProxy() {
     checkWidget();
     return hScroll;
   }
 
-  /**
-   * Returns the externally managed vertical scrollbar.
-   *
-   * @return the external vertical scrollbar.
-   * @see #setlVerticalScrollBarProxy(IScrollBarProxy)
-   * @throws org.eclipse.swt.SWTException
-   * <ul>
-   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
-   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
-   * created the receiver</li>
-   * </ul>
-   */
   protected IScrollBarProxy getVerticalScrollBarProxy() {
     checkWidget();
     return vScroll;
@@ -2502,11 +2414,6 @@ public class Grid extends Canvas {
     }
   }
 
-  /**
-   * Manages the setting of the checkbox column when the SWT.CHECK style was given to the
-   * table.  This method will ensure that the first column of the table always has a checkbox
-   * when SWT.CHECK is given to the table.
-   */
   private void updatePrimaryCheckColumn() {
     if( ( getStyle() & SWT.CHECK ) == SWT.CHECK ) {
       boolean firstCol = true;
@@ -2655,13 +2562,6 @@ public class Grid extends Canvas {
     return ( GridThemeAdapter )getAdapter( IThemeAdapter.class );
   }
 
-  /**
-   * Filters out unnecessary styles, adds mandatory styles and generally
-   * manages the style to pass to the super class.
-   *
-   * @param style user specified style.
-   * @return style to pass to the super class.
-   */
   private static int checkStyle( int style ) {
     int mask =   SWT.BORDER
                | SWT.LEFT_TO_RIGHT
