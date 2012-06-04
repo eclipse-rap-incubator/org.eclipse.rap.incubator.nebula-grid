@@ -2030,6 +2030,38 @@ public class Grid_Test extends TestCase {
     assertEquals( 4, grid.getTopIndex() );
   }
 
+  public void testGetOrigin() {
+    GridColumn[] columns = createGridColumns( grid, 10, SWT.NONE );
+    GridItem[] items = createGridItems( grid, 20, 3 );
+    horizontalBar.setSelection( 150 );
+    grid.setTopIndex( 40 );
+
+    Point expected = new Point( -30, 2 * grid.getItemHeight() );
+    assertEquals( expected, grid.getOrigin( columns[ 3 ], items[ 48 ] ) );
+  }
+
+  public void testGetOrigin_SubItems() {
+    GridColumn[] columns = createGridColumns( grid, 10, SWT.NONE );
+    GridItem[] items = createGridItems( grid, 20, 3 );
+    items[ 40 ].setExpanded( true );
+    horizontalBar.setSelection( 150 );
+    grid.setTopIndex( 40 );
+
+    Point expected = new Point( -30, 5 * grid.getItemHeight() );
+    assertEquals( expected, grid.getOrigin( columns[ 3 ], items[ 48 ] ) );
+  }
+
+  public void testGetOrigin_HeaderVisible() {
+    GridColumn[] columns = createGridColumns( grid, 10, SWT.NONE );
+    GridItem[] items = createGridItems( grid, 20, 3 );
+    horizontalBar.setSelection( 150 );
+    grid.setHeaderVisible( true );
+    grid.setTopIndex( 40 );
+
+    Point expected = new Point( -30, 2 * grid.getItemHeight() + grid.getHeaderHeight() );
+    assertEquals( expected, grid.getOrigin( columns[ 3 ], items[ 48 ] ) );
+  }
+
   //////////////////
   // Helping classes
 

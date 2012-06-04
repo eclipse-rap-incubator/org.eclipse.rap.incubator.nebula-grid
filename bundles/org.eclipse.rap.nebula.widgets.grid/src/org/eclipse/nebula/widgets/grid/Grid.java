@@ -2324,6 +2324,48 @@ public class Grid extends Canvas {
     }
   }
 
+  Point getOrigin( GridColumn column, GridItem item ) {
+    int x = -hScroll.getSelection();
+    int y = 0;
+    boolean found = false;
+    for( Iterator iterator = displayOrderedColumns.iterator(); iterator.hasNext() && !found; ) {
+      GridColumn currentColumn = ( GridColumn )iterator.next();
+      if( currentColumn.isVisible() ) {
+        if( currentColumn == column ) {
+          found = true;
+        } else {
+          x += currentColumn.getWidth();
+        }
+      }
+    }
+    if( item != null ) {
+      if( columnHeadersVisible ) {
+        y += getHeaderHeight();
+      }
+      int topIndex = getTopIndex();
+      int itemIndex = items.indexOf( item );
+      if( itemIndex == -1 ) {
+        SWT.error( SWT.ERROR_INVALID_ARGUMENT );
+      }
+      while( topIndex != itemIndex ) {
+        if( topIndex < itemIndex ) {
+          GridItem currentItem = items.get( topIndex );
+          if( currentItem.isVisible() ) {
+            y += currentItem.getHeight();
+          }
+          topIndex++;
+        } else if( topIndex > itemIndex ) {
+          topIndex--;
+          GridItem currentItem = items.get( topIndex );
+          if( currentItem.isVisible() ) {
+            y -= currentItem.getHeight();
+          }
+        }
+      }
+    }
+    return new Point( x, y );
+  }
+
   private int getVisibleGridHeight() {
     int headerHeight = columnHeadersVisible ? getHeaderHeight() : 0;
     return getClientArea().height - headerHeight;
