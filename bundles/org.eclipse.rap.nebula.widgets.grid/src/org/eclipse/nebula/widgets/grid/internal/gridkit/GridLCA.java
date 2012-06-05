@@ -30,6 +30,7 @@ public class GridLCA extends AbstractWidgetLCA {
   private static final String[] ALLOWED_STYLES = new String[] {
     "SINGLE",
     "MULTI",
+    "FULL_SELECTION",
     "CHECK",
     "VIRTUAL",
     "NO_FOCUS",

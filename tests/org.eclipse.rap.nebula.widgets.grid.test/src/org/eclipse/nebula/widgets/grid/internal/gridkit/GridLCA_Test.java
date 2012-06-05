@@ -12,6 +12,7 @@ package org.eclipse.nebula.widgets.grid.internal.gridkit;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.rap.rwt.testfixture.Fixture;
@@ -54,10 +55,12 @@ public class GridLCA_Test extends TestCase {
 
     Message message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( grid );
+    List<Object> styles = Arrays.asList( operation.getStyles() );
     assertEquals( "rwt.widgets.Tree", operation.getType() );
     assertEquals( "tree", operation.getProperty( "appearance" ) );
     assertEquals( Integer.valueOf( 16 ), operation.getProperty( "indentionWidth" ) );
     assertFalse( operation.getPropertyNames().contains( "checkBoxMetrics" ) );
+    assertTrue( styles.contains( "FULL_SELECTION" ) );
   }
 
   public void testRenderParent() throws IOException {
@@ -75,9 +78,9 @@ public class GridLCA_Test extends TestCase {
 
     Message message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( grid );
-    Object[] styles = operation.getStyles();
-    assertTrue( Arrays.asList( styles ).contains( "VIRTUAL" ) );
-    assertTrue( Arrays.asList( styles ).contains( "MULTI" ) );
+    List<Object> styles = Arrays.asList( operation.getStyles() );
+    assertTrue( styles.contains( "VIRTUAL" ) );
+    assertTrue( styles.contains( "MULTI" ) );
   }
 
   public void testRenderCreateWithCheck() throws IOException, JSONException {
@@ -87,8 +90,8 @@ public class GridLCA_Test extends TestCase {
 
     Message message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( grid );
-    Object[] styles = operation.getStyles();
-    assertTrue( Arrays.asList( styles ).contains( "CHECK" ) );
+    List<Object> styles = Arrays.asList( operation.getStyles() );
+    assertTrue( styles.contains( "CHECK" ) );
     JSONArray actual = ( JSONArray )operation.getProperty( "checkBoxMetrics" );
     assertTrue( GridLCATestUtil.jsonEquals( "[0,21]", actual ) );
   }

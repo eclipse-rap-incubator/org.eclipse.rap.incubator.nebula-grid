@@ -2591,6 +2591,8 @@ public class Grid extends Canvas {
                | SWT.VIRTUAL;
     int result = style & mask;
     result |= SWT.DOUBLE_BUFFERED;
+    // TODO: [if] Remove it when cell selection is implemented
+    result |= SWT.FULL_SELECTION;
     return result;
   }
 
