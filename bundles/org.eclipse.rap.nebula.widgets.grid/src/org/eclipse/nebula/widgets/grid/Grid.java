@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.nebula.widgets.grid.internal.IGridAdapter;
 import org.eclipse.nebula.widgets.grid.internal.IScrollBarProxy;
 import org.eclipse.nebula.widgets.grid.internal.NullScrollBarProxy;
 import org.eclipse.nebula.widgets.grid.internal.ScrollBarProxyAdapter;
@@ -89,6 +90,7 @@ public class Grid extends Canvas {
   private int topIndex = -1;
   private int bottomIndex = -1;
   private boolean bottomIndexShownCompletely;
+  private final IGridAdapter gridAdapter;
 
   /**
    * Constructs a new instance of this class given its parent and a style
@@ -127,6 +129,7 @@ public class Grid extends Canvas {
     } else {
       hScroll = new NullScrollBarProxy();
     }
+    gridAdapter = new GridAdapter();
     layoutCache = new LayoutCache();
     initListeners();
   }
@@ -2053,6 +2056,18 @@ public class Grid extends Canvas {
     }
   }
 
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> T getAdapter( Class<T> adapter ) {
+    T result;
+    if( adapter == IGridAdapter.class ) {
+      result = ( T )gridAdapter;
+    } else {
+      result = super.getAdapter( adapter );
+    }
+    return result;
+  }
+
   int newItem( GridItem item, int index, boolean root ) {
     int row = 0;
     GridItem parentItem = item.getParentItem();
@@ -2598,6 +2613,21 @@ public class Grid extends Canvas {
         updateScrollBars();
         redraw();
       }
+    }
+  }
+
+  private final class GridAdapter implements IGridAdapter, SerializableCompatibility {
+
+    public int getIndentationWidth() {
+      return Grid.this.getIndentationWidth();
+    }
+
+    public int getCheckWidth() {
+      return getCheckBoxImageSize().x;
+    }
+
+    public int getCheckLeft() {
+      return getCheckBoxMargin().x;
     }
   }
 
