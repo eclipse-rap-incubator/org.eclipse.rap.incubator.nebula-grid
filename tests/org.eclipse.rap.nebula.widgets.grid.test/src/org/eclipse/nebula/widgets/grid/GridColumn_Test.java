@@ -229,6 +229,15 @@ public class GridColumn_Test extends TestCase {
     assertEquals( SWT.DOWN, column.getSort() );
   }
 
+  public void testSetSort_OnlyOneSortColumn() {
+    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
+    columns[ 0 ].setSort( SWT.UP );
+
+    columns[ 1 ].setSort( SWT.DOWN );
+
+    assertEquals( SWT.NONE, columns[ 0 ].getSort() );
+  }
+
   public void testGetVisible_Initial() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 

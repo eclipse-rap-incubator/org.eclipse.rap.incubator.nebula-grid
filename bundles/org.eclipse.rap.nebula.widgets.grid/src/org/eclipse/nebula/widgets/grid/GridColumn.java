@@ -320,8 +320,19 @@ public class GridColumn extends Item {
    */
   public void setSort( int style ) {
     checkWidget();
-    sortStyle = style;
-    parent.redraw();
+    if( style == SWT.UP || style == SWT.DOWN || style == SWT.NONE ) {
+      // TODO: [if] Currently, client implementation supports only one sort column
+      if( style != SWT.NONE ) {
+        for( int i = 0; i < parent.getColumnCount(); i++ ) {
+          GridColumn column = parent.getColumn( i );
+          if( column != this ) {
+            column.setSort( SWT.NONE );
+          }
+        }
+      }
+      sortStyle = style;
+      parent.redraw();
+    }
   }
 
   /**
