@@ -18,6 +18,8 @@ import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.rap.rwt.testfixture.Fixture;
 import org.eclipse.rap.rwt.testfixture.Message;
 import org.eclipse.rap.rwt.testfixture.Message.CreateOperation;
+import org.eclipse.rap.rwt.testfixture.Message.DestroyOperation;
+import org.eclipse.rap.rwt.testfixture.Message.Operation;
 import org.eclipse.rwt.lifecycle.WidgetUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
@@ -94,6 +96,15 @@ public class GridLCA_Test extends TestCase {
     assertTrue( styles.contains( "CHECK" ) );
     JSONArray actual = ( JSONArray )operation.getProperty( "checkBoxMetrics" );
     assertTrue( GridLCATestUtil.jsonEquals( "[0,21]", actual ) );
+  }
+
+  public void testRenderDispose() throws IOException {
+    lca.renderDispose( grid );
+
+    Message message = Fixture.getProtocolMessage();
+    Operation operation = message.getOperation( 0 );
+    assertTrue( operation instanceof DestroyOperation );
+    assertEquals( WidgetUtil.getId( grid ), operation.getTarget() );
   }
 
 }

@@ -38,10 +38,6 @@ public class GridLCA extends AbstractWidgetLCA {
   };
 
   @Override
-  public void preserveValues( Widget widget ) {
-  }
-
-  @Override
   public void renderInitialization( Widget widget ) throws IOException {
     Grid grid = ( Grid )widget;
     IClientObject clientObject = ClientObjectFactory.getClientObject( grid );
@@ -61,11 +57,16 @@ public class GridLCA extends AbstractWidgetLCA {
   }
 
   @Override
+  public void preserveValues( Widget widget ) {
+  }
+
+  @Override
   public void renderChanges( Widget widget ) throws IOException {
   }
 
   @Override
   public void renderDispose( Widget widget ) throws IOException {
+    ClientObjectFactory.getClientObject( widget ).destroy();
   }
 
   //////////////////
