@@ -28,6 +28,8 @@ import org.eclipse.rap.rwt.testfixture.Message.DestroyOperation;
 import org.eclipse.rap.rwt.testfixture.Message.Operation;
 import org.eclipse.rwt.lifecycle.WidgetUtil;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.json.JSONArray;
@@ -562,6 +564,123 @@ public class GridLCA_Test extends TestCase {
 
     Message message = Fixture.getProtocolMessage();
     assertNull( message.findSetOperation( grid, "scrollBarsVisible" ) );
+  }
+
+  public void testRenderAddScrollBarsSelectionListener_Horizontal() throws Exception {
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( grid );
+    Fixture.preserveWidgets();
+
+    grid.getHorizontalBar().addSelectionListener( new SelectionAdapter() { } );
+    lca.renderChanges( grid );
+
+    Message message = Fixture.getProtocolMessage();
+    assertEquals( Boolean.TRUE, message.findListenProperty( grid, "scrollBarsSelection" ) );
+  }
+
+  public void testRenderRemoveScrollBarsSelectionListener_Horizontal() throws Exception {
+    SelectionListener listener = new SelectionAdapter() { };
+    grid.getHorizontalBar().addSelectionListener( listener );
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( grid );
+    Fixture.preserveWidgets();
+
+    grid.getHorizontalBar().removeSelectionListener( listener );
+    lca.renderChanges( grid );
+
+    Message message = Fixture.getProtocolMessage();
+    assertEquals( Boolean.FALSE, message.findListenProperty( grid, "scrollBarsSelection" ) );
+  }
+
+  public void testRenderScrollBarsSelectionListenerUnchanged_Horizontal() throws Exception {
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( grid );
+    Fixture.preserveWidgets();
+
+    grid.getHorizontalBar().addSelectionListener( new SelectionAdapter() { } );
+    Fixture.preserveWidgets();
+    lca.renderChanges( grid );
+
+    Message message = Fixture.getProtocolMessage();
+    assertNull( message.findListenOperation( grid, "scrollBarsSelection" ) );
+  }
+
+  public void testRenderAddScrollBarsSelectionListener_Vertical() throws Exception {
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( grid );
+    Fixture.preserveWidgets();
+
+    grid.getVerticalBar().addSelectionListener( new SelectionAdapter() { } );
+    lca.renderChanges( grid );
+
+    Message message = Fixture.getProtocolMessage();
+    assertEquals( Boolean.TRUE, message.findListenProperty( grid, "scrollBarsSelection" ) );
+  }
+
+  public void testRenderRemoveScrollBarsSelectionListener_Vertical() throws Exception {
+    SelectionListener listener = new SelectionAdapter() { };
+    grid.getVerticalBar().addSelectionListener( listener );
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( grid );
+    Fixture.preserveWidgets();
+
+    grid.getVerticalBar().removeSelectionListener( listener );
+    lca.renderChanges( grid );
+
+    Message message = Fixture.getProtocolMessage();
+    assertEquals( Boolean.FALSE, message.findListenProperty( grid, "scrollBarsSelection" ) );
+  }
+
+  public void testRenderScrollBarsSelectionListenerUnchanged_Vertical() throws Exception {
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( grid );
+    Fixture.preserveWidgets();
+
+    grid.getVerticalBar().addSelectionListener( new SelectionAdapter() { } );
+    Fixture.preserveWidgets();
+    lca.renderChanges( grid );
+
+    Message message = Fixture.getProtocolMessage();
+    assertNull( message.findListenOperation( grid, "scrollBarsSelection" ) );
+  }
+
+  public void testRenderAddSelectionListener() throws Exception {
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( grid );
+    Fixture.preserveWidgets();
+
+    grid.addSelectionListener( new SelectionAdapter() { } );
+    lca.renderChanges( grid );
+
+    Message message = Fixture.getProtocolMessage();
+    assertEquals( Boolean.TRUE, message.findListenProperty( grid, "selection" ) );
+  }
+
+  public void testRenderRemoveSelectionListener() throws Exception {
+    SelectionListener listener = new SelectionAdapter() { };
+    grid.addSelectionListener( listener );
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( grid );
+    Fixture.preserveWidgets();
+
+    grid.removeSelectionListener( listener );
+    lca.renderChanges( grid );
+
+    Message message = Fixture.getProtocolMessage();
+    assertEquals( Boolean.FALSE, message.findListenProperty( grid, "selection" ) );
+  }
+
+  public void testRenderSelectionListenerUnchanged() throws Exception {
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( grid );
+    Fixture.preserveWidgets();
+
+    grid.addSelectionListener( new SelectionAdapter() { } );
+    Fixture.preserveWidgets();
+    lca.renderChanges( grid );
+
+    Message message = Fixture.getProtocolMessage();
+    assertNull( message.findListenOperation( grid, "selection" ) );
   }
 
 }

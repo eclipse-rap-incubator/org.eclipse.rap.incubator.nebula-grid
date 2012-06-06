@@ -26,7 +26,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlListener;
-import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TreeEvent;
@@ -38,7 +37,6 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.internal.SerializableCompatibility;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.ScrollBar;
 
 
 /**
@@ -2349,15 +2347,6 @@ public class Grid extends Canvas {
   private void initListeners() {
     resizeListener = new ResizeListener();
     addControlListener( resizeListener );
-    ScrollBar verticalBar = getVerticalBar();
-    if( verticalBar != null ) {
-      verticalBar.addSelectionListener( new SelectionAdapter() {
-        @Override
-        public void widgetSelected( SelectionEvent eevent ) {
-          invalidateTopIndex();
-        }
-      } );
-    }
   }
 
   private Point getTableSize() {
@@ -2630,6 +2619,10 @@ public class Grid extends Canvas {
 
     public int getCheckLeft() {
       return getCheckBoxMargin().x;
+    }
+
+    public void invalidateTopIndex() {
+      Grid.this.invalidateTopIndex();
     }
   }
 

@@ -16,5 +16,6 @@ public interface IGridAdapter {
   int getIndentationWidth();
   int getCheckLeft();
   int getCheckWidth();
+  void invalidateTopIndex();
 
 }

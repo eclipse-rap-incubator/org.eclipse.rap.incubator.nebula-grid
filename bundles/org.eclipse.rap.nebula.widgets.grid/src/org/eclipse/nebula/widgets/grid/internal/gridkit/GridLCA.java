@@ -10,7 +10,9 @@
  ******************************************************************************/
 package org.eclipse.nebula.widgets.grid.internal.gridkit;
 
+import static org.eclipse.rwt.lifecycle.WidgetLCAUtil.preserveListener;
 import static org.eclipse.rwt.lifecycle.WidgetLCAUtil.preserveProperty;
+import static org.eclipse.rwt.lifecycle.WidgetLCAUtil.renderListener;
 import static org.eclipse.rwt.lifecycle.WidgetLCAUtil.renderProperty;
 
 import java.io.IOException;
@@ -26,6 +28,7 @@ import org.eclipse.rwt.lifecycle.ControlLCAUtil;
 import org.eclipse.rwt.lifecycle.WidgetLCAUtil;
 import org.eclipse.rwt.lifecycle.WidgetUtil;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Widget;
@@ -60,6 +63,8 @@ public class GridLCA extends AbstractWidgetLCA {
   private static final String PROP_SORT_DIRECTION = "sortDirection";
   private static final String PROP_SORT_COLUMN = "sortColumn";
   private static final String PROP_SCROLLBARS_VISIBLE = "scrollBarsVisible";
+  private static final String PROP_SCROLLBARS_SELECTION_LISTENER = "scrollBarsSelection";
+  private static final String PROP_SELECTION_LISTENER = "selection";
 
   private static final int ZERO = 0 ;
   private static final String[] DEFAULT_SELECTION = new String[ 0 ];
@@ -106,6 +111,10 @@ public class GridLCA extends AbstractWidgetLCA {
     preserveProperty( grid, PROP_SORT_DIRECTION, getSortDirection( grid ) );
     preserveProperty( grid, PROP_SORT_COLUMN, getSortColumn( grid ) );
     preserveProperty( grid, PROP_SCROLLBARS_VISIBLE, getScrollBarsVisible( grid ) );
+    preserveListener( grid,
+                      PROP_SCROLLBARS_SELECTION_LISTENER,
+                      hasScrollBarsSelectionListener( grid ) );
+    preserveListener( grid, PROP_SELECTION_LISTENER, SelectionEvent.hasListener( grid ) );
   }
 
   @Override
@@ -132,6 +141,11 @@ public class GridLCA extends AbstractWidgetLCA {
                     PROP_SCROLLBARS_VISIBLE,
                     getScrollBarsVisible( grid ),
                     DEFAULT_SCROLLBARS_VISIBLE );
+    renderListener( grid,
+                    PROP_SCROLLBARS_SELECTION_LISTENER,
+                    hasScrollBarsSelectionListener( grid ),
+                    false );
+    renderListener( grid, PROP_SELECTION_LISTENER, SelectionEvent.hasListener( grid ), false );
   }
 
   @Override
@@ -210,6 +224,19 @@ public class GridLCA extends AbstractWidgetLCA {
       verticalBarVisible = verticalBar.getVisible();
     }
     return new boolean[] { horizontalBarVisible, verticalBarVisible };
+  }
+
+  private static boolean hasScrollBarsSelectionListener( Grid grid ) {
+    boolean result = false;
+    ScrollBar horizontalBar = grid.getHorizontalBar();
+    if( horizontalBar != null ) {
+      result = result || SelectionEvent.hasListener( horizontalBar );
+    }
+    ScrollBar verticalBar = grid.getVerticalBar();
+    if( verticalBar != null ) {
+      result = result || SelectionEvent.hasListener( verticalBar );
+    }
+    return result;
   }
 
   private static IGridAdapter getGridAdapter( Grid grid ) {
