@@ -35,8 +35,12 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.internal.SerializableCompatibility;
+import org.eclipse.swt.internal.widgets.ICellToolTipAdapter;
+import org.eclipse.swt.internal.widgets.ICellToolTipProvider;
+import org.eclipse.swt.internal.widgets.IItemHolderAdapter;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Item;
 
 
 /**
@@ -89,6 +93,7 @@ public class Grid extends Canvas {
   private int bottomIndex = -1;
   private boolean bottomIndexShownCompletely;
   private final IGridAdapter gridAdapter;
+  private transient CompositeItemHolder itemHolder;
 
   /**
    * Constructs a new instance of this class given its parent and a style
@@ -898,6 +903,7 @@ public class Grid extends Canvas {
       // are cleared
       clear( 0, itemsCount - 1, allChildren );
       itemImageSize = null;
+      setCellToolTipsEnabled( false );
       layoutCache.invalidateItemHeight();
     }
   }
@@ -2058,7 +2064,14 @@ public class Grid extends Canvas {
   @SuppressWarnings("unchecked")
   public <T> T getAdapter( Class<T> adapter ) {
     T result;
-    if( adapter == IGridAdapter.class ) {
+    if( adapter == IItemHolderAdapter.class ) {
+      if( itemHolder == null ) {
+        itemHolder = new CompositeItemHolder();
+      }
+      result = ( T )itemHolder;
+    } else if( adapter == IGridAdapter.class ) {
+      result = ( T )gridAdapter;
+    } else if( adapter == ICellToolTipAdapter.class ) {
       result = ( T )gridAdapter;
     } else {
       result = super.getAdapter( adapter );
@@ -2349,6 +2362,10 @@ public class Grid extends Canvas {
     addControlListener( resizeListener );
   }
 
+  void setCellToolTipsEnabled( boolean enabled ) {
+    setData( ICellToolTipProvider.ENABLE_CELL_TOOLTIP, Boolean.valueOf( enabled ) );
+  }
+
   private Point getTableSize() {
     int width = 0;
     int height = 0;
@@ -2588,6 +2605,29 @@ public class Grid extends Canvas {
   ////////////////
   // Inner classes
 
+  private final class CompositeItemHolder implements IItemHolderAdapter {
+    public void add( Item item ) {
+      throw new UnsupportedOperationException();
+    }
+
+    public void insert( Item item, int index ) {
+      throw new UnsupportedOperationException();
+    }
+
+    public void remove( Item item ) {
+      throw new UnsupportedOperationException();
+    }
+
+    public Item[] getItems() {
+      GridItem[] items = Grid.this.getItems();
+      GridColumn[] columns = Grid.this.getColumns();
+      Item[] result = new Item[ columns.length + items.length ];
+      System.arraycopy( columns, 0, result, 0, columns.length );
+      System.arraycopy( items, 0, result, columns.length, items.length );
+      return result;
+    }
+  }
+
   private final class ResizeListener extends ControlAdapter {
     @Override
     public void controlResized( ControlEvent event ) {
@@ -2607,7 +2647,15 @@ public class Grid extends Canvas {
     }
   }
 
-  private final class GridAdapter implements IGridAdapter, SerializableCompatibility {
+  private final class GridAdapter
+    implements IGridAdapter, ICellToolTipAdapter, SerializableCompatibility
+  {
+    private String toolTipText;
+    private ICellToolTipProvider provider;
+
+    public GridAdapter() {
+      provider = new CellToolTipProvider();
+    }
 
     public int getIndentationWidth() {
       return Grid.this.getIndentationWidth();
@@ -2624,6 +2672,33 @@ public class Grid extends Canvas {
     public void invalidateTopIndex() {
       Grid.this.invalidateTopIndex();
     }
+
+    public ICellToolTipProvider getCellToolTipProvider() {
+      return provider;
+    }
+
+    public void setCellToolTipProvider( ICellToolTipProvider provider ) {
+      this.provider = provider;
+    }
+
+    public String getCellToolTipText() {
+      return toolTipText;
+    }
+
+    public void setCellToolTipText( String toolTipText ) {
+      this.toolTipText = toolTipText;
+    }
+  }
+
+  private final class CellToolTipProvider
+    implements ICellToolTipProvider, SerializableCompatibility
+  {
+
+    public void getToolTipText( Item item, int columnIndex ) {
+      String toolTipText = ( ( GridItem )item ).getToolTipText( columnIndex );
+      getAdapter( ICellToolTipAdapter.class ).setCellToolTipText( toolTipText );
+    }
+
   }
 
   static final class LayoutCache implements SerializableCompatibility {

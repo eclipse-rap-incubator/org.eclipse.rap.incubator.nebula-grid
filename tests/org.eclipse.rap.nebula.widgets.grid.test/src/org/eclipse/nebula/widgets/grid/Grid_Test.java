@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.nebula.widgets.grid.internal.IGridAdapter;
 import org.eclipse.nebula.widgets.grid.internal.NullScrollBarProxy;
 import org.eclipse.nebula.widgets.grid.internal.ScrollBarProxyAdapter;
 import org.eclipse.rap.rwt.testfixture.Fixture;
@@ -34,14 +35,18 @@ import org.eclipse.swt.events.TreeListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.internal.widgets.ICellToolTipAdapter;
+import org.eclipse.swt.internal.widgets.IItemHolderAdapter;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Item;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
 import junit.framework.TestCase;
 
 
+@SuppressWarnings("restriction")
 public class Grid_Test extends TestCase {
 
   private Display display;
@@ -2089,6 +2094,43 @@ public class Grid_Test extends TestCase {
 
     assertTrue( grid.isShown( items[ 13 ] ) );
     assertFalse( grid.isShown( items[ 14 ] ) );
+  }
+
+  public void testGetAdapter_IGridAdapter() {
+    assertNotNull( grid.getAdapter( IGridAdapter.class ) );
+  }
+
+  public void testGetAdapter_IItemHolderAdapter() {
+    assertNotNull( grid.getAdapter( IItemHolderAdapter.class ) );
+  }
+
+  public void testIItemHolderAdapter_GetItems() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    Item[] items = grid.getAdapter( IItemHolderAdapter.class ).getItems();
+
+    assertSame( column, items[ 0 ] );
+    assertSame( item, items[ 1 ] );
+  }
+
+  public void testGetAdapter_ICellToolTipAdapter() {
+    assertNotNull( grid.getAdapter( ICellToolTipAdapter.class ) );
+  }
+
+  public void testICellToolTipAdapter_hasCellToolTipProvider() {
+    assertNotNull( grid.getAdapter( ICellToolTipAdapter.class ).getCellToolTipProvider() );
+  }
+
+  public void testICellToolTipAdapter_GetCellToolTipText() {
+    createGridColumns( grid, 3, SWT.NONE );
+    GridItem[] items = createGridItems( grid, 3, 0 );
+    items[ 1 ].setToolTipText( 1, "foo" );
+
+    ICellToolTipAdapter cellToolTipAdapter = grid.getAdapter( ICellToolTipAdapter.class );
+    cellToolTipAdapter.getCellToolTipProvider().getToolTipText( items[ 1 ], 1 );
+
+    assertEquals( "foo", cellToolTipAdapter.getCellToolTipText() );
   }
 
   //////////////////

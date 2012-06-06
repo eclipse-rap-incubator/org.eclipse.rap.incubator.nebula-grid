@@ -26,6 +26,7 @@ import org.eclipse.rap.rwt.testfixture.Message;
 import org.eclipse.rap.rwt.testfixture.Message.CreateOperation;
 import org.eclipse.rap.rwt.testfixture.Message.DestroyOperation;
 import org.eclipse.rap.rwt.testfixture.Message.Operation;
+import org.eclipse.rwt.internal.lifecycle.JSConst;
 import org.eclipse.rwt.lifecycle.WidgetUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -38,6 +39,7 @@ import org.json.JSONException;
 import junit.framework.TestCase;
 
 
+@SuppressWarnings("restriction")
 public class GridLCA_Test extends TestCase {
 
   private Display display;
@@ -681,6 +683,65 @@ public class GridLCA_Test extends TestCase {
 
     Message message = Fixture.getProtocolMessage();
     assertNull( message.findListenOperation( grid, "selection" ) );
+  }
+
+  public void testRenderInitialEnableCellToolTip() throws IOException {
+    lca.render( grid );
+
+    Message message = Fixture.getProtocolMessage();
+    CreateOperation operation = message.findCreateOperation( grid );
+    assertTrue( operation.getPropertyNames().indexOf( "enableCellToolTip" ) == -1 );
+  }
+
+  public void testRenderEnableCellToolTip() throws IOException {
+    createGridColumns( grid, 3, SWT.NONE );
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    item.setToolTipText( 1, "foo" );
+    lca.renderChanges( grid );
+
+    Message message = Fixture.getProtocolMessage();
+    assertEquals( Boolean.TRUE, message.findSetProperty( grid, "enableCellToolTip" ) );
+  }
+
+  public void testRenderEnableCellToolTipUnchanged() throws IOException {
+    createGridColumns( grid, 3, SWT.NONE );
+    GridItem item = new GridItem( grid, SWT.NONE );
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( grid );
+
+    item.setToolTipText( 1, "foo" );
+    Fixture.preserveWidgets();
+    lca.renderChanges( grid );
+
+    Message message = Fixture.getProtocolMessage();
+    assertNull( message.findSetOperation( grid, "enableCellToolTip" ) );
+  }
+
+  public void testRenderCellToolTipText() {
+    createGridColumns( grid, 3, SWT.NONE );
+    GridItem item = new GridItem( grid, SWT.NONE );
+    item.setToolTipText( 1, "foo" );
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( grid );
+
+    String itemId = WidgetUtil.getId( item );
+    processCellToolTipRequest( grid, itemId, 1 );
+
+    Message message = Fixture.getProtocolMessage();
+    assertEquals( "foo", message.findSetProperty( grid, "cellToolTipText" ) );
+  }
+
+  //////////////////
+  // Helping methods
+
+  private static void processCellToolTipRequest( Grid grid, String itemId, int column ) {
+    Fixture.fakeNewRequest( grid.getDisplay() );
+    String gridId = WidgetUtil.getId( grid );
+    Fixture.fakeRequestParam( JSConst.EVENT_CELL_TOOLTIP_REQUESTED, gridId );
+    String cellString = itemId + "," + column;
+    Fixture.fakeRequestParam( JSConst.EVENT_CELL_TOOLTIP_DETAILS, cellString );
+    Fixture.executeLifeCycleFromServerThread();
   }
 
 }

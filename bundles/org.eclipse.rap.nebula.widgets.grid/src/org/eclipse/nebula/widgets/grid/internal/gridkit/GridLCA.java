@@ -17,18 +17,26 @@ import static org.eclipse.rwt.lifecycle.WidgetLCAUtil.renderProperty;
 
 import java.io.IOException;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridColumn;
 import org.eclipse.nebula.widgets.grid.GridItem;
 import org.eclipse.nebula.widgets.grid.internal.IGridAdapter;
+import org.eclipse.rwt.internal.lifecycle.JSConst;
 import org.eclipse.rwt.internal.protocol.ClientObjectFactory;
 import org.eclipse.rwt.internal.protocol.IClientObject;
+import org.eclipse.rwt.internal.service.ContextProvider;
+import org.eclipse.rwt.internal.util.NumberFormatUtil;
 import org.eclipse.rwt.lifecycle.AbstractWidgetLCA;
 import org.eclipse.rwt.lifecycle.ControlLCAUtil;
 import org.eclipse.rwt.lifecycle.WidgetLCAUtil;
 import org.eclipse.rwt.lifecycle.WidgetUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.internal.widgets.CellToolTipUtil;
+import org.eclipse.swt.internal.widgets.ICellToolTipAdapter;
+import org.eclipse.swt.internal.widgets.ICellToolTipProvider;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Widget;
@@ -60,11 +68,16 @@ public class GridLCA extends AbstractWidgetLCA {
   private static final String PROP_FOCUS_ITEM = "focusItem";
   private static final String PROP_SCROLL_LEFT = "scrollLeft";
   private static final String PROP_SELECTION = "selection";
+  // TODO: [if] Sync sortDirection and sortColumn in GridColumnLCA when multiple sort columns are
+  // possible on the client
   private static final String PROP_SORT_DIRECTION = "sortDirection";
   private static final String PROP_SORT_COLUMN = "sortColumn";
   private static final String PROP_SCROLLBARS_VISIBLE = "scrollBarsVisible";
   private static final String PROP_SCROLLBARS_SELECTION_LISTENER = "scrollBarsSelection";
   private static final String PROP_SELECTION_LISTENER = "selection";
+  // TODO: [if] Sync toolTipText in GridItemLCA when it's possible on the client
+  private static final String PROP_ENABLE_CELL_TOOLTIP = "enableCellToolTip";
+  private static final String PROP_CELL_TOOLTIP_TEXT = "cellToolTipText";
 
   private static final int ZERO = 0 ;
   private static final String[] DEFAULT_SELECTION = new String[ 0 ];
@@ -88,6 +101,12 @@ public class GridLCA extends AbstractWidgetLCA {
   }
 
   public void readData( Widget widget ) {
+    Grid grid = ( Grid )widget;
+    readCellToolTipTextRequested( grid );
+    ControlLCAUtil.processMouseEvents( grid );
+    ControlLCAUtil.processKeyEvents( grid );
+    ControlLCAUtil.processMenuDetect( grid );
+    WidgetLCAUtil.processHelp( grid );
   }
 
   @Override
@@ -115,6 +134,8 @@ public class GridLCA extends AbstractWidgetLCA {
                       PROP_SCROLLBARS_SELECTION_LISTENER,
                       hasScrollBarsSelectionListener( grid ) );
     preserveListener( grid, PROP_SELECTION_LISTENER, SelectionEvent.hasListener( grid ) );
+    preserveProperty( grid, PROP_ENABLE_CELL_TOOLTIP, CellToolTipUtil.isEnabledFor( grid ) );
+    preserveProperty( grid, PROP_CELL_TOOLTIP_TEXT, null );
   }
 
   @Override
@@ -146,11 +167,40 @@ public class GridLCA extends AbstractWidgetLCA {
                     hasScrollBarsSelectionListener( grid ),
                     false );
     renderListener( grid, PROP_SELECTION_LISTENER, SelectionEvent.hasListener( grid ), false );
+    renderProperty( grid, PROP_ENABLE_CELL_TOOLTIP, CellToolTipUtil.isEnabledFor( grid ), false );
+    renderProperty( grid, PROP_CELL_TOOLTIP_TEXT, getCellToolTipText( grid ), null );
   }
 
   @Override
   public void renderDispose( Widget widget ) throws IOException {
     ClientObjectFactory.getClientObject( widget ).destroy();
+  }
+
+  ////////////////
+  // Cell tooltips
+
+  private static void readCellToolTipTextRequested( Grid grid ) {
+    ICellToolTipAdapter adapter = CellToolTipUtil.getAdapter( grid );
+    adapter.setCellToolTipText( null );
+    String event = JSConst.EVENT_CELL_TOOLTIP_REQUESTED;
+    if( WidgetLCAUtil.wasEventSent( grid, event ) ) {
+      ICellToolTipProvider provider = adapter.getCellToolTipProvider();
+      if( provider != null ) {
+        HttpServletRequest request = ContextProvider.getRequest();
+        String cell = request.getParameter( JSConst.EVENT_CELL_TOOLTIP_DETAILS );
+        String[] details = cell.split( "," );
+        String itemId = details[ 0 ];
+        int columnIndex = NumberFormatUtil.parseInt( details[ 1 ] );
+        GridItem item = getItem( grid, itemId );
+        if( item != null && ( columnIndex >= 0 && columnIndex < grid.getColumnCount() ) ) {
+          provider.getToolTipText( item, columnIndex );
+        }
+      }
+    }
+  }
+
+  private static String getCellToolTipText( Grid grid ) {
+    return CellToolTipUtil.getAdapter( grid ).getCellToolTipText();
   }
 
   //////////////////
@@ -237,6 +287,10 @@ public class GridLCA extends AbstractWidgetLCA {
       result = result || SelectionEvent.hasListener( verticalBar );
     }
     return result;
+  }
+
+  private static GridItem getItem( Grid grid, String itemId ) {
+    return ( GridItem )WidgetUtil.find( grid, itemId );
   }
 
   private static IGridAdapter getGridAdapter( Grid grid ) {

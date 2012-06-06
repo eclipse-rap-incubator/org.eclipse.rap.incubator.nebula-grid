@@ -864,6 +864,9 @@ public class GridItem extends Item {
   public void setToolTipText( int index, String tooltip ) {
     checkWidget();
     getItemData( index ).tooltip = tooltip;
+    if( tooltip != null && tooltip.length() > 0 ) {
+      parent.setCellToolTipsEnabled( true );
+    }
   }
 
   /**
