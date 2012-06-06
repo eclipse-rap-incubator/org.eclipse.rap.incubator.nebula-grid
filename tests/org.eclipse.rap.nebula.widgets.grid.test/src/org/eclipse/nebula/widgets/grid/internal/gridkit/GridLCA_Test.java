@@ -732,6 +732,66 @@ public class GridLCA_Test extends TestCase {
     assertEquals( "foo", message.findSetProperty( grid, "cellToolTipText" ) );
   }
 
+  public void testReadSelection() {
+    String gridId = WidgetUtil.getId( grid );
+    GridItem[] items = createGridItems( grid, 3, 0 );
+    String item0Id = WidgetUtil.getId( items[ 0 ] );
+    String item2Id = WidgetUtil.getId( items[ 2 ] );
+
+    Fixture.fakeNewRequest( display );
+    Fixture.fakeRequestParam( gridId + ".selection", item0Id + "," + item2Id );
+    Fixture.readDataAndProcessAction( grid );
+
+    GridItem[] selectedItems = grid.getSelection();
+    assertEquals( 2, selectedItems.length );
+    assertSame( items[ 0 ], selectedItems[ 0 ] );
+    assertSame( items[ 2 ], selectedItems[ 1 ] );
+  }
+
+  public void testReadSelectionDisposedItem() {
+    String gridId = WidgetUtil.getId( grid );
+    GridItem[] items = createGridItems( grid, 3, 0 );
+    String item0Id = WidgetUtil.getId( items[ 0 ] );
+    String item2Id = WidgetUtil.getId( items[ 2 ] );
+    items[ 0 ].dispose();
+
+    Fixture.fakeNewRequest( display );
+    Fixture.fakeRequestParam( gridId + ".selection", item0Id + "," + item2Id );
+    Fixture.readDataAndProcessAction( grid );
+
+    GridItem[] selectedItems = grid.getSelection();
+    assertEquals( 1, selectedItems.length );
+    assertSame( items[ 2 ], selectedItems[ 0 ] );
+  }
+
+  public void testReadScrollLeft() {
+    grid.setSize( 100, 100 );
+    String gridId = WidgetUtil.getId( grid );
+    createGridColumns( grid, 5, SWT.NONE );
+    createGridItems( grid, 10, 0 );
+
+    Fixture.fakeNewRequest( display );
+    Fixture.fakeRequestParam( gridId + ".scrollLeft", "30" );
+    Fixture.readDataAndProcessAction( grid );
+
+    assertEquals( 30, grid.getHorizontalBar().getSelection() );
+  }
+
+  public void testReadTopIndex() {
+    grid.setSize( 100, 100 );
+    String gridId = WidgetUtil.getId( grid );
+    createGridColumns( grid, 5, SWT.NONE );
+    GridItem[] items = createGridItems( grid, 10, 3 );
+    items[ 4 ].setExpanded( true );
+
+    Fixture.fakeNewRequest( display );
+    Fixture.fakeRequestParam( gridId + ".topItemIndex", "3" );
+    Fixture.readDataAndProcessAction( grid );
+
+    assertEquals( 3, grid.getVerticalBar().getSelection() );
+    assertEquals( 6, grid.getTopIndex() );
+  }
+
   //////////////////
   // Helping methods
 

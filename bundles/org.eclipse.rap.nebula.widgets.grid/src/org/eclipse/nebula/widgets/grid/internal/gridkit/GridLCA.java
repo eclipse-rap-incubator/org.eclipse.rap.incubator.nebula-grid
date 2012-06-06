@@ -34,6 +34,7 @@ import org.eclipse.rwt.lifecycle.WidgetLCAUtil;
 import org.eclipse.rwt.lifecycle.WidgetUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.internal.events.EventLCAUtil;
 import org.eclipse.swt.internal.widgets.CellToolTipUtil;
 import org.eclipse.swt.internal.widgets.ICellToolTipAdapter;
 import org.eclipse.swt.internal.widgets.ICellToolTipProvider;
@@ -102,6 +103,9 @@ public class GridLCA extends AbstractWidgetLCA {
 
   public void readData( Widget widget ) {
     Grid grid = ( Grid )widget;
+    readSelection( grid );
+    readScrollLeft( grid );
+    readTopItemIndex( grid );
     readCellToolTipTextRequested( grid );
     ControlLCAUtil.processMouseEvents( grid );
     ControlLCAUtil.processKeyEvents( grid );
@@ -174,6 +178,45 @@ public class GridLCA extends AbstractWidgetLCA {
   @Override
   public void renderDispose( Widget widget ) throws IOException {
     ClientObjectFactory.getClientObject( widget ).destroy();
+  }
+
+  ////////////////////////////////////////////
+  // Helping methods to read client-side state
+
+  private static void readSelection( Grid grid ) {
+    String value = WidgetLCAUtil.readPropertyValue( grid, "selection" );
+    if( value != null ) {
+      String[] values = value.split( "," );
+      GridItem[] selectedItems = new GridItem[ values.length ];
+      boolean validItemFound = false;
+      for( int i = 0; i < values.length; i++ ) {
+        selectedItems[ i ] = getItem( grid, values[ i ] );
+        if( selectedItems[ i ] != null ) {
+          validItemFound = true;
+        }
+      }
+      if( !validItemFound ) {
+        selectedItems = new GridItem[ 0 ];
+      }
+      grid.setSelection( selectedItems );
+    }
+  }
+
+  private static void readScrollLeft( Grid grid ) {
+    String left = WidgetLCAUtil.readPropertyValue( grid, "scrollLeft" );
+    if( left != null ) {
+      int leftOffset = NumberFormatUtil.parseInt( left );
+      processScrollBarSelection( grid.getHorizontalBar(), leftOffset );
+    }
+  }
+
+  private static void readTopItemIndex( Grid grid ) {
+    String topItemIndex = WidgetLCAUtil.readPropertyValue( grid, "topItemIndex" );
+    if( topItemIndex != null ) {
+      int topOffset = NumberFormatUtil.parseInt( topItemIndex );
+      getGridAdapter( grid ).invalidateTopIndex();
+      processScrollBarSelection( grid.getVerticalBar(), topOffset );
+    }
   }
 
   ////////////////
@@ -291,6 +334,18 @@ public class GridLCA extends AbstractWidgetLCA {
 
   private static GridItem getItem( Grid grid, String itemId ) {
     return ( GridItem )WidgetUtil.find( grid, itemId );
+  }
+
+  private static void processScrollBarSelection( ScrollBar scrollBar, int selection ) {
+    if( scrollBar != null ) {
+      scrollBar.setSelection( selection );
+      if( SelectionEvent.hasListener( scrollBar ) ) {
+        int eventId = SelectionEvent.WIDGET_SELECTED;
+        SelectionEvent evt = new SelectionEvent( scrollBar, null, eventId );
+        evt.stateMask = EventLCAUtil.readStateMask( JSConst.EVENT_WIDGET_SELECTED_MODIFIER );
+        evt.processEvent();
+      }
+    }
   }
 
   private static IGridAdapter getGridAdapter( Grid grid ) {
