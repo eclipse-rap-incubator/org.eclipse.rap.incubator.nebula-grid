@@ -57,6 +57,7 @@ public class GridColumn extends Item {
   private int alignment = SWT.LEFT;
   private Font headerFont;
   private boolean packed;
+  int imageCount;
 
   /**
    * Constructs a new instance of this class given its parent (which must be a
@@ -699,6 +700,21 @@ public class GridColumn extends Item {
     if( packed ) {
       pack();
     }
+  }
+
+  int getLeft() {
+    int result = 0;
+    int[] columnOrder = parent.getColumnOrder();
+    boolean found = false;
+    for( int i = 0; i < columnOrder.length && !found; i++ ) {
+      GridColumn currentColumn = parent.getColumn( columnOrder[ i ] );
+      if( currentColumn == this ) {
+        found = true;
+      } else if( currentColumn.isVisible() ) {
+        result += currentColumn.getWidth();
+      }
+    }
+    return result;
   }
 
   private int getPreferredWidth() {

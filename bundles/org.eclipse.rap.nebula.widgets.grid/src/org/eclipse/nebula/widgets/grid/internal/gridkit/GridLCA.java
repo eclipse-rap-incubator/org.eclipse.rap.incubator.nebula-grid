@@ -122,8 +122,7 @@ public class GridLCA extends AbstractWidgetLCA {
     WidgetLCAUtil.preserveCustomVariant( grid );
     preserveProperty( grid, PROP_ITEM_COUNT, grid.getItemCount() );
     preserveProperty( grid, PROP_ITEM_HEIGHT, grid.getItemHeight() );
-    // TODO: [if] Item metrics
-//    preserveProperty( grid, PROP_ITEM_METRICS, getItemMetrics( grid ) );
+    preserveProperty( grid, PROP_ITEM_METRICS, getItemMetrics( grid ) );
     preserveProperty( grid, PROP_COLUMN_COUNT, grid.getColumnCount() );
     preserveProperty( grid, PROP_TREE_COLUMN, getTreeColumn( grid ) );
     preserveProperty( grid, PROP_HEADER_HEIGHT, grid.getHeaderHeight() );
@@ -151,8 +150,7 @@ public class GridLCA extends AbstractWidgetLCA {
     WidgetLCAUtil.renderCustomVariant( grid );
     renderProperty( grid, PROP_ITEM_COUNT, grid.getItemCount(), ZERO );
     renderProperty( grid, PROP_ITEM_HEIGHT, grid.getItemHeight(), ZERO );
-    // TODO: [if] Item metrics
-//    renderItemMetrics( grid );
+    renderItemMetrics( grid );
     renderProperty( grid, PROP_COLUMN_COUNT, grid.getColumnCount(), ZERO );
     renderProperty( grid, PROP_TREE_COLUMN, getTreeColumn( grid ), ZERO );
     renderProperty( grid, PROP_HEADER_HEIGHT, grid.getHeaderHeight(), ZERO );
@@ -370,8 +368,84 @@ public class GridLCA extends AbstractWidgetLCA {
     }
   }
 
+  ///////////////
+  // Item Metrics
+
+  private static void renderItemMetrics( Grid grid ) {
+    ItemMetrics[] itemMetrics = getItemMetrics( grid );
+    if( WidgetLCAUtil.hasChanged( grid, PROP_ITEM_METRICS, itemMetrics ) ) {
+      int[][] metrics = new int[ itemMetrics.length ][ 7 ];
+      for( int i = 0; i < itemMetrics.length; i++ ) {
+        metrics[ i ] = new int[] {
+          i,
+          itemMetrics[ i ].left,
+          itemMetrics[ i ].width,
+          itemMetrics[ i ].imageLeft,
+          itemMetrics[ i ].imageWidth,
+          itemMetrics[ i ].textLeft,
+          itemMetrics[ i ].textWidth
+        };
+      }
+      IClientObject clientObject = ClientObjectFactory.getClientObject( grid );
+      clientObject.set( PROP_ITEM_METRICS, metrics );
+    }
+  }
+
+  static ItemMetrics[] getItemMetrics( Grid grid ) {
+    int columnCount = grid.getColumnCount();
+    ItemMetrics[] result = new ItemMetrics[ columnCount ];
+    IGridAdapter adapter = getGridAdapter( grid );
+    for( int i = 0; i < columnCount; i++ ) {
+      result[ i ] = new ItemMetrics();
+      result[ i ].left = adapter.getCellLeft( i );
+      result[ i ].width = adapter.getCellWidth( i );
+      result[ i ].imageLeft = result[ i ].left + adapter.getImageOffset( i );
+      result[ i ].imageWidth = adapter.getImageWidth( i );
+      result[ i ].textLeft = result[ i ].left + adapter.getTextOffset( i );
+      result[ i ].textWidth = adapter.getTextWidth( i );
+    }
+    return result;
+  }
+
   private static IGridAdapter getGridAdapter( Grid grid ) {
     return grid.getAdapter( IGridAdapter.class );
+  }
+
+  ////////////////
+  // Inner classes
+
+  static final class ItemMetrics {
+    int left;
+    int width;
+    int imageLeft;
+    int imageWidth;
+    int textLeft;
+    int textWidth;
+
+    @Override
+    public boolean equals( Object obj ) {
+      boolean result;
+      if( obj == this ) {
+        result = true;
+      } else  if( obj instanceof ItemMetrics ) {
+        ItemMetrics other = ( ItemMetrics )obj;
+        result =  other.left == left
+               && other.width == width
+               && other.imageLeft == imageLeft
+               && other.imageWidth == imageWidth
+               && other.textLeft == textLeft
+               && other.textWidth == textWidth;
+      } else {
+        result = false;
+      }
+      return result;
+    }
+
+    @Override
+    public int hashCode() {
+      String msg = "ItemMetrics#hashCode() not implemented";
+      throw new UnsupportedOperationException( msg );
+    }
   }
 
 }

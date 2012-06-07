@@ -13,9 +13,16 @@ package org.eclipse.nebula.widgets.grid.internal;
 
 public interface IGridAdapter {
 
+  void invalidateTopIndex();
   int getIndentationWidth();
   int getCheckLeft();
   int getCheckWidth();
-  void invalidateTopIndex();
+
+  int getCellLeft( int index );
+  int getCellWidth( int index );
+  int getImageOffset( int index );
+  int getImageWidth( int index );
+  int getTextOffset( int index );
+  int getTextWidth( int index );
 
 }

@@ -12,6 +12,7 @@ package org.eclipse.nebula.widgets.grid.internal.gridkit;
 
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridColumns;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridItems;
+import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
 import static org.eclipse.nebula.widgets.grid.internal.gridkit.GridLCATestUtil.jsonEquals;
 
 import java.io.IOException;
@@ -22,6 +23,7 @@ import java.util.List;
 import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridColumn;
 import org.eclipse.nebula.widgets.grid.GridItem;
+import org.eclipse.nebula.widgets.grid.internal.gridkit.GridLCA.ItemMetrics;
 import org.eclipse.rap.rwt.testfixture.Fixture;
 import org.eclipse.rap.rwt.testfixture.Message;
 import org.eclipse.rap.rwt.testfixture.Message.CreateOperation;
@@ -33,6 +35,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.json.JSONArray;
@@ -173,6 +176,41 @@ public class GridLCA_Test extends TestCase {
 
     Message message = Fixture.getProtocolMessage();
     assertNull( message.findSetOperation( grid, "itemHeight" ) );
+  }
+
+  public void testRenderInitialItemMetrics() throws IOException {
+    lca.render( grid );
+
+    Message message = Fixture.getProtocolMessage();
+    CreateOperation operation = message.findCreateOperation( grid );
+    assertTrue( operation.getPropertyNames().contains( "itemMetrics" ) );
+  }
+
+  public void testRenderItemMetrics() throws IOException, JSONException {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+    column.setWidth( 50 );
+    GridItem[] items = createGridItems( grid, 3, 1 );
+    items[ 0 ].setText( "foo" );
+
+    lca.renderChanges( grid );
+
+    Message message = Fixture.getProtocolMessage();
+    JSONArray actual = ( JSONArray )message.findSetProperty( grid, "itemMetrics" );
+    assertTrue( jsonEquals( "[0,0,50,0,0,0,44]", ( JSONArray )actual.get( 0 ) ) );
+  }
+
+  public void testRenderItemMetricsUnchanged() throws IOException {
+    createGridColumns( grid, 3, SWT.NONE );
+    GridItem item = new GridItem( grid, SWT.NONE );
+    item.setText( "foo" );
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( grid );
+
+    Fixture.preserveWidgets();
+    lca.renderChanges( grid );
+
+    Message message = Fixture.getProtocolMessage();
+    assertNull( message.findSetOperation( grid, "itemMetrics" ) );
   }
 
   public void testRenderInitialColumnCount() throws IOException {
@@ -853,6 +891,116 @@ public class GridLCA_Test extends TestCase {
     assertEquals( grid, event.getSource() );
     assertEquals( item, event.item );
     assertEquals( SWT.NONE, event.detail );
+  }
+
+  public void testGetItemMetrics_CellLeft() {
+    GridColumn[] columns = createGridColumns( grid, 2, SWT.NONE );
+    columns[ 0 ].setWidth( 100 );
+    columns[ 1 ].setWidth( 150 );
+
+    ItemMetrics[] metrics = GridLCA.getItemMetrics( grid );
+
+    assertEquals( 0, metrics[ 0 ].left );
+    assertEquals( 100, metrics[ 1 ].left );
+  }
+
+  public void testGetItemMetrics_CellWidth() {
+    GridColumn[] columns = createGridColumns( grid, 2, SWT.NONE );
+    columns[ 0 ].setWidth( 100 );
+    columns[ 1 ].setWidth( 150 );
+
+    ItemMetrics[] metrics = GridLCA.getItemMetrics( grid );
+
+    assertEquals( 100, metrics[ 0 ].width );
+    assertEquals( 150, metrics[ 1 ].width );
+  }
+
+  public void testGetItemMetrics_ImageLeft() {
+    Image image1 = loadImage( display, Fixture.IMAGE_100x50 );
+    Image image2 = loadImage( display, Fixture.IMAGE_50x100 );
+    GridColumn[] columns = createGridColumns( grid, 2, SWT.NONE );
+    columns[ 0 ].setWidth( 100 );
+    columns[ 1 ].setWidth( 150 );
+    GridItem[] items = createGridItems( grid, 3, 1 );
+
+    ItemMetrics[] metrics = GridLCA.getItemMetrics( grid );
+    assertEquals( 0, metrics[ 0 ].imageLeft );
+    assertEquals( 106, metrics[ 1 ].imageLeft );
+
+    items[ 1 ].setImage( image2 );
+    items[ 0 ].setImage( 1, image1 );
+
+    metrics = GridLCA.getItemMetrics( grid );
+    assertEquals( 0, metrics[ 0 ].imageLeft );
+    assertEquals( 106, metrics[ 1 ].imageLeft );
+  }
+
+  public void testGetItemMetrics_ImageWidth() {
+    Image image1 = loadImage( display, Fixture.IMAGE_100x50 );
+    Image image2 = loadImage( display, Fixture.IMAGE_50x100 );
+    GridColumn[] columns = createGridColumns( grid, 2, SWT.NONE );
+    columns[ 0 ].setWidth( 100 );
+    columns[ 1 ].setWidth( 150 );
+    GridItem[] items = createGridItems( grid, 3, 1 );
+
+    ItemMetrics[] metrics = GridLCA.getItemMetrics( grid );
+    assertEquals( 0, metrics[ 0 ].imageWidth );
+
+    items[ 1 ].setImage( image2 );
+    items[ 0 ].setImage( image1 );
+
+    metrics = GridLCA.getItemMetrics( grid );
+    assertEquals( 50, metrics[ 0 ].imageWidth );
+
+    items[ 1 ].setImage( null );
+    items[ 0 ].setImage( null );
+
+    metrics = GridLCA.getItemMetrics( grid );
+    assertEquals( 0, metrics[ 0 ].imageWidth );
+  }
+
+  public void testGetItemMetrics_TextLeftWithImage() {
+    Image image = loadImage( display, Fixture.IMAGE_100x50 );
+    GridColumn[] columns = createGridColumns( grid, 2, SWT.NONE );
+    columns[ 0 ].setWidth( 100 );
+    columns[ 1 ].setWidth( 150 );
+    GridItem[] items = createGridItems( grid, 3, 1 );
+
+    ItemMetrics[] metrics = GridLCA.getItemMetrics( grid );
+    assertEquals( 106, metrics[ 1 ].textLeft );
+
+    items[ 0 ].setImage( 1, image );
+
+    metrics = GridLCA.getItemMetrics( grid );
+    assertEquals( 206, metrics[ 1 ].textLeft );
+  }
+
+  public void testGetItemMetrics_TextLeftWithCheckbox() {
+    Image image = loadImage( display, Fixture.IMAGE_100x50 );
+    grid = new Grid( shell, SWT.CHECK );
+    GridColumn[] columns = createGridColumns( grid, 1, SWT.NONE );
+    columns[ 0 ].setWidth( 200 );
+    GridItem[] items = createGridItems( grid, 3, 1 );
+    items[ 0 ].setText( "item" );
+    items[ 0 ].setImage( image );
+
+    ItemMetrics[] metrics = GridLCA.getItemMetrics( grid );
+
+    assertEquals( 123, metrics[ 0 ].textLeft );
+  }
+
+  public void testGetItemMetrics_TextWidthWithCheckbox() {
+    Image image = loadImage( display, Fixture.IMAGE_100x50 );
+    grid = new Grid( shell, SWT.CHECK );
+    GridColumn[] columns = createGridColumns( grid, 1, SWT.NONE );
+    columns[ 0 ].setWidth( 200 );
+    GridItem[] items = createGridItems( grid, 3, 1 );
+    items[ 0 ].setText( "item" );
+    items[ 0 ].setImage( image );
+
+    ItemMetrics[] metrics = GridLCA.getItemMetrics( grid );
+
+    assertEquals( 71, metrics[ 0 ].textWidth );
   }
 
   //////////////////

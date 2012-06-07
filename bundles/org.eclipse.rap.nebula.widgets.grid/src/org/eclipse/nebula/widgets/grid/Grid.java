@@ -85,7 +85,6 @@ public class Grid extends Canvas {
   private int customItemHeight = -1;
   private Point itemImageSize;
   private ControlListener resizeListener;
-  LayoutCache layoutCache;
   private boolean isTemporaryResize;
   private IScrollBarProxy vScroll;
   private IScrollBarProxy hScroll;
@@ -94,6 +93,7 @@ public class Grid extends Canvas {
   private boolean bottomIndexShownCompletely;
   private final IGridAdapter gridAdapter;
   private transient CompositeItemHolder itemHolder;
+  LayoutCache layoutCache;
 
   /**
    * Constructs a new instance of this class given its parent and a style
@@ -2114,7 +2114,7 @@ public class Grid extends Canvas {
       row = flatIndex;
     }
     invalidateTopIndex();
-    currentVisibleItems++;
+    updateVisibleItems( 1 );
     return row;
   }
 
@@ -2132,7 +2132,7 @@ public class Grid extends Canvas {
       }
       invalidateTopIndex();
       if( item.isVisible() ) {
-        currentVisibleItems--;
+        updateVisibleItems( -1 );
       }
       updateScrollBars();
       redraw();
@@ -2260,19 +2260,8 @@ public class Grid extends Canvas {
   }
 
   Point getOrigin( GridColumn column, GridItem item ) {
-    int x = -hScroll.getSelection();
+    int x = column.getLeft() - hScroll.getSelection();
     int y = 0;
-    boolean found = false;
-    for( Iterator iterator = displayOrderedColumns.iterator(); iterator.hasNext() && !found; ) {
-      GridColumn currentColumn = ( GridColumn )iterator.next();
-      if( currentColumn.isVisible() ) {
-        if( currentColumn == column ) {
-          found = true;
-        } else {
-          x += currentColumn.getWidth();
-        }
-      }
-    }
     if( item != null ) {
       if( columnHeadersVisible ) {
         y += getHeaderHeight();
@@ -2496,20 +2485,58 @@ public class Grid extends Canvas {
   private int getColumnHeaderXPosition( GridColumn column ) {
     int result = -1;
     if( column.isVisible() ) {
-      result = -hScroll.getSelection();
-      boolean found = false;
-      for( Iterator iterator = displayOrderedColumns.iterator(); iterator.hasNext() && !found; ) {
-        GridColumn currentColumn = ( GridColumn )iterator.next();
-        if( currentColumn.isVisible() ) {
-          if( currentColumn == column ) {
-            found = true;
-          } else {
-            result += currentColumn.getWidth();
-          }
-        }
-      }
+      result = column.getLeft() - hScroll.getSelection();
     }
     return result;
+  }
+
+  private int getCellLeft( int index ) {
+    return getColumn( index ).getLeft();
+  }
+
+  private int getCellWidth( int index ) {
+    GridColumn column = getColumn( index );
+    return column.isVisible() ? column.getWidth() : 0;
+  }
+
+  private int getImageOffset( int index ) {
+    int result = 0;
+    if( !isTreeColumn( index ) ) {
+      result += getCellPadding().x;
+    }
+    if( getColumn( index ).isCheck() ) {
+      result += getCheckBoxImageOuterSize().x;
+    }
+    return result;
+  }
+
+  private int getImageWidth( int index ) {
+    int result = 0;
+    if( hasColumnImages( index ) ) {
+      result = getItemImageSize().x;
+      int availableWidth = getCellWidth( index );
+      if( !isTreeColumn( index ) ) {
+        result -= getCellPadding().x;
+      }
+      availableWidth = Math.max( 0, availableWidth );
+      result = Math.min( result, availableWidth );
+    }
+    return result;
+  }
+
+  private int getTextOffset( int index ) {
+    int result = getImageOffset( index );
+    if( hasColumnImages( index ) ) {
+      result += getItemImageSize().x;
+      result += getCellSpacing();
+    }
+    return result;
+  }
+
+  private int getTextWidth( int index ) {
+    Rectangle padding = getCellPadding();
+    int rightPadding = padding.width - padding.x;
+    return Math.max( 0, getCellWidth( index ) - getTextOffset( index ) - rightPadding );
   }
 
   private Point getItemImageSize() {
@@ -2519,6 +2546,10 @@ public class Grid extends Canvas {
       result.y = itemImageSize.y;
     }
     return result;
+  }
+
+  private boolean hasColumnImages( int index ) {
+    return getColumn( index ).imageCount > 0;
   }
 
   private boolean hasCheckBoxes() {
@@ -2657,20 +2688,44 @@ public class Grid extends Canvas {
       provider = new CellToolTipProvider();
     }
 
-    public int getIndentationWidth() {
-      return Grid.this.getIndentationWidth();
+    public void invalidateTopIndex() {
+      Grid.this.invalidateTopIndex();
     }
 
-    public int getCheckWidth() {
-      return getCheckBoxImageSize().x;
+    public int getIndentationWidth() {
+      return Grid.this.getIndentationWidth();
     }
 
     public int getCheckLeft() {
       return getCheckBoxMargin().x;
     }
 
-    public void invalidateTopIndex() {
-      Grid.this.invalidateTopIndex();
+    public int getCheckWidth() {
+      return getCheckBoxImageSize().x;
+    }
+
+    public int getCellLeft( int index ) {
+      return Grid.this.getCellLeft( index );
+    }
+
+    public int getCellWidth( int index ) {
+      return Grid.this.getCellWidth( index );
+    }
+
+    public int getImageOffset( int index ) {
+      return Grid.this.getImageOffset( index );
+    }
+
+    public int getImageWidth( int index ) {
+      return Grid.this.getImageWidth( index );
+    }
+
+    public int getTextOffset( int index ) {
+      return Grid.this.getTextOffset( index );
+    }
+
+    public int getTextWidth( int index ) {
+      return Grid.this.getTextWidth( index );
     }
 
     public ICellToolTipProvider getCellToolTipProvider() {

@@ -184,6 +184,9 @@ public class GridItem extends Item {
   @Override
   public void dispose() {
     if( !parent.isDisposing() && !isDisposed() ) {
+      for( int i = 0; i < parent.getColumnCount(); i++ ) {
+        updateColumnImageCount( i, getItemData( i ).image, null );
+      }
       parent.removeItem( this );
       if( parentItem != null ) {
         parentItem.remove( this );
@@ -931,7 +934,9 @@ public class GridItem extends Item {
     if( image != null && image.isDisposed() ) {
       SWT.error( SWT.ERROR_INVALID_ARGUMENT );
     }
-    getItemData( index ).image = image;
+    Data itemData = getItemData( index );
+    updateColumnImageCount( index, itemData.image, image );
+    itemData.image = image;
     parent.imageSetOnItem( index, this );
     parent.redraw();
   }
@@ -1495,6 +1500,9 @@ public class GridItem extends Item {
    *            recursively, and <code>false</code> otherwise
    */
   void clear( boolean allChildren ) {
+    for( int i = 0; i < parent.getColumnCount(); i++ ) {
+      updateColumnImageCount( i, getItemData( i ).image, null );
+    }
     init();
     defaultFont = null;
     defaultBackground = null;
@@ -1639,6 +1647,18 @@ public class GridItem extends Item {
       }
     }
     return flag;
+  }
+
+  private void updateColumnImageCount( int index, Image oldImage, Image newImage ) {
+    int delta = 0;
+    if( oldImage == null && newImage != null ) {
+      delta = +1;
+    } else if( oldImage != null && newImage == null ) {
+      delta = -1;
+    }
+    if( delta != 0 && index >= 0 && index < parent.getColumnCount() ) {
+      parent.getColumn( index ).imageCount += delta;
+    }
   }
 
   ////////////////

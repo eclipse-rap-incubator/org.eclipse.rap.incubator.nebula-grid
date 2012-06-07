@@ -1080,6 +1080,43 @@ public class GridItem_Test extends TestCase {
     assertEquals( expected, grid.getItem( 8 ).getBounds( 0 ) );
   }
 
+  public void testUpdateColumnImageCount_AddRemoveImage() {
+    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
+    GridItem[] items = createGridItems( grid, 3, 0 );
+    Image image = loadImage( display, Fixture.IMAGE1 );
+
+    items[ 0 ].setImage( 1, image );
+    items[ 2 ].setImage( 1, image );
+    assertEquals( 2, columns[ 1 ].imageCount );
+
+    items[ 0 ].setImage( 1, null );
+    assertEquals( 1, columns[ 1 ].imageCount );
+  }
+
+  public void testUpdateColumnImageCount_ClearItem() {
+    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
+    GridItem[] items = createGridItems( grid, 3, 0 );
+    Image image = loadImage( display, Fixture.IMAGE1 );
+    items[ 0 ].setImage( 1, image );
+    items[ 2 ].setImage( 1, image );
+
+    items[ 0 ].clear( false );
+
+    assertEquals( 1, columns[ 1 ].imageCount );
+  }
+
+  public void testUpdateColumnImageCount_DisposeItem() {
+    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
+    GridItem[] items = createGridItems( grid, 3, 0 );
+    Image image = loadImage( display, Fixture.IMAGE1 );
+    items[ 0 ].setImage( 1, image );
+    items[ 2 ].setImage( 1, image );
+
+    items[ 0 ].dispose();
+
+    assertEquals( 1, columns[ 1 ].imageCount );
+  }
+
   //////////////////
   // Helping methods
 
