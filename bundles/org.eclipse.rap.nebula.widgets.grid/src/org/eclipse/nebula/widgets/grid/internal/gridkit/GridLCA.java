@@ -107,6 +107,8 @@ public class GridLCA extends AbstractWidgetLCA {
     readScrollLeft( grid );
     readTopItemIndex( grid );
     readCellToolTipTextRequested( grid );
+    processSelectionEvent( grid, JSConst.EVENT_WIDGET_SELECTED );
+    processSelectionEvent( grid, JSConst.EVENT_WIDGET_DEFAULT_SELECTED );
     ControlLCAUtil.processMouseEvents( grid );
     ControlLCAUtil.processKeyEvents( grid );
     ControlLCAUtil.processMenuDetect( grid );
@@ -344,6 +346,26 @@ public class GridLCA extends AbstractWidgetLCA {
         SelectionEvent evt = new SelectionEvent( scrollBar, null, eventId );
         evt.stateMask = EventLCAUtil.readStateMask( JSConst.EVENT_WIDGET_SELECTED_MODIFIER );
         evt.processEvent();
+      }
+    }
+  }
+
+  private static void processSelectionEvent( Grid grid, String eventName ) {
+    if( WidgetLCAUtil.wasEventSent( grid, eventName ) ) {
+      HttpServletRequest request = ContextProvider.getRequest();
+      GridItem item = getItem( grid, request.getParameter( eventName + ".item" ) );
+      if( item != null ) {
+        if( eventName.equals( JSConst.EVENT_WIDGET_SELECTED ) ) {
+          String detail = request.getParameter( eventName + ".detail" );
+          if( "check".equals( detail ) ) {
+            // TODO: [if] Use column index when it is implemented
+            item.fireCheckEvent( 0 );
+          } else {
+            item.fireEvent( SWT.Selection );
+          }
+        } else {
+          item.fireEvent( SWT.DefaultSelection );
+        }
       }
     }
   }

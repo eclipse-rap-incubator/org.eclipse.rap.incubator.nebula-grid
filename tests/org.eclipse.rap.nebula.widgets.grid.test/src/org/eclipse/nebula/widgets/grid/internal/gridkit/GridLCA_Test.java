@@ -16,6 +16,7 @@ import static org.eclipse.nebula.widgets.grid.internal.gridkit.GridLCATestUtil.j
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.nebula.widgets.grid.Grid;
@@ -30,6 +31,7 @@ import org.eclipse.rwt.internal.lifecycle.JSConst;
 import org.eclipse.rwt.lifecycle.WidgetUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -792,6 +794,67 @@ public class GridLCA_Test extends TestCase {
     assertEquals( 6, grid.getTopIndex() );
   }
 
+  public void testProcessSelectionEvent() {
+    java.util.List<SelectionEvent> events = new LinkedList<SelectionEvent>();
+    GridItem item = new GridItem( grid, SWT.NONE );
+    grid.addSelectionListener( new LoggingSelectionListener( events ) );
+    String gridId = WidgetUtil.getId( grid );
+    String itemId = WidgetUtil.getId( item );
+
+    Fixture.fakeNewRequest( display );
+    Fixture.fakeRequestParam( JSConst.EVENT_WIDGET_SELECTED, gridId );
+    Fixture.fakeRequestParam( JSConst.EVENT_WIDGET_SELECTED + ".item", itemId );
+    Fixture.readDataAndProcessAction( display );
+
+    assertEquals( 1, events.size() );
+    SelectionEvent event = events.get( 0 );
+    assertEquals( SWT.Selection, event.getID() );
+    assertEquals( grid, event.getSource() );
+    assertEquals( item, event.item );
+    assertEquals( SWT.NONE, event.detail );
+  }
+
+  public void testProcessSelectionEvent_Check() {
+    java.util.List<SelectionEvent> events = new LinkedList<SelectionEvent>();
+    GridItem item = new GridItem( grid, SWT.NONE );
+    grid.addSelectionListener( new LoggingSelectionListener( events ) );
+    String gridId = WidgetUtil.getId( grid );
+    String itemId = WidgetUtil.getId( item );
+
+    Fixture.fakeNewRequest( display );
+    Fixture.fakeRequestParam( JSConst.EVENT_WIDGET_SELECTED, gridId );
+    Fixture.fakeRequestParam( JSConst.EVENT_WIDGET_SELECTED + ".item", itemId );
+    Fixture.fakeRequestParam( JSConst.EVENT_WIDGET_SELECTED + ".detail", "check" );
+    Fixture.readDataAndProcessAction( display );
+
+    assertEquals( 1, events.size() );
+    SelectionEvent event = events.get( 0 );
+    assertEquals( SWT.Selection, event.getID() );
+    assertEquals( grid, event.getSource() );
+    assertEquals( item, event.item );
+    assertEquals( SWT.CHECK, event.detail );
+  }
+
+  public void testProcessDefaultSelectionEvent() {
+    java.util.List<SelectionEvent> events = new LinkedList<SelectionEvent>();
+    GridItem item = new GridItem( grid, SWT.NONE );
+    grid.addSelectionListener( new LoggingSelectionListener( events ) );
+    String gridId = WidgetUtil.getId( grid );
+    String itemId = WidgetUtil.getId( item );
+
+    Fixture.fakeNewRequest( display );
+    Fixture.fakeRequestParam( JSConst.EVENT_WIDGET_DEFAULT_SELECTED, gridId );
+    Fixture.fakeRequestParam( JSConst.EVENT_WIDGET_DEFAULT_SELECTED + ".item", itemId );
+    Fixture.readDataAndProcessAction( display );
+
+    assertEquals( 1, events.size() );
+    SelectionEvent event = events.get( 0 );
+    assertEquals( SWT.DefaultSelection, event.getID() );
+    assertEquals( grid, event.getSource() );
+    assertEquals( item, event.item );
+    assertEquals( SWT.NONE, event.detail );
+  }
+
   //////////////////
   // Helping methods
 
@@ -802,6 +865,24 @@ public class GridLCA_Test extends TestCase {
     String cellString = itemId + "," + column;
     Fixture.fakeRequestParam( JSConst.EVENT_CELL_TOOLTIP_DETAILS, cellString );
     Fixture.executeLifeCycleFromServerThread();
+  }
+
+  //////////////////
+  // Helping classes
+
+  private static class LoggingSelectionListener extends SelectionAdapter {
+    private final List<SelectionEvent> events;
+    private LoggingSelectionListener( List<SelectionEvent> events ) {
+      this.events = events;
+    }
+    @Override
+    public void widgetSelected( SelectionEvent event ) {
+      events.add( event );
+    }
+    @Override
+    public void widgetDefaultSelected( SelectionEvent event ) {
+      events.add( event );
+    }
   }
 
 }
