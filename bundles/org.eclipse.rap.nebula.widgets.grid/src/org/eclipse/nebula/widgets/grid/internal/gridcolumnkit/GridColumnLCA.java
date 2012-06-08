@@ -16,13 +16,18 @@ import static org.eclipse.rwt.lifecycle.WidgetLCAUtil.renderListener;
 import static org.eclipse.rwt.lifecycle.WidgetLCAUtil.renderProperty;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridColumn;
 import org.eclipse.nebula.widgets.grid.internal.IGridAdapter;
 import org.eclipse.rwt.internal.protocol.ClientObjectFactory;
 import org.eclipse.rwt.internal.protocol.IClientObject;
+import org.eclipse.rwt.internal.util.NumberFormatUtil;
 import org.eclipse.rwt.lifecycle.AbstractWidgetLCA;
+import org.eclipse.rwt.lifecycle.ControlLCAUtil;
+import org.eclipse.rwt.lifecycle.IWidgetAdapter;
+import org.eclipse.rwt.lifecycle.ProcessActionRunner;
 import org.eclipse.rwt.lifecycle.WidgetLCAUtil;
 import org.eclipse.rwt.lifecycle.WidgetUtil;
 import org.eclipse.swt.SWT;
@@ -56,6 +61,10 @@ public class GridColumnLCA extends AbstractWidgetLCA {
   }
 
   public void readData( Widget widget ) {
+    GridColumn column = ( GridColumn )widget;
+    readLeft( column );
+    readWidth( column );
+    ControlLCAUtil.processSelection( column, null, false );
   }
 
   @Override
@@ -93,6 +102,85 @@ public class GridColumnLCA extends AbstractWidgetLCA {
     ClientObjectFactory.getClientObject( widget ).destroy();
   }
 
+  ////////////////////////////////////////////
+  // Helping methods to read client-side state
+
+  private static void readLeft( final GridColumn column ) {
+    String value = WidgetLCAUtil.readPropertyValue( column, "left" );
+    if( value != null ) {
+      final int newLeft = NumberFormatUtil.parseInt( value );
+      ProcessActionRunner.add( new Runnable() {
+        public void run() {
+          moveColumn( column, newLeft );
+        }
+      } );
+    }
+  }
+
+  private static void readWidth( final GridColumn column ) {
+    String value = WidgetLCAUtil.readPropertyValue( column, "width" );
+    if( value != null ) {
+      final int newWidth = NumberFormatUtil.parseInt( value );
+      ProcessActionRunner.add( new Runnable() {
+        public void run() {
+          column.setWidth( newWidth );
+        }
+      } );
+    }
+  }
+
+  /////////////////////////////////
+  // Helping methods to move column
+
+  static void moveColumn( GridColumn column, int newLeft ) {
+    Grid grid = column.getParent();
+    int index = grid.indexOf( column );
+    int targetColumn = findMoveTarget( grid, newLeft );
+    int[] columnOrder = grid.getColumnOrder();
+    int orderIndex = arrayIndexOf( columnOrder, index );
+    columnOrder = arrayRemove( columnOrder, orderIndex );
+    if( orderIndex < targetColumn ) {
+      targetColumn--;
+    }
+    columnOrder = arrayInsert( columnOrder, targetColumn, index );
+    if( Arrays.equals( columnOrder, grid.getColumnOrder() ) ) {
+      GridColumn[] columns = grid.getColumns();
+      for( int i = 0; i < columns.length; i++ ) {
+        IWidgetAdapter adapter = WidgetUtil.getAdapter( columns[ i ] );
+        adapter.preserve( PROP_LEFT, null );
+      }
+    } else {
+      grid.setColumnOrder( columnOrder );
+      IWidgetAdapter adapter = WidgetUtil.getAdapter( column );
+      adapter.preserve( PROP_LEFT, null );
+    }
+  }
+
+  private static int findMoveTarget( Grid grid, int newLeft ) {
+    int result = -1;
+    GridColumn[] columns = grid.getColumns();
+    int[] columnOrder = grid.getColumnOrder();
+    if( newLeft < 0 ) {
+      result = 0;
+    } else {
+      for( int i = 0; result == -1 && i < columns.length; i++ ) {
+        GridColumn column = columns[ columnOrder[ i ] ];
+        int left = getLeft( column );
+        int width = column.getWidth();
+        if( newLeft >= left && newLeft <= left + width ) {
+          result = i;
+          if( newLeft >= left + width / 2 && result < columns.length ) {
+            result++;
+          }
+        }
+      }
+    }
+    if( result == -1 ) {
+      result = columns.length;
+    }
+    return result;
+  }
+
   //////////////////
   // Helping methods
 
@@ -114,6 +202,35 @@ public class GridColumnLCA extends AbstractWidgetLCA {
     } else if( ( alignment & SWT.RIGHT ) != 0 ) {
       result = "right";
     }
+    return result;
+  }
+
+  private static int arrayIndexOf( int[] array, int value ) {
+    int result = -1;
+    for( int i = 0; result == -1 && i < array.length; i++ ) {
+      if( array[ i ] == value ) {
+        result = i;
+      }
+    }
+    return result;
+  }
+
+  private static int[] arrayRemove( int[] array, int index ) {
+    int length = array.length;
+    int[] result = new int[ length - 1 ];
+    System.arraycopy( array, 0, result, 0, index );
+    if( index < length - 1 ) {
+      System.arraycopy( array, index + 1, result, index, length - index - 1 );
+    }
+    return result;
+  }
+
+  private static int[] arrayInsert( int[] array, int index, int value ) {
+    int length = array.length;
+    int[] result = new int[ length + 1 ];
+    System.arraycopy( array, 0, result, 0, length );
+    System.arraycopy( result, index, result, index + 1, length - index );
+    result[ index ] = value;
     return result;
   }
 }

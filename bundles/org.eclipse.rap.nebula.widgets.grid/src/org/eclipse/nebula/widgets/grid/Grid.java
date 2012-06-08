@@ -669,9 +669,15 @@ public class Grid extends Canvas {
 //      }
 //    }
     GridColumn[] columns = getColumns();
+    int[] oldOrder = getColumnOrder();
     displayOrderedColumns.clear();
     for( int i = 0; i < order.length; i++ ) {
       displayOrderedColumns.add( columns[ order[ i ] ] );
+    }
+    for( int i = 0; i < order.length; i++ ) {
+      if( oldOrder[ i ] != order[ i ] ) {
+        columns[ order[ i ] ].fireMoved();
+      }
     }
   }
 

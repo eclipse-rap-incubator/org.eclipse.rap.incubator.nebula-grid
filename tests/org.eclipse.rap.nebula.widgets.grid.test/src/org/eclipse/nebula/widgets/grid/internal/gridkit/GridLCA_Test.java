@@ -833,7 +833,7 @@ public class GridLCA_Test extends TestCase {
   }
 
   public void testProcessSelectionEvent() {
-    java.util.List<SelectionEvent> events = new LinkedList<SelectionEvent>();
+    List<SelectionEvent> events = new LinkedList<SelectionEvent>();
     GridItem item = new GridItem( grid, SWT.NONE );
     grid.addSelectionListener( new LoggingSelectionListener( events ) );
     String gridId = WidgetUtil.getId( grid );
@@ -853,7 +853,7 @@ public class GridLCA_Test extends TestCase {
   }
 
   public void testProcessSelectionEvent_Check() {
-    java.util.List<SelectionEvent> events = new LinkedList<SelectionEvent>();
+    List<SelectionEvent> events = new LinkedList<SelectionEvent>();
     GridItem item = new GridItem( grid, SWT.NONE );
     grid.addSelectionListener( new LoggingSelectionListener( events ) );
     String gridId = WidgetUtil.getId( grid );
@@ -874,7 +874,7 @@ public class GridLCA_Test extends TestCase {
   }
 
   public void testProcessDefaultSelectionEvent() {
-    java.util.List<SelectionEvent> events = new LinkedList<SelectionEvent>();
+    List<SelectionEvent> events = new LinkedList<SelectionEvent>();
     GridItem item = new GridItem( grid, SWT.NONE );
     grid.addSelectionListener( new LoggingSelectionListener( events ) );
     String gridId = WidgetUtil.getId( grid );

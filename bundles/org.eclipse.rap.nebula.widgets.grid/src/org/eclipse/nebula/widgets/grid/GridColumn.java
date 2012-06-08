@@ -720,17 +720,13 @@ public class GridColumn extends Item {
   }
 
   private void internalSetWidth( int width ) {
-    this.width = Math.max( minimumWidth, width );
-    packed = false;
-    parent.updateScrollBars();
-  }
-
-  void fireMoved() {
-    Event event = new Event();
-    event.display = this.getDisplay();
-    event.item = this;
-    event.widget = parent;
-    notifyListeners( SWT.Move, event );
+    int newWidth = Math.max( minimumWidth, width );
+    if( this.width != newWidth ) {
+      this.width = newWidth;
+      packed = false;
+      parent.updateScrollBars();
+      processControlEvents();
+    }
   }
 
   protected boolean isTableCheck() {
@@ -750,5 +746,35 @@ public class GridColumn extends Item {
       alignment = SWT.CENTER;
     }
     parent.newColumn( this, index );
+  }
+
+  private void processControlEvents() {
+    int[] columnOrder = parent.getColumnOrder();
+    boolean found = false;
+    for( int i = 0; i < columnOrder.length; i++ ) {
+      GridColumn currentColumn = parent.getColumn( columnOrder[ i ] );
+      if( currentColumn == this ) {
+        found = true;
+        fireResized();
+      } else if( found ) {
+        currentColumn.fireMoved();
+      }
+    }
+  }
+
+  void fireResized() {
+    Event event = new Event();
+    event.display = getDisplay();
+    event.item = this;
+    event.widget = parent;
+    notifyListeners( SWT.Resize, event );
+  }
+
+  void fireMoved() {
+    Event event = new Event();
+    event.display = getDisplay();
+    event.item = this;
+    event.widget = parent;
+    notifyListeners( SWT.Move, event );
   }
 }

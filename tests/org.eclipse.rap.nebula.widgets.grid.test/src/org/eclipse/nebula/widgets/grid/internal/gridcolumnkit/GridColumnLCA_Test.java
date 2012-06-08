@@ -10,10 +10,13 @@
  ******************************************************************************/
 package org.eclipse.nebula.widgets.grid.internal.gridcolumnkit;
 
+import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridColumns;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
 import static org.eclipse.nebula.widgets.grid.internal.gridkit.GridLCATestUtil.jsonEquals;
 
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridColumn;
@@ -22,9 +25,13 @@ import org.eclipse.rap.rwt.testfixture.Message;
 import org.eclipse.rap.rwt.testfixture.Message.CreateOperation;
 import org.eclipse.rap.rwt.testfixture.Message.DestroyOperation;
 import org.eclipse.rap.rwt.testfixture.Message.Operation;
+import org.eclipse.rwt.internal.lifecycle.JSConst;
 import org.eclipse.rwt.lifecycle.WidgetUtil;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.internal.graphics.ImageFactory;
@@ -435,5 +442,251 @@ public class GridColumnLCA_Test extends TestCase {
 
     Message message = Fixture.getProtocolMessage();
     assertNull( message.findListenOperation( column, "selection" ) );
+  }
+
+  public void testReadWidth() {
+    final List<ControlEvent> events = new LinkedList<ControlEvent>();
+    GridColumn[] columns = createGridColumns( grid, 2, SWT.NONE );
+    columns[ 0 ].addControlListener( new LoggingControlListener( events ) );
+    columns[ 1 ].addControlListener( new LoggingControlListener( events ) );
+    String columnId = WidgetUtil.getId( columns[ 0 ] );
+
+    // Simulate request that initializes widgets
+    Fixture.fakeNewRequest( display );
+    Fixture.executeLifeCycleFromServerThread();
+    // Simulate request that changes column width
+    int newWidth = columns[ 0 ].getWidth() + 2;
+    int newLeft = column.getWidth() + newWidth;
+    Fixture.fakeNewRequest( display );
+    Fixture.fakeRequestParam( columnId + ".width", String.valueOf( newWidth ) );
+    Fixture.executeLifeCycleFromServerThread();
+
+    assertEquals( 2, events.size() );
+    ControlEvent event = events.get( 0 );
+    assertSame( columns[ 0 ], event.widget );
+    assertEquals( SWT.Resize, event.getID() );
+    assertEquals( newWidth, columns[ 0 ].getWidth() );
+    event = events.get( 1 );
+    assertSame( columns[ 1 ], event.widget );
+    assertEquals( SWT.Move, event.getID() );
+    Message message = Fixture.getProtocolMessage();
+    assertEquals( Integer.valueOf( newWidth ), message.findSetProperty( columns[ 0 ], "width" ) );
+    assertEquals( Integer.valueOf( newLeft ), message.findSetProperty( columns[ 1 ], "left" ) );
+  }
+
+  public void testReadLeft() {
+    final List<ControlEvent> events = new LinkedList<ControlEvent>();
+    GridColumn[] columns = createGridColumns( grid, 2, SWT.NONE );
+    column.addControlListener( new LoggingControlListener( events ) );
+    columns[ 0 ].addControlListener( new LoggingControlListener( events ) );
+    columns[ 1 ].addControlListener( new LoggingControlListener( events ) );
+    String columnId = WidgetUtil.getId( columns[ 0 ] );
+
+    // Simulate request that initializes widgets
+    Fixture.fakeNewRequest( display );
+    Fixture.executeLifeCycleFromServerThread();
+    // Simulate request that changes column left
+    int newLeft = 3;
+    Fixture.fakeNewRequest( display );
+    Fixture.fakeRequestParam( columnId + ".left", String.valueOf( newLeft ) );
+    Fixture.executeLifeCycleFromServerThread();
+
+    assertEquals( 2, events.size() );
+    ControlEvent event = events.get( 0 );
+    assertSame( columns[ 0 ], event.widget );
+    assertEquals( SWT.Move, event.getID() );
+    event = events.get( 1 );
+    assertSame( column, event.widget );
+    assertEquals( SWT.Move, event.getID() );
+    Message message = Fixture.getProtocolMessage();
+    assertEquals( Integer.valueOf( 20 ), message.findSetProperty( column, "left" ) );
+    assertEquals( Integer.valueOf( 0 ), message.findSetProperty( columns[ 0 ], "left" ) );
+  }
+
+  public void testMoveColumn_1() {
+    column.dispose();
+    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
+    columns[ 0 ].setWidth( 10 );
+    columns[ 1 ].setWidth( 20 );
+    columns[ 2 ].setWidth( 30 );
+    // Current order: Col 0: 0..10, Col 1: 11..30, Col 2: 31..60 (as created)
+    // Move Col 1 over Col 0 (left half), thereafter order should be:
+    // Col 1, Col 0, Col 2
+    grid.setColumnOrder( new int[]{
+      0, 1, 2
+    } );
+    GridColumnLCA.moveColumn( columns[ 1 ], 3 );
+    int[] columnOrder = grid.getColumnOrder();
+    assertEquals( 1, columnOrder[ 0 ] );
+    assertEquals( 0, columnOrder[ 1 ] );
+    assertEquals( 2, columnOrder[ 2 ] );
+  }
+
+  public void testMoveColumn_2() {
+    column.dispose();
+    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
+    columns[ 0 ].setWidth( 10 );
+    columns[ 1 ].setWidth( 20 );
+    columns[ 2 ].setWidth( 30 );
+    // Current order: Col 1: 0..20, Col 0: 21..30, Col 2: 31..60
+    // Move Col 1 over Col 0 (right half), thereafter order should be:
+    // Col 0, Col 1, Col 2
+    grid.setColumnOrder( new int[]{
+      1, 0, 2
+    } );
+    GridColumnLCA.moveColumn( columns[ 1 ], 27 );
+    int[] columnOrder = grid.getColumnOrder();
+    assertEquals( 0, columnOrder[ 0 ] );
+    assertEquals( 1, columnOrder[ 1 ] );
+    assertEquals( 2, columnOrder[ 2 ] );
+  }
+
+  public void testMoveColumn_3() {
+    column.dispose();
+    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
+    columns[ 0 ].setWidth( 10 );
+    columns[ 1 ].setWidth( 20 );
+    columns[ 2 ].setWidth( 30 );
+    // Current order: Col 0: 0..10, Col 1: 11..30, Col 2: 31..60
+    // Move Col 2 over Col 1 (left half), thereafter order should be:
+    // Col 0, Col 2, Col 1
+    grid.setColumnOrder( new int[]{
+      0, 1, 2
+    } );
+    GridColumnLCA.moveColumn( columns[ 2 ], 13 );
+    int[] columnOrder = grid.getColumnOrder();
+    assertEquals( 0, columnOrder[ 0 ] );
+    assertEquals( 2, columnOrder[ 1 ] );
+    assertEquals( 1, columnOrder[ 2 ] );
+  }
+
+  public void testMoveColumn_4() {
+    column.dispose();
+    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
+    columns[ 0 ].setWidth( 10 );
+    columns[ 1 ].setWidth( 20 );
+    columns[ 2 ].setWidth( 30 );
+    // Current order: Col 0: 0..10, Col 1: 11..30, Col 2: 31..60
+    // Move Col 2 over Col 1 (right half), thereafter order should be:
+    // Col 2, Col 0, Col 1
+    grid.setColumnOrder( new int[]{
+      0, 1, 2
+    } );
+    GridColumnLCA.moveColumn( columns[ 2 ], 3 );
+    int[] columnOrder = grid.getColumnOrder();
+    assertEquals( 2, columnOrder[ 0 ] );
+    assertEquals( 0, columnOrder[ 1 ] );
+    assertEquals( 1, columnOrder[ 2 ] );
+  }
+
+  public void testMoveColumn_5() {
+    column.dispose();
+    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
+    columns[ 0 ].setWidth( 10 );
+    columns[ 1 ].setWidth( 20 );
+    columns[ 2 ].setWidth( 30 );
+    // Current order: Col 0: 0..10, Col 1: 11..30, Col 2: 31..60
+    // Move Col 2 way left of Col 0, thereafter order should be:
+    // Col 2, Col 0, Col 1
+    grid.setColumnOrder( new int[]{
+      0, 1, 2
+    } );
+    GridColumnLCA.moveColumn( columns[ 2 ], -30 );
+    int[] columnOrder = grid.getColumnOrder();
+    assertEquals( 2, columnOrder[ 0 ] );
+    assertEquals( 0, columnOrder[ 1 ] );
+    assertEquals( 1, columnOrder[ 2 ] );
+  }
+
+  public void testMoveColumn_6() {
+    column.dispose();
+    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
+    columns[ 0 ].setWidth( 10 );
+    columns[ 1 ].setWidth( 20 );
+    columns[ 2 ].setWidth( 30 );
+    // Current order: Col 0: 0..10, Col 1: 11..30, Col 2: 31..60
+    // Move Col 0 way right of Col 2, thereafter order should be:
+    // Col 1, Col 2, Col 0
+    grid.setColumnOrder( new int[]{
+      0, 1, 2
+    } );
+    GridColumnLCA.moveColumn( columns[ 0 ], 100 );
+    int[] columnOrder = grid.getColumnOrder();
+    assertEquals( 1, columnOrder[ 0 ] );
+    assertEquals( 2, columnOrder[ 1 ] );
+    assertEquals( 0, columnOrder[ 2 ] );
+  }
+
+  public void testMoveColumn_7() {
+    column.dispose();
+    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
+    columns[ 0 ].setWidth( 10 );
+    columns[ 1 ].setWidth( 20 );
+    columns[ 2 ].setWidth( 30 );
+    // Current order: Col 0: 0..10, Col 1: 11..30, Col 2: 31..60
+    // Move Col 1 onto itself (left half), order should stay unchanged:
+    // Col 1, Col 2, Col 0
+    grid.setColumnOrder( new int[]{
+      0, 1, 2
+    } );
+    GridColumnLCA.moveColumn( columns[ 1 ], 13 );
+    int[] columnOrder = grid.getColumnOrder();
+    assertEquals( 0, columnOrder[ 0 ] );
+    assertEquals( 1, columnOrder[ 1 ] );
+    assertEquals( 2, columnOrder[ 2 ] );
+  }
+
+  public void testMoveColumn_8() {
+    column.dispose();
+    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
+    columns[ 0 ].setWidth( 10 );
+    columns[ 1 ].setWidth( 20 );
+    columns[ 2 ].setWidth( 30 );
+    // Current order: Col 0: 0..10, Col 1: 11..30, Col 2: 31..60
+    // Move Col 0 over Col 2 (left half), order should be:
+    // Col 1, Col 0, Col 2
+    grid.setColumnOrder( new int[]{
+      0, 1, 2
+    } );
+    GridColumnLCA.moveColumn( columns[ 0 ], 33 );
+    int[] columnOrder = grid.getColumnOrder();
+    assertEquals( 1, columnOrder[ 0 ] );
+    assertEquals( 0, columnOrder[ 1 ] );
+    assertEquals( 2, columnOrder[ 2 ] );
+  }
+
+  public void testReadSelectionEvent() {
+    final List<SelectionEvent> events = new LinkedList<SelectionEvent>();
+    String columnId = WidgetUtil.getId( column );
+    column.addSelectionListener( new SelectionAdapter() {
+      @Override
+      public void widgetSelected( SelectionEvent event ) {
+        events.add( event );
+      }
+    } );
+
+    Fixture.fakeNewRequest( display );
+    Fixture.fakeRequestParam( JSConst.EVENT_WIDGET_SELECTED, columnId );
+    Fixture.readDataAndProcessAction( column );
+
+    assertEquals( 1, events.size() );
+    SelectionEvent event = events.get( 0 );
+    assertSame( column, event.widget );
+  }
+
+  //////////////////
+  // Helping classes
+
+  private static class LoggingControlListener implements ControlListener {
+    private final List<ControlEvent> events;
+    private LoggingControlListener( List<ControlEvent> events ) {
+      this.events = events;
+    }
+    public void controlMoved( ControlEvent event ) {
+      events.add( event );
+    }
+    public void controlResized( ControlEvent event ) {
+      events.add( event );
+    }
   }
 }
