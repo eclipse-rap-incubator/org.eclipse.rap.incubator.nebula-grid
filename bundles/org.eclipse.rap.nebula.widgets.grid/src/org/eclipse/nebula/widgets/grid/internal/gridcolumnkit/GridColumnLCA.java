@@ -12,14 +12,25 @@ package org.eclipse.nebula.widgets.grid.internal.gridcolumnkit;
 
 import java.io.IOException;
 
+import org.eclipse.nebula.widgets.grid.GridColumn;
+import org.eclipse.rwt.internal.protocol.ClientObjectFactory;
+import org.eclipse.rwt.internal.protocol.IClientObject;
 import org.eclipse.rwt.lifecycle.AbstractWidgetLCA;
+import org.eclipse.rwt.lifecycle.WidgetUtil;
 import org.eclipse.swt.widgets.Widget;
 
 
+@SuppressWarnings("restriction")
 public class GridColumnLCA extends AbstractWidgetLCA {
+
+  private static final String TYPE = "rwt.widgets.TableColumn";
 
   @Override
   public void renderInitialization( Widget widget ) throws IOException {
+    GridColumn column = ( GridColumn )widget;
+    IClientObject clientObject = ClientObjectFactory.getClientObject( column );
+    clientObject.create( TYPE );
+    clientObject.set( "parent", WidgetUtil.getId( column.getParent() ) );
   }
 
   public void readData( Widget widget ) {
@@ -35,5 +46,6 @@ public class GridColumnLCA extends AbstractWidgetLCA {
 
   @Override
   public void renderDispose( Widget widget ) throws IOException {
+    ClientObjectFactory.getClientObject( widget ).destroy();
   }
 }
