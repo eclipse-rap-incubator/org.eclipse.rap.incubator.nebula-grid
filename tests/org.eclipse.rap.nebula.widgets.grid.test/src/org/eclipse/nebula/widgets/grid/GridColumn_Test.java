@@ -11,6 +11,7 @@
 package org.eclipse.nebula.widgets.grid;
 
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridColumns;
+import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridItems;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
 
 import java.util.ArrayList;
@@ -119,28 +120,16 @@ public class GridColumn_Test extends TestCase {
     assertSame( column, log.get( 0 ).widget );
   }
 
-  public void testIsCheck() {
-    GridColumn column1 = new GridColumn( grid, SWT.NONE );
-    GridColumn column2 = new GridColumn( grid, SWT.CHECK );
-    GridColumn column3 = new GridColumn( grid, SWT.NONE );
-
-    assertFalse( column1.isCheck() );
-    assertTrue( column2.isCheck() );
-    assertFalse( column3.isCheck() );
-  }
-
   public void testIsCheck_TableCheck() {
     grid = new Grid( shell, SWT.CHECK );
-    GridColumn column1 = new GridColumn( grid, SWT.NONE );
-    GridColumn column2 = new GridColumn( grid, SWT.CHECK );
-    GridColumn column3 = new GridColumn( grid, SWT.NONE );
+    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
 
-    assertTrue( column1.isTableCheck() );
-    assertTrue( column1.isCheck() );
-    assertFalse( column2.isTableCheck() );
-    assertTrue( column2.isCheck() );
-    assertFalse( column3.isTableCheck() );
-    assertFalse( column3.isCheck() );
+    assertTrue( columns[ 0 ].isTableCheck() );
+    assertTrue( columns[ 0 ].isCheck() );
+    assertFalse( columns[ 1 ].isTableCheck() );
+    assertFalse( columns[ 1 ].isCheck() );
+    assertFalse( columns[ 2 ].isTableCheck() );
+    assertFalse( columns[ 2 ].isCheck() );
   }
 
   public void testIsCheck_OnColumnAddRemove() {
@@ -153,20 +142,6 @@ public class GridColumn_Test extends TestCase {
 
     column.dispose();
     assertTrue( columns[ 0 ].isCheck() );
-  }
-
-  public void testGetCheckable_Initial() {
-    GridColumn column = new GridColumn( grid, SWT.NONE );
-
-    assertTrue( column.getCheckable() );
-  }
-
-  public void testGetCheckable() {
-    GridColumn column = new GridColumn( grid, SWT.NONE );
-
-    column.setCheckable( false );
-
-    assertFalse( column.getCheckable() );
   }
 
   public void testGetWidth_Initial() {
@@ -301,18 +276,44 @@ public class GridColumn_Test extends TestCase {
     assertEquals( 1, eventLog.size() );
   }
 
-  public void testIsTree_Initial() {
-    GridColumn column = new GridColumn( grid, SWT.NONE );
+  public void testIsTree_WithoutSubItems() {
+    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
+    createGridItems( grid, 3, 0 );
 
-    assertFalse( column.isTree() );
+    assertFalse( columns[ 0 ].isTree() );
+    assertFalse( columns[ 1 ].isTree() );
+    assertFalse( columns[ 2 ].isTree() );
   }
 
-  public void testIsTree() {
-    GridColumn column = new GridColumn( grid, SWT.NONE );
+  public void testIsTree_WithSubItems() {
+    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
+    createGridItems( grid, 3, 1 );
 
-    column.setTree( true );
+    assertTrue( columns[ 0 ].isTree() );
+    assertFalse( columns[ 1 ].isTree() );
+    assertFalse( columns[ 2 ].isTree() );
+  }
+
+  public void testIsTree_AddColumn() {
+    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
+    createGridItems( grid, 3, 1 );
+
+    GridColumn column = new GridColumn( grid, SWT.NONE, 0 );
 
     assertTrue( column.isTree() );
+    assertFalse( columns[ 0 ].isTree() );
+    assertFalse( columns[ 1 ].isTree() );
+    assertFalse( columns[ 2 ].isTree() );
+  }
+
+  public void testIsTree_RemoveColumn() {
+    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
+    createGridItems( grid, 3, 1 );
+
+    columns[ 0 ].dispose();
+
+    assertTrue( columns[ 1 ].isTree() );
+    assertFalse( columns[ 2 ].isTree() );
   }
 
   public void testGetAlignment_Initial() {
@@ -536,7 +537,8 @@ public class GridColumn_Test extends TestCase {
   }
 
   public void testPack_TreeColumn() {
-    GridColumn[] columns = createGridColumns( grid, 2, SWT.CHECK );
+    grid = new Grid( shell, SWT.CHECK );
+    GridColumn[] columns = createGridColumns( grid, 2, SWT.NONE );
     Image image = loadImage( display, Fixture.IMAGE1 );
     GridItem item = new GridItem( grid, SWT.NONE );
     item.setExpanded( true );
@@ -552,7 +554,8 @@ public class GridColumn_Test extends TestCase {
   }
 
   public void testPack_NonTreeColumn() {
-    GridColumn[] columns = createGridColumns( grid, 2, SWT.CHECK );
+    grid = new Grid( shell, SWT.CHECK );
+    GridColumn[] columns = createGridColumns( grid, 2, SWT.NONE );
     Image image = loadImage( display, Fixture.IMAGE1 );
     GridItem item = new GridItem( grid, SWT.NONE );
     item.setExpanded( true );
@@ -564,7 +567,7 @@ public class GridColumn_Test extends TestCase {
 
     columns[ 1 ].pack();
 
-    assertEquals( 113, columns[ 1 ].getWidth() );
+    assertEquals( 90, columns[ 1 ].getWidth() );
   }
 
   public void testPack_WithHeaderVisible() {

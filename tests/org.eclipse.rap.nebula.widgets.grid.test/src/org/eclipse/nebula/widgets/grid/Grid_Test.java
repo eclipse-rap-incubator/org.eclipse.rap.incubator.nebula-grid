@@ -1601,31 +1601,6 @@ public class Grid_Test extends TestCase {
     assertEquals( 24, grid.getItemHeight() );
   }
 
-  public void testGetItemHeight_WithColumnCheck() {
-    new GridColumn( grid, SWT.CHECK );
-
-    assertEquals( 24, grid.getItemHeight() );
-  }
-
-  public void testGetItemHeight_AddCheckColumn() {
-    // fill the cache
-    grid.getItemHeight();
-
-    new GridColumn( grid, SWT.CHECK );
-
-    assertEquals( 24, grid.getItemHeight() );
-  }
-
-  public void testGetItemHeight_RemoveCheckColumn() {
-    GridColumn column = new GridColumn( grid, SWT.CHECK );
-    // fill the cache
-    grid.getItemHeight();
-
-    column.dispose();
-
-    assertEquals( 21, grid.getItemHeight() );
-  }
-
   public void testGetItemHeight_WithItemImage() {
     createGridColumns( grid, 3, SWT.NONE );
     GridItem item = new GridItem( grid, SWT.NONE );

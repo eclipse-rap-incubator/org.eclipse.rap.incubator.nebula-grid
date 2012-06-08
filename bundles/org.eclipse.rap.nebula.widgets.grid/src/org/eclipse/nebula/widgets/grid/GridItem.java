@@ -1041,55 +1041,6 @@ public class GridItem extends Item {
   }
 
   /**
-   * Sets the checkable state at the given column index in the receiver. A
-   * checkbox which is uncheckable will not be modifiable by the user but
-   * still make be modified programmatically. If the column at the given index
-   * is not checkable then individual cell will not be checkable regardless.
-   *
-   * @param index
-   *            the column index
-   * @param checkable
-   *            the new checkable state
-   * @throws org.eclipse.swt.SWTException
-   *             <ul>
-   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
-   *             </li>
-   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
-   *             thread that created the receiver</li>
-   *             </ul>
-   */
-  public void setCheckable( int index, boolean checkable ) {
-    checkWidget();
-    // [if] TODO: probably need a check for parent.getColumn( index ).isCheck() ?
-    getItemData( index ).checkable = checkable;
-  }
-
-  /**
-   * Returns the checkable state at the given column index in the receiver. If
-   * the column at the given index is not checkable then this will return
-   * false regardless of the individual cell's checkable state.
-   *
-   * @param index
-   *            the column index
-   * @return the checkable state
-   * @throws org.eclipse.swt.SWTException
-   *             <ul>
-   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
-   *             </li>
-   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
-   *             thread that created the receiver</li>
-   *             </ul>
-   */
-  public boolean getCheckable( int index ) {
-    checkWidget();
-    boolean result = false;
-    if( parent.getColumn( index ).getCheckable() ) {
-      result = getItemData( index ).checkable;
-    }
-    return result;
-  }
-
-  /**
    * Sets the grayed state of the checkbox for the first column. This state
    * change only applies if the GridColumn was created with the SWT.CHECK
    * style.
@@ -1672,7 +1623,6 @@ public class GridItem extends Item {
     public String tooltip;
     public Image image;
     public boolean checked;
-    public boolean checkable = true;
     public boolean grayed;
   }
 

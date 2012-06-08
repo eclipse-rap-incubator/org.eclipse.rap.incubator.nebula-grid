@@ -60,12 +60,23 @@ public class GridColumnLCA_Test extends TestCase {
     Fixture.tearDown();
   }
 
-  public void testRenderInitialIndex() throws IOException {
+  public void testRenderCreate() throws IOException {
+    lca.renderInitialization( column );
+
+    Message message = Fixture.getProtocolMessage();
+    CreateOperation operation = message.findCreateOperation( column );
+    assertEquals( "rwt.widgets.TableColumn", operation.getType() );
+  }
+
+  public void testRenderCreateWithAligment() throws IOException {
+    column = new GridColumn( grid, SWT.RIGHT );
+
     lca.render( column );
 
     Message message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( column );
-    assertTrue( operation.getPropertyNames().indexOf( "index" ) == -1 );
+    assertTrue( operation.getPropertyNames().indexOf( "style" ) == -1 );
+    assertEquals( "right", message.findCreateProperty( column, "alignment" ) );
   }
 
   public void testRenderParent() throws IOException {
@@ -214,5 +225,118 @@ public class GridColumnLCA_Test extends TestCase {
 
     Message message = Fixture.getProtocolMessage();
     assertEquals( JSONObject.NULL, message.findSetProperty( column, "image" ) );
+  }
+
+  public void testRenderInitialIndex() throws IOException {
+    lca.render( column );
+
+    Message message = Fixture.getProtocolMessage();
+    CreateOperation operation = message.findCreateOperation( column );
+    assertTrue( operation.getPropertyNames().indexOf( "index" ) == -1 );
+  }
+
+  public void testRenderIndex() throws IOException {
+    new GridColumn( grid, SWT.NONE, 0 );
+    lca.renderChanges( column );
+
+    Message message = Fixture.getProtocolMessage();
+    assertEquals( Integer.valueOf( 1 ), message.findSetProperty( column, "index" ) );
+  }
+
+  public void testRenderIndexUnchanged() throws IOException {
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( column );
+
+    new GridColumn( grid, SWT.NONE, 0 );
+    Fixture.preserveWidgets();
+    lca.renderChanges( column );
+
+    Message message = Fixture.getProtocolMessage();
+    assertNull( message.findSetOperation( column, "index" ) );
+  }
+
+  public void testRenderInitialLeft() throws IOException {
+    lca.render( column );
+
+    Message message = Fixture.getProtocolMessage();
+    CreateOperation operation = message.findCreateOperation( column );
+    assertTrue( operation.getPropertyNames().indexOf( "left" ) == -1 );
+  }
+
+  public void testRenderLeft() throws IOException {
+    GridColumn column2 = new GridColumn( grid, SWT.NONE, 0 );
+    column2.setWidth( 50 );
+    lca.renderChanges( column );
+
+    Message message = Fixture.getProtocolMessage();
+    assertEquals( Integer.valueOf( 50 ), message.findSetProperty( column, "left" ) );
+  }
+
+  public void testRenderLeftUnchanged() throws IOException {
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( column );
+
+    GridColumn column2 = new GridColumn( grid, SWT.NONE, 0 );
+    column2.setWidth( 50 );
+    Fixture.preserveWidgets();
+    lca.renderChanges( column );
+
+    Message message = Fixture.getProtocolMessage();
+    assertNull( message.findSetOperation( column, "left" ) );
+  }
+
+  public void testRenderInitialWidth() throws IOException {
+    lca.render( column );
+
+    Message message = Fixture.getProtocolMessage();
+    assertEquals( Integer.valueOf( 10 ), message.findCreateProperty( column, "width" ) );
+  }
+
+  public void testRenderWidth() throws IOException {
+    column.setWidth( 50 );
+    lca.renderChanges( column );
+
+    Message message = Fixture.getProtocolMessage();
+    assertEquals( Integer.valueOf( 50 ), message.findSetProperty( column, "width" ) );
+  }
+
+  public void testRenderWidthUnchanged() throws IOException {
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( column );
+
+    column.setWidth( 50 );
+    Fixture.preserveWidgets();
+    lca.renderChanges( column );
+
+    Message message = Fixture.getProtocolMessage();
+    assertNull( message.findSetOperation( column, "width" ) );
+  }
+
+  public void testRenderInitialAlignment() throws IOException {
+    lca.render( column );
+
+    Message message = Fixture.getProtocolMessage();
+    CreateOperation operation = message.findCreateOperation( column );
+    assertTrue( operation.getPropertyNames().indexOf( "alignment" ) == -1 );
+  }
+
+  public void testRenderAlignment() throws IOException {
+    column.setAlignment( SWT.RIGHT );
+    lca.renderChanges( column );
+
+    Message message = Fixture.getProtocolMessage();
+    assertEquals( "right", message.findSetProperty( column, "alignment" ) );
+  }
+
+  public void testRenderAlignmentUnchanged() throws IOException {
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( column );
+
+    column.setAlignment( SWT.RIGHT );
+    Fixture.preserveWidgets();
+    lca.renderChanges( column );
+
+    Message message = Fixture.getProtocolMessage();
+    assertNull( message.findSetOperation( column, "alignment" ) );
   }
 }

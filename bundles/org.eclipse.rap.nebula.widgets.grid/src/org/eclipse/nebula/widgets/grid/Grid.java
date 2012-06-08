@@ -2428,7 +2428,7 @@ public class Grid extends Canvas {
   private void updatePrimaryCheckColumn() {
     if( ( getStyle() & SWT.CHECK ) == SWT.CHECK ) {
       boolean firstCol = true;
-      for( Iterator iter = columns.iterator(); iter.hasNext(); ) {
+      for( Iterator iter = displayOrderedColumns.iterator(); iter.hasNext(); ) {
         GridColumn col = ( GridColumn )iter.next();
         col.setTableCheck( firstCol );
         firstCol = false;

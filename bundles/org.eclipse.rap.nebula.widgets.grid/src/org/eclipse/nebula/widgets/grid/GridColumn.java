@@ -32,7 +32,7 @@ import org.eclipse.swt.widgets.Item;
  * <p>
  * <dl>
  * <dt><b>Styles:</b></dt>
- * <dd>SWT.LEFT, SWT.RIGHT, SWT.CENTER, SWT.CHECK</dd>
+ * <dd>SWT.LEFT, SWT.RIGHT, SWT.CENTER<!--, SWT.CHECK--></dd>
  * <dt><b>Events:</b></dt>
  * <dd>Move, Resize, Selection, Show, Hide</dd>
  * </dl>
@@ -47,12 +47,9 @@ public class GridColumn extends Item {
   private int minimumWidth;
   private Grid parent;
   private int sortStyle = SWT.NONE;
-  private boolean check;
   private boolean tableCheck;
-  private boolean tree;
   private boolean moveable;
   private boolean resizeable = true;
-  private boolean checkable = true;
   private boolean visible = true;
   private int alignment = SWT.LEFT;
   private Font headerFont;
@@ -519,64 +516,7 @@ public class GridColumn extends Item {
    */
   public boolean isCheck() {
     checkWidget();
-    return check || tableCheck;
-  }
-
-  /**
-   * Sets the checkable state. If false the checkboxes in the column cannot be
-   * checked.
-   *
-   * @param checkable
-   *            the new checkable state.
-   * @throws org.eclipse.swt.SWTException
-   *             <ul>
-   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
-   *             </li>
-   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
-   *             thread that created the receiver</li>
-   *             </ul>
-   */
-  public void setCheckable( boolean checkable ) {
-    checkWidget();
-    this.checkable = checkable;
-  }
-
-  /**
-   * Returns the checkable state. If false the checkboxes in the column cannot
-   * be checked.
-   *
-   * @return true if the column is checkable (only applicable when style is
-   *         SWT.CHECK).
-   * @throws org.eclipse.swt.SWTException
-   *             <ul>
-   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
-   *             </li>
-   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
-   *             thread that created the receiver</li>
-   *             </ul>
-   */
-  public boolean getCheckable() {
-    checkWidget();
-    return checkable;
-  }
-
-  /**
-   * Adds or removes the columns tree toggle.
-   *
-   * @param tree
-   *            true to add toggle.
-   * @throws org.eclipse.swt.SWTException
-   *             <ul>
-   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
-   *             </li>
-   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
-   *             thread that created the receiver</li>
-   *             </ul>
-   */
-  public void setTree( boolean tree ) {
-    checkWidget();
-    this.tree = tree;
-    parent.redraw();
+    return tableCheck;
   }
 
   /**
@@ -593,7 +533,7 @@ public class GridColumn extends Item {
    */
   public boolean isTree() {
     checkWidget();
-    return tree;
+    return parent.isTreeColumn( parent.indexOf( this ) );
   }
 
   /**
@@ -803,9 +743,6 @@ public class GridColumn extends Item {
 
   private void init( Grid parent, int style, int index ) {
     this.parent = parent;
-    if( ( style & SWT.CHECK ) == SWT.CHECK ) {
-      check = true;
-    }
     if( ( style & SWT.RIGHT ) == SWT.RIGHT ) {
       alignment = SWT.RIGHT;
     }

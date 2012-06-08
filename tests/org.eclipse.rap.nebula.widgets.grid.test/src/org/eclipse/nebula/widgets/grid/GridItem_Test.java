@@ -762,41 +762,6 @@ public class GridItem_Test extends TestCase {
     }
   }
 
-  public void testGetCheckable_Inital() {
-    createGridColumns( grid, 3, SWT.NONE );
-    GridItem item = new GridItem( grid, SWT.NONE );
-
-    assertTrue( item.getCheckable( 0 ) );
-  }
-
-  public void testGetCheckable() {
-    createGridColumns( grid, 3, SWT.NONE );
-    GridItem item = new GridItem( grid, SWT.NONE );
-
-    item.setCheckable( 0, false );
-
-    assertFalse( item.getCheckable( 0 ) );
-  }
-
-  public void testGetCheckable_InitalNotCheckableColumn() {
-    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
-    GridItem item = new GridItem( grid, SWT.NONE );
-
-    columns[ 0 ].setCheckable( false );
-
-    assertFalse( item.getCheckable( 0 ) );
-  }
-
-  public void testGetCheckable_NotCheckableColumn() {
-    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
-    columns[ 1 ].setCheckable( false );
-    GridItem item = new GridItem( grid, SWT.NONE );
-
-    item.setCheckable( 1, true );
-
-    assertFalse( item.getCheckable( 1 ) );
-  }
-
   public void testGetGrayed_Inital() {
     GridItem item = new GridItem( grid, SWT.NONE );
 
@@ -973,14 +938,15 @@ public class GridItem_Test extends TestCase {
   }
 
   public void testGetPreferredWidth_WithCheck() {
-    createGridColumns( grid, 2, SWT.CHECK );
+    grid = new Grid( shell, SWT.CHECK );
+    createGridColumns( grid, 2, SWT.NONE );
     GridItem item = new GridItem( grid, SWT.NONE );
     GridItem subitem = new GridItem( item, SWT.NONE );
 
     // indentation (16) + check width (23) + padding right (6) = 45
     assertEquals( 45, item.getPreferredWidth( 0 ) );
-    // padding left (6) + check width (23) + padding right (6) = 35
-    assertEquals( 35, item.getPreferredWidth( 1 ) );
+    // padding left (6) + padding right (6) = 12
+    assertEquals( 12, item.getPreferredWidth( 1 ) );
     // 2 * indentation (16) + check width (23) + padding right (6) = 61
     assertEquals( 61, subitem.getPreferredWidth( 0 ) );
   }
