@@ -48,7 +48,6 @@ isVisible()                                 - activate commented code after Grid
 set/getCellSelectionEnabled()
 set/getWordWrap()
 set/getHeaderWordWrap()
-set/getHeaderTooltip()
 set/getHeaderControl(Control)
 
 GridColumnGroup

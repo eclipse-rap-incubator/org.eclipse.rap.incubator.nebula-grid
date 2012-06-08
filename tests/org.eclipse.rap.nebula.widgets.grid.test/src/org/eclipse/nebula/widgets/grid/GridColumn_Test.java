@@ -605,6 +605,20 @@ public class GridColumn_Test extends TestCase {
     assertTrue( repackedWidth > packedWidth );
   }
 
+  public void testGetHeaderTooltip_Initial() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    assertNull( column.getHeaderTooltip() );
+  }
+
+  public void testGetHeaderTooltip() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    column.setHeaderTooltip( "foo" );
+
+    assertEquals( "foo", column.getHeaderTooltip() );
+  }
+
   //////////////////
   // Helping methods
 

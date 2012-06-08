@@ -56,6 +56,7 @@ public class GridColumn extends Item {
   private boolean visible = true;
   private int alignment = SWT.LEFT;
   private Font headerFont;
+  private String headerTooltip;
   private boolean packed;
   int imageCount;
 
@@ -675,6 +676,40 @@ public class GridColumn extends Item {
   public Font getHeaderFont() {
     checkWidget();
     return headerFont == null ? parent.getFont() : headerFont;
+  }
+
+  /**
+   * Sets the tooltip text of the column header.
+   *
+   * @param tooltip the tooltip text
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public void setHeaderTooltip(String tooltip) {
+    checkWidget();
+    headerTooltip = tooltip;
+  }
+
+  /**
+   * Returns the tooltip of the column header.
+   *
+   * @return the tooltip text (or null)
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public String getHeaderTooltip() {
+    checkWidget();
+    return headerTooltip;
   }
 
   /**

@@ -16,7 +16,9 @@ import org.eclipse.nebula.widgets.grid.GridColumn;
 import org.eclipse.rwt.internal.protocol.ClientObjectFactory;
 import org.eclipse.rwt.internal.protocol.IClientObject;
 import org.eclipse.rwt.lifecycle.AbstractWidgetLCA;
+import org.eclipse.rwt.lifecycle.WidgetLCAUtil;
 import org.eclipse.rwt.lifecycle.WidgetUtil;
+import org.eclipse.swt.internal.widgets.ItemLCAUtil;
 import org.eclipse.swt.widgets.Widget;
 
 
@@ -38,10 +40,18 @@ public class GridColumnLCA extends AbstractWidgetLCA {
 
   @Override
   public void preserveValues( Widget widget ) {
+    GridColumn column = ( GridColumn )widget;
+    WidgetLCAUtil.preserveToolTipText( column, column.getHeaderTooltip() );
+    WidgetLCAUtil.preserveCustomVariant( column );
+    ItemLCAUtil.preserve( column );
   }
 
   @Override
   public void renderChanges( Widget widget ) throws IOException {
+    GridColumn column = ( GridColumn )widget;
+    WidgetLCAUtil.renderToolTip( column, column.getHeaderTooltip() );
+    WidgetLCAUtil.renderCustomVariant( column );
+    ItemLCAUtil.renderChanges( column );
   }
 
   @Override
