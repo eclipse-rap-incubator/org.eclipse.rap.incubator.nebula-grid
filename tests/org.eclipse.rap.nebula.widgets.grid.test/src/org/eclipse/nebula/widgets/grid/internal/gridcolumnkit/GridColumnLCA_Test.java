@@ -24,6 +24,8 @@ import org.eclipse.rap.rwt.testfixture.Message.DestroyOperation;
 import org.eclipse.rap.rwt.testfixture.Message.Operation;
 import org.eclipse.rwt.lifecycle.WidgetUtil;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.internal.graphics.ImageFactory;
 import org.eclipse.swt.widgets.Display;
@@ -338,5 +340,100 @@ public class GridColumnLCA_Test extends TestCase {
 
     Message message = Fixture.getProtocolMessage();
     assertNull( message.findSetOperation( column, "alignment" ) );
+  }
+
+  public void testRenderInitialResizable() throws IOException {
+    lca.render( column );
+
+    Message message = Fixture.getProtocolMessage();
+    CreateOperation operation = message.findCreateOperation( column );
+    assertTrue( operation.getPropertyNames().indexOf( "resizable" ) == -1 );
+  }
+
+  public void testRenderResizable() throws IOException {
+    column.setResizeable( false );
+    lca.renderChanges( column );
+
+    Message message = Fixture.getProtocolMessage();
+    assertEquals( Boolean.FALSE, message.findSetProperty( column, "resizable" ) );
+  }
+
+  public void testRenderResizableUnchanged() throws IOException {
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( column );
+
+    column.setResizeable( false );
+    Fixture.preserveWidgets();
+    lca.renderChanges( column );
+
+    Message message = Fixture.getProtocolMessage();
+    assertNull( message.findSetOperation( column, "resizable" ) );
+  }
+
+  public void testRenderInitialMoveable() throws IOException {
+    lca.render( column );
+
+    Message message = Fixture.getProtocolMessage();
+    CreateOperation operation = message.findCreateOperation( column );
+    assertTrue( operation.getPropertyNames().indexOf( "moveable" ) == -1 );
+  }
+
+  public void testRenderMoveable() throws IOException {
+    column.setMoveable( true );
+    lca.renderChanges( column );
+
+    Message message = Fixture.getProtocolMessage();
+    assertEquals( Boolean.TRUE, message.findSetProperty( column, "moveable" ) );
+  }
+
+  public void testRenderMoveableUnchanged() throws IOException {
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( column );
+
+    column.setMoveable( true );
+    Fixture.preserveWidgets();
+    lca.renderChanges( column );
+
+    Message message = Fixture.getProtocolMessage();
+    assertNull( message.findSetOperation( column, "moveable" ) );
+  }
+
+  public void testRenderAddSelectionListener() throws Exception {
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( column );
+    Fixture.preserveWidgets();
+
+    column.addSelectionListener( new SelectionAdapter() { } );
+    lca.renderChanges( column );
+
+    Message message = Fixture.getProtocolMessage();
+    assertEquals( Boolean.TRUE, message.findListenProperty( column, "selection" ) );
+  }
+
+  public void testRenderRemoveSelectionListener() throws Exception {
+    SelectionListener listener = new SelectionAdapter() { };
+    column.addSelectionListener( listener );
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( column );
+    Fixture.preserveWidgets();
+
+    column.removeSelectionListener( listener );
+    lca.renderChanges( column );
+
+    Message message = Fixture.getProtocolMessage();
+    assertEquals( Boolean.FALSE, message.findListenProperty( column, "selection" ) );
+  }
+
+  public void testRenderSelectionListenerUnchanged() throws Exception {
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( column );
+    Fixture.preserveWidgets();
+
+    column.addSelectionListener( new SelectionAdapter() { } );
+    Fixture.preserveWidgets();
+    lca.renderChanges( column );
+
+    Message message = Fixture.getProtocolMessage();
+    assertNull( message.findListenOperation( column, "selection" ) );
   }
 }

@@ -10,7 +10,9 @@
  ******************************************************************************/
 package org.eclipse.nebula.widgets.grid.internal.gridcolumnkit;
 
+import static org.eclipse.rwt.lifecycle.WidgetLCAUtil.preserveListener;
 import static org.eclipse.rwt.lifecycle.WidgetLCAUtil.preserveProperty;
+import static org.eclipse.rwt.lifecycle.WidgetLCAUtil.renderListener;
 import static org.eclipse.rwt.lifecycle.WidgetLCAUtil.renderProperty;
 
 import java.io.IOException;
@@ -24,6 +26,7 @@ import org.eclipse.rwt.lifecycle.AbstractWidgetLCA;
 import org.eclipse.rwt.lifecycle.WidgetLCAUtil;
 import org.eclipse.rwt.lifecycle.WidgetUtil;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.internal.widgets.ItemLCAUtil;
 import org.eclipse.swt.widgets.Widget;
 
@@ -37,6 +40,9 @@ public class GridColumnLCA extends AbstractWidgetLCA {
   private static final String PROP_LEFT = "left";
   private static final String PROP_WIDTH = "width";
   private static final String PROP_ALIGNMENT = "alignment";
+  private static final String PROP_RESIZABLE = "resizable";
+  private static final String PROP_MOVEABLE = "moveable";
+  private static final String PROP_SELECTION_LISTENER = "selection";
 
   private static final int ZERO = 0;
   private static final String DEFAULT_ALIGNMENT = "left";
@@ -62,6 +68,9 @@ public class GridColumnLCA extends AbstractWidgetLCA {
     preserveProperty( column, PROP_LEFT, getLeft( column ) );
     preserveProperty( column, PROP_WIDTH, column.getWidth() );
     preserveProperty( column, PROP_ALIGNMENT, getAlignment( column ) );
+    preserveProperty( column, PROP_RESIZABLE, column.getResizeable() );
+    preserveProperty( column, PROP_MOVEABLE, column.getMoveable() );
+    preserveListener( column, PROP_SELECTION_LISTENER, SelectionEvent.hasListener( column ) );
   }
 
   @Override
@@ -74,6 +83,9 @@ public class GridColumnLCA extends AbstractWidgetLCA {
     renderProperty( column, PROP_LEFT, getLeft( column ), ZERO );
     renderProperty( column, PROP_WIDTH, column.getWidth(), ZERO );
     renderProperty( column, PROP_ALIGNMENT, getAlignment( column ), DEFAULT_ALIGNMENT );
+    renderProperty( column, PROP_RESIZABLE, column.getResizeable(), true );
+    renderProperty( column, PROP_MOVEABLE, column.getMoveable(), false );
+    renderListener( column, PROP_SELECTION_LISTENER, SelectionEvent.hasListener( column ), false );
   }
 
   @Override
