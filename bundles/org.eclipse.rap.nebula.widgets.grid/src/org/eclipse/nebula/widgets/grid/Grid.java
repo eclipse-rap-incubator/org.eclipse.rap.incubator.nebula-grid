@@ -2488,6 +2488,17 @@ public class Grid extends Canvas {
     }
   }
 
+  private int getItemIndex( GridItem item ) {
+    int result = -1;
+    GridItem parentItem = item.getParentItem();
+    if( parentItem == null ) {
+      result = rootItems.indexOf( item );
+    } else {
+      result = parentItem.indexOf( item );
+    }
+    return result;
+  }
+
   private int getColumnHeaderXPosition( GridColumn column ) {
     int result = -1;
     if( column.isVisible() ) {
@@ -2732,6 +2743,10 @@ public class Grid extends Canvas {
 
     public int getTextWidth( int index ) {
       return Grid.this.getTextWidth( index );
+    }
+
+    public int getItemIndex( GridItem item ) {
+      return Grid.this.getItemIndex( item );
     }
 
     public ICellToolTipProvider getCellToolTipProvider() {

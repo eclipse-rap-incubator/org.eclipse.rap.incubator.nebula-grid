@@ -13,6 +13,7 @@ package org.eclipse.nebula.widgets.grid;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.eclipse.nebula.widgets.grid.internal.IGridItemAdapter;
 import org.eclipse.rwt.graphics.Graphics;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
@@ -21,8 +22,11 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.internal.SerializableCompatibility;
+import org.eclipse.swt.internal.widgets.IWidgetColorAdapter;
+import org.eclipse.swt.internal.widgets.IWidgetFontAdapter;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Item;
+import org.eclipse.swt.widgets.Widget;
 
 
 /**
@@ -60,6 +64,7 @@ public class GridItem extends Item {
   private Image headerImage;
   private Color headerBackground;
   private Color headerForeground;
+  private transient IGridItemAdapter gridItemAdapter;
 
   /**
    * Creates a new instance of this class and places the item at the end of
@@ -1346,6 +1351,24 @@ public class GridItem extends Item {
     return result;
   }
 
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> T getAdapter( Class<T> adapter ) {
+    T result;
+    if(    adapter == IWidgetFontAdapter.class
+        || adapter == IWidgetColorAdapter.class
+        || adapter == IGridItemAdapter.class )
+    {
+      if( gridItemAdapter == null ) {
+        gridItemAdapter = new GridItemAdapter();
+      }
+      result = ( T )gridItemAdapter;
+    } else {
+      result = super.getAdapter( adapter );
+    }
+    return result;
+  }
+
   /**
    * Sets whether this item has children.
    *
@@ -1624,6 +1647,55 @@ public class GridItem extends Item {
     public Image image;
     public boolean checked;
     public boolean grayed;
+  }
+
+  private final class GridItemAdapter
+    implements IGridItemAdapter, IWidgetFontAdapter, IWidgetColorAdapter
+  {
+
+    public boolean isParentDisposed() {
+      Widget itemParent = parentItem == null ? parent : parentItem;
+      return itemParent.isDisposed();
+    }
+
+    public Color getUserBackground() {
+      return defaultBackground;
+    }
+
+    public Color getUserForeground() {
+      return defaultForeground;
+    }
+
+    public Font getUserFont() {
+      return defaultFont;
+    }
+
+    public Color[] getCellBackgrounds() {
+      int columnCount = Math.max( 1, getParent().getColumnCount() );
+      Color[] result = new Color[ columnCount ];
+      for( int i = 0; i < columnCount; i++ ) {
+        result[ i ] = getItemData( i ).background;
+      }
+      return result;
+    }
+
+    public Color[] getCellForegrounds() {
+      int columnCount = Math.max( 1, getParent().getColumnCount() );
+      Color[] result = new Color[ columnCount ];
+      for( int i = 0; i < columnCount; i++ ) {
+        result[ i ] = getItemData( i ).foreground;
+      }
+      return result;
+    }
+
+    public Font[] getCellFonts() {
+      int columnCount = Math.max( 1, getParent().getColumnCount() );
+      Font[] result = new Font[ columnCount ];
+      for( int i = 0; i < columnCount; i++ ) {
+        result[ i ] = getItemData( i ).font;
+      }
+      return result;
+    }
   }
 
 }

@@ -10,23 +10,15 @@
  ******************************************************************************/
 package org.eclipse.nebula.widgets.grid.internal;
 
-import org.eclipse.nebula.widgets.grid.GridItem;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
 
 
-public interface IGridAdapter {
+public interface IGridItemAdapter {
 
-  void invalidateTopIndex();
-  int getIndentationWidth();
-  int getCheckLeft();
-  int getCheckWidth();
-
-  int getCellLeft( int index );
-  int getCellWidth( int index );
-  int getImageOffset( int index );
-  int getImageWidth( int index );
-  int getTextOffset( int index );
-  int getTextWidth( int index );
-
-  int getItemIndex( GridItem item );
+  Color[] getCellBackgrounds();
+  Color[] getCellForegrounds();
+  Font[] getCellFonts();
+  boolean isParentDisposed();
 
 }
