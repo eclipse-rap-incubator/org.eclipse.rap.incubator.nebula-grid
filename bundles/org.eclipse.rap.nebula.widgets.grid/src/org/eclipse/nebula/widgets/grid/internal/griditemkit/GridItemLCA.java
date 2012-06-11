@@ -19,11 +19,13 @@ import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridItem;
 import org.eclipse.nebula.widgets.grid.internal.IGridAdapter;
 import org.eclipse.nebula.widgets.grid.internal.IGridItemAdapter;
+import org.eclipse.rwt.internal.lifecycle.JSConst;
 import org.eclipse.rwt.internal.protocol.ClientObjectFactory;
 import org.eclipse.rwt.internal.protocol.IClientObject;
 import org.eclipse.rwt.lifecycle.AbstractWidgetLCA;
 import org.eclipse.rwt.lifecycle.WidgetLCAUtil;
 import org.eclipse.rwt.lifecycle.WidgetUtil;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
@@ -59,6 +61,10 @@ public class GridItemLCA extends AbstractWidgetLCA {
   }
 
   public void readData( Widget widget ) {
+    GridItem item = ( GridItem )widget;
+    readChecked( item );
+    processTreeEvent( item, JSConst.EVENT_TREE_EXPANDED );
+    processTreeEvent( item, JSConst.EVENT_TREE_COLLAPSED );
   }
 
   @Override
@@ -112,6 +118,28 @@ public class GridItemLCA extends AbstractWidgetLCA {
     if( !isParentDisposed( item ) ) {
       // The tree disposes the items itself on the client (faster)
       ClientObjectFactory.getClientObject( widget ).destroy();
+    }
+  }
+
+  ////////////////////////////////////////////
+  // Helping methods to read client-side state
+
+  private static void readChecked( GridItem item ) {
+    String value = WidgetLCAUtil.readPropertyValue( item, "checked" );
+    if( value != null ) {
+      item.setChecked( Boolean.valueOf( value ).booleanValue() );
+    }
+  }
+
+  private static void processTreeEvent( GridItem item, String eventName ) {
+    if( WidgetLCAUtil.wasEventSent( item, eventName ) ) {
+      if( eventName.equals( JSConst.EVENT_TREE_EXPANDED ) ) {
+        item.setExpanded( true );
+        item.fireEvent( SWT.Expand );
+      } else {
+        item.setExpanded( false );
+        item.fireEvent( SWT.Collapse );
+      }
     }
   }
 

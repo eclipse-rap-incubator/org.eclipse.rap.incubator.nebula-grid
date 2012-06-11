@@ -16,6 +16,8 @@ import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
 import static org.eclipse.nebula.widgets.grid.internal.gridkit.GridLCATestUtil.jsonEquals;
 
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridItem;
@@ -24,8 +26,12 @@ import org.eclipse.rap.rwt.testfixture.Message;
 import org.eclipse.rap.rwt.testfixture.Message.CreateOperation;
 import org.eclipse.rap.rwt.testfixture.Message.DestroyOperation;
 import org.eclipse.rwt.graphics.Graphics;
+import org.eclipse.rwt.internal.lifecycle.JSConst;
 import org.eclipse.rwt.lifecycle.WidgetUtil;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.TreeAdapter;
+import org.eclipse.swt.events.TreeEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
@@ -37,6 +43,7 @@ import org.json.JSONObject;
 import junit.framework.TestCase;
 
 
+@SuppressWarnings("restriction")
 public class GridItemLCA_Test extends TestCase {
 
   private Display display;
@@ -558,5 +565,81 @@ public class GridItemLCA_Test extends TestCase {
 
     Message message = Fixture.getProtocolMessage();
     assertNull( message.findSetOperation( item, "grayed" ) );
+  }
+
+  public void testReadChecked_Selected() {
+    grid = new Grid( shell, SWT.CHECK );
+    item = new GridItem( grid, SWT.NONE );
+    String itemId = WidgetUtil.getId( item );
+
+    Fixture.fakeRequestParam( itemId + ".checked", "true" );
+    Fixture.readDataAndProcessAction( item );
+
+    assertTrue( item.getChecked() );
+  }
+
+  public void testReadChecked_Unselected() {
+    grid = new Grid( shell, SWT.CHECK );
+    item = new GridItem( grid, SWT.NONE );
+    item.setChecked( true );
+    String itemId = WidgetUtil.getId( item );
+
+    Fixture.fakeRequestParam( itemId + ".checked", "false" );
+    Fixture.readDataAndProcessAction( item );
+
+    assertFalse( item.getChecked() );
+  }
+
+  public void testProcessTreeEvent_Expanded() {
+    List<TreeEvent> events = new LinkedList<TreeEvent>();
+    grid.addTreeListener( new LoggingTreeListener( events ) );
+    new GridItem( item, SWT.NONE );
+    String itemId = WidgetUtil.getId( item );
+
+    Fixture.fakeRequestParam( JSConst.EVENT_TREE_EXPANDED, itemId );
+    Fixture.readDataAndProcessAction( item );
+
+    assertEquals( 1, events.size() );
+    SelectionEvent event = events.get( 0 );
+    assertEquals( SWT.Expand, event.getID() );
+    assertEquals( grid, event.getSource() );
+    assertEquals( item, event.item );
+    assertTrue( item.isExpanded() );
+  }
+
+  public void testProcessTreeEvent_Collapsed() {
+    List<TreeEvent> events = new LinkedList<TreeEvent>();
+    grid.addTreeListener( new LoggingTreeListener( events ) );
+    new GridItem( item, SWT.NONE );
+    item.setExpanded( true );
+    String itemId = WidgetUtil.getId( item );
+
+    Fixture.fakeRequestParam( JSConst.EVENT_TREE_COLLAPSED, itemId );
+    Fixture.readDataAndProcessAction( item );
+
+    assertEquals( 1, events.size() );
+    SelectionEvent event = events.get( 0 );
+    assertEquals( SWT.Collapse, event.getID() );
+    assertEquals( grid, event.getSource() );
+    assertEquals( item, event.item );
+    assertFalse( item.isExpanded() );
+  }
+
+  //////////////////
+  // Helping classes
+
+  private static class LoggingTreeListener extends TreeAdapter {
+    private final List<TreeEvent> events;
+    private LoggingTreeListener( List<TreeEvent> events ) {
+      this.events = events;
+    }
+    @Override
+    public void treeExpanded( TreeEvent event ) {
+      events.add( event );
+    }
+    @Override
+    public void treeCollapsed( TreeEvent event ) {
+      events.add( event );
+    }
   }
 }
