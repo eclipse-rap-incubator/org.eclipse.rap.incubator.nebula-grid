@@ -46,4 +46,9 @@ public final class GridThemeAdapter extends ControlThemeAdapter {
     return getCssDimension( "Tree-Indent", "width", control );
   }
 
+  @Override
+  public Font getFont( Control control ) {
+    return getCssFont( "Tree", "font", control );
+  }
+
 }
