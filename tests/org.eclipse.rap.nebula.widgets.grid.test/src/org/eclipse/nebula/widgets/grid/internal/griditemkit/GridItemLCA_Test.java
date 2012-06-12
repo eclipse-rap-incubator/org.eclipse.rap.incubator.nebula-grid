@@ -625,6 +625,21 @@ public class GridItemLCA_Test extends TestCase {
     assertFalse( item.isExpanded() );
   }
 
+  public void testRenderScrollbarsVisibleAfterExpanded() throws JSONException {
+    grid.setSize( 200, 200 );
+    createGridColumns( grid, 3, SWT.NONE );
+    GridItem[] items = createGridItems( grid, 5, 10 );
+    String itemId = WidgetUtil.getId( items[ 0 ] );
+
+    Fixture.markInitialized( grid );
+    Fixture.fakeRequestParam( JSConst.EVENT_TREE_EXPANDED, itemId );
+    Fixture.executeLifeCycleFromServerThread();
+
+    Message message = Fixture.getProtocolMessage();
+    JSONArray actual = ( JSONArray )message.findSetProperty( grid, "scrollBarsVisible" );
+    assertTrue( jsonEquals( "[ false, true ]", actual ) );
+  }
+
   //////////////////
   // Helping classes
 

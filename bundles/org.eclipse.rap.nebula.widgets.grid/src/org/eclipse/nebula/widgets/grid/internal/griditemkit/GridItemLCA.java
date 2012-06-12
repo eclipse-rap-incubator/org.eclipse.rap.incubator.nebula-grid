@@ -23,6 +23,7 @@ import org.eclipse.rwt.internal.lifecycle.JSConst;
 import org.eclipse.rwt.internal.protocol.ClientObjectFactory;
 import org.eclipse.rwt.internal.protocol.IClientObject;
 import org.eclipse.rwt.lifecycle.AbstractWidgetLCA;
+import org.eclipse.rwt.lifecycle.ProcessActionRunner;
 import org.eclipse.rwt.lifecycle.WidgetLCAUtil;
 import org.eclipse.rwt.lifecycle.WidgetUtil;
 import org.eclipse.swt.SWT;
@@ -131,13 +132,17 @@ public class GridItemLCA extends AbstractWidgetLCA {
     }
   }
 
-  private static void processTreeEvent( GridItem item, String eventName ) {
+  private static void processTreeEvent( final GridItem item, String eventName ) {
     if( WidgetLCAUtil.wasEventSent( item, eventName ) ) {
-      if( eventName.equals( JSConst.EVENT_TREE_EXPANDED ) ) {
-        item.setExpanded( true );
+      final boolean expanded = eventName.equals( JSConst.EVENT_TREE_EXPANDED );
+      ProcessActionRunner.add( new Runnable() {
+        public void run() {
+          item.setExpanded( expanded );
+        }
+      } );
+      if( expanded ) {
         item.fireEvent( SWT.Expand );
       } else {
-        item.setExpanded( false );
         item.fireEvent( SWT.Collapse );
       }
     }
