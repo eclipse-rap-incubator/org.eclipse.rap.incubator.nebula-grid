@@ -131,7 +131,7 @@ public class GridLCA_Test extends TestCase {
   }
 
   public void testRenderItemCount() throws IOException {
-    grid.setItemCount( 10 );
+    createGridItems( grid, 10, 3 );
     lca.renderChanges( grid );
 
     Message message = Fixture.getProtocolMessage();

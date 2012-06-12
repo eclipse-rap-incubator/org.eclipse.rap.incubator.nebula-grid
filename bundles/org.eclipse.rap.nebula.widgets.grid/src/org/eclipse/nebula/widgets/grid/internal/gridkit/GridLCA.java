@@ -120,7 +120,7 @@ public class GridLCA extends AbstractWidgetLCA {
     Grid grid = ( Grid )widget;
     ControlLCAUtil.preserveValues( ( Control )widget );
     WidgetLCAUtil.preserveCustomVariant( grid );
-    preserveProperty( grid, PROP_ITEM_COUNT, grid.getItemCount() );
+    preserveProperty( grid, PROP_ITEM_COUNT, grid.getRootItemCount() );
     preserveProperty( grid, PROP_ITEM_HEIGHT, grid.getItemHeight() );
     preserveProperty( grid, PROP_ITEM_METRICS, getItemMetrics( grid ) );
     preserveProperty( grid, PROP_COLUMN_COUNT, grid.getColumnCount() );
@@ -148,7 +148,7 @@ public class GridLCA extends AbstractWidgetLCA {
     Grid grid = ( Grid )widget;
     ControlLCAUtil.renderChanges( grid );
     WidgetLCAUtil.renderCustomVariant( grid );
-    renderProperty( grid, PROP_ITEM_COUNT, grid.getItemCount(), ZERO );
+    renderProperty( grid, PROP_ITEM_COUNT, grid.getRootItemCount(), ZERO );
     renderProperty( grid, PROP_ITEM_HEIGHT, grid.getItemHeight(), ZERO );
     renderItemMetrics( grid );
     renderProperty( grid, PROP_COLUMN_COUNT, grid.getColumnCount(), ZERO );
