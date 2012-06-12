@@ -2447,7 +2447,7 @@ public class Grid extends Canvas {
     if( hasCheckBoxes() ) {
       result = Math.max( getCheckBoxImageOuterSize().y, result );
     }
-    result += getCellPadding().y;
+    result += getCellPadding().height;
     result += GRID_WIDTH;
     result = Math.max( result, MIN_ITEM_HEIGHT );
     return result;

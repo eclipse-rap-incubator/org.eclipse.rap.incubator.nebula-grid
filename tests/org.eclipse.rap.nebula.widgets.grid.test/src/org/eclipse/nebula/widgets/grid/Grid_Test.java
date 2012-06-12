@@ -35,6 +35,7 @@ import org.eclipse.swt.events.TreeListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.internal.widgets.ICellToolTipAdapter;
 import org.eclipse.swt.internal.widgets.IItemHolderAdapter;
 import org.eclipse.swt.widgets.Display;
@@ -1568,7 +1569,7 @@ public class Grid_Test extends TestCase {
   }
 
   public void testGetItemHeight_Initial() {
-    assertEquals( 21, grid.getItemHeight() );
+    assertEquals( 27, grid.getItemHeight() );
   }
 
   public void testGetItemHeight() {
@@ -1584,12 +1585,12 @@ public class Grid_Test extends TestCase {
 
     grid.setFont( font );
 
-    assertEquals( 27, grid.getItemHeight() );
+    assertEquals( 33, grid.getItemHeight() );
   }
 
   public void testGetItemHeight_MinHeight() {
     Font font = new Font( display, "Arial", 8, SWT.NORMAL );
-
+    fakeCellPadding( grid, new Rectangle( 0, 0, 0, 0 ) );
     grid.setFont( font );
 
     assertEquals( 16, grid.getItemHeight() );
@@ -1598,7 +1599,7 @@ public class Grid_Test extends TestCase {
   public void testGetItemHeight_WithGridCheck() {
     grid = new Grid( shell, SWT.CHECK );
 
-    assertEquals( 24, grid.getItemHeight() );
+    assertEquals( 30, grid.getItemHeight() );
   }
 
   public void testGetItemHeight_WithItemImage() {
@@ -1610,7 +1611,7 @@ public class Grid_Test extends TestCase {
 
     item.setImage( 1, image );
 
-    assertEquals( 57, grid.getItemHeight() );
+    assertEquals( 63, grid.getItemHeight() );
   }
 
   public void testGetItemHeight_AfterClearAll() {
@@ -1621,7 +1622,7 @@ public class Grid_Test extends TestCase {
 
     grid.clearAll( true );
 
-    assertEquals( 21, grid.getItemHeight() );
+    assertEquals( 27, grid.getItemHeight() );
   }
 
   public void testGetHeaderHeight_Initial() {
@@ -1794,7 +1795,7 @@ public class Grid_Test extends TestCase {
   }
 
   public void testUpdateScrollBars_OnItemExpandChange() {
-    createGridItems( grid, 8, 3 );
+    createGridItems( grid, 3, 10 );
 
     grid.getItem( 0 ).setExpanded( true );
     assertTrue( verticalBar.getVisible() );
@@ -1805,7 +1806,7 @@ public class Grid_Test extends TestCase {
 
   public void testUpdateScrollBars_OnResize() {
     createGridColumns( grid, 5, SWT.NONE );
-    createGridItems( grid, 20, 3 );
+    createGridItems( grid, 10, 3 );
 
     grid.setSize( 500, 500 );
 
@@ -1858,7 +1859,7 @@ public class Grid_Test extends TestCase {
 
     grid.setTopIndex( 18 );
 
-    assertEquals( 11, grid.getTopIndex() );
+    assertEquals( 13, grid.getTopIndex() );
   }
 
   public void testGetTopIndex_OnItemAdd() {
@@ -1871,7 +1872,7 @@ public class Grid_Test extends TestCase {
   }
 
   public void testAdjustTopIndexOnResize() {
-    createGridItems( grid, 20, 3 );
+    createGridItems( grid, 15, 3 );
     grid.setTopIndex( 4 );
 
     grid.setSize( 500, 500 );
@@ -2065,7 +2066,7 @@ public class Grid_Test extends TestCase {
 
   public void testIsShown_PartlyVisibleItem() {
     GridItem[] items = createGridItems( grid, 20, 0 );
-    grid.setTopIndex( 5 );
+    grid.setTopIndex( 7 );
 
     assertTrue( grid.isShown( items[ 13 ] ) );
     assertFalse( grid.isShown( items[ 14 ] ) );
@@ -2106,6 +2107,13 @@ public class Grid_Test extends TestCase {
     cellToolTipAdapter.getCellToolTipProvider().getToolTipText( items[ 1 ], 1 );
 
     assertEquals( "foo", cellToolTipAdapter.getCellToolTipText() );
+  }
+
+  //////////////////
+  // Helping methods
+
+  private void fakeCellPadding( Grid grid, Rectangle padding ) {
+    grid.layoutCache.cellPadding = padding;
   }
 
   //////////////////

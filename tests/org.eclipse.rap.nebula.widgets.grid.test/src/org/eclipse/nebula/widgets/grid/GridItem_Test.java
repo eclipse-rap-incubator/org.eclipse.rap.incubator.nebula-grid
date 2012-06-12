@@ -895,7 +895,7 @@ public class GridItem_Test extends TestCase {
   public void testGetHeight_Initial() {
     GridItem item = new GridItem( grid, SWT.NONE );
 
-    assertEquals( 21, item.getHeight() );
+    assertEquals( 27, item.getHeight() );
   }
 
   public void testGetHeight() {
@@ -911,7 +911,7 @@ public class GridItem_Test extends TestCase {
     createGridItems( grid, 5, 5 );
     GridItem item = grid.getRootItem( 2 );
 
-    assertEquals( new Point( 60, 21 ), item.getCellSize( 2 ) );
+    assertEquals( new Point( 60, 27 ), item.getCellSize( 2 ) );
   }
 
   public void testGetPreferredWidth_Initial() {
@@ -1013,9 +1013,9 @@ public class GridItem_Test extends TestCase {
     createGridColumns( grid, 3, SWT.NONE );
     createGridItems( grid, 3, 3 );
 
-    assertEquals( new Rectangle( 0, 21, 20, 21 ), grid.getItem( 4 ).getBounds( 0 ) );
-    assertEquals( new Rectangle( 20, 21, 40, 21 ), grid.getItem( 4 ).getBounds( 1 ) );
-    assertEquals( new Rectangle( 60, 21, 60, 21 ), grid.getItem( 4 ).getBounds( 2 ) );
+    assertEquals( new Rectangle( 0, 27, 20, 27 ), grid.getItem( 4 ).getBounds( 0 ) );
+    assertEquals( new Rectangle( 20, 27, 40, 27 ), grid.getItem( 4 ).getBounds( 1 ) );
+    assertEquals( new Rectangle( 60, 27, 60, 27 ), grid.getItem( 4 ).getBounds( 2 ) );
   }
 
   public void testGetBounds_WithOffset() {
@@ -1024,9 +1024,9 @@ public class GridItem_Test extends TestCase {
     grid.getHorizontalBar().setSelection( 30 );
     grid.setTopIndex( 12 );
 
-    assertEquals( new Rectangle( -30, 42, 20, 21 ), grid.getItem( 20 ).getBounds( 0 ) );
-    assertEquals( new Rectangle( -10, 42, 40, 21 ), grid.getItem( 20 ).getBounds( 1 ) );
-    assertEquals( new Rectangle( 30, 42, 60, 21 ), grid.getItem( 20 ).getBounds( 2 ) );
+    assertEquals( new Rectangle( -30, 54, 20, 27 ), grid.getItem( 20 ).getBounds( 0 ) );
+    assertEquals( new Rectangle( -10, 54, 40, 27 ), grid.getItem( 20 ).getBounds( 1 ) );
+    assertEquals( new Rectangle( 30, 54, 60, 27 ), grid.getItem( 20 ).getBounds( 2 ) );
   }
 
   public void testGetBounds_InvisibleItem() {
