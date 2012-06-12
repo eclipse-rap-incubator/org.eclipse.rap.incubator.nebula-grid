@@ -18,6 +18,11 @@ import org.eclipse.swt.widgets.Control;
 @SuppressWarnings("restriction")
 public final class GridThemeAdapter extends ControlThemeAdapter {
 
+  @Override
+  public Font getFont( Control control ) {
+    return getCssFont( "Tree", "font", control );
+  }
+
   public Rectangle getCheckBoxMargin( Control control ) {
     return getCssBoxDimensions( "Tree-Checkbox", "margin", control );
   }
@@ -44,11 +49,6 @@ public final class GridThemeAdapter extends ControlThemeAdapter {
 
   public int getIndentationWidth( Control control ) {
     return getCssDimension( "Tree-Indent", "width", control );
-  }
-
-  @Override
-  public Font getFont( Control control ) {
-    return getCssFont( "Tree", "font", control );
   }
 
 }
