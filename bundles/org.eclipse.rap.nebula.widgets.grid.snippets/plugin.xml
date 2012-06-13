@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.rap.ui.entrypoint">
+      <entrypoint
+            class="org.eclipse.rap.nebula.widgets.grid.snippets.GridSnippet1"
+            id="org.eclipse.rap.nebula.widgets.grid.snippets.GridSnippet1"
+            path="/snippet1">
+      </entrypoint>
+   </extension>
+
+
+</plugin>
