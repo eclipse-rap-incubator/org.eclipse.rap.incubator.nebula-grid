@@ -28,6 +28,8 @@ public class GridSnippet1 implements IEntryPoint {
   private static int ROOT_ITEM_COUNT = 20;
   private static int SUB_ITEM_COUNT = 20;
 
+  private final boolean debug = false;
+
   public int createUI() {
     Display display = new Display();
     Shell shell = new Shell( display );
@@ -50,10 +52,10 @@ public class GridSnippet1 implements IEntryPoint {
     parent.setLayout( new GridLayout() );
     Image image = loadImage( parent.getDisplay(), "icons/sample.gif" );
     final Grid grid = new Grid( parent, SWT.BORDER
-                                        | SWT.V_SCROLL
-                                        | SWT.H_SCROLL
-                                        | SWT.CHECK
-                                        | SWT.MULTI );
+                                      | SWT.V_SCROLL
+                                      | SWT.H_SCROLL
+                                      | SWT.CHECK
+                                      | SWT.MULTI );
     grid.setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, true, 1, 1 ) );
     grid.setHeaderVisible( true );
     for( int i = 0; i < COLUMN_COUNT; i++ ) {
@@ -64,21 +66,21 @@ public class GridSnippet1 implements IEntryPoint {
       column.addControlListener( new ControlListener() {
 
         public void controlResized( ControlEvent event ) {
-          System.out.println( "column controlResized: " + event );
+          log( "column controlResized: " + event );
         }
 
         public void controlMoved( ControlEvent event ) {
-          System.out.println( "column controlMoved: " + event );
+          log( "column controlMoved: " + event );
         }
       } );
       column.addSelectionListener( new SelectionListener() {
 
         public void widgetSelected( SelectionEvent event ) {
-          System.out.println( "column widgetSelected: " + event );
+          log( "column widgetSelected: " + event );
         }
 
         public void widgetDefaultSelected( SelectionEvent event ) {
-          System.out.println( "column widgetDefaultSelected: " + event );
+          log( "column widgetDefaultSelected: " + event );
         }
       } );
       switch( i ) {
@@ -117,23 +119,23 @@ public class GridSnippet1 implements IEntryPoint {
     grid.addTreeListener( new TreeListener() {
 
       public void treeExpanded( TreeEvent event ) {
-        System.out.println( "grid treeExpanded: " + event );
+        log( "grid treeExpanded: " + event );
       }
 
       public void treeCollapsed( TreeEvent event ) {
-        System.out.println( "grid treeExpanded: " + event );
+        log( "grid treeExpanded: " + event );
       }
     } );
     grid.addSelectionListener( new SelectionListener() {
 
       public void widgetSelected( SelectionEvent event ) {
-        System.out.println( "grid widgetSelected: " + event );
-        System.out.println( "selection: " + Arrays.toString( grid.getSelection() ) );
+        log( "grid widgetSelected: " + event );
+        log( "selection: " + Arrays.toString( grid.getSelection() ) );
       }
 
       public void widgetDefaultSelected( SelectionEvent event ) {
-        System.out.println( "grid widgetDefaultSelected: " + event );
-        System.out.println( "selection: " + Arrays.toString( grid.getSelection() ) );
+        log( "grid widgetDefaultSelected: " + event );
+        log( "selection: " + Arrays.toString( grid.getSelection() ) );
       }
     } );
   }
@@ -153,6 +155,12 @@ public class GridSnippet1 implements IEntryPoint {
       }
     }
     return result;
+  }
+
+  private void log( String message ) {
+    if( debug ) {
+      System.out.println( message );
+    }
   }
 
 }
