@@ -50,7 +50,7 @@ public class GridSnippet1 implements IEntryPoint {
   @SuppressWarnings("serial")
   private void createContents( Composite parent ) {
     parent.setLayout( new GridLayout() );
-    Image image = loadImage( parent.getDisplay(), "icons/sample.gif" );
+    Image image = loadImage( parent.getDisplay(), "icons/shell.gif" );
     final Grid grid = new Grid( parent, SWT.BORDER
                                       | SWT.V_SCROLL
                                       | SWT.H_SCROLL
