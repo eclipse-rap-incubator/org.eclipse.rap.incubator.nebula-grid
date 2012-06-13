@@ -1522,18 +1522,16 @@ public class GridItem extends Item {
 
   private int getImageWidth( int index ) {
     int result = 0;
-    Image image = getItemData( index ).image;
-    if( image != null ) {
-      result = image.getBounds().width;
+    if( parent.hasColumnImages( index ) ) {
+      result = parent.getItemImageSize().x;
     }
     return result;
   }
 
   private int getSpacing( int index ) {
     int result = 0;
-    Image image = getItemData( index ).image;
     String text = getItemData( index ).text;
-    if( image != null && text.length() > 0 ) {
+    if( parent.hasColumnImages( index ) && text.length() > 0 ) {
       result = parent.getCellSpacing();
     }
     return result;

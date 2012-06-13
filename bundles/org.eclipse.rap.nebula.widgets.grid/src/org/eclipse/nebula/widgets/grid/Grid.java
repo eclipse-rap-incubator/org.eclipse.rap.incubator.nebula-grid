@@ -679,6 +679,7 @@ public class Grid extends Canvas {
         columns[ order[ i ] ].fireMoved();
       }
     }
+    updatePrimaryCheckColumn();
   }
 
   /**
@@ -2556,7 +2557,7 @@ public class Grid extends Canvas {
     return Math.max( 0, getCellWidth( index ) - getTextOffset( index ) - rightPadding );
   }
 
-  private Point getItemImageSize() {
+  Point getItemImageSize() {
     Point result = new Point( 0, 0 );
     if( itemImageSize != null ) {
       result.x = itemImageSize.x;
@@ -2565,7 +2566,7 @@ public class Grid extends Canvas {
     return result;
   }
 
-  private boolean hasColumnImages( int index ) {
+  boolean hasColumnImages( int index ) {
     return getColumn( index ).imageCount > 0;
   }
 

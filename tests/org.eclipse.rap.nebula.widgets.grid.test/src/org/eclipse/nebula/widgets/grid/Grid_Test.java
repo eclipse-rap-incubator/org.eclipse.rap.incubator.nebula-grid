@@ -1440,6 +1440,15 @@ public class Grid_Test extends TestCase {
     assertTrue( Arrays.equals( expected, grid.getColumnOrder() ) );
   }
 
+  public void testGetColumnOrder_UpdatePrimaryCheckColumn() {
+    grid = new Grid( shell, SWT.CHECK );
+    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
+
+    grid.setColumnOrder( new int[] { 2, 0, 1 } );
+
+    assertTrue( columns[ 2 ].isCheck() );
+  }
+
   public void testGetNextVisibleItem_CollapsedItem() {
     GridItem[] items = createGridItems( grid, 3, 3 );
 
