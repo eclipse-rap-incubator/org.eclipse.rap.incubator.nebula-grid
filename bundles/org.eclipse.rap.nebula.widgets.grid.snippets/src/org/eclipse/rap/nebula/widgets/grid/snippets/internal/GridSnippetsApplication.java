@@ -15,7 +15,7 @@ public class GridSnippetsApplication implements ApplicationConfiguration {
   public void configure( Application application ) {
     Map<String, String> properties = new HashMap<String, String>();
     properties.put( WebClient.PAGE_TITLE, "Nebula Grid Snippets" );
-    application.addEntryPoint( "/snippet1", GridSnippet.class, properties );
+    application.addEntryPoint( "/snippet", GridSnippet.class, properties );
     application.setOperationMode( OperationMode.SWT_COMPATIBILITY );
   }
 
