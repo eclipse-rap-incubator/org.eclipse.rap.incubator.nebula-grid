@@ -26,7 +26,7 @@ public class GridSnippet extends GridSnippetBase {
 
   private static int COLUMN_COUNT = 3;
   private static int ROOT_ITEM_COUNT = 20;
-  private static int SUB_ITEM_COUNT = 20;
+  private static int SUB_ITEM_COUNT = 10;
 
   private Image image;
   private Grid grid;
@@ -126,14 +126,14 @@ public class GridSnippet extends GridSnippetBase {
       item.setImage( image );
       int gridItemIndex = grid.indexOf( item );
       for( int k = 0; k < COLUMN_COUNT; k++ ) {
-        item.setText( k, "Item " + i + "." + k + " (" + gridItemIndex + ")" );
+        item.setText( k, "Item (" + gridItemIndex + "." + k + ")" );
       }
       for( int j = 0; j < SUB_ITEM_COUNT; j++ ) {
         GridItem subitem = new GridItem( item, SWT.NONE );
         gridItemIndex = grid.indexOf( subitem );
         subitem.setImage( 1, image );
         for( int k = 0; k < COLUMN_COUNT; k++ ) {
-          subitem.setText( k, "Subitem " + i + "." + j + "." + k + " (" + gridItemIndex + ")" );
+          subitem.setText( k, "Subitem (" + gridItemIndex + "." + k + ")" );
         }
       }
     }
@@ -148,26 +148,24 @@ public class GridSnippet extends GridSnippetBase {
       @Override
       public void widgetSelected( SelectionEvent event ) {
         GridItem selectedItem = grid.getSelectionCount() > 0 ? grid.getSelection()[ 0 ] : null;
+        GridItem item;
+        int gridItemIndex;
         if( selectedItem == null ) {
-          GridItem item = new GridItem( grid, SWT.NONE );
+          item = new GridItem( grid, SWT.NONE );
           item.setImage( image );
-          int gridItemIndex = grid.indexOf( item );
-          int itemIndex = getItemIndex( item );
+          gridItemIndex = grid.indexOf( item );
           for( int k = 0; k < COLUMN_COUNT; k++ ) {
-            item.setText( k, "Item " + itemIndex + "." + k + " (" + gridItemIndex + ")" );
+            item.setText( k, "Item (" + gridItemIndex + "." + k + ")" );
           }
         } else {
-          GridItem item = new GridItem( selectedItem, SWT.NONE );
+          item = new GridItem( selectedItem, SWT.NONE );
           item.setImage( 1, image );
-          int gridItemIndex = grid.indexOf( item );
-          int itemIndex = getItemIndex( item );
-          int parentItemIndex = getItemIndex( selectedItem );
+          gridItemIndex = grid.indexOf( item );
           for( int k = 0; k < COLUMN_COUNT; k++ ) {
-            String text = "Subitem " + parentItemIndex + "." + itemIndex + "." + k
-                        + " (" + gridItemIndex + ")";
-            item.setText( k, text );
+            item.setText( k, "Subitem (" + gridItemIndex + "." + k + ")" );
           }
         }
+        updateItemsText( gridItemIndex + 1 );
       }
     } );
     Button removeButton = new Button( composite, SWT.PUSH );
@@ -177,7 +175,9 @@ public class GridSnippet extends GridSnippetBase {
       public void widgetSelected( SelectionEvent event ) {
         GridItem selectedItem = grid.getSelectionCount() > 0 ? grid.getSelection()[ 0 ] : null;
         if( selectedItem != null ) {
+          int selectedItemIndex = grid.indexOf( selectedItem );
           selectedItem.dispose();
+          updateItemsText( selectedItemIndex );
         }
       }
     } );
@@ -205,14 +205,14 @@ public class GridSnippet extends GridSnippetBase {
     } );
   }
 
-  private int getItemIndex( GridItem item ) {
-    int result = -1;
-    GridItem parentItem = item.getParentItem();
-    if( parentItem == null ) {
-      result = Arrays.asList( grid.getRootItems() ).indexOf( item );
-    } else {
-      result = parentItem.indexOf( item );
+  private void updateItemsText( int startIndex ) {
+    for( int index = startIndex; index < grid.getItemCount(); index++ ) {
+      GridItem item = grid.getItem( index );
+      String text = item.getText();
+      text = text.substring( 0, text.indexOf( "(" ) + 1 );
+      for( int k = 0; k < COLUMN_COUNT; k++ ) {
+        item.setText( k, text + grid.indexOf( item ) + "." + k + ")" );
+      }
     }
-    return result;
   }
 }
