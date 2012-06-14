@@ -1,13 +1,11 @@
 package org.eclipse.rap.nebula.widgets.grid.snippets;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 
 import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridColumn;
 import org.eclipse.nebula.widgets.grid.GridItem;
-import org.eclipse.rwt.lifecycle.IEntryPoint;
+import org.eclipse.rap.nebula.widgets.grid.snippets.internal.GridSnippetBase;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
@@ -19,36 +17,16 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
 
-public class GridSnippet1 implements IEntryPoint {
+public class GridSnippet extends GridSnippetBase {
 
   private static int COLUMN_COUNT = 3;
   private static int ROOT_ITEM_COUNT = 20;
   private static int SUB_ITEM_COUNT = 20;
 
-  private final boolean debug = false;
-
-  public int createUI() {
-    Display display = new Display();
-    Shell shell = new Shell( display );
-    shell.setText( "Nebula Grid Snippets" );
-    createContents( shell );
-    shell.setSize( 800, 600 );
-    shell.setLocation( 20, 20 );
-    shell.open();
-    while( !shell.isDisposed() ) {
-      if( !display.readAndDispatch() ) {
-        display.sleep();
-      }
-    }
-    display.dispose();
-    return 0;
-  }
-
+  @Override
   @SuppressWarnings("serial")
-  private void createContents( Composite parent ) {
+  protected void createContents( Composite parent ) {
     parent.setLayout( new GridLayout() );
     Image image = loadImage( parent.getDisplay(), "icons/shell.gif" );
     final Grid grid = new Grid( parent, SWT.BORDER
@@ -140,27 +118,9 @@ public class GridSnippet1 implements IEntryPoint {
     } );
   }
 
-  private Image loadImage( Display display, String name ) {
-    Image result = null;
-    InputStream stream = getClass().getClassLoader().getResourceAsStream( name );
-    if( stream != null ) {
-      try {
-        result = new Image( display, stream );
-      } finally {
-        try {
-          stream.close();
-        } catch( IOException unexpected ) {
-          throw new RuntimeException( "Failed to close image input stream", unexpected );
-        }
-      }
-    }
-    return result;
-  }
-
-  private void log( String message ) {
-    if( debug ) {
-      System.out.println( message );
-    }
+  @Override
+  protected boolean isLoggingEnabled() {
+    return false;
   }
 
 }
