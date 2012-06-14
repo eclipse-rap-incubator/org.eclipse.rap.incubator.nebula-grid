@@ -17,7 +17,7 @@ public abstract class GridSnippetBase implements IEntryPoint {
     Shell shell = new Shell( display );
     shell.setText( "Nebula Grid Snippets" );
     createContents( shell );
-    shell.setSize( 800, 600 );
+    shell.setSize( 1024, 768 );
     shell.setLocation( 20, 20 );
     shell.open();
     while( !shell.isDisposed() ) {

@@ -18,6 +18,8 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 
 @SuppressWarnings("serial")
 public class GridSnippet extends GridSnippetBase {
@@ -34,8 +36,8 @@ public class GridSnippet extends GridSnippetBase {
     parent.setLayout( new GridLayout( 2, false ) );
     image = loadImage( parent.getDisplay(), "icons/shell.gif" );
     createGrid( parent );
-    createAddItemButton( parent );
-    createRemoveItemButton( parent );
+    createAddRemoveItemButton( parent );
+    createTopIndexButton( parent );
   }
 
   @Override
@@ -79,7 +81,7 @@ public class GridSnippet extends GridSnippetBase {
     for( int i = 0; i < COLUMN_COUNT; i++ ) {
       GridColumn column = new GridColumn( grid, SWT.NONE );
       column.setText( "Column " + i );
-      column.setWidth( 200 );
+      column.setWidth( 250 );
       column.setMoveable( true );
       column.addControlListener( new ControlListener() {
 
@@ -122,56 +124,83 @@ public class GridSnippet extends GridSnippetBase {
     for( int i = 0; i < ROOT_ITEM_COUNT; i++ ) {
       GridItem item = new GridItem( grid, SWT.NONE );
       item.setImage( image );
+      int gridItemIndex = grid.indexOf( item );
       for( int k = 0; k < COLUMN_COUNT; k++ ) {
-        item.setText( k, "Item " + i + "." + k );
+        item.setText( k, "Item " + i + "." + k + " (" + gridItemIndex + ")" );
       }
       for( int j = 0; j < SUB_ITEM_COUNT; j++ ) {
         GridItem subitem = new GridItem( item, SWT.NONE );
+        gridItemIndex = grid.indexOf( subitem );
         subitem.setImage( 1, image );
         for( int k = 0; k < COLUMN_COUNT; k++ ) {
-          subitem.setText( k, "Subitem " + i + "." + j + "." + k );
+          subitem.setText( k, "Subitem " + i + "." + j + "." + k + " (" + gridItemIndex + ")" );
         }
       }
     }
   }
 
-  private void createAddItemButton( Composite parent ) {
-    Button button = new Button( parent, SWT.PUSH );
-    button.setText( "Add item" );
-    button.addSelectionListener( new SelectionAdapter() {
+  private void createAddRemoveItemButton( Composite parent ) {
+    Composite composite = new Composite( parent, SWT.NONE );
+    composite.setLayout( new GridLayout( 2, false ) );
+    Button addButton = new Button( composite, SWT.PUSH );
+    addButton.setText( "Add item" );
+    addButton.addSelectionListener( new SelectionAdapter() {
       @Override
       public void widgetSelected( SelectionEvent event ) {
         GridItem selectedItem = grid.getSelectionCount() > 0 ? grid.getSelection()[ 0 ] : null;
         if( selectedItem == null ) {
           GridItem item = new GridItem( grid, SWT.NONE );
           item.setImage( image );
+          int gridItemIndex = grid.indexOf( item );
           int itemIndex = getItemIndex( item );
           for( int k = 0; k < COLUMN_COUNT; k++ ) {
-            item.setText( k, "Item " + itemIndex + "." + k );
+            item.setText( k, "Item " + itemIndex + "." + k + " (" + gridItemIndex + ")" );
           }
         } else {
           GridItem item = new GridItem( selectedItem, SWT.NONE );
           item.setImage( 1, image );
+          int gridItemIndex = grid.indexOf( item );
           int itemIndex = getItemIndex( item );
           int parentItemIndex = getItemIndex( selectedItem );
           for( int k = 0; k < COLUMN_COUNT; k++ ) {
-            item.setText( k, "Subitem " + parentItemIndex + "." + itemIndex + "." + k );
+            String text = "Subitem " + parentItemIndex + "." + itemIndex + "." + k
+                        + " (" + gridItemIndex + ")";
+            item.setText( k, text );
           }
         }
       }
     } );
-  }
-
-  private void createRemoveItemButton( Composite parent ) {
-    Button button = new Button( parent, SWT.PUSH );
-    button.setText( "Remove item" );
-    button.addSelectionListener( new SelectionAdapter() {
+    Button removeButton = new Button( composite, SWT.PUSH );
+    removeButton.setText( "Remove item" );
+    removeButton.addSelectionListener( new SelectionAdapter() {
       @Override
       public void widgetSelected( SelectionEvent event ) {
         GridItem selectedItem = grid.getSelectionCount() > 0 ? grid.getSelection()[ 0 ] : null;
         if( selectedItem != null ) {
           selectedItem.dispose();
         }
+      }
+    } );
+  }
+
+  private void createTopIndexButton( Composite parent ) {
+    Composite composite = new Composite( parent, SWT.NONE );
+    composite.setLayout( new GridLayout( 3, false ) );
+    Label topItemLabel = new Label( composite, SWT.NONE );
+    topItemLabel.setText( "Top index" );
+    final Text topItemText = new Text( composite, SWT.BORDER );
+    topItemText.setLayoutData( new GridData( 100, SWT.DEFAULT ) );
+    Button button = new Button( composite, SWT.PUSH );
+    button.setText( "Change" );
+    button.addSelectionListener( new SelectionAdapter() {
+      @Override
+      public void widgetSelected( SelectionEvent event ) {
+        int topIndex = -1;
+        try {
+          topIndex = Integer.parseInt( topItemText.getText() );
+        } catch( NumberFormatException e ) {
+        }
+        grid.setTopIndex( topIndex );
       }
     } );
   }
