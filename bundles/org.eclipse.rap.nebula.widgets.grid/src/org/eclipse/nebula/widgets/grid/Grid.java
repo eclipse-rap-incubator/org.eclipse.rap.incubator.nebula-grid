@@ -2021,16 +2021,10 @@ public class Grid extends Canvas {
         int offset = hScroll.getSelection();
         int x = getColumnHeaderXPosition( column );
         if( x < 0 || x + column.getWidth() > getClientArea().width ) {
-          if( x < 0 ) {
-            hScroll.setSelection( offset + x );
-          } else {
-            if( column.getWidth() > getClientArea().width ) {
-              hScroll.setSelection( offset + x );
-            } else {
-              x -= getClientArea().width - column.getWidth();
-              hScroll.setSelection( offset + x );
-            }
+          if( x >= 0 && column.getWidth() <= getClientArea().width ) {
+            x -= getClientArea().width - column.getWidth();
           }
+          hScroll.setSelection( offset + x );
         }
       }
     }

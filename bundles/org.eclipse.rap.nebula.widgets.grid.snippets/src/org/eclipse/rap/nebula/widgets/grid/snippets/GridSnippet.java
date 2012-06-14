@@ -38,6 +38,7 @@ public class GridSnippet extends GridSnippetBase {
     createGrid( parent );
     createAddRemoveItemButton( parent );
     createTopIndexButton( parent );
+    createShowColumn( parent );
   }
 
   @Override
@@ -143,6 +144,7 @@ public class GridSnippet extends GridSnippetBase {
     Composite composite = new Composite( parent, SWT.NONE );
     composite.setLayout( new GridLayout( 2, false ) );
     Button addButton = new Button( composite, SWT.PUSH );
+    addButton.setLayoutData( new GridData( 100, SWT.DEFAULT ) );
     addButton.setText( "Add item" );
     addButton.addSelectionListener( new SelectionAdapter() {
       @Override
@@ -169,6 +171,7 @@ public class GridSnippet extends GridSnippetBase {
       }
     } );
     Button removeButton = new Button( composite, SWT.PUSH );
+    removeButton.setLayoutData( new GridData( 100, SWT.DEFAULT ) );
     removeButton.setText( "Remove item" );
     removeButton.addSelectionListener( new SelectionAdapter() {
       @Override
@@ -187,10 +190,12 @@ public class GridSnippet extends GridSnippetBase {
     Composite composite = new Composite( parent, SWT.NONE );
     composite.setLayout( new GridLayout( 3, false ) );
     Label topIndexLabel = new Label( composite, SWT.NONE );
+    topIndexLabel.setLayoutData( new GridData( 100, SWT.DEFAULT ) );
     topIndexLabel.setText( "Top index" );
     final Text topIndexText = new Text( composite, SWT.BORDER );
-    topIndexText.setLayoutData( new GridData( 100, SWT.DEFAULT ) );
+    topIndexText.setLayoutData( new GridData( 50, SWT.DEFAULT ) );
     Button button = new Button( composite, SWT.PUSH );
+    button.setLayoutData( new GridData( 100, SWT.DEFAULT ) );
     button.setText( "Change" );
     button.addSelectionListener( new SelectionAdapter() {
       @Override
@@ -201,6 +206,32 @@ public class GridSnippet extends GridSnippetBase {
         } catch( NumberFormatException e ) {
         }
         grid.setTopIndex( topIndex );
+      }
+    } );
+  }
+
+  private void createShowColumn( Composite parent ) {
+    Composite composite = new Composite( parent, SWT.NONE );
+    composite.setLayout( new GridLayout( 3, false ) );
+    Label showColumnLabel = new Label( composite, SWT.NONE );
+    showColumnLabel.setLayoutData( new GridData( 100, SWT.DEFAULT ) );
+    showColumnLabel.setText( "Show column" );
+    final Text showColumnText = new Text( composite, SWT.BORDER );
+    showColumnText.setLayoutData( new GridData( 50, SWT.DEFAULT ) );
+    Button button = new Button( composite, SWT.PUSH );
+    button.setLayoutData( new GridData( 100, SWT.DEFAULT ) );
+    button.setText( "Show" );
+    button.addSelectionListener( new SelectionAdapter() {
+      @Override
+      public void widgetSelected( SelectionEvent event ) {
+        int index = -1;
+        try {
+          index = Integer.parseInt( showColumnText.getText() );
+        } catch( NumberFormatException e ) {
+        }
+        if( index >= 0 && index < grid.getColumnCount() ) {
+          grid.showColumn( grid.getColumn( index ) );
+        }
       }
     } );
   }

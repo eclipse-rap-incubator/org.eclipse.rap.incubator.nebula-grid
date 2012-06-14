@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component>
+  <name>
+    Nebula Grid widget for RAP
+  </name>
+  <maintainer>
+    Ivan Furnadjiev
+  </maintainer>
+  <description>
+    <p>
+      The Grid widget is a spreadsheet/table component for RAP that offers features not currently
+      available in the base SWT Tree/Table like row and column spanning, checkboxes on multiple
+      columns, column grouping and more.
+    </p>
+  </description>
+</component>
