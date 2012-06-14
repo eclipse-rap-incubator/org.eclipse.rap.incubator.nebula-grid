@@ -144,12 +144,14 @@ public class GridSnippet extends GridSnippetBase {
         GridItem selectedItem = grid.getSelectionCount() > 0 ? grid.getSelection()[ 0 ] : null;
         if( selectedItem == null ) {
           GridItem item = new GridItem( grid, SWT.NONE );
+          item.setImage( image );
           int itemIndex = getItemIndex( item );
           for( int k = 0; k < COLUMN_COUNT; k++ ) {
             item.setText( k, "Item " + itemIndex + "." + k );
           }
         } else {
           GridItem item = new GridItem( selectedItem, SWT.NONE );
+          item.setImage( 1, image );
           int itemIndex = getItemIndex( item );
           int parentItemIndex = getItemIndex( selectedItem );
           for( int k = 0; k < COLUMN_COUNT; k++ ) {
