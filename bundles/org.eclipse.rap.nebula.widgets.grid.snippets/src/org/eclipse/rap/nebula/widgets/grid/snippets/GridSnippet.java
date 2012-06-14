@@ -26,11 +26,13 @@ public class GridSnippet extends GridSnippetBase {
   private static int ROOT_ITEM_COUNT = 20;
   private static int SUB_ITEM_COUNT = 20;
 
+  private Image image;
   private Grid grid;
 
   @Override
   protected void createContents( Composite parent ) {
     parent.setLayout( new GridLayout( 2, false ) );
+    image = loadImage( parent.getDisplay(), "icons/shell.gif" );
     createGrid( parent );
     createAddItemButton( parent );
     createRemoveItemButton( parent );
@@ -42,14 +44,38 @@ public class GridSnippet extends GridSnippetBase {
   }
 
   private void createGrid( Composite parent ) {
-    Image image = loadImage( parent.getDisplay(), "icons/shell.gif" );
-    grid = new Grid( parent, SWT.BORDER
-                                | SWT.V_SCROLL
-                                | SWT.H_SCROLL
-                                | SWT.CHECK
-                                | SWT.MULTI );
+    int style = SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL | SWT.CHECK | SWT.MULTI;
+    grid = new Grid( parent, style );
     grid.setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, true, 1, 20 ) );
     grid.setHeaderVisible( true );
+    addGridListeners();
+    createGridColumns();
+    createGridItems();
+  }
+
+  private void addGridListeners() {
+    grid.addTreeListener( new TreeListener() {
+      public void treeExpanded( TreeEvent event ) {
+        log( "grid treeExpanded: " + event );
+      }
+      public void treeCollapsed( TreeEvent event ) {
+        log( "grid treeExpanded: " + event );
+      }
+    } );
+    grid.addSelectionListener( new SelectionListener() {
+      public void widgetSelected( SelectionEvent event ) {
+        log( "grid widgetSelected: " + event );
+        log( "selection: " + Arrays.toString( grid.getSelection() ) );
+      }
+
+      public void widgetDefaultSelected( SelectionEvent event ) {
+        log( "grid widgetDefaultSelected: " + event );
+        log( "selection: " + Arrays.toString( grid.getSelection() ) );
+      }
+    } );
+  }
+
+  private void createGridColumns() {
     for( int i = 0; i < COLUMN_COUNT; i++ ) {
       GridColumn column = new GridColumn( grid, SWT.NONE );
       column.setText( "Column " + i );
@@ -89,11 +115,10 @@ public class GridSnippet extends GridSnippetBase {
           column.setMinimumWidth( 100 );
           break;
       }
-
-      if( i == 0 ) {
-      } else if( i == 1 ) {
-      }
     }
+  }
+
+  private void createGridItems() {
     for( int i = 0; i < ROOT_ITEM_COUNT; i++ ) {
       GridItem item = new GridItem( grid, SWT.NONE );
       item.setImage( image );
@@ -108,28 +133,6 @@ public class GridSnippet extends GridSnippetBase {
         }
       }
     }
-    grid.addTreeListener( new TreeListener() {
-
-      public void treeExpanded( TreeEvent event ) {
-        log( "grid treeExpanded: " + event );
-      }
-
-      public void treeCollapsed( TreeEvent event ) {
-        log( "grid treeExpanded: " + event );
-      }
-    } );
-    grid.addSelectionListener( new SelectionListener() {
-
-      public void widgetSelected( SelectionEvent event ) {
-        log( "grid widgetSelected: " + event );
-        log( "selection: " + Arrays.toString( grid.getSelection() ) );
-      }
-
-      public void widgetDefaultSelected( SelectionEvent event ) {
-        log( "grid widgetDefaultSelected: " + event );
-        log( "selection: " + Arrays.toString( grid.getSelection() ) );
-      }
-    } );
   }
 
   private void createAddItemButton( Composite parent ) {
