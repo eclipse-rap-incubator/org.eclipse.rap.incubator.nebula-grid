@@ -176,7 +176,7 @@ public class GridSnippet extends GridSnippetBase {
         GridItem selectedItem = grid.getSelectionCount() > 0 ? grid.getSelection()[ 0 ] : null;
         if( selectedItem != null ) {
           int selectedItemIndex = grid.indexOf( selectedItem );
-          selectedItem.dispose();
+          grid.remove( selectedItemIndex );
           updateItemsText( selectedItemIndex );
         }
       }
@@ -186,10 +186,10 @@ public class GridSnippet extends GridSnippetBase {
   private void createTopIndexButton( Composite parent ) {
     Composite composite = new Composite( parent, SWT.NONE );
     composite.setLayout( new GridLayout( 3, false ) );
-    Label topItemLabel = new Label( composite, SWT.NONE );
-    topItemLabel.setText( "Top index" );
-    final Text topItemText = new Text( composite, SWT.BORDER );
-    topItemText.setLayoutData( new GridData( 100, SWT.DEFAULT ) );
+    Label topIndexLabel = new Label( composite, SWT.NONE );
+    topIndexLabel.setText( "Top index" );
+    final Text topIndexText = new Text( composite, SWT.BORDER );
+    topIndexText.setLayoutData( new GridData( 100, SWT.DEFAULT ) );
     Button button = new Button( composite, SWT.PUSH );
     button.setText( "Change" );
     button.addSelectionListener( new SelectionAdapter() {
@@ -197,7 +197,7 @@ public class GridSnippet extends GridSnippetBase {
       public void widgetSelected( SelectionEvent event ) {
         int topIndex = -1;
         try {
-          topIndex = Integer.parseInt( topItemText.getText() );
+          topIndex = Integer.parseInt( topIndexText.getText() );
         } catch( NumberFormatException e ) {
         }
         grid.setTopIndex( topIndex );
