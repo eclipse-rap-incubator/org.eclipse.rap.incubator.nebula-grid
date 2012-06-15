@@ -54,6 +54,9 @@ public class GridColumn extends Item {
   private int alignment = SWT.LEFT;
   private Font headerFont;
   private String headerTooltip;
+  private String footerText = "";
+  private Image footerImage;
+  private Font footerFont;
   private boolean packed;
   int imageCount;
 
@@ -650,6 +653,145 @@ public class GridColumn extends Item {
   public String getHeaderTooltip() {
     checkWidget();
     return headerTooltip;
+  }
+
+  /**
+   * Sets the receiver's footer text.
+   *
+   * @param text
+   *            the new text
+   *
+   * @exception IllegalArgumentException
+   *                <ul>
+   *                <li>ERROR_NULL_ARGUMENT - if the text is null</li>
+   *                </ul>
+   * @exception org.eclipse.swt.SWTException
+   *                <ul>
+   *                <li>ERROR_WIDGET_DISPOSED - if the receiver has been
+   *                disposed</li>
+   *                <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *                thread that created the receiver</li>
+   *                </ul>
+   */
+  public void setFooterText( String text ) {
+    checkWidget();
+    if( text == null ) {
+      SWT.error( SWT.ERROR_NULL_ARGUMENT );
+    }
+    footerText = text;
+    parent.layoutCache.invalidateFooterHeight();
+  }
+
+  /**
+   * Returns the receiver's footer text, which will be an empty string if it
+   * has never been set.
+   *
+   * @return the receiver's text
+   *
+   * @exception org.eclipse.swt.SWTException
+   *                <ul>
+   *                <li>ERROR_WIDGET_DISPOSED - if the receiver has been
+   *                disposed</li>
+   *                <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *                thread that created the receiver</li>
+   *                </ul>
+   */
+  public String getFooterText() {
+    checkWidget();
+    return footerText;
+  }
+
+  /**
+   * Sets the receiver's footer image to the argument, which may be null
+   * indicating that no image should be displayed.
+   *
+   * @param image
+   *            the image to display on the receiver (may be null)
+   *
+   * @exception IllegalArgumentException
+   *                <ul>
+   *                <li>ERROR_INVALID_ARGUMENT - if the image has been
+   *                disposed</li>
+   *                </ul>
+   * @exception org.eclipse.swt.SWTException
+   *                <ul>
+   *                <li>ERROR_WIDGET_DISPOSED - if the receiver has been
+   *                disposed</li>
+   *                <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *                thread that created the receiver</li>
+   *                </ul>
+   */
+  public void setFooterImage( Image image ) {
+    checkWidget();
+    if( image != null && image.isDisposed() ) {
+      SWT.error( SWT.ERROR_INVALID_ARGUMENT );
+    }
+    footerImage = image;
+    parent.layoutCache.invalidateFooterHeight();
+  }
+
+  /**
+   * Returns the receiver's footer image if it has one, or null if it does
+   * not.
+   *
+   * @return the receiver's image
+   *
+   * @exception org.eclipse.swt.SWTException
+   *                <ul>
+   *                <li>ERROR_WIDGET_DISPOSED - if the receiver has been
+   *                disposed</li>
+   *                <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *                thread that created the receiver</li>
+   *                </ul>
+   */
+  public Image getFooterImage() {
+    checkWidget();
+    return footerImage;
+  }
+
+  /**
+   * Sets the Font to be used when displaying the Footer text.
+   *
+   * @param font
+   *            the new footer font (or null)
+   * @throws IllegalArgumentException
+   *             <ul>
+   *             <li>ERROR_INVALID_ARGUMENT - if the argument has been
+   *             disposed</li>
+   *             </ul>
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public void setFooterFont( Font font ) {
+    checkWidget();
+    if( font != null && font.isDisposed() ) {
+      SWT.error( SWT.ERROR_INVALID_ARGUMENT );
+    }
+    footerFont = font;
+    parent.layoutCache.invalidateFooterHeight();
+  }
+
+  /**
+   * Returns the font that the receiver will use to paint textual information
+   * for the footer.
+   *
+   * @return the receiver's font
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public Font getFooterFont() {
+    checkWidget();
+    return footerFont == null ? parent.getFont() : footerFont;
   }
 
   /**
