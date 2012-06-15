@@ -77,6 +77,7 @@ public class Grid extends Canvas {
   private boolean isTree;
   private boolean disposing;
   private boolean columnHeadersVisible;
+  private boolean columnFootersVisible;
   private boolean linesVisible = true;
   private int currentVisibleItems;
   private int selectionType = SWT.SINGLE;
@@ -1712,6 +1713,62 @@ public class Grid extends Canvas {
   }
 
   /**
+   * Marks the receiver's footer as visible if the argument is {@code true},
+   * and marks it invisible otherwise.
+   *
+   * @param show the new visibility state
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public void setFooterVisible( boolean show ) {
+    checkWidget();
+    if( columnFootersVisible != show ) {
+      columnFootersVisible = show;
+      layoutCache.invalidateFooterHeight();
+      updateScrollBars();
+      redraw();
+    }
+  }
+
+  /**
+   * Returns {@code true} if the receiver's footer is visible, and {@code false} otherwise
+   * @return the receiver's footer's visibility state
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public boolean getFooterVisible() {
+    checkWidget();
+    return columnFootersVisible;
+  }
+
+  /**
+   * Returns the height of the column footers.
+   *
+   * @return height of the column footer row
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public int getFooterHeight() {
+    checkWidget();
+    if( !layoutCache.hasFooterHeight() ) {
+      layoutCache.footerHeight = computeFooterHeight();
+    }
+    return layoutCache.footerHeight;
+  }
+
+  /**
    * Sets the line visibility.
    *
    * @param linesVisible The linesVisible to set.
@@ -2169,6 +2226,7 @@ public class Grid extends Canvas {
       layoutCache.invalidateItemHeight();
     }
     layoutCache.invalidateHeaderHeight();
+    layoutCache.invalidateFooterHeight();
     updateScrollBars();
     redraw();
     return columns.size() - 1;
@@ -2187,6 +2245,7 @@ public class Grid extends Canvas {
       layoutCache.invalidateItemHeight();
     }
     layoutCache.invalidateHeaderHeight();
+    layoutCache.invalidateFooterHeight();
     updateScrollBars();
     redraw();
   }
@@ -2362,6 +2421,9 @@ public class Grid extends Canvas {
     if( columnHeadersVisible ) {
       height += getHeaderHeight();
     }
+    if( columnFootersVisible ) {
+      height += getFooterHeight();
+    }
     height += getGridHeight();
     for( Iterator iterator = columns.iterator(); iterator.hasNext(); ) {
       GridColumn column = ( GridColumn )iterator.next();
@@ -2378,7 +2440,8 @@ public class Grid extends Canvas {
 
   private int getVisibleGridHeight() {
     int headerHeight = columnHeadersVisible ? getHeaderHeight() : 0;
-    return getClientArea().height - headerHeight;
+    int footerHeight = columnFootersVisible ? getFooterHeight() : 0;
+    return getClientArea().height - headerHeight - footerHeight;
   }
 
   private static int getMaxInnerWidth( GridItem[] items, int index ) {
@@ -2453,24 +2516,42 @@ public class Grid extends Canvas {
     if( columnHeadersVisible ) {
       int columnHeaderHeight = 0;
       for( int i = 0; i < getColumnCount(); i++ ) {
-        columnHeaderHeight = Math.max( columnHeaderHeight, computeColumnHeaderHeight( i ) );
+        GridColumn column = columns.get( i );
+        Font headerFont = column.getHeaderFont();
+        String headerText = column.getText();
+        Image headerImage = column.getImage();
+        int computedHeight = computeColumnHeight( headerFont, headerText, headerImage );
+        columnHeaderHeight= Math.max( columnHeaderHeight, computedHeight );
       }
       result = columnHeaderHeight + getThemeAdapter().getHeaderBorderBottomWidth( this );
     }
     return result;
   }
 
-  private int computeColumnHeaderHeight( int index ) {
-    GridColumn column = columns.get( index );
-    int textHeight = 0;
-    Font headerFont = column.getHeaderFont();
-    String text = column.getText();
-    if( text.contains( "\n" ) ) {
-      textHeight = Graphics.textExtent( headerFont, text, 0 ).y;
-    } else {
-      textHeight = Graphics.getCharHeight( headerFont );
+  private int computeFooterHeight() {
+    int result = 0;
+    if( columnFootersVisible ) {
+      int columnFooterHeight = 0;
+      for( int i = 0; i < getColumnCount(); i++ ) {
+        GridColumn column = columns.get( i );
+        Font footerFont = column.getFooterFont();
+        String footerText = column.getFooterText();
+        Image footerImage = column.getFooterImage();
+        int computedHeight = computeColumnHeight( footerFont, footerText, footerImage );
+        columnFooterHeight= Math.max( columnFooterHeight, computedHeight );
+      }
+      result = columnFooterHeight + getThemeAdapter().getHeaderBorderBottomWidth( this );
     }
-    Image image = column.getImage();
+    return result;
+  }
+
+  private int computeColumnHeight( Font font, String text, Image image ) {
+    int textHeight = 0;
+    if( text.contains( "\n" ) ) {
+      textHeight = Graphics.textExtent( font, text, 0 ).y;
+    } else {
+      textHeight = Graphics.getCharHeight( font );
+    }
     int imageHeight = image == null ? 0 : image.getBounds().height;
     int result = Math.max( textHeight, imageHeight );
     result += getHeaderPadding().height;
@@ -2677,6 +2758,7 @@ public class Grid extends Canvas {
       if( TextSizeUtil.isTemporaryResize() ) {
         isTemporaryResize = true;
         layoutCache.invalidateHeaderHeight();
+        layoutCache.invalidateFooterHeight();
         layoutCache.invalidateItemHeight();
       } else {
         if( isTemporaryResize) {
@@ -2776,6 +2858,7 @@ public class Grid extends Canvas {
     private static final int UNKNOWN = -1;
 
     int headerHeight = UNKNOWN;
+    int footerHeight = UNKNOWN;
     int itemHeight = UNKNOWN;
     int cellSpacing = UNKNOWN;
     int indentationWidth = UNKNOWN;
@@ -2798,6 +2881,14 @@ public class Grid extends Canvas {
 
     public void invalidateHeaderHeight() {
       headerHeight = UNKNOWN;
+    }
+
+    public boolean hasFooterHeight() {
+      return footerHeight != UNKNOWN;
+    }
+
+    public void invalidateFooterHeight() {
+      footerHeight = UNKNOWN;
     }
 
     public boolean hasItemHeight() {
@@ -2851,6 +2942,7 @@ public class Grid extends Canvas {
     public void invalidateAll() {
       invalidateHeaderPadding();
       invalidateHeaderHeight();
+      invalidateFooterHeight();
       invalidateItemHeight();
       invalidateCellSpacing();
       invalidateCellPadding();
