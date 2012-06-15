@@ -667,6 +667,25 @@ public class GridColumn_Test extends TestCase {
     assertEquals( 353, columns[ 0 ].getWidth() );
   }
 
+  public void testPack_WithFooterVisible() {
+    grid.setFooterVisible( true );
+    GridColumn[] columns = createGridColumns( grid, 2, SWT.CHECK );
+    Image image = loadImage( display, Fixture.IMAGE1 );
+    GridItem item = new GridItem( grid, SWT.NONE );
+    item.setExpanded( true );
+    item.setImage( 0, image );
+    item.setText( 0, "foo" );
+    GridItem subitem = new GridItem( item, SWT.NONE );
+    subitem.setImage( 0, image );
+    subitem.setText( 0, "foo" );
+    columns[ 0 ].setFooterImage( image );
+    columns[ 0 ].setFooterText( "Column footer text wider than its content" );
+
+    columns[ 0 ].pack();
+
+    assertEquals( 353, columns[ 0 ].getWidth() );
+  }
+
   public void testRepackAfterTextSizeDetermination() {
     grid.setHeaderVisible( true );
     GridColumn column = new GridColumn( grid, SWT.NONE );

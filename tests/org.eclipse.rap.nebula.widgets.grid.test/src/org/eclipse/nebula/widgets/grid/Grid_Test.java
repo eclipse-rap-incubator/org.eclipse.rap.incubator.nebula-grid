@@ -1912,9 +1912,18 @@ public class Grid_Test extends TestCase {
 
   public void testUpdateScrollBars_OnHeaderVisible() {
     createGridColumns( grid, 1, SWT.NONE );
-    createGridItems( grid, 9, 3 );
+    createGridItems( grid, 7, 3 );
 
     grid.setHeaderVisible( true );
+
+    assertTrue( verticalBar.getVisible() );
+  }
+
+  public void testUpdateScrollBars_OnFooterVisible() {
+    createGridColumns( grid, 1, SWT.NONE );
+    createGridItems( grid, 7, 3 );
+
+    grid.setFooterVisible( true );
 
     assertTrue( verticalBar.getVisible() );
   }
