@@ -835,25 +835,33 @@ public class GridColumn extends Item {
   }
 
   private int getPreferredWidth() {
-    return parent.getHeaderVisible() ? getContentWidth() : 0;
+    int headerWidth = 0;
+    if( parent.getHeaderVisible() ) {
+      String headerText = getText();
+      Image headerImage = getImage();
+      headerWidth = getContentWidth( getHeaderFont(), headerText, headerImage );
+      if( sortStyle != SWT.NONE ) {
+        headerWidth += SORT_INDICATOR_WIDTH;
+        if( headerText.length() > 0 || headerImage != null ) {
+          headerWidth += MARGIN_IMAGE;
+        }
+      }
+    }
+    int footerWidth = 0;
+    if( parent.getFooterVisible() ) {
+      footerWidth = getContentWidth( getFooterFont(), footerText, footerImage );
+    }
+    return Math.max( headerWidth, footerWidth );
   }
 
-  private int getContentWidth() {
+  private int getContentWidth( Font font, String text, Image image ) {
     int contentWidth = 0;
-    String text = getText();
-    Image image = getImage();
     if( text.length() > 0 ) {
-      contentWidth += Graphics.textExtent( getHeaderFont(), text, 0 ).x;
+      contentWidth += Graphics.textExtent( font, text, 0 ).x;
     }
     if( image != null ) {
       contentWidth += image.getBounds().width;
       if( text.length() > 0 ) {
-        contentWidth += MARGIN_IMAGE;
-      }
-    }
-    if( sortStyle != SWT.NONE ) {
-      contentWidth += SORT_INDICATOR_WIDTH;
-      if( text.length() > 0 || image != null ) {
         contentWidth += MARGIN_IMAGE;
       }
     }
