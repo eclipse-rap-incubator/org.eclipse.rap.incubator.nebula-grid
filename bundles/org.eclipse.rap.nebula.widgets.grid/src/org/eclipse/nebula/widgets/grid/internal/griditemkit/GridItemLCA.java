@@ -38,7 +38,7 @@ import org.eclipse.swt.widgets.Widget;
 @SuppressWarnings("restriction")
 public class GridItemLCA extends AbstractWidgetLCA {
 
-  private static final String TYPE = "rwt.widgets.TreeItem";
+  private static final String TYPE = "rwt.widgets.GridItem";
 
   private static final String PROP_ITEM_COUNT = "itemCount";
   private static final String PROP_TEXTS = "texts";

@@ -75,7 +75,7 @@ public class GridItemLCA_Test extends TestCase {
 
     Message message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( items[ 8 ] );
-    assertEquals( "rwt.widgets.TreeItem", operation.getType() );
+    assertEquals( "rwt.widgets.GridItem", operation.getType() );
     assertEquals( Integer.valueOf( 3 ), operation.getProperty( "index" ) );
   }
 
@@ -86,7 +86,7 @@ public class GridItemLCA_Test extends TestCase {
 
     Message message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( items[ 10 ] );
-    assertEquals( "rwt.widgets.TreeItem", operation.getType() );
+    assertEquals( "rwt.widgets.GridItem", operation.getType() );
     assertEquals( Integer.valueOf( 1 ), operation.getProperty( "index" ) );
   }
 

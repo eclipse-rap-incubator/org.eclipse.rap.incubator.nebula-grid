@@ -39,7 +39,7 @@ import org.eclipse.swt.widgets.Widget;
 @SuppressWarnings("restriction")
 public class GridColumnLCA extends AbstractWidgetLCA {
 
-  private static final String TYPE = "rwt.widgets.TableColumn";
+  private static final String TYPE = "rwt.widgets.GridColumn";
 
   private static final String PROP_INDEX = "index";
   private static final String PROP_LEFT = "left";
