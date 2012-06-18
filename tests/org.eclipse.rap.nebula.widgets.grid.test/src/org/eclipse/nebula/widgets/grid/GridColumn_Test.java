@@ -406,6 +406,34 @@ public class GridColumn_Test extends TestCase {
     assertFalse( column.getResizeable() );
   }
 
+  public void testIsDetail_Initial() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    assertTrue( column.isDetail() );
+  }
+
+  public void testIsDetail() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    column.setDetail( false );
+
+    assertFalse( column.isDetail() );
+  }
+
+  public void testIsSummary_Initial() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    assertTrue( column.isSummary() );
+  }
+
+  public void testIsSummary() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    column.setSummary( false );
+
+    assertFalse( column.isSummary() );
+  }
+
   public void testAddRemoveSelectionListener() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
     SelectionListener listener = new SelectionAdapter() { };

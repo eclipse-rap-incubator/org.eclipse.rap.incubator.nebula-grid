@@ -51,6 +51,8 @@ public class GridColumn extends Item {
   private boolean tableCheck;
   private boolean moveable;
   private boolean resizeable = true;
+  private boolean detail = true;
+  private boolean summary = true;
   private boolean visible = true;
   private int alignment = SWT.LEFT;
   private Font headerFont;
@@ -473,6 +475,82 @@ public class GridColumn extends Item {
   public boolean getResizeable() {
     checkWidget();
     return resizeable;
+  }
+
+  /**
+   * Sets the column as a detail column in a column group. Detail columns are
+   * shown when a column group is expanded. If this column was not created in
+   * a column group, this method has no effect.
+   *
+   * @param detail
+   *            true to show this column when the group is expanded.
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public void setDetail( boolean detail ) {
+    checkWidget();
+    this.detail = detail;
+  }
+
+  /**
+   * Returns true if this column is set as a detail column in a column group.
+   * Detail columns are shown when the group is expanded.
+   *
+   * @return true if the column is a detail column.
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public boolean isDetail() {
+    checkWidget();
+    return detail;
+  }
+
+  /**
+   * Sets the column as a summary column in a column group. Summary columns
+   * are shown when a column group is collapsed. If this column was not
+   * created in a column group, this method has no effect.
+   *
+   * @param summary
+   *            true to show this column when the group is collapsed.
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public void setSummary( boolean summary ) {
+    checkWidget();
+    this.summary = summary;
+  }
+
+  /**
+   * Returns true if this column is set as a summary column in a column group.
+   * Summary columns are shown when the group is collapsed.
+   *
+   * @return true if the column is a summary column.
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public boolean isSummary() {
+    checkWidget();
+    return summary;
   }
 
   /**
