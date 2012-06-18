@@ -73,6 +73,7 @@ public class Grid extends Canvas {
   private List<Point> selectedCells = new ArrayList<Point>();
   private List<GridColumn> columns = new ArrayList<GridColumn>();
   private List<GridColumn> displayOrderedColumns = new ArrayList<GridColumn>();
+  private List<GridColumnGroup> columnGroups = new ArrayList<GridColumnGroup>();
   private GridItem focusItem;
   private boolean isTree;
   private boolean disposing;
@@ -149,6 +150,10 @@ public class Grid extends Canvas {
     for( Iterator iterator = columns.iterator(); iterator.hasNext(); ) {
       GridColumn column = ( GridColumn )iterator.next();
       column.dispose();
+    }
+    for( Iterator iterator = columnGroups.iterator(); iterator.hasNext(); ) {
+      GridColumnGroup group = ( GridColumnGroup )iterator.next();
+      group.dispose();
     }
   }
 
@@ -777,6 +782,69 @@ public class Grid extends Canvas {
       }
     }
     return result;
+  }
+
+  /**
+   * Returns the number of column groups contained in the receiver.
+   *
+   * @return the number of column groups
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public int getColumnGroupCount() {
+    checkWidget();
+    return columnGroups.size();
+  }
+
+  /**
+   * Returns an array of {@code GridColumnGroup}s which are the column groups in the
+   * receiver.
+   * <p>
+   * Note: This is not the actual structure used by the receiver to maintain
+   * its list of items, so modifying the array will not affect the receiver.
+   * </p>
+   *
+   * @return the column groups in the receiver
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public GridColumnGroup[] getColumnGroups() {
+    checkWidget();
+    return columnGroups.toArray( new GridColumnGroup[ columnGroups.size() ] );
+  }
+
+  /**
+   * Returns the column group at the given, zero-relative index in the receiver.
+   * Throws an exception if the index is out of range.
+   *
+   * @param index the index of the column group to return
+   * @return the column group at the given index
+   * @throws IllegalArgumentException
+   * <ul>
+   * <li>ERROR_INVALID_RANGE - if the index is not between 0 and the number
+   * of elements in the list minus 1 (inclusive)</li>
+   * </ul>
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public GridColumnGroup getColumnGroup( int index ) {
+    checkWidget();
+    if( index < 0 || index >= columnGroups.size() ) {
+      SWT.error( SWT.ERROR_INVALID_RANGE );
+    }
+    return columnGroups.get( index );
   }
 
   /**
@@ -2187,6 +2255,24 @@ public class Grid extends Canvas {
       layoutCache.invalidateItemHeight();
     }
     layoutCache.invalidateHeaderHeight();
+    updateScrollBars();
+    redraw();
+  }
+
+  void newColumnGroup( GridColumnGroup group ) {
+    columnGroups.add( group );
+    if( columnGroups.size() == 1 ) {
+      layoutCache.invalidateHeaderHeight();
+    }
+    updateScrollBars();
+    redraw();
+  }
+
+  void removeColumnGroup( GridColumnGroup group ) {
+    columnGroups.remove( group );
+    if( columnGroups.size() == 0 ) {
+      layoutCache.invalidateHeaderHeight();
+    }
     updateScrollBars();
     redraw();
   }

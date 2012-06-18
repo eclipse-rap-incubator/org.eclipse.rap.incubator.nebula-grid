@@ -46,6 +46,7 @@ public class GridColumn extends Item {
   private int width = DEFAULT_WIDTH;
   private int minimumWidth;
   private Grid parent;
+  private GridColumnGroup group;
   private int sortStyle = SWT.NONE;
   private boolean tableCheck;
   private boolean moveable;
@@ -116,12 +117,46 @@ public class GridColumn extends Item {
   }
 
   /**
+   * Constructs a new instance of this class given its parent column group
+   * (which must be a <code>GridColumnGroup</code>), a style value describing
+   * its behavior and appearance, and the index at which to place it in the
+   * items maintained by its parent.
+   *
+   * @param parent
+   *            an Grid control which will be the parent of the new instance
+   *            (cannot be null)
+   * @param style
+   *            the style of control to construct
+   * @throws IllegalArgumentException
+   *             <ul>
+   *             <li>ERROR_NULL_ARGUMENT - if the parent is null</li>
+   *             </ul>
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the parent</li>
+   *             <li>
+   *             ERROR_INVALID_SUBCLASS - if this class is not an allowed
+   *             subclass</li>
+   *             </ul>
+   */
+  public GridColumn( GridColumnGroup parent, int style ) {
+    super( parent.getParent(), style, parent.getNewColumnIndex() );
+    init( parent.getParent(), style, parent.getNewColumnIndex() );
+    group = parent;
+    group.newColumn( this );
+  }
+
+  /**
    * {@inheritDoc}
    */
   @Override
   public void dispose() {
     if( !parent.isDisposing() && !isDisposed() ) {
       parent.removeColumn( this );
+      if( group != null ) {
+        group.removeColumn( this );
+      }
     }
     super.dispose();
   }
@@ -141,6 +176,24 @@ public class GridColumn extends Item {
   public Grid getParent() {
     checkWidget();
     return parent;
+  }
+
+  /**
+   * Returns the column group if this column was created inside a group, or
+   * {@code null} otherwise.
+   *
+   * @return the column group.
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public GridColumnGroup getColumnGroup() {
+    checkWidget();
+    return group;
   }
 
   /**

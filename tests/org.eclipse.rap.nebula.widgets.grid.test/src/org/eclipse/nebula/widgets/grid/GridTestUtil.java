@@ -54,6 +54,17 @@ public class GridTestUtil {
     return result;
   }
 
+  public static GridColumn[] createGridColumns( GridColumnGroup group, int columns, int style ) {
+    GridColumn[] result = new GridColumn[ columns ];
+    for( int i = 0; i < columns; i++ ) {
+      GridColumn column = new GridColumn( group, style );
+      column.setText( "col_" + i );
+      column.setWidth( 20 * ( i + 1 ) );
+      result[ i ] = column;
+    }
+    return result;
+  }
+
   public static Image loadImage( Display display, String name ) {
     Image result = null;
     InputStream stream = Fixture.class.getClassLoader().getResourceAsStream( name );

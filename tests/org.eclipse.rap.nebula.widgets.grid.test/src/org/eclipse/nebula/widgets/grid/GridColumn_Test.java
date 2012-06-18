@@ -67,6 +67,17 @@ public class GridColumn_Test extends TestCase {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
     assertSame( grid, column.getParent() );
+    assertNull( column.getColumnGroup() );
+    assertSame( column, grid.getColumn( 0 ) );
+    assertEquals( 1, grid.getColumnCount() );
+  }
+
+  public void testGridColumnCreation_GroupParent() {
+    GridColumnGroup group = new GridColumnGroup( grid, SWT.NONE );
+    GridColumn column = new GridColumn( group, SWT.NONE );
+
+    assertSame( grid, column.getParent() );
+    assertSame( group, column.getColumnGroup() );
     assertSame( column, grid.getColumn( 0 ) );
     assertEquals( 1, grid.getColumnCount() );
   }
@@ -81,6 +92,18 @@ public class GridColumn_Test extends TestCase {
     assertEquals( 6, grid.getColumnCount() );
   }
 
+  public void testGridColumnCreation_AtIndexWithGroupParent() {
+    createGridColumns( grid, 2, SWT.NONE );
+    GridColumnGroup group = new GridColumnGroup( grid, SWT.NONE );
+    new GridColumn( group, SWT.NONE );
+    createGridColumns( grid, 2, SWT.NONE );
+
+    GridColumn column = new GridColumn( group, SWT.NONE );
+
+    assertSame( column, grid.getColumn( 3 ) );
+    assertSame( column, group.getColumns()[ 1 ] );
+  }
+
   public void testDispose() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
@@ -88,6 +111,17 @@ public class GridColumn_Test extends TestCase {
 
     assertTrue( column.isDisposed() );
     assertEquals( 0, grid.getColumnCount() );
+  }
+
+  public void testDispose_WithGroup() {
+    GridColumnGroup group = new GridColumnGroup( grid, SWT.NONE );
+    GridColumn column1 = new GridColumn( group, SWT.NONE );
+    GridColumn column2 = new GridColumn( group, SWT.NONE );
+
+    column1.dispose();
+
+    assertEquals( 1, group.getColumns().length );
+    assertSame( column2, group.getColumns()[ 0 ] );
   }
 
   public void testSendDisposeEvent() {

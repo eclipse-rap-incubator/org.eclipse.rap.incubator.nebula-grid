@@ -2118,6 +2118,56 @@ public class Grid_Test extends TestCase {
     assertEquals( "foo", cellToolTipAdapter.getCellToolTipText() );
   }
 
+  public void testColumnGroup_Initial() {
+    assertEquals( 0, grid.getColumnGroupCount() );
+  }
+
+  public void testGetColumnGroupCount_AddGroup() {
+    new GridColumnGroup( grid, SWT.NONE );
+
+    assertEquals( 1, grid.getColumnGroupCount() );
+  }
+
+  public void testGetColumnGroupCount_RemoveGroup() {
+    GridColumnGroup group = new GridColumnGroup( grid, SWT.NONE );
+
+    group.dispose();
+
+    assertEquals( 0, grid.getColumnGroupCount() );
+  }
+
+  public void testGetColumnGroups() {
+    GridColumnGroup group1 = new GridColumnGroup( grid, SWT.NONE );
+    GridColumnGroup group2 = new GridColumnGroup( grid, SWT.NONE );
+
+    GridColumnGroup[] expected = new GridColumnGroup[] { group1,  group2 };
+    assertTrue( Arrays.equals( expected, grid.getColumnGroups() ) );
+  }
+
+  public void testGetColumnGroup() {
+    GridColumnGroup group1 = new GridColumnGroup( grid, SWT.NONE );
+    GridColumnGroup group2 = new GridColumnGroup( grid, SWT.NONE );
+
+    assertSame( group1, grid.getColumnGroup( 0 ) );
+    assertSame( group2, grid.getColumnGroup( 1 ) );
+  }
+
+  public void testGetColumnGroup_InvalidIndex() {
+    try{
+      grid.getColumnGroup( 3 );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testDisposeColumnGroupOnGridDispose() {
+    GridColumnGroup group = new GridColumnGroup( grid, SWT.NONE );
+
+    grid.dispose();
+
+    assertTrue( group.isDisposed() );
+  }
+
   //////////////////
   // Helping methods
 
