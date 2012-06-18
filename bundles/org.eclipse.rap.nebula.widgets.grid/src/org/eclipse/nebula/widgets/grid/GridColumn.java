@@ -625,11 +625,11 @@ public class GridColumn extends Item {
   public boolean isVisible() {
     checkWidget();
     boolean result = visible;
-//    if( group != null ) {
-//      if( ( group.getExpanded() && !isDetail() ) || ( !group.getExpanded() && !isSummary() ) ) {
-//        result = false;
-//      }
-//    }
+    if( group != null && !group.isDisposed() ) {
+      if( ( group.getExpanded() && !isDetail() ) || ( !group.getExpanded() && !isSummary() ) ) {
+        result = false;
+      }
+    }
     return result;
   }
 

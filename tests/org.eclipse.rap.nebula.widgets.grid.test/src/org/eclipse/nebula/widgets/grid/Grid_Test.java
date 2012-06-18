@@ -1832,6 +1832,18 @@ public class Grid_Test extends TestCase {
     assertTrue( verticalBar.getVisible() );
   }
 
+  public void testUpdateScrollBars_OnCollapseColumnGroup() {
+    grid.setSize( 90, 100 );
+    GridColumnGroup group = new GridColumnGroup( grid, SWT.NONE );
+    GridColumn[] columns = createGridColumns( group, 3, SWT.NONE );
+    columns[ 0 ].setDetail( false );
+    columns[ 1 ].setSummary( false );
+
+    group.setExpanded( false );
+
+    assertFalse( horizontalBar.getVisible() );
+  }
+
   public void testGetTopIndex_Initial() {
     createGridItems( grid, 20, 3 );
 
@@ -2006,6 +2018,19 @@ public class Grid_Test extends TestCase {
     grid.showColumn( columns[ 2 ] );
 
     assertEquals( 30, horizontalBar.getSelection() );
+  }
+
+  public void testShowColumn_FireExpandEvent() {
+    GridColumnGroup group = new GridColumnGroup( grid, SWT.NONE );
+    group.addListener( SWT.Collapse, new LoggingListener() );
+    GridColumn[] columns = createGridColumns( group, 10, SWT.NONE );
+    columns[ 0 ].setDetail( false );
+    columns[ 1 ].setSummary( false );
+
+    grid.showColumn( columns[ 0 ] );
+
+    assertEquals( 1, eventLog.size() );
+    assertSame( group, eventLog.get( 0 ).widget );
   }
 
   public void testShowSelection() {

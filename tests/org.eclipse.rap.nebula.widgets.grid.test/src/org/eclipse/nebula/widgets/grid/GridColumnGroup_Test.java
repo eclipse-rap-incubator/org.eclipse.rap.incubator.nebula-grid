@@ -15,6 +15,9 @@ import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridColumns;
 import org.eclipse.rap.rwt.testfixture.Fixture;
 import org.eclipse.rwt.lifecycle.PhaseId;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.TreeAdapter;
+import org.eclipse.swt.events.TreeEvent;
+import org.eclipse.swt.events.TreeListener;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
@@ -26,6 +29,7 @@ public class GridColumnGroup_Test extends TestCase {
   private Display display;
   private Shell shell;
   private Grid grid;
+  private GridColumnGroup group;
 
   @Override
   protected void setUp() throws Exception {
@@ -34,6 +38,7 @@ public class GridColumnGroup_Test extends TestCase {
     display = new Display();
     shell = new Shell( display );
     grid = new Grid( shell, SWT.H_SCROLL | SWT.V_SCROLL );
+    group = new GridColumnGroup( grid, SWT.NONE );
   }
 
   @Override
@@ -42,16 +47,12 @@ public class GridColumnGroup_Test extends TestCase {
   }
 
   public void testGridColumnGroupCreation() {
-    GridColumnGroup group = new GridColumnGroup( grid, SWT.NONE );
-
     assertSame( grid, group.getParent() );
     assertSame( group, grid.getColumnGroup( 0 ) );
     assertEquals( 0, group.getColumns().length );
   }
 
   public void testDispose() {
-    GridColumnGroup group = new GridColumnGroup( grid, SWT.NONE );
-
     group.dispose();
 
     assertTrue( group.isDisposed() );
@@ -59,13 +60,32 @@ public class GridColumnGroup_Test extends TestCase {
   }
 
   public void testDispose_DisposeColumns() {
-    GridColumnGroup group = new GridColumnGroup( grid, SWT.NONE );
     GridColumn[] columns = createGridColumns( group, 2, SWT.NONE );
 
     group.dispose();
 
     assertTrue( columns[ 0 ].isDisposed() );
     assertTrue( columns[ 1 ].isDisposed() );
+  }
+
+  public void testGetExpanded_Initial() {
+    assertTrue( group.getExpanded() );
+  }
+
+  public void testSetExpanded() {
+    group.setExpanded( false );
+
+    assertFalse( group.getExpanded() );
+  }
+
+  public void testAddRemoveTreeListener() {
+    TreeListener listener = new TreeAdapter() {};
+    group.addTreeListener( listener );
+
+    assertTrue( TreeEvent.hasListener( group ) );
+
+    group.removeTreeListener( listener );
+    assertFalse( TreeEvent.hasListener( group ) );
   }
 
 }

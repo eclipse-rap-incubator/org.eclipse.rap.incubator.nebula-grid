@@ -13,6 +13,8 @@ package org.eclipse.nebula.widgets.grid;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.swt.events.TreeEvent;
+import org.eclipse.swt.events.TreeListener;
 import org.eclipse.swt.widgets.Item;
 
 
@@ -38,6 +40,7 @@ public class GridColumnGroup extends Item {
 
   private Grid parent;
   private List<GridColumn> columns = new ArrayList<GridColumn>();
+  private boolean expanded = true;
 
   /**
    * Constructs a new instance of this class given its parent (which must be a Grid) and a style
@@ -91,6 +94,52 @@ public class GridColumnGroup extends Item {
   }
 
   /**
+   * Adds the listener to the collection of listeners who will
+   * be notified when an item in the receiver is expanded or collapsed
+   * by sending it one of the messages defined in the <code>TreeListener</code>
+   * interface.
+   *
+   * @param listener the listener which should be notified
+   *
+   * @exception IllegalArgumentException <ul>
+   *    <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
+   * </ul>
+   * @exception org.eclipse.swt.SWTException <ul>
+   *    <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver</li>
+   * </ul>
+   *
+   * @see TreeListener
+   * @see #removeTreeListener
+   */
+  public void addTreeListener( TreeListener listener ) {
+    checkWidget();
+    TreeEvent.addListener( this, listener );
+  }
+
+  /**
+   * Removes the listener from the collection of listeners who will
+   * be notified when items in the receiver are expanded or collapsed.
+   *
+   * @param listener the listener which should no longer be notified
+   *
+   * @exception IllegalArgumentException <ul>
+   *    <li>ERROR_NULL_ARGUMENT - if the listener is null</li>
+   * </ul>
+   * @exception org.eclipse.swt.SWTException <ul>
+   *    <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   *    <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that created the receiver</li>
+   * </ul>
+   *
+   * @see TreeListener
+   * @see #addTreeListener
+   */
+  public void removeTreeListener( TreeListener listener ) {
+    checkWidget();
+    TreeEvent.removeListener( this, listener );
+  }
+
+  /**
    * Returns the columns within this group.
    * <p>
    * Note: This is not the actual structure used by the receiver to maintain
@@ -107,6 +156,42 @@ public class GridColumnGroup extends Item {
   public GridColumn[] getColumns() {
     checkWidget();
     return columns.toArray( new GridColumn[ columns.size() ] );
+  }
+
+  /**
+   * Sets the expanded state of the receiver.
+   *
+   * @param expanded the expanded to set
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public void setExpanded( boolean expanded ) {
+    checkWidget();
+    if( this.expanded != expanded ) {
+      this.expanded = expanded;
+      parent.updateScrollBars();
+      parent.redraw();
+    }
+  }
+
+  /**
+   * Returns true if the receiver is expanded, false otherwise.
+   *
+   * @return the expanded attribute
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public boolean getExpanded() {
+    checkWidget();
+    return expanded;
   }
 
   void newColumn( GridColumn column ) {

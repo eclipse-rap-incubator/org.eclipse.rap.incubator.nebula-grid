@@ -684,6 +684,31 @@ public class GridColumn_Test extends TestCase {
     assertEquals( "foo", column.getHeaderTooltip() );
   }
 
+  public void testIsVisible_Initial() {
+    GridColumnGroup group = new GridColumnGroup( grid, SWT.NONE );
+    GridColumn column = new GridColumn( group, SWT.NONE );
+
+    assertTrue( column.isVisible() );
+  }
+
+  public void testIsVisible_ExpandedGroup() {
+    GridColumnGroup group = new GridColumnGroup( grid, SWT.NONE );
+    group.setExpanded( true );
+    GridColumn column = new GridColumn( group, SWT.NONE );
+    column.setDetail( false );
+
+    assertFalse( column.isVisible() );
+  }
+
+  public void testIsVisible_CollapsedGroup() {
+    GridColumnGroup group = new GridColumnGroup( grid, SWT.NONE );
+    group.setExpanded( false );
+    GridColumn column = new GridColumn( group, SWT.NONE );
+    column.setSummary( false );
+
+    assertFalse( column.isVisible() );
+  }
+
   //////////////////
   // Helping methods
 

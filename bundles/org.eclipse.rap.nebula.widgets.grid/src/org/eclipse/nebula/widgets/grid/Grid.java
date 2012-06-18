@@ -40,6 +40,7 @@ import org.eclipse.swt.internal.widgets.ICellToolTipProvider;
 import org.eclipse.swt.internal.widgets.IItemHolderAdapter;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Item;
 
 
@@ -2075,16 +2076,15 @@ public class Grid extends Canvas {
     }
     if( column.getParent() == this ) {
       updateScrollBars();
-      // TODO: [if] Enable this code when GridColumnGroup is implemented
-//      if( !column.isVisible() ) {
-//        GridColumnGroup group = column.getColumnGroup();
-//        group.setExpanded( !group.getExpanded() );
-//        if( group.getExpanded() ) {
-//          group.notifyListeners( SWT.Expand, new Event() );
-//        } else {
-//          group.notifyListeners( SWT.Collapse, new Event() );
-//        }
-//      }
+      if( !column.isVisible() ) {
+        GridColumnGroup group = column.getColumnGroup();
+        group.setExpanded( !group.getExpanded() );
+        if( group.getExpanded() ) {
+          group.notifyListeners( SWT.Expand, new Event() );
+        } else {
+          group.notifyListeners( SWT.Collapse, new Event() );
+        }
+      }
       if( hScroll.getVisible() ) {
         int offset = hScroll.getSelection();
         int x = getColumnHeaderXPosition( column );
