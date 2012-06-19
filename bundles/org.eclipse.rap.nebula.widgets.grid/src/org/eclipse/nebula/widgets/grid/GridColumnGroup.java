@@ -13,8 +13,10 @@ package org.eclipse.nebula.widgets.grid;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.TreeEvent;
 import org.eclipse.swt.events.TreeListener;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Item;
 
 
@@ -41,6 +43,7 @@ public class GridColumnGroup extends Item {
   private Grid parent;
   private List<GridColumn> columns = new ArrayList<GridColumn>();
   private boolean expanded = true;
+  private Font headerFont;
 
   /**
    * Constructs a new instance of this class given its parent (which must be a Grid) and a style
@@ -194,6 +197,49 @@ public class GridColumnGroup extends Item {
     return expanded;
   }
 
+  /**
+   * Returns the font that the receiver will use to paint textual information
+   * for the header.
+   *
+   * @return the receiver's font
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public Font getHeaderFont() {
+    checkWidget();
+    return headerFont == null ? parent.getFont() : headerFont;
+  }
+
+  /**
+   * Sets the Font to be used when displaying the Header text.
+   *
+   * @param font
+   *            the new header font (or null)
+   * @throws IllegalArgumentException
+   *             <ul>
+   *             <li>ERROR_INVALID_ARGUMENT - if the argument has been
+   *             disposed</li>
+   *             </ul>
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public void setHeaderFont( Font font ) {
+    checkWidget();
+    if( font != null && font.isDisposed() ) {
+      SWT.error( SWT.ERROR_INVALID_ARGUMENT );
+    }
+    headerFont = font;
+  }
+
   void newColumn( GridColumn column ) {
     columns.add( column );
   }
@@ -205,8 +251,8 @@ public class GridColumnGroup extends Item {
   int getNewColumnIndex() {
     int result = -1;
     if( columns.size() != 0 ) {
-      GridColumn lastCol = columns.get( columns.size() - 1 );
-      result = parent.indexOf( lastCol ) + 1;
+      GridColumn lastColumn = columns.get( columns.size() - 1 );
+      result = parent.indexOf( lastColumn ) + 1;
     }
     return result;
   }

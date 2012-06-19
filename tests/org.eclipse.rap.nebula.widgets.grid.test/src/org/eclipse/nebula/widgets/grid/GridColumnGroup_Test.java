@@ -11,6 +11,7 @@
 package org.eclipse.nebula.widgets.grid;
 
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridColumns;
+import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
 
 import org.eclipse.rap.rwt.testfixture.Fixture;
 import org.eclipse.rwt.lifecycle.PhaseId;
@@ -18,6 +19,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.TreeAdapter;
 import org.eclipse.swt.events.TreeEvent;
 import org.eclipse.swt.events.TreeListener;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
@@ -86,6 +89,70 @@ public class GridColumnGroup_Test extends TestCase {
 
     group.removeTreeListener( listener );
     assertFalse( TreeEvent.hasListener( group ) );
+  }
+
+  public void testGetHeaderText_Initial() {
+    assertEquals( "", group.getText() );
+  }
+
+  public void testGetHeaderText() {
+    group.setText( "foo" );
+
+    assertEquals( "foo", group.getText() );
+  }
+
+  public void testSetHeaderText_NullArgument() {
+    try {
+      group.setText( null );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testGetHeaderImage_Initial() {
+    assertNull( group.getImage() );
+  }
+
+  public void testGetHeaderImage() {
+    Image image = loadImage( display, Fixture.IMAGE1 );
+
+    group.setImage( image );
+
+    assertSame( image, group.getImage() );
+  }
+
+  public void testSetHeaderImage_DisposedImage() {
+    Image image = loadImage( display, Fixture.IMAGE1 );
+    image.dispose();
+
+    try {
+      group.setImage( image );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testGetHeaderFont_Initial() {
+    assertSame( grid.getFont(), group.getHeaderFont() );
+  }
+
+  public void testGetHeaderFont() {
+    Font font = new Font( display, "Arial", 20, SWT.BOLD );
+
+    group.setHeaderFont( font );
+
+    assertSame( font, group.getHeaderFont() );
+  }
+
+  public void testSetHeaderFont_DisposedFont() {
+    Font font = new Font( display, "Arial", 20, SWT.BOLD );
+    font.dispose();
+
+    try {
+      group.setHeaderFont( font );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
   }
 
 }
