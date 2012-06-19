@@ -2749,10 +2749,12 @@ public class Grid extends Canvas {
 
     public Item[] getItems() {
       GridItem[] items = Grid.this.getItems();
-      GridColumn[] columns = Grid.this.getColumns();
-      Item[] result = new Item[ columns.length + items.length ];
-      System.arraycopy( columns, 0, result, 0, columns.length );
-      System.arraycopy( items, 0, result, columns.length, items.length );
+      GridColumn[] columns = getColumns();
+      GridColumnGroup[] groups = getColumnGroups();
+      Item[] result = new Item[ columns.length + items.length + groups.length ];
+      System.arraycopy( groups, 0, result, 0, groups.length );
+      System.arraycopy( columns, 0, result, groups.length, columns.length );
+      System.arraycopy( items, 0, result, groups.length + columns.length, items.length );
       return result;
     }
   }

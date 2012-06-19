@@ -2115,13 +2115,15 @@ public class Grid_Test extends TestCase {
   }
 
   public void testIItemHolderAdapter_GetItems() {
-    GridColumn column = new GridColumn( grid, SWT.NONE );
+    GridColumnGroup group = new GridColumnGroup( grid, SWT.NONE );
+    GridColumn column = new GridColumn( group, SWT.NONE );
     GridItem item = new GridItem( grid, SWT.NONE );
 
     Item[] items = grid.getAdapter( IItemHolderAdapter.class ).getItems();
 
-    assertSame( column, items[ 0 ] );
-    assertSame( item, items[ 1 ] );
+    assertSame( group, items[ 0 ] );
+    assertSame( column, items[ 1 ] );
+    assertSame( item, items[ 2 ] );
   }
 
   public void testGetAdapter_ICellToolTipAdapter() {
