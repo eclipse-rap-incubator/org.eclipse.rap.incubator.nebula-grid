@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.eclipse.nebula.widgets.grid.internal.gridcolumngroupkip;
 
+import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
 import static org.eclipse.nebula.widgets.grid.internal.gridkit.GridLCATestUtil.jsonEquals;
 
 import java.io.IOException;
@@ -32,10 +33,13 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.TreeAdapter;
 import org.eclipse.swt.events.TreeEvent;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.internal.graphics.ImageFactory;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import junit.framework.TestCase;
 
@@ -99,6 +103,81 @@ public class GridColumnGroupLCA_Test extends TestCase {
     Operation operation = message.getOperation( 0 );
     assertTrue( operation instanceof DestroyOperation );
     assertEquals( WidgetUtil.getId( group ), operation.getTarget() );
+  }
+
+  public void testRenderInitialText() throws IOException {
+    lca.render( group );
+
+    Message message = Fixture.getProtocolMessage();
+    CreateOperation operation = message.findCreateOperation( group );
+    assertTrue( operation.getPropertyNames().indexOf( "text" ) == -1 );
+  }
+
+  public void testRenderText() throws IOException {
+    group.setText( "foo" );
+    lca.renderChanges( group );
+
+    Message message = Fixture.getProtocolMessage();
+    assertEquals( "foo", message.findSetProperty( group, "text" ) );
+  }
+
+  public void testRenderTextUnchanged() throws IOException {
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( group );
+
+    group.setText( "foo" );
+    Fixture.preserveWidgets();
+    lca.renderChanges( group );
+
+    Message message = Fixture.getProtocolMessage();
+    assertNull( message.findSetOperation( group, "text" ) );
+  }
+
+  public void testRenderInitialImage() throws IOException {
+    lca.renderChanges( group );
+
+    Message message = Fixture.getProtocolMessage();
+    assertNull( message.findSetOperation( group, "image" ) );
+  }
+
+  public void testRenderImage() throws IOException, JSONException {
+    Image image = loadImage( display, Fixture.IMAGE_100x50 );
+
+    group.setImage( image );
+    lca.renderChanges( group );
+
+    Message message = Fixture.getProtocolMessage();
+    String imageLocation = ImageFactory.getImagePath( image );
+    String expected = "[\"" + imageLocation + "\", 100, 50 ]";
+    JSONArray actual = ( JSONArray )message.findSetProperty( group, "image" );
+    assertTrue( jsonEquals( expected, actual ) );
+  }
+
+  public void testRenderImageUnchanged() throws IOException {
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( group );
+    Image image = loadImage( display, Fixture.IMAGE_100x50 );
+
+    group.setImage( image );
+    Fixture.preserveWidgets();
+    lca.renderChanges( group );
+
+    Message message = Fixture.getProtocolMessage();
+    assertNull( message.findSetOperation( group, "image" ) );
+  }
+
+  public void testRenderImageReset() throws IOException {
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( group );
+    Image image = loadImage( display, Fixture.IMAGE_100x50 );
+    group.setImage( image );
+
+    Fixture.preserveWidgets();
+    group.setImage( null );
+    lca.renderChanges( group );
+
+    Message message = Fixture.getProtocolMessage();
+    assertEquals( JSONObject.NULL, message.findSetProperty( group, "image" ) );
   }
 
   public void testRenderInitialFont() throws IOException {

@@ -25,6 +25,7 @@ import org.eclipse.rwt.lifecycle.WidgetLCAUtil;
 import org.eclipse.rwt.lifecycle.WidgetUtil;
 import org.eclipse.swt.events.TreeEvent;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.internal.widgets.ItemLCAUtil;
 import org.eclipse.swt.widgets.Widget;
 
 
@@ -55,6 +56,7 @@ public class GridColumnGroupLCA extends AbstractWidgetLCA {
   @Override
   public void preserveValues( Widget widget ) {
     GridColumnGroup group = ( GridColumnGroup )widget;
+    ItemLCAUtil.preserve( group );
     preserveProperty( group, PROP_FONT, group.getHeaderFont() );
     preserveProperty( group, PROP_EXPANDED, group.getExpanded() );
   }
@@ -62,6 +64,7 @@ public class GridColumnGroupLCA extends AbstractWidgetLCA {
   @Override
   public void renderChanges( Widget widget ) throws IOException {
     GridColumnGroup group = ( GridColumnGroup )widget;
+    ItemLCAUtil.renderChanges( group );
     renderFont( group, PROP_FONT, group.getHeaderFont() );
     renderProperty( group, PROP_EXPANDED, group.getExpanded(), true );
   }
