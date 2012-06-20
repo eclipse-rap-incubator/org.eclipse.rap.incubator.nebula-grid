@@ -47,6 +47,7 @@ public class GridColumnLCA extends AbstractWidgetLCA {
   private static final String PROP_ALIGNMENT = "alignment";
   private static final String PROP_RESIZABLE = "resizable";
   private static final String PROP_MOVEABLE = "moveable";
+  private static final String PROP_VISIBLE = "visibility";
   private static final String PROP_SELECTION_LISTENER = "selection";
 
   private static final int ZERO = 0;
@@ -79,6 +80,7 @@ public class GridColumnLCA extends AbstractWidgetLCA {
     preserveProperty( column, PROP_ALIGNMENT, getAlignment( column ) );
     preserveProperty( column, PROP_RESIZABLE, column.getResizeable() );
     preserveProperty( column, PROP_MOVEABLE, column.getMoveable() );
+    preserveProperty( column, PROP_VISIBLE, column.isVisible() );
     preserveListener( column, PROP_SELECTION_LISTENER, SelectionEvent.hasListener( column ) );
   }
 
@@ -94,6 +96,7 @@ public class GridColumnLCA extends AbstractWidgetLCA {
     renderProperty( column, PROP_ALIGNMENT, getAlignment( column ), DEFAULT_ALIGNMENT );
     renderProperty( column, PROP_RESIZABLE, column.getResizeable(), true );
     renderProperty( column, PROP_MOVEABLE, column.getMoveable(), false );
+    renderProperty( column, PROP_VISIBLE, column.isVisible(), true );
     renderListener( column, PROP_SELECTION_LISTENER, SelectionEvent.hasListener( column ), false );
   }
 

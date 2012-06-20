@@ -405,6 +405,34 @@ public class GridColumnLCA_Test extends TestCase {
     assertNull( message.findSetOperation( column, "moveable" ) );
   }
 
+  public void testRenderInitialVisible() throws IOException {
+    lca.render( column );
+
+    Message message = Fixture.getProtocolMessage();
+    CreateOperation operation = message.findCreateOperation( column );
+    assertTrue( operation.getPropertyNames().indexOf( "visibility" ) == -1 );
+  }
+
+  public void testRenderVisible() throws IOException {
+    column.setVisible( false );
+    lca.renderChanges( column );
+
+    Message message = Fixture.getProtocolMessage();
+    assertEquals( Boolean.FALSE, message.findSetProperty( column, "visibility" ) );
+  }
+
+  public void testRenderVisibleUnchanged() throws IOException {
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( column );
+
+    column.setVisible( false );
+    Fixture.preserveWidgets();
+    lca.renderChanges( column );
+
+    Message message = Fixture.getProtocolMessage();
+    assertNull( message.findSetOperation( column, "visibility" ) );
+  }
+
   public void testRenderAddSelectionListener() throws Exception {
     Fixture.markInitialized( display );
     Fixture.markInitialized( column );
