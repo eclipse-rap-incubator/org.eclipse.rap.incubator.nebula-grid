@@ -20,6 +20,7 @@ import java.util.Arrays;
 
 import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridColumn;
+import org.eclipse.nebula.widgets.grid.GridColumnGroup;
 import org.eclipse.nebula.widgets.grid.internal.IGridAdapter;
 import org.eclipse.rwt.internal.protocol.ClientObjectFactory;
 import org.eclipse.rwt.internal.protocol.IClientObject;
@@ -59,6 +60,10 @@ public class GridColumnLCA extends AbstractWidgetLCA {
     IClientObject clientObject = ClientObjectFactory.getClientObject( column );
     clientObject.create( TYPE );
     clientObject.set( "parent", WidgetUtil.getId( column.getParent() ) );
+    GridColumnGroup group = column.getColumnGroup();
+    if( group != null ) {
+      clientObject.set( "group", WidgetUtil.getId( group ) );
+    }
   }
 
   public void readData( Widget widget ) {

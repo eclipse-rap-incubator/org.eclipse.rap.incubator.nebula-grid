@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridColumn;
+import org.eclipse.nebula.widgets.grid.GridColumnGroup;
 import org.eclipse.rap.rwt.testfixture.Fixture;
 import org.eclipse.rap.rwt.testfixture.Message;
 import org.eclipse.rap.rwt.testfixture.Message.CreateOperation;
@@ -75,6 +76,7 @@ public class GridColumnLCA_Test extends TestCase {
     Message message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( column );
     assertEquals( "rwt.widgets.GridColumn", operation.getType() );
+    assertFalse( operation.getPropertyNames().contains( "group" ) );
   }
 
   public void testRenderCreateWithAligment() throws IOException {
@@ -94,6 +96,17 @@ public class GridColumnLCA_Test extends TestCase {
     Message message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( column );
     assertEquals( WidgetUtil.getId( column.getParent() ), operation.getParent() );
+  }
+
+  public void testRenderGroup() throws IOException {
+    GridColumnGroup group = new GridColumnGroup( grid, SWT.NONE );
+    column = new GridColumn( group, SWT.NONE );
+
+    lca.renderInitialization( column );
+
+    Message message = Fixture.getProtocolMessage();
+    CreateOperation operation = message.findCreateOperation( column );
+    assertEquals( WidgetUtil.getId( group ), operation.getProperty( "group" ) );
   }
 
   public void testRenderDispose() throws IOException {
