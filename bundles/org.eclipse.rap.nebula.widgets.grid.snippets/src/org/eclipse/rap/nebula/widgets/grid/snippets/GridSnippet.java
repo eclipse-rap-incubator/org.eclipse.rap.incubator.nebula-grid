@@ -13,6 +13,8 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TreeEvent;
 import org.eclipse.swt.events.TreeListener;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -51,6 +53,7 @@ public class GridSnippet extends GridSnippetBase {
     grid = new Grid( parent, style );
     grid.setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, true, 1, 20 ) );
     grid.setHeaderVisible( true );
+    grid.setFooterVisible( true );
     addGridListeners();
     createGridColumns();
     createGridItems();
@@ -82,6 +85,7 @@ public class GridSnippet extends GridSnippetBase {
     for( int i = 0; i < COLUMN_COUNT; i++ ) {
       GridColumn column = new GridColumn( grid, SWT.NONE );
       column.setText( "Column " + i );
+      column.setFooterText( "Footer " + i );
       column.setWidth( 250 );
       column.setMoveable( true );
       column.addControlListener( new ControlListener() {
@@ -108,10 +112,13 @@ public class GridSnippet extends GridSnippetBase {
         case 0:
           column.setImage( image );
           column.setSort( SWT.DOWN );
+          column.setFooterImage( image );
           break;
         case 1:
           column.setAlignment( SWT.CENTER );
           column.setImage( image );
+          column.setHeaderFont( new Font( column.getDisplay(), new FontData( "Comic Sans MS", 16, 0 ) ) );
+          column.setFooterFont( new Font( column.getDisplay(), new FontData( "Segoe Script", 16, 0 ) ) );
           break;
         case 2:
           column.setAlignment( SWT.RIGHT );
