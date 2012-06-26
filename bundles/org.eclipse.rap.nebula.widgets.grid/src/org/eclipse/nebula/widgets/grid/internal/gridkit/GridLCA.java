@@ -64,6 +64,8 @@ public class GridLCA extends AbstractWidgetLCA {
   private static final String PROP_TREE_COLUMN = "treeColumn";
   private static final String PROP_HEADER_HEIGHT = "headerHeight";
   private static final String PROP_HEADER_VISIBLE = "headerVisible";
+  private static final String PROP_FOOTER_HEIGHT = "footerHeight";
+  private static final String PROP_FOOTER_VISIBLE = "footerVisible";
   private static final String PROP_LINES_VISIBLE = "linesVisible";
   private static final String PROP_TOP_ITEM_INDEX = "topItemIndex";
   private static final String PROP_FOCUS_ITEM = "focusItem";
@@ -127,6 +129,8 @@ public class GridLCA extends AbstractWidgetLCA {
     preserveProperty( grid, PROP_TREE_COLUMN, getTreeColumn( grid ) );
     preserveProperty( grid, PROP_HEADER_HEIGHT, grid.getHeaderHeight() );
     preserveProperty( grid, PROP_HEADER_VISIBLE, grid.getHeaderVisible() );
+    preserveProperty( grid, PROP_FOOTER_HEIGHT, grid.getFooterHeight() );
+    preserveProperty( grid, PROP_FOOTER_VISIBLE, grid.getFooterVisible() );
     preserveProperty( grid, PROP_LINES_VISIBLE, grid.getLinesVisible() );
     preserveProperty( grid, PROP_TOP_ITEM_INDEX, getTopItemIndex( grid ) );
     preserveProperty( grid, PROP_FOCUS_ITEM, grid.getFocusItem() );
@@ -155,6 +159,8 @@ public class GridLCA extends AbstractWidgetLCA {
     renderProperty( grid, PROP_TREE_COLUMN, getTreeColumn( grid ), ZERO );
     renderProperty( grid, PROP_HEADER_HEIGHT, grid.getHeaderHeight(), ZERO );
     renderProperty( grid, PROP_HEADER_VISIBLE, grid.getHeaderVisible(), false );
+    renderProperty( grid, PROP_FOOTER_HEIGHT, grid.getFooterHeight(), ZERO );
+    renderProperty( grid, PROP_FOOTER_VISIBLE, grid.getFooterVisible(), false );
     renderProperty( grid, PROP_LINES_VISIBLE, grid.getLinesVisible(), false );
     renderProperty( grid, PROP_TOP_ITEM_INDEX, getTopItemIndex( grid ), ZERO );
     renderProperty( grid, PROP_FOCUS_ITEM, grid.getFocusItem(), null );
