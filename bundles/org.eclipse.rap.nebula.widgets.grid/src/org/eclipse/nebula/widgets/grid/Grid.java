@@ -86,6 +86,7 @@ public class Grid extends Canvas {
   private boolean selectionEnabled = true;
   private boolean cellSelectionEnabled;
   private int customItemHeight = -1;
+  private int groupHeaderHeight;
   private Point itemImageSize;
   private ControlListener resizeListener;
   private boolean isTemporaryResize;
@@ -1837,6 +1838,25 @@ public class Grid extends Canvas {
   }
 
   /**
+   * Returns the height of the column group headers.
+   *
+   * @return height of column group headers
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public int getGroupHeaderHeight() {
+    checkWidget();
+    if( !layoutCache.hasHeaderHeight() ) {
+      layoutCache.headerHeight = computeHeaderHeight();
+    }
+    return groupHeaderHeight;
+  }
+
+  /**
    * Sets the line visibility.
    *
    * @param linesVisible The linesVisible to set.
@@ -2598,6 +2618,7 @@ public class Grid extends Canvas {
 
   private int computeHeaderHeight() {
     int result = 0;
+    groupHeaderHeight = 0;
     if( columnHeadersVisible ) {
       int columnHeaderHeight = 0;
       for( int i = 0; i < getColumnCount(); i++ ) {
@@ -2605,10 +2626,19 @@ public class Grid extends Canvas {
         Font headerFont = column.getHeaderFont();
         String headerText = column.getText();
         Image headerImage = column.getImage();
-        int computedHeight = computeColumnHeight( headerFont, headerText, headerImage );
-        columnHeaderHeight= Math.max( columnHeaderHeight, computedHeight );
+        int computedHeight = computeColumnHeight( headerFont, headerText, headerImage, 0 );
+        columnHeaderHeight = Math.max( columnHeaderHeight, computedHeight );
       }
-      result = columnHeaderHeight + getThemeAdapter().getHeaderBorderBottomWidth( this );
+      for( int i = 0; i < getColumnGroupCount(); i++ ) {
+        GridColumnGroup group = columnGroups.get( i );
+        Font groupFont = group.getHeaderFont();
+        String groupText = group.getText();
+        Image groupImage = group.getImage();
+        int chevronHeight = group.getChevronHeight();
+        int computedHeight = computeColumnHeight( groupFont, groupText, groupImage, chevronHeight );
+        groupHeaderHeight = Math.max( groupHeaderHeight, computedHeight );
+      }
+      result = columnHeaderHeight + groupHeaderHeight;
     }
     return result;
   }
@@ -2622,24 +2652,27 @@ public class Grid extends Canvas {
         Font footerFont = column.getFooterFont();
         String footerText = column.getFooterText();
         Image footerImage = column.getFooterImage();
-        int computedHeight = computeColumnHeight( footerFont, footerText, footerImage );
+        int computedHeight = computeColumnHeight( footerFont, footerText, footerImage, 0 );
         columnFooterHeight= Math.max( columnFooterHeight, computedHeight );
       }
-      result = columnFooterHeight + getThemeAdapter().getHeaderBorderBottomWidth( this );
+      result = columnFooterHeight;
     }
     return result;
   }
 
-  private int computeColumnHeight( Font font, String text, Image image ) {
+  private int computeColumnHeight( Font font, String text, Image image, int minHeight ) {
+    int result = minHeight;
     int textHeight = 0;
     if( text.contains( "\n" ) ) {
       textHeight = Graphics.textExtent( font, text, 0 ).y;
     } else {
       textHeight = Graphics.getCharHeight( font );
     }
+    result = Math.max( result, textHeight );
     int imageHeight = image == null ? 0 : image.getBounds().height;
-    int result = Math.max( textHeight, imageHeight );
+    result = Math.max( result, imageHeight );
     result += getHeaderPadding().height;
+    result += getThemeAdapter().getHeaderBorderBottomWidth( this );
     return result;
   }
 

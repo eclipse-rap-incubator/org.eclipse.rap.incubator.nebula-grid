@@ -336,6 +336,37 @@ public class GridColumnGroupLCA_Test extends TestCase {
     assertNull( message.findSetOperation( group, "width" ) );
   }
 
+  public void testRenderInitialHeight() throws IOException {
+    lca.render( group );
+
+    Message message = Fixture.getProtocolMessage();
+    CreateOperation operation = message.findCreateOperation( group );
+    assertTrue( operation.getPropertyNames().indexOf( "height" ) == -1 );
+  }
+
+  public void testRenderHeight() throws IOException {
+    createGridColumns( group, 1, SWT.NONE );
+    grid.setHeaderVisible( true );
+
+    lca.renderChanges( group );
+
+    Message message = Fixture.getProtocolMessage();
+    assertEquals( Integer.valueOf( 31 ), message.findSetProperty( group, "height" ) );
+  }
+
+  public void testRenderHeightUnchanged() throws IOException {
+    createGridColumns( group, 1, SWT.NONE );
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( group );
+
+    grid.setHeaderVisible( true );
+    Fixture.preserveWidgets();
+    lca.renderChanges( group );
+
+    Message message = Fixture.getProtocolMessage();
+    assertNull( message.findSetOperation( group, "height" ) );
+  }
+
   public void testRenderInitialVisible() throws IOException {
     createGridColumns( group, 1, SWT.NONE );
 

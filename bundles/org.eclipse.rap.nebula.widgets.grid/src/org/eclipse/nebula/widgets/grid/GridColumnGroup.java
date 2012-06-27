@@ -17,6 +17,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.TreeEvent;
 import org.eclipse.swt.events.TreeListener;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Item;
 
 
@@ -39,6 +40,8 @@ import org.eclipse.swt.widgets.Item;
  * </dl>
  */
 public class GridColumnGroup extends Item {
+
+  private static final int CHEVRON_HEIGHT = 16;
 
   private Grid parent;
   private List<GridColumn> columns = new ArrayList<GridColumn>();
@@ -237,7 +240,20 @@ public class GridColumnGroup extends Item {
     if( font != null && font.isDisposed() ) {
       SWT.error( SWT.ERROR_INVALID_ARGUMENT );
     }
+    parent.layoutCache.invalidateHeaderHeight();
     headerFont = font;
+  }
+
+  @Override
+  public void setText( String text ) {
+    super.setText( text );
+    parent.layoutCache.invalidateHeaderHeight();
+  }
+
+  @Override
+  public void setImage( Image image ) {
+    super.setImage( image );
+    parent.layoutCache.invalidateHeaderHeight();
   }
 
   void newColumn( GridColumn column ) {
@@ -255,5 +271,9 @@ public class GridColumnGroup extends Item {
       result = parent.indexOf( lastColumn ) + 1;
     }
     return result;
+  }
+
+  int getChevronHeight() {
+    return ( getStyle() & SWT.TOGGLE ) != 0 ? CHEVRON_HEIGHT : 0;
   }
 }

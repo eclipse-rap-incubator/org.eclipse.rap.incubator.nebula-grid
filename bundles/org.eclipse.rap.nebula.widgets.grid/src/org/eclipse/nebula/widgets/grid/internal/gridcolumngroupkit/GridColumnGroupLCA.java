@@ -148,8 +148,7 @@ public class GridColumnGroupLCA extends AbstractWidgetLCA {
   }
 
   private static int getHeight( GridColumnGroup group ) {
-    int result = 0;
-    return result;
+    return group.getParent().getGroupHeaderHeight();
   }
 
   private static boolean isVisible( GridColumnGroup group ) {

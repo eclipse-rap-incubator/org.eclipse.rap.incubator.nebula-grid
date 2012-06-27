@@ -1685,6 +1685,21 @@ public class Grid_Test extends TestCase {
     assertEquals( 67, grid.getHeaderHeight() );
   }
 
+  public void testGetHeaderHeight_WithColumnGroup() {
+    grid.setHeaderVisible( true );
+    Image image = loadImage( display, Fixture.IMAGE_100x50 );
+    GridColumn[] columns = createGridColumns( grid, 1, SWT.NONE );
+    columns[ 0 ].setImage( image );
+    columns[ 0 ].setText( "foo" );
+    GridColumnGroup group = new GridColumnGroup( grid, SWT.NONE );
+    group.setImage( image );
+    group.setText( "foo" );
+    createGridColumns( group, 1, SWT.NONE );
+
+    assertEquals( 134, grid.getHeaderHeight() );
+    assertEquals( 67, grid.getGroupHeaderHeight() );
+  }
+
   public void testGetHeaderHeight_DifferentColumnHeaderFonts() {
     grid.setHeaderVisible( true );
     GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
@@ -1821,6 +1836,26 @@ public class Grid_Test extends TestCase {
     columns[ 1 ].setFooterFont( new Font( display, "Arial", 20, SWT.NORMAL ) );
 
     assertEquals( 37, grid.getFooterHeight() );
+  }
+
+  public void testGetGroupHeaderHeight_Initial() {
+    createGridColumns( grid, 1, SWT.NONE );
+    GridColumnGroup group = new GridColumnGroup( grid, SWT.NONE );
+    createGridColumns( group, 1, SWT.NONE );
+
+    assertEquals( 0, grid.getGroupHeaderHeight() );
+  }
+
+  public void testGetGroupHeaderHeight() {
+    grid.setHeaderVisible( true );
+    createGridColumns( grid, 1, SWT.NONE );
+    GridColumnGroup group = new GridColumnGroup( grid, SWT.NONE );
+    createGridColumns( group, 1, SWT.NONE );
+    Image image = loadImage( display, Fixture.IMAGE_100x50 );
+    group.setImage( image );
+    group.setText( "foo" );
+
+    assertEquals( 67, grid.getGroupHeaderHeight() );
   }
 
   public void testComputeSize() {
