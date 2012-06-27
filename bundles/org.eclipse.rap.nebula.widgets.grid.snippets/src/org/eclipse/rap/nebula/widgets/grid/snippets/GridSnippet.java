@@ -14,7 +14,6 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TreeEvent;
 import org.eclipse.swt.events.TreeListener;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -30,8 +29,8 @@ public class GridSnippet extends GridSnippetBase {
   private static int ROOT_ITEM_COUNT = 20;
   private static int SUB_ITEM_COUNT = 10;
 
-  private Image image;
   private Grid grid;
+  private Image image;
 
   @Override
   protected void createContents( Composite parent ) {
@@ -40,7 +39,9 @@ public class GridSnippet extends GridSnippetBase {
     createGrid( parent );
     createAddRemoveItemButton( parent );
     createTopIndexButton( parent );
-    createShowColumn( parent );
+    createShowColumnGroup( parent );
+    createShowHeaderButton( parent );
+    createShowFooterButton( parent );
   }
 
   @Override
@@ -117,8 +118,8 @@ public class GridSnippet extends GridSnippetBase {
         case 1:
           column.setAlignment( SWT.CENTER );
           column.setImage( image );
-          column.setHeaderFont( new Font( column.getDisplay(), new FontData( "Comic Sans MS", 16, 0 ) ) );
-          column.setFooterFont( new Font( column.getDisplay(), new FontData( "Segoe Script", 16, 0 ) ) );
+          column.setHeaderFont( new Font( column.getDisplay(), "Comic Sans MS", 16, SWT.NORMAL ) );
+          column.setFooterFont( new Font( column.getDisplay(), "Segoe Script", 16, SWT.NORMAL ) );
           break;
         case 2:
           column.setAlignment( SWT.RIGHT );
@@ -217,7 +218,7 @@ public class GridSnippet extends GridSnippetBase {
     } );
   }
 
-  private void createShowColumn( Composite parent ) {
+  private void createShowColumnGroup( Composite parent ) {
     Composite composite = new Composite( parent, SWT.NONE );
     composite.setLayout( new GridLayout( 3, false ) );
     Label showColumnLabel = new Label( composite, SWT.NONE );
@@ -240,6 +241,30 @@ public class GridSnippet extends GridSnippetBase {
           grid.showColumn( grid.getColumn( index ) );
         }
       }
+    } );
+  }
+
+  private void createShowHeaderButton( Composite parent ) {
+    final Button button = new Button( parent, SWT.CHECK );
+    button.setText( "Show header" );
+    button.setSelection( true );
+    button.addSelectionListener( new SelectionAdapter() {
+      @Override
+      public void widgetSelected( SelectionEvent event ) {
+        grid.setHeaderVisible( button.getSelection() );
+      };
+    } );
+  }
+
+  private void createShowFooterButton( Composite parent ) {
+    final Button button = new Button( parent, SWT.CHECK );
+    button.setText( "Show footer" );
+    button.setSelection( true );
+    button.addSelectionListener( new SelectionAdapter() {
+      @Override
+      public void widgetSelected( SelectionEvent event ) {
+        grid.setFooterVisible( button.getSelection() );
+      };
     } );
   }
 
