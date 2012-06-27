@@ -102,7 +102,6 @@ public class GridColumnGroupLCA extends AbstractWidgetLCA {
       ProcessActionRunner.add( new Runnable() {
         public void run() {
           group.setExpanded( expanded );
-          preserveProperty( group, PROP_EXPANDED, expanded );
         }
       } );
       if( TreeEvent.hasListener( group ) ) {
