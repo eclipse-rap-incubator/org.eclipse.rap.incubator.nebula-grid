@@ -30,7 +30,6 @@ import org.eclipse.rap.rwt.testfixture.Message.Operation;
 import org.eclipse.rwt.internal.lifecycle.JSConst;
 import org.eclipse.rwt.lifecycle.WidgetUtil;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.TreeAdapter;
 import org.eclipse.swt.events.TreeEvent;
 import org.eclipse.swt.graphics.Font;
@@ -251,7 +250,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     Fixture.readDataAndProcessAction( group );
 
     assertEquals( 1, events.size() );
-    SelectionEvent event = events.get( 0 );
+    TreeEvent event = events.get( 0 );
     assertEquals( SWT.Expand, event.getID() );
     assertEquals( group, event.getSource() );
     assertTrue( group.getExpanded() );
@@ -266,7 +265,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     Fixture.readDataAndProcessAction( group );
 
     assertEquals( 1, events.size() );
-    SelectionEvent event = events.get( 0 );
+    TreeEvent event = events.get( 0 );
     assertEquals( SWT.Collapse, event.getID() );
     assertEquals( group, event.getSource() );
     assertFalse( group.getExpanded() );
