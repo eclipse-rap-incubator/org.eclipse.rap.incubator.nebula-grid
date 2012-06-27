@@ -23,6 +23,7 @@ import org.eclipse.rwt.internal.protocol.ClientObjectFactory;
 import org.eclipse.rwt.internal.protocol.IClientObject;
 import org.eclipse.rwt.internal.protocol.ProtocolUtil;
 import org.eclipse.rwt.lifecycle.AbstractWidgetLCA;
+import org.eclipse.rwt.lifecycle.ProcessActionRunner;
 import org.eclipse.rwt.lifecycle.WidgetLCAUtil;
 import org.eclipse.rwt.lifecycle.WidgetUtil;
 import org.eclipse.swt.events.TreeEvent;
@@ -95,10 +96,15 @@ public class GridColumnGroupLCA extends AbstractWidgetLCA {
   ////////////////////////////////////////////
   // Helping methods to read client-side state
 
-  private static void processTreeEvent( GridColumnGroup group, String eventName ) {
+  private static void processTreeEvent( final GridColumnGroup group, String eventName ) {
     if( WidgetLCAUtil.wasEventSent( group, eventName ) ) {
-      boolean expanded = eventName.equals( JSConst.EVENT_TREE_EXPANDED );
-      group.setExpanded( expanded );
+      final boolean expanded = eventName.equals( JSConst.EVENT_TREE_EXPANDED );
+      ProcessActionRunner.add( new Runnable() {
+        public void run() {
+          group.setExpanded( expanded );
+          preserveProperty( group, PROP_EXPANDED, expanded );
+        }
+      } );
       if( TreeEvent.hasListener( group ) ) {
         int eventType = expanded ? TreeEvent.TREE_EXPANDED : TreeEvent.TREE_COLLAPSED;
         TreeEvent event = new TreeEvent( group, null, eventType );

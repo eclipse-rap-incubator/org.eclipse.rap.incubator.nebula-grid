@@ -138,6 +138,7 @@ public class GridItemLCA extends AbstractWidgetLCA {
       ProcessActionRunner.add( new Runnable() {
         public void run() {
           item.setExpanded( expanded );
+          preserveProperty( item, PROP_EXPANDED, expanded );
         }
       } );
       if( expanded ) {
