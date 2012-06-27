@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.eclipse.nebula.widgets.grid.internal.gridcolumngroupkip;
 
+import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridColumns;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
 import static org.eclipse.nebula.widgets.grid.internal.gridkit.GridLCATestUtil.jsonEquals;
 
@@ -269,6 +270,131 @@ public class GridColumnGroupLCA_Test extends TestCase {
     assertEquals( SWT.Collapse, event.getID() );
     assertEquals( group, event.getSource() );
     assertFalse( group.getExpanded() );
+  }
+
+  public void testRenderInitialLeft() throws IOException {
+    lca.render( group );
+
+    Message message = Fixture.getProtocolMessage();
+    CreateOperation operation = message.findCreateOperation( group );
+    assertTrue( operation.getPropertyNames().indexOf( "left" ) == -1 );
+  }
+
+  public void testRenderLeft() throws IOException {
+    createGridColumns( grid, 3, SWT.NONE );
+    grid.getColumn( 1 ).setVisible( false );
+    createGridColumns( group, 3, SWT.NONE );
+
+    grid.getColumn( 0 ).setWidth( 30 );
+    lca.renderChanges( group );
+
+    Message message = Fixture.getProtocolMessage();
+    assertEquals( Integer.valueOf( 90 ), message.findSetProperty( group, "left" ) );
+  }
+
+  public void testRenderLeftUnchanged() throws IOException {
+    createGridColumns( grid, 3, SWT.NONE );
+    grid.getColumn( 1 ).setVisible( false );
+    createGridColumns( group, 3, SWT.NONE );
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( group );
+
+    grid.getColumn( 0 ).setWidth( 30 );
+    Fixture.preserveWidgets();
+    lca.renderChanges( group );
+
+    Message message = Fixture.getProtocolMessage();
+    assertNull( message.findSetOperation( group, "left" ) );
+  }
+
+  public void testRenderInitialWidth() throws IOException {
+    lca.render( group );
+
+    Message message = Fixture.getProtocolMessage();
+    CreateOperation operation = message.findCreateOperation( group );
+    assertTrue( operation.getPropertyNames().indexOf( "width" ) == -1 );
+  }
+
+  public void testRenderWidth() throws IOException {
+    createGridColumns( group, 1, SWT.NONE );
+
+    lca.renderChanges( group );
+
+    Message message = Fixture.getProtocolMessage();
+    assertEquals( Integer.valueOf( 20 ), message.findSetProperty( group, "width" ) );
+  }
+
+  public void testRenderWidthUnchanged() throws IOException {
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( group );
+
+    createGridColumns( group, 1, SWT.NONE );
+    Fixture.preserveWidgets();
+    lca.renderChanges( group );
+
+    Message message = Fixture.getProtocolMessage();
+    assertNull( message.findSetOperation( group, "width" ) );
+  }
+
+  public void testRenderInitialVisible() throws IOException {
+    createGridColumns( group, 1, SWT.NONE );
+
+    lca.render( group );
+
+    Message message = Fixture.getProtocolMessage();
+    CreateOperation operation = message.findCreateOperation( group );
+    assertTrue( operation.getPropertyNames().indexOf( "visibility" ) == -1 );
+  }
+
+  public void testRenderVisible() throws IOException {
+    createGridColumns( group, 1, SWT.NONE );
+
+    grid.getColumn( 0 ).setVisible( false );
+    lca.renderChanges( group );
+
+    Message message = Fixture.getProtocolMessage();
+    assertEquals( Boolean.FALSE, message.findSetProperty( group, "visibility" ) );
+  }
+
+  public void testRenderVisibleUnchanged() throws IOException {
+    createGridColumns( group, 1, SWT.NONE );
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( group );
+
+    grid.getColumn( 0 ).setVisible( false );
+    Fixture.preserveWidgets();
+    lca.renderChanges( group );
+
+    Message message = Fixture.getProtocolMessage();
+    assertNull( message.findSetOperation( group, "visibility" ) );
+  }
+
+  public void testRenderInitialCustomVariant() throws IOException {
+    lca.render( group );
+
+    Message message = Fixture.getProtocolMessage();
+    CreateOperation operation = message.findCreateOperation( group );
+    assertTrue( operation.getPropertyNames().indexOf( "customVariant" ) == -1 );
+  }
+
+  public void testRenderCustomVariant() throws IOException {
+    group.setData( WidgetUtil.CUSTOM_VARIANT, "blue" );
+    lca.renderChanges( group );
+
+    Message message = Fixture.getProtocolMessage();
+    assertEquals( "variant_blue", message.findSetProperty( group, "customVariant" ) );
+  }
+
+  public void testRenderCustomVariantUnchanged() throws IOException {
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( group );
+
+    group.setData( WidgetUtil.CUSTOM_VARIANT, "blue" );
+    Fixture.preserveWidgets();
+    lca.renderChanges( group );
+
+    Message message = Fixture.getProtocolMessage();
+    assertNull( message.findSetOperation( group, "customVariant" ) );
   }
 
   //////////////////

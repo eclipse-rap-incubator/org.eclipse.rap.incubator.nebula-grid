@@ -15,6 +15,8 @@ import static org.eclipse.rwt.lifecycle.WidgetLCAUtil.renderProperty;
 
 import java.io.IOException;
 
+import org.eclipse.nebula.widgets.grid.Grid;
+import org.eclipse.nebula.widgets.grid.GridColumn;
 import org.eclipse.nebula.widgets.grid.GridColumnGroup;
 import org.eclipse.rwt.internal.lifecycle.JSConst;
 import org.eclipse.rwt.internal.protocol.ClientObjectFactory;
@@ -35,8 +37,14 @@ public class GridColumnGroupLCA extends AbstractWidgetLCA {
   private static final String TYPE = "rwt.widgets.GridColumnGroup";
   private static final String[] ALLOWED_STYLES = new String[] { "TOGGLE" };
 
+  private static final String PROP_LEFT = "left";
+  private static final String PROP_WIDTH = "width";
+  private static final String PROP_HEIGHT = "height";
+  private static final String PROP_VISIBLE = "visibility";
   private static final String PROP_FONT = "font";
   private static final String PROP_EXPANDED = "expanded";
+
+  private static final int ZERO = 0;
 
   @Override
   public void renderInitialization( Widget widget ) throws IOException {
@@ -56,7 +64,12 @@ public class GridColumnGroupLCA extends AbstractWidgetLCA {
   @Override
   public void preserveValues( Widget widget ) {
     GridColumnGroup group = ( GridColumnGroup )widget;
+    WidgetLCAUtil.preserveCustomVariant( group );
     ItemLCAUtil.preserve( group );
+    preserveProperty( group, PROP_LEFT, getLeft( group ) );
+    preserveProperty( group, PROP_WIDTH, getWidth( group ) );
+    preserveProperty( group, PROP_HEIGHT, getHeight( group ) );
+    preserveProperty( group, PROP_VISIBLE, isVisible( group ) );
     preserveProperty( group, PROP_FONT, group.getHeaderFont() );
     preserveProperty( group, PROP_EXPANDED, group.getExpanded() );
   }
@@ -64,7 +77,12 @@ public class GridColumnGroupLCA extends AbstractWidgetLCA {
   @Override
   public void renderChanges( Widget widget ) throws IOException {
     GridColumnGroup group = ( GridColumnGroup )widget;
+    WidgetLCAUtil.renderCustomVariant( group );
     ItemLCAUtil.renderChanges( group );
+    renderProperty( group, PROP_LEFT, getLeft( group ), ZERO );
+    renderProperty( group, PROP_WIDTH, getWidth( group ), ZERO );
+    renderProperty( group, PROP_HEIGHT, getHeight( group ), ZERO );
+    renderProperty( group, PROP_VISIBLE, isVisible( group ), true );
     renderFont( group, PROP_FONT, group.getHeaderFont() );
     renderProperty( group, PROP_EXPANDED, group.getExpanded(), true );
   }
@@ -97,5 +115,51 @@ public class GridColumnGroupLCA extends AbstractWidgetLCA {
       IClientObject clientObject = ClientObjectFactory.getClientObject( group );
       clientObject.set( property, ProtocolUtil.getFontAsArray( newValue ) );
     }
+  }
+
+  //////////////////
+  // Helping methods
+
+  private static int getLeft( GridColumnGroup group ) {
+    int result = 0;
+    Grid grid = group.getParent();
+    int[] columnOrder = grid.getColumnOrder();
+    boolean found = false;
+    for( int i = 0; i < columnOrder.length && !found; i++ ) {
+      GridColumn currentColumn = grid.getColumn( columnOrder[ i ] );
+      if( currentColumn.getColumnGroup() == group ) {
+        found = true;
+      } else if( currentColumn.isVisible() ) {
+        result += currentColumn.getWidth();
+      }
+    }
+    return result;
+  }
+
+  private static int getWidth( GridColumnGroup group ) {
+    int result = 0;
+    GridColumn[] columns = group.getColumns();
+    for( int i = 0; i < columns.length; i++ ) {
+      if( columns[ i ].isVisible() ) {
+        result += columns[ i ].getWidth();
+      }
+    }
+    return result;
+  }
+
+  private static int getHeight( GridColumnGroup group ) {
+    int result = 0;
+    return result;
+  }
+
+  private static boolean isVisible( GridColumnGroup group ) {
+    boolean result = false;
+    GridColumn[] columns = group.getColumns();
+    for( int i = 0; i < columns.length && !result; i++ ) {
+      if( columns[ i ].isVisible() ) {
+        result = true;
+      }
+    }
+    return result;
   }
 }
