@@ -1302,6 +1302,16 @@ public class Grid_Test extends TestCase {
     assertTrue( grid.getHeaderVisible() );
   }
 
+  public void testGetFooterVisible_Initial() {
+    assertFalse( grid.getFooterVisible() );
+  }
+
+  public void testSetFooterVisible() {
+    grid.setFooterVisible( true );
+
+    assertTrue( grid.getFooterVisible() );
+  }
+
   public void testGetLinesVisible_Initial() {
     assertTrue( grid.getLinesVisible() );
   }
@@ -1711,6 +1721,83 @@ public class Grid_Test extends TestCase {
     assertEquals( 37, grid.getHeaderHeight() );
   }
 
+  public void testGetFooterHeight_Initial() {
+    createGridColumns( grid, 3, SWT.NONE );
+
+    assertEquals( 0, grid.getFooterHeight() );
+  }
+
+  public void testGetFooterHeight() {
+    grid.setFooterVisible( true );
+    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
+    Image image = loadImage( display, Fixture.IMAGE_100x50 );
+    columns[ 0 ].setFooterImage( image );
+    columns[ 1 ].setFooterText( "foo" );
+
+    assertEquals( 67, grid.getFooterHeight() );
+  }
+
+  public void testGetFooterHeight_DifferentColumnFooterFonts() {
+    grid.setFooterVisible( true );
+    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
+    columns[ 0 ].setFooterFont( new Font( display, "Arial", 10, SWT.NORMAL ) );
+    columns[ 2 ].setFooterFont( new Font( display, "Arial", 20, SWT.NORMAL ) );
+
+    assertEquals( 37, grid.getFooterHeight() );
+  }
+
+  public void testGetFooterHeight_AfterColumnDispose() {
+    grid.setFooterVisible( true );
+    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
+    Image image = loadImage( display, Fixture.IMAGE_100x50 );
+    columns[ 0 ].setFooterImage( image );
+    columns[ 1 ].setFooterText( "foo" );
+    // fill the cache
+    grid.getFooterHeight();
+
+    columns[ 0 ].dispose();
+
+    assertEquals( 31, grid.getFooterHeight() );
+  }
+
+  public void testGetFooterHeight_AfterTextChange() {
+    grid.setFooterVisible( true );
+    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
+    columns[ 1 ].setFooterText( "foo" );
+    // fill the cache
+    grid.getFooterHeight();
+
+    columns[ 1 ].setFooterText( "foo\nbar" );
+
+    assertEquals( 52, grid.getFooterHeight() );
+  }
+
+  public void testGetFooterHeight_AfterImageChange() {
+    grid.setFooterVisible( true );
+    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
+    Image image = loadImage( display, Fixture.IMAGE_100x50 );
+    columns[ 0 ].setFooterImage( image );
+    columns[ 1 ].setFooterText( "foo" );
+    // fill the cache
+    grid.getFooterHeight();
+
+    columns[ 0 ].setFooterImage( null );
+
+    assertEquals( 31, grid.getFooterHeight() );
+  }
+
+  public void testGetFooterHeight_AfterFontChange() {
+    grid.setFooterVisible( true );
+    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
+    columns[ 1 ].setFooterText( "foo" );
+    // fill the cache
+    grid.getFooterHeight();
+
+    columns[ 1 ].setFooterFont( new Font( display, "Arial", 20, SWT.NORMAL ) );
+
+    assertEquals( 37, grid.getFooterHeight() );
+  }
+
   public void testComputeSize() {
     grid = new Grid( shell, SWT.NONE );
     createGridColumns( grid, 3, SWT.NONE );
@@ -1825,9 +1912,18 @@ public class Grid_Test extends TestCase {
 
   public void testUpdateScrollBars_OnHeaderVisible() {
     createGridColumns( grid, 1, SWT.NONE );
-    createGridItems( grid, 9, 3 );
+    createGridItems( grid, 7, 3 );
 
     grid.setHeaderVisible( true );
+
+    assertTrue( verticalBar.getVisible() );
+  }
+
+  public void testUpdateScrollBars_OnFooterVisible() {
+    createGridColumns( grid, 1, SWT.NONE );
+    createGridItems( grid, 7, 3 );
+
+    grid.setFooterVisible( true );
 
     assertTrue( verticalBar.getVisible() );
   }

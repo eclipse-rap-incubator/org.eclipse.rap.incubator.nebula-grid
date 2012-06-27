@@ -57,6 +57,9 @@ public class GridColumn extends Item {
   private int alignment = SWT.LEFT;
   private Font headerFont;
   private String headerTooltip;
+  private String footerText = "";
+  private Image footerImage;
+  private Font footerFont;
   private boolean packed;
   int imageCount;
 
@@ -784,6 +787,145 @@ public class GridColumn extends Item {
   }
 
   /**
+   * Sets the receiver's footer text.
+   *
+   * @param text
+   *            the new text
+   *
+   * @exception IllegalArgumentException
+   *                <ul>
+   *                <li>ERROR_NULL_ARGUMENT - if the text is null</li>
+   *                </ul>
+   * @exception org.eclipse.swt.SWTException
+   *                <ul>
+   *                <li>ERROR_WIDGET_DISPOSED - if the receiver has been
+   *                disposed</li>
+   *                <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *                thread that created the receiver</li>
+   *                </ul>
+   */
+  public void setFooterText( String text ) {
+    checkWidget();
+    if( text == null ) {
+      SWT.error( SWT.ERROR_NULL_ARGUMENT );
+    }
+    footerText = text;
+    parent.layoutCache.invalidateFooterHeight();
+  }
+
+  /**
+   * Returns the receiver's footer text, which will be an empty string if it
+   * has never been set.
+   *
+   * @return the receiver's text
+   *
+   * @exception org.eclipse.swt.SWTException
+   *                <ul>
+   *                <li>ERROR_WIDGET_DISPOSED - if the receiver has been
+   *                disposed</li>
+   *                <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *                thread that created the receiver</li>
+   *                </ul>
+   */
+  public String getFooterText() {
+    checkWidget();
+    return footerText;
+  }
+
+  /**
+   * Sets the receiver's footer image to the argument, which may be null
+   * indicating that no image should be displayed.
+   *
+   * @param image
+   *            the image to display on the receiver (may be null)
+   *
+   * @exception IllegalArgumentException
+   *                <ul>
+   *                <li>ERROR_INVALID_ARGUMENT - if the image has been
+   *                disposed</li>
+   *                </ul>
+   * @exception org.eclipse.swt.SWTException
+   *                <ul>
+   *                <li>ERROR_WIDGET_DISPOSED - if the receiver has been
+   *                disposed</li>
+   *                <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *                thread that created the receiver</li>
+   *                </ul>
+   */
+  public void setFooterImage( Image image ) {
+    checkWidget();
+    if( image != null && image.isDisposed() ) {
+      SWT.error( SWT.ERROR_INVALID_ARGUMENT );
+    }
+    footerImage = image;
+    parent.layoutCache.invalidateFooterHeight();
+  }
+
+  /**
+   * Returns the receiver's footer image if it has one, or null if it does
+   * not.
+   *
+   * @return the receiver's image
+   *
+   * @exception org.eclipse.swt.SWTException
+   *                <ul>
+   *                <li>ERROR_WIDGET_DISPOSED - if the receiver has been
+   *                disposed</li>
+   *                <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *                thread that created the receiver</li>
+   *                </ul>
+   */
+  public Image getFooterImage() {
+    checkWidget();
+    return footerImage;
+  }
+
+  /**
+   * Sets the Font to be used when displaying the Footer text.
+   *
+   * @param font
+   *            the new footer font (or null)
+   * @throws IllegalArgumentException
+   *             <ul>
+   *             <li>ERROR_INVALID_ARGUMENT - if the argument has been
+   *             disposed</li>
+   *             </ul>
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public void setFooterFont( Font font ) {
+    checkWidget();
+    if( font != null && font.isDisposed() ) {
+      SWT.error( SWT.ERROR_INVALID_ARGUMENT );
+    }
+    footerFont = font;
+    parent.layoutCache.invalidateFooterHeight();
+  }
+
+  /**
+   * Returns the font that the receiver will use to paint textual information
+   * for the footer.
+   *
+   * @return the receiver's font
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public Font getFooterFont() {
+    checkWidget();
+    return footerFont == null ? parent.getFont() : footerFont;
+  }
+
+  /**
    * Causes the receiver to be resized to its preferred size.
    *
    * @throws org.eclipse.swt.SWTException
@@ -824,25 +966,33 @@ public class GridColumn extends Item {
   }
 
   private int getPreferredWidth() {
-    return parent.getHeaderVisible() ? getContentWidth() : 0;
+    int headerWidth = 0;
+    if( parent.getHeaderVisible() ) {
+      String headerText = getText();
+      Image headerImage = getImage();
+      headerWidth = getContentWidth( getHeaderFont(), headerText, headerImage );
+      if( sortStyle != SWT.NONE ) {
+        headerWidth += SORT_INDICATOR_WIDTH;
+        if( headerText.length() > 0 || headerImage != null ) {
+          headerWidth += MARGIN_IMAGE;
+        }
+      }
+    }
+    int footerWidth = 0;
+    if( parent.getFooterVisible() ) {
+      footerWidth = getContentWidth( getFooterFont(), footerText, footerImage );
+    }
+    return Math.max( headerWidth, footerWidth );
   }
 
-  private int getContentWidth() {
+  private int getContentWidth( Font font, String text, Image image ) {
     int contentWidth = 0;
-    String text = getText();
-    Image image = getImage();
     if( text.length() > 0 ) {
-      contentWidth += Graphics.textExtent( getHeaderFont(), text, 0 ).x;
+      contentWidth += Graphics.textExtent( font, text, 0 ).x;
     }
     if( image != null ) {
       contentWidth += image.getBounds().width;
       if( text.length() > 0 ) {
-        contentWidth += MARGIN_IMAGE;
-      }
-    }
-    if( sortStyle != SWT.NONE ) {
-      contentWidth += SORT_INDICATOR_WIDTH;
-      if( text.length() > 0 || image != null ) {
         contentWidth += MARGIN_IMAGE;
       }
     }

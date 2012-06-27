@@ -34,6 +34,7 @@ import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.internal.graphics.ImageFactory;
 import org.eclipse.swt.widgets.Display;
@@ -713,6 +714,145 @@ public class GridColumnLCA_Test extends TestCase {
     assertEquals( 1, events.size() );
     SelectionEvent event = events.get( 0 );
     assertSame( column, event.widget );
+  }
+
+  public void testRenderInitialFont() throws IOException {
+    lca.render( column );
+
+    Message message = Fixture.getProtocolMessage();
+    CreateOperation operation = message.findCreateOperation( column );
+    assertTrue( operation.getPropertyNames().indexOf( "font" ) == -1 );
+  }
+
+  public void testRenderFont() throws IOException, JSONException {
+    column.setHeaderFont( new Font( display, "Arial", 20, SWT.BOLD ) );
+    lca.renderChanges( column );
+
+    Message message = Fixture.getProtocolMessage();
+    JSONArray actual = ( JSONArray )message.findSetProperty( column, "font" );
+    assertTrue( jsonEquals( "[\"Arial\"]", actual.getJSONArray( 0 ) ) );
+    assertEquals( Integer.valueOf( 20 ), actual.get( 1 ) );
+    assertEquals( Boolean.TRUE, actual.get( 2 ) );
+    assertEquals( Boolean.FALSE, actual.get( 3 ) );
+  }
+
+  public void testRenderFontUnchanged() throws IOException {
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( column );
+
+    column.setHeaderFont( new Font( display, "Arial", 20, SWT.BOLD ) );
+    Fixture.preserveWidgets();
+    lca.renderChanges( column );
+
+    Message message = Fixture.getProtocolMessage();
+    assertNull( message.findSetOperation( column, "font" ) );
+  }
+
+  public void testRenderInitialFooterFont() throws IOException {
+    lca.render( column );
+
+    Message message = Fixture.getProtocolMessage();
+    CreateOperation operation = message.findCreateOperation( column );
+    assertTrue( operation.getPropertyNames().indexOf( "footerFont" ) == -1 );
+  }
+
+  public void testRenderFooterFont() throws IOException, JSONException {
+    column.setFooterFont( new Font( display, "Arial", 20, SWT.BOLD ) );
+    lca.renderChanges( column );
+
+    Message message = Fixture.getProtocolMessage();
+    JSONArray actual = ( JSONArray )message.findSetProperty( column, "footerFont" );
+    assertTrue( jsonEquals( "[\"Arial\"]", actual.getJSONArray( 0 ) ) );
+    assertEquals( Integer.valueOf( 20 ), actual.get( 1 ) );
+    assertEquals( Boolean.TRUE, actual.get( 2 ) );
+    assertEquals( Boolean.FALSE, actual.get( 3 ) );
+  }
+
+  public void testRenderFooterFontUnchanged() throws IOException {
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( column );
+
+    column.setFooterFont( new Font( display, "Arial", 20, SWT.BOLD ) );
+    Fixture.preserveWidgets();
+    lca.renderChanges( column );
+
+    Message message = Fixture.getProtocolMessage();
+    assertNull( message.findSetOperation( column, "footerFont" ) );
+  }
+
+  public void testRenderInitialFooterText() throws IOException {
+    lca.render( column );
+
+    Message message = Fixture.getProtocolMessage();
+    CreateOperation operation = message.findCreateOperation( column );
+    assertTrue( operation.getPropertyNames().indexOf( "footerText" ) == -1 );
+  }
+
+  public void testRenderFooterText() throws IOException {
+    column.setFooterText( "foo" );
+    lca.renderChanges( column );
+
+    Message message = Fixture.getProtocolMessage();
+    assertEquals( "foo", message.findSetProperty( column, "footerText" ) );
+  }
+
+  public void testRenderFooterTextUnchanged() throws IOException {
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( column );
+
+    column.setFooterText( "foo" );
+    Fixture.preserveWidgets();
+    lca.renderChanges( column );
+
+    Message message = Fixture.getProtocolMessage();
+    assertNull( message.findSetOperation( column, "footerText" ) );
+  }
+
+  public void testRenderInitialFooterImage() throws IOException {
+    lca.renderChanges( column );
+
+    Message message = Fixture.getProtocolMessage();
+    assertNull( message.findSetOperation( column, "footerImage" ) );
+  }
+
+  public void testRenderFooterImage() throws IOException, JSONException {
+    Image image = loadImage( display, Fixture.IMAGE_100x50 );
+
+    column.setFooterImage( image );
+    lca.renderChanges( column );
+
+    Message message = Fixture.getProtocolMessage();
+    String imageLocation = ImageFactory.getImagePath( image );
+    String expected = "[\"" + imageLocation + "\", 100, 50 ]";
+    JSONArray actual = ( JSONArray )message.findSetProperty( column, "footerImage" );
+    assertTrue( jsonEquals( expected, actual ) );
+  }
+
+  public void testRenderFooterImageUnchanged() throws IOException {
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( column );
+    Image image = loadImage( display, Fixture.IMAGE_100x50 );
+
+    column.setFooterImage( image );
+    Fixture.preserveWidgets();
+    lca.renderChanges( column );
+
+    Message message = Fixture.getProtocolMessage();
+    assertNull( message.findSetOperation( column, "footerImage" ) );
+  }
+
+  public void testRenderFooterImageReset() throws IOException {
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( column );
+    Image image = loadImage( display, Fixture.IMAGE_100x50 );
+    column.setFooterImage( image );
+
+    Fixture.preserveWidgets();
+    column.setFooterImage( null );
+    lca.renderChanges( column );
+
+    Message message = Fixture.getProtocolMessage();
+    assertEquals( JSONObject.NULL, message.findSetProperty( column, "footerImage" ) );
   }
 
   //////////////////

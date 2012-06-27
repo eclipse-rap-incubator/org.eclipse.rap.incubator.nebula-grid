@@ -335,6 +335,67 @@ public class GridLCA_Test extends TestCase {
     assertNull( message.findSetOperation( grid, "headerVisible" ) );
   }
 
+  public void testRenderInitialFooterHeight() throws IOException {
+    new GridColumn( grid, SWT.NONE );
+
+    lca.render( grid );
+
+    Message message = Fixture.getProtocolMessage();
+    CreateOperation operation = message.findCreateOperation( grid );
+    assertTrue( operation.getPropertyNames().indexOf( "footerHeight" ) == -1 );
+  }
+
+  public void testRenderFooterHeight() throws IOException {
+    new GridColumn( grid, SWT.NONE );
+    grid.setFooterVisible( true );
+
+    lca.renderChanges( grid );
+
+    Message message = Fixture.getProtocolMessage();
+    assertEquals( Integer.valueOf( 31 ), message.findSetProperty( grid, "footerHeight" ) );
+  }
+
+  public void testRenderFooterHeightUnchanged() throws IOException {
+    new GridColumn( grid, SWT.NONE );
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( grid );
+
+    grid.setFooterVisible( true );
+    Fixture.preserveWidgets();
+    lca.renderChanges( grid );
+
+    Message message = Fixture.getProtocolMessage();
+    assertNull( message.findSetOperation( grid, "footerHeight" ) );
+  }
+
+  public void testRenderInitialFooterVisible() throws IOException {
+    lca.render( grid );
+
+    Message message = Fixture.getProtocolMessage();
+    CreateOperation operation = message.findCreateOperation( grid );
+    assertTrue( operation.getPropertyNames().indexOf( "footerVisible" ) == -1 );
+  }
+
+  public void testRenderFooterVisible() throws IOException {
+    grid.setFooterVisible( true );
+    lca.renderChanges( grid );
+
+    Message message = Fixture.getProtocolMessage();
+    assertEquals( Boolean.TRUE, message.findSetProperty( grid, "footerVisible" ) );
+  }
+
+  public void testRenderFooterVisibleUnchanged() throws IOException {
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( grid );
+
+    grid.setFooterVisible( true );
+    Fixture.preserveWidgets();
+    lca.renderChanges( grid );
+
+    Message message = Fixture.getProtocolMessage();
+    assertNull( message.findSetOperation( grid, "footerVisible" ) );
+  }
+
   public void testRenderInitialLinesVisible() throws IOException {
     lca.render( grid );
 

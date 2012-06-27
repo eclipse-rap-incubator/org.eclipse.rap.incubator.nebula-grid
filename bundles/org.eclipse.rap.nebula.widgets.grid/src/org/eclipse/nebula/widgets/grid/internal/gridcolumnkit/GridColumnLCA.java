@@ -24,6 +24,7 @@ import org.eclipse.nebula.widgets.grid.GridColumnGroup;
 import org.eclipse.nebula.widgets.grid.internal.IGridAdapter;
 import org.eclipse.rwt.internal.protocol.ClientObjectFactory;
 import org.eclipse.rwt.internal.protocol.IClientObject;
+import org.eclipse.rwt.internal.protocol.ProtocolUtil;
 import org.eclipse.rwt.internal.util.NumberFormatUtil;
 import org.eclipse.rwt.lifecycle.AbstractWidgetLCA;
 import org.eclipse.rwt.lifecycle.ControlLCAUtil;
@@ -33,6 +34,7 @@ import org.eclipse.rwt.lifecycle.WidgetLCAUtil;
 import org.eclipse.rwt.lifecycle.WidgetUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.internal.widgets.ItemLCAUtil;
 import org.eclipse.swt.widgets.Widget;
 
@@ -49,6 +51,10 @@ public class GridColumnLCA extends AbstractWidgetLCA {
   private static final String PROP_RESIZABLE = "resizable";
   private static final String PROP_MOVEABLE = "moveable";
   private static final String PROP_VISIBLE = "visibility";
+  private static final String PROP_FONT = "font";
+  private static final String PROP_FOOTER_FONT = "footerFont";
+  private static final String PROP_FOOTER_TEXT = "footerText";
+  private static final String PROP_FOOTER_IMAGE = "footerImage";
   private static final String PROP_SELECTION_LISTENER = "selection";
 
   private static final int ZERO = 0;
@@ -86,6 +92,10 @@ public class GridColumnLCA extends AbstractWidgetLCA {
     preserveProperty( column, PROP_RESIZABLE, column.getResizeable() );
     preserveProperty( column, PROP_MOVEABLE, column.getMoveable() );
     preserveProperty( column, PROP_VISIBLE, column.isVisible() );
+    preserveProperty( column, PROP_FONT, column.getHeaderFont() );
+    preserveProperty( column, PROP_FOOTER_FONT, column.getFooterFont() );
+    preserveProperty( column, PROP_FOOTER_TEXT, column.getFooterText() );
+    preserveProperty( column, PROP_FOOTER_IMAGE, column.getFooterImage() );
     preserveListener( column, PROP_SELECTION_LISTENER, SelectionEvent.hasListener( column ) );
   }
 
@@ -102,6 +112,10 @@ public class GridColumnLCA extends AbstractWidgetLCA {
     renderProperty( column, PROP_RESIZABLE, column.getResizeable(), true );
     renderProperty( column, PROP_MOVEABLE, column.getMoveable(), false );
     renderProperty( column, PROP_VISIBLE, column.isVisible(), true );
+    renderFont( column, PROP_FONT, column.getHeaderFont() );
+    renderFont( column, PROP_FOOTER_FONT, column.getFooterFont() );
+    renderProperty( column, PROP_FOOTER_TEXT, column.getFooterText(), "" );
+    renderProperty( column, PROP_FOOTER_IMAGE, column.getFooterImage(), null );
     renderListener( column, PROP_SELECTION_LISTENER, SelectionEvent.hasListener( column ), false );
   }
 
@@ -134,6 +148,16 @@ public class GridColumnLCA extends AbstractWidgetLCA {
           column.setWidth( newWidth );
         }
       } );
+    }
+  }
+
+  //////////////////////////////////////////////
+  // Helping methods to render widget properties
+
+  private static void renderFont( GridColumn column, String property, Font newValue ) {
+    if( WidgetLCAUtil.hasChanged( column, property, newValue, column.getParent().getFont() ) ) {
+      IClientObject clientObject = ClientObjectFactory.getClientObject( column );
+      clientObject.set( property, ProtocolUtil.getFontAsArray( newValue ) );
     }
   }
 
