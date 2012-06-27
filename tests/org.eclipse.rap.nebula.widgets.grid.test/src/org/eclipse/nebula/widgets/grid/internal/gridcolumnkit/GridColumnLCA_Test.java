@@ -557,7 +557,9 @@ public class GridColumnLCA_Test extends TestCase {
     grid.setColumnOrder( new int[]{
       0, 1, 2
     } );
+
     GridColumnLCA.moveColumn( columns[ 1 ], 3 );
+
     int[] columnOrder = grid.getColumnOrder();
     assertEquals( 1, columnOrder[ 0 ] );
     assertEquals( 0, columnOrder[ 1 ] );
@@ -576,7 +578,9 @@ public class GridColumnLCA_Test extends TestCase {
     grid.setColumnOrder( new int[]{
       1, 0, 2
     } );
+
     GridColumnLCA.moveColumn( columns[ 1 ], 27 );
+
     int[] columnOrder = grid.getColumnOrder();
     assertEquals( 0, columnOrder[ 0 ] );
     assertEquals( 1, columnOrder[ 1 ] );
@@ -595,7 +599,9 @@ public class GridColumnLCA_Test extends TestCase {
     grid.setColumnOrder( new int[]{
       0, 1, 2
     } );
+
     GridColumnLCA.moveColumn( columns[ 2 ], 13 );
+
     int[] columnOrder = grid.getColumnOrder();
     assertEquals( 0, columnOrder[ 0 ] );
     assertEquals( 2, columnOrder[ 1 ] );
@@ -614,7 +620,9 @@ public class GridColumnLCA_Test extends TestCase {
     grid.setColumnOrder( new int[]{
       0, 1, 2
     } );
+
     GridColumnLCA.moveColumn( columns[ 2 ], 3 );
+
     int[] columnOrder = grid.getColumnOrder();
     assertEquals( 2, columnOrder[ 0 ] );
     assertEquals( 0, columnOrder[ 1 ] );
@@ -633,7 +641,9 @@ public class GridColumnLCA_Test extends TestCase {
     grid.setColumnOrder( new int[]{
       0, 1, 2
     } );
+
     GridColumnLCA.moveColumn( columns[ 2 ], -30 );
+
     int[] columnOrder = grid.getColumnOrder();
     assertEquals( 2, columnOrder[ 0 ] );
     assertEquals( 0, columnOrder[ 1 ] );
@@ -652,7 +662,9 @@ public class GridColumnLCA_Test extends TestCase {
     grid.setColumnOrder( new int[]{
       0, 1, 2
     } );
+
     GridColumnLCA.moveColumn( columns[ 0 ], 100 );
+
     int[] columnOrder = grid.getColumnOrder();
     assertEquals( 1, columnOrder[ 0 ] );
     assertEquals( 2, columnOrder[ 1 ] );
@@ -671,7 +683,9 @@ public class GridColumnLCA_Test extends TestCase {
     grid.setColumnOrder( new int[]{
       0, 1, 2
     } );
+
     GridColumnLCA.moveColumn( columns[ 1 ], 13 );
+
     int[] columnOrder = grid.getColumnOrder();
     assertEquals( 0, columnOrder[ 0 ] );
     assertEquals( 1, columnOrder[ 1 ] );
@@ -690,7 +704,9 @@ public class GridColumnLCA_Test extends TestCase {
     grid.setColumnOrder( new int[]{
       0, 1, 2
     } );
+
     GridColumnLCA.moveColumn( columns[ 0 ], 33 );
+
     int[] columnOrder = grid.getColumnOrder();
     assertEquals( 1, columnOrder[ 0 ] );
     assertEquals( 0, columnOrder[ 1 ] );
@@ -712,7 +728,9 @@ public class GridColumnLCA_Test extends TestCase {
     grid.setColumnOrder( new int[]{
       0, 1, 2, 3
     } );
+
     GridColumnLCA.moveColumn( grid.getColumn( 0 ), 55 );
+
     int[] columnOrder = grid.getColumnOrder();
     assertEquals( 0, columnOrder[ 0 ] );
     assertEquals( 1, columnOrder[ 1 ] );
@@ -735,11 +753,37 @@ public class GridColumnLCA_Test extends TestCase {
     grid.setColumnOrder( new int[]{
       0, 1, 2, 3
     } );
+
     GridColumnLCA.moveColumn( grid.getColumn( 3 ), 15 );
+
     int[] columnOrder = grid.getColumnOrder();
     assertEquals( 0, columnOrder[ 0 ] );
     assertEquals( 1, columnOrder[ 1 ] );
     assertEquals( 2, columnOrder[ 2 ] );
+    assertEquals( 3, columnOrder[ 3 ] );
+  }
+
+  public void testMoveColumn_WithInvisibleColumns() {
+    column.dispose();
+    GridColumn[] columns = createGridColumns( grid, 4, SWT.NONE );
+    columns[ 0 ].setWidth( 10 );
+    columns[ 1 ].setWidth( 20 );
+    columns[ 2 ].setWidth( 30 );
+    columns[ 2 ].setVisible( false );
+    columns[ 3 ].setWidth( 40 );
+    // Current order: Col 0: 0..10, Col 1: 11..30, Col 2: not visible, Col 3: 31..70
+    // Move Col 0 over Col 3 (left half), order should be:
+    // Col 1, Col 2, Col 0, Col 3
+    grid.setColumnOrder( new int[]{
+      0, 1, 2, 3
+    } );
+
+    GridColumnLCA.moveColumn( grid.getColumn( 0 ), 33 );
+
+    int[] columnOrder = grid.getColumnOrder();
+    assertEquals( 1, columnOrder[ 0 ] );
+    assertEquals( 2, columnOrder[ 1 ] );
+    assertEquals( 0, columnOrder[ 2 ] );
     assertEquals( 3, columnOrder[ 3 ] );
   }
 

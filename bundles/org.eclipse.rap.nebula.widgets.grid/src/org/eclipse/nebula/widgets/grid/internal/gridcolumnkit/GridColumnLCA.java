@@ -203,7 +203,7 @@ public class GridColumnLCA extends AbstractWidgetLCA {
       for( int i = 0; result == -1 && i < columns.length; i++ ) {
         GridColumn column = columns[ columnOrder[ i ] ];
         int left = getLeft( column );
-        int width = column.getWidth();
+        int width = getWidth( column );
         if( newLeft >= left && newLeft <= left + width ) {
           result = i;
           if( newLeft >= left + width / 2 && result < columns.length ) {
@@ -229,6 +229,12 @@ public class GridColumnLCA extends AbstractWidgetLCA {
     Grid grid = column.getParent();
     IGridAdapter adapter = grid.getAdapter( IGridAdapter.class );
     return adapter.getCellLeft( grid.indexOf( column ) );
+  }
+
+  private static int getWidth( GridColumn column ) {
+    Grid grid = column.getParent();
+    IGridAdapter adapter = grid.getAdapter( IGridAdapter.class );
+    return adapter.getCellWidth( grid.indexOf( column ) );
   }
 
   private static String getAlignment( GridColumn column ) {
