@@ -1430,6 +1430,31 @@ public class Grid_Test extends TestCase {
     }
   }
 
+  public void testSetColumnOrder_MoveToColumnGroup() {
+    createGridColumns( grid, 2, SWT.NONE );
+    GridColumnGroup group = new GridColumnGroup( grid, SWT.NONE );
+    createGridColumns( group, 2, SWT.NONE );
+    createGridColumns( grid, 2, SWT.NONE );
+
+    try {
+      grid.setColumnOrder( new int[]{ 1, 2, 0, 3, 4, 5 } );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testSetColumnOrder_MoveInSameColumnGroup() {
+    createGridColumns( grid, 2, SWT.NONE );
+    GridColumnGroup group = new GridColumnGroup( grid, SWT.NONE );
+    createGridColumns( group, 2, SWT.NONE );
+    createGridColumns( grid, 2, SWT.NONE );
+
+    int[] order = new int[]{ 0, 1, 3, 2, 4, 5 };
+    grid.setColumnOrder( order );
+
+    assertTrue( Arrays.equals( order, grid.getColumnOrder() ) );
+  }
+
   public void testGetColumnOrder_AfterColumnAdd() {
     createGridColumns( grid, 5, SWT.NONE );
     grid.setColumnOrder( new int[]{ 4, 1, 3, 2, 0 } );

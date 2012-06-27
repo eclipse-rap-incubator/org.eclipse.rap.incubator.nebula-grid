@@ -654,27 +654,26 @@ public class Grid extends Canvas {
       }
       seen[ order[ i ] ] = true;
     }
-// TODO: [if] Implement ColumnGroup
-//    if( columnGroups.length != 0 ) {
-//      GridColumnGroup currentGroup = null;
-//      int columnsInGroup = 0;
-//      for( int i = 0; i < order.length; i++ ) {
-//        GridColumn column = getColumn( order[ i ] );
-//        if( currentGroup != null ) {
-//          if( column.getColumnGroup() != currentGroup && columnsInGroup > 0 ) {
-//            SWT.error( SWT.ERROR_INVALID_ARGUMENT );
-//          } else {
-//            columnsInGroup--;
-//            if( columnsInGroup <= 0 ) {
-//              currentGroup = null;
-//            }
-//          }
-//        } else if( column.getColumnGroup() != null ) {
-//          currentGroup = column.getColumnGroup();
-//          columnsInGroup = currentGroup.getColumns().length - 1;
-//        }
-//      }
-//    }
+    if( columnGroups.size() != 0 ) {
+      GridColumnGroup currentGroup = null;
+      int columnsInGroup = 0;
+      for( int i = 0; i < order.length; i++ ) {
+        GridColumn column = getColumn( order[ i ] );
+        if( currentGroup != null ) {
+          if( column.getColumnGroup() != currentGroup && columnsInGroup > 0 ) {
+            SWT.error( SWT.ERROR_INVALID_ARGUMENT );
+          } else {
+            columnsInGroup--;
+            if( columnsInGroup <= 0 ) {
+              currentGroup = null;
+            }
+          }
+        } else if( column.getColumnGroup() != null ) {
+          currentGroup = column.getColumnGroup();
+          columnsInGroup = currentGroup.getColumns().length - 1;
+        }
+      }
+    }
     GridColumn[] columns = getColumns();
     int[] oldOrder = getColumnOrder();
     displayOrderedColumns.clear();

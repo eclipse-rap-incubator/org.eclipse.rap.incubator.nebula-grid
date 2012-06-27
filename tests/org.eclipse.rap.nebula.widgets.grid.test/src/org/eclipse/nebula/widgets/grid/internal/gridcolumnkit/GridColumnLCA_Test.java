@@ -697,6 +697,52 @@ public class GridColumnLCA_Test extends TestCase {
     assertEquals( 2, columnOrder[ 2 ] );
   }
 
+  public void testMoveColumn_MoveIntoGroup() {
+    column.dispose();
+    createGridColumns( grid, 2, SWT.NONE );
+    GridColumnGroup group = new GridColumnGroup( grid, SWT.NONE );
+    createGridColumns( group, 2, SWT.NONE );
+    grid.getColumn( 0 ).setWidth( 10 );
+    grid.getColumn( 1 ).setWidth( 20 );
+    grid.getColumn( 2 ).setWidth( 30 );
+    grid.getColumn( 3 ).setWidth( 40 );
+    // Current order: Col 0: 0..10, Col 1: 11..30, Col 2: 31..60, Col 3: 61..100
+    // Move Col 0 between Col 2 and Col 3 (inside the group)
+    // Movement should be ignored
+    grid.setColumnOrder( new int[]{
+      0, 1, 2, 3
+    } );
+    GridColumnLCA.moveColumn( grid.getColumn( 0 ), 55 );
+    int[] columnOrder = grid.getColumnOrder();
+    assertEquals( 0, columnOrder[ 0 ] );
+    assertEquals( 1, columnOrder[ 1 ] );
+    assertEquals( 2, columnOrder[ 2 ] );
+    assertEquals( 3, columnOrder[ 3 ] );
+  }
+
+  public void testMoveColumn_MoveOutsideGroup() {
+    column.dispose();
+    createGridColumns( grid, 2, SWT.NONE );
+    GridColumnGroup group = new GridColumnGroup( grid, SWT.NONE );
+    createGridColumns( group, 2, SWT.NONE );
+    grid.getColumn( 0 ).setWidth( 10 );
+    grid.getColumn( 1 ).setWidth( 20 );
+    grid.getColumn( 2 ).setWidth( 30 );
+    grid.getColumn( 3 ).setWidth( 40 );
+    // Current order: Col 0: 0..10, Col 1: 11..30, Col 2: 31..60, Col 3: 61..100
+    // Move Col 3 between Col 0 and Col 1 (outside the group)
+    // Movement should be ignored
+    grid.setColumnOrder( new int[]{
+      0, 1, 2, 3
+    } );
+    GridColumnLCA.moveColumn( grid.getColumn( 3 ), 15 );
+    int[] columnOrder = grid.getColumnOrder();
+    assertEquals( 0, columnOrder[ 0 ] );
+    assertEquals( 1, columnOrder[ 1 ] );
+    assertEquals( 2, columnOrder[ 2 ] );
+    assertEquals( 3, columnOrder[ 3 ] );
+  }
+
   public void testReadSelectionEvent() {
     final List<SelectionEvent> events = new LinkedList<SelectionEvent>();
     String columnId = WidgetUtil.getId( column );

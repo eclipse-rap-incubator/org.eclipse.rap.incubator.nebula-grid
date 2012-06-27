@@ -182,9 +182,14 @@ public class GridColumnLCA extends AbstractWidgetLCA {
         adapter.preserve( PROP_LEFT, null );
       }
     } else {
-      grid.setColumnOrder( columnOrder );
-      IWidgetAdapter adapter = WidgetUtil.getAdapter( column );
-      adapter.preserve( PROP_LEFT, null );
+      try {
+        grid.setColumnOrder( columnOrder );
+      } catch( IllegalArgumentException exception ) {
+        // move the column in/out of a group is invalid
+      } finally {
+        IWidgetAdapter adapter = WidgetUtil.getAdapter( column );
+        adapter.preserve( PROP_LEFT, null );
+      }
     }
   }
 
