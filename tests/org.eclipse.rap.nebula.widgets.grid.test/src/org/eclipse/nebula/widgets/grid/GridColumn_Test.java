@@ -154,16 +154,28 @@ public class GridColumn_Test extends TestCase {
     assertSame( column, log.get( 0 ).widget );
   }
 
+  public void testIsCheck() {
+    GridColumn column1 = new GridColumn( grid, SWT.NONE );
+    GridColumn column2 = new GridColumn( grid, SWT.CHECK );
+    GridColumn column3 = new GridColumn( grid, SWT.NONE );
+
+    assertFalse( column1.isCheck() );
+    assertTrue( column2.isCheck() );
+    assertFalse( column3.isCheck() );
+  }
+
   public void testIsCheck_TableCheck() {
     grid = new Grid( shell, SWT.CHECK );
-    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
+    GridColumn column1 = new GridColumn( grid, SWT.NONE );
+    GridColumn column2 = new GridColumn( grid, SWT.CHECK );
+    GridColumn column3 = new GridColumn( grid, SWT.NONE );
 
-    assertTrue( columns[ 0 ].isTableCheck() );
-    assertTrue( columns[ 0 ].isCheck() );
-    assertFalse( columns[ 1 ].isTableCheck() );
-    assertFalse( columns[ 1 ].isCheck() );
-    assertFalse( columns[ 2 ].isTableCheck() );
-    assertFalse( columns[ 2 ].isCheck() );
+    assertTrue( column1.isTableCheck() );
+    assertTrue( column1.isCheck() );
+    assertFalse( column2.isTableCheck() );
+    assertTrue( column2.isCheck() );
+    assertFalse( column3.isTableCheck() );
+    assertFalse( column3.isCheck() );
   }
 
   public void testIsCheck_OnColumnAddRemove() {

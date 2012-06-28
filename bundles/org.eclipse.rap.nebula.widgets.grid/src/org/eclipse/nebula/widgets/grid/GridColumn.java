@@ -48,6 +48,7 @@ public class GridColumn extends Item {
   private Grid parent;
   private GridColumnGroup group;
   private int sortStyle = SWT.NONE;
+  private boolean check;
   private boolean tableCheck;
   private boolean moveable;
   private boolean resizeable = true;
@@ -650,7 +651,7 @@ public class GridColumn extends Item {
    */
   public boolean isCheck() {
     checkWidget();
-    return tableCheck;
+    return check || tableCheck;
   }
 
   /**
@@ -1025,6 +1026,9 @@ public class GridColumn extends Item {
     }
     if( ( style & SWT.CENTER ) == SWT.CENTER ) {
       alignment = SWT.CENTER;
+    }
+    if( ( style & SWT.CHECK ) == SWT.CHECK ) {
+      check = true;
     }
     parent.newColumn( this, index );
   }
