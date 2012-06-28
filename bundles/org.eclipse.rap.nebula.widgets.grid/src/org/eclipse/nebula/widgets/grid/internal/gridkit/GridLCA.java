@@ -362,8 +362,11 @@ public class GridLCA extends AbstractWidgetLCA {
         if( eventName.equals( JSConst.EVENT_WIDGET_SELECTED ) ) {
           String detail = request.getParameter( eventName + ".detail" );
           if( "check".equals( detail ) ) {
-            // TODO: [if] Use column index when it is implemented
-            item.fireCheckEvent( 0 );
+            String index = request.getParameter( eventName + ".index" );
+            if( index == null ) {
+              index = "0";
+            }
+            item.fireCheckEvent( Integer.valueOf( index ).intValue()  );
           } else {
             item.fireEvent( SWT.Selection );
           }
