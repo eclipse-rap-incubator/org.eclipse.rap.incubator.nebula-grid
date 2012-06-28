@@ -574,27 +574,18 @@ public class GridItemLCA_Test extends TestCase {
     assertNull( message.findSetOperation( item, "cellGrayed" ) );
   }
 
-  public void testReadChecked_Selected() {
+  public void testReadChecked() {
     grid = new Grid( shell, SWT.CHECK );
+    createGridColumns( grid, 3, SWT.NONE );
     item = new GridItem( grid, SWT.NONE );
     String itemId = WidgetUtil.getId( item );
 
-    Fixture.fakeRequestParam( itemId + ".checked", "true" );
+    Fixture.fakeRequestParam( itemId + ".cellChecked", "[ true, false, true ]" );
     Fixture.readDataAndProcessAction( item );
 
-    assertTrue( item.getChecked() );
-  }
-
-  public void testReadChecked_Unselected() {
-    grid = new Grid( shell, SWT.CHECK );
-    item = new GridItem( grid, SWT.NONE );
-    item.setChecked( true );
-    String itemId = WidgetUtil.getId( item );
-
-    Fixture.fakeRequestParam( itemId + ".checked", "false" );
-    Fixture.readDataAndProcessAction( item );
-
-    assertFalse( item.getChecked() );
+    assertTrue( item.getChecked( 0 ) );
+    assertFalse( item.getChecked( 1 ) );
+    assertTrue( item.getChecked( 2 ) );
   }
 
   public void testProcessTreeEvent_Expanded() {

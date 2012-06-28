@@ -132,9 +132,12 @@ public class GridItemLCA extends AbstractWidgetLCA {
   // Helping methods to read client-side state
 
   private static void readChecked( GridItem item ) {
-    String value = WidgetLCAUtil.readPropertyValue( item, "checked" );
+    String value = WidgetLCAUtil.readPropertyValue( item, "cellChecked" );
     if( value != null ) {
-      item.setChecked( Boolean.valueOf( value ).booleanValue() );
+      boolean[] cellChecked = parseJSonBooleanArray( value.trim() );
+      for( int i = 0; i < cellChecked.length; i++ ) {
+        item.setChecked( i, cellChecked[ i ] );
+      }
     }
   }
 
@@ -248,5 +251,15 @@ public class GridItemLCA extends AbstractWidgetLCA {
 
   private static IGridItemAdapter getGridItemAdapter( GridItem item ) {
     return item.getAdapter( IGridItemAdapter.class );
+  }
+
+  private static boolean[] parseJSonBooleanArray( String json ) {
+    String value = json.substring( 1, json.length() - 1 );
+    String[] valueParts = value.split( "," );
+    boolean[] result = new boolean[ valueParts.length ];
+    for( int i = 0; i < result.length; i++ ) {
+      result[ i ] = Boolean.valueOf( valueParts[ i ].trim() ).booleanValue();
+    }
+    return result;
   }
 }
