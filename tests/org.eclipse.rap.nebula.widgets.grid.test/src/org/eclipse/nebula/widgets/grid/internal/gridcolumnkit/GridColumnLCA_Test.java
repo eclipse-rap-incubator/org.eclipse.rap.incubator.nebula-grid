@@ -447,6 +447,35 @@ public class GridColumnLCA_Test extends TestCase {
     assertNull( message.findSetOperation( column, "visibility" ) );
   }
 
+  public void testRenderInitialCheck() throws IOException {
+    lca.render( column );
+
+    Message message = Fixture.getProtocolMessage();
+    CreateOperation operation = message.findCreateOperation( column );
+    assertTrue( operation.getPropertyNames().indexOf( "check" ) == -1 );
+  }
+
+  public void testRenderCheck() throws IOException {
+    column = new GridColumn( grid, SWT.CHECK );
+
+    lca.renderChanges( column );
+
+    Message message = Fixture.getProtocolMessage();
+    assertEquals( Boolean.TRUE, message.findSetProperty( column, "check" ) );
+  }
+
+  public void testRenderCheckUnchanged() throws IOException {
+    column = new GridColumn( grid, SWT.CHECK );
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( column );
+
+    Fixture.preserveWidgets();
+    lca.renderChanges( column );
+
+    Message message = Fixture.getProtocolMessage();
+    assertNull( message.findSetOperation( column, "check" ) );
+  }
+
   public void testRenderAddSelectionListener() throws Exception {
     Fixture.markInitialized( display );
     Fixture.markInitialized( column );

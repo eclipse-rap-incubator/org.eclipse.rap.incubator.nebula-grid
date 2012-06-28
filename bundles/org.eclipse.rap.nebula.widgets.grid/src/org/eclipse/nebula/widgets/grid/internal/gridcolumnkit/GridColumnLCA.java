@@ -51,6 +51,7 @@ public class GridColumnLCA extends AbstractWidgetLCA {
   private static final String PROP_RESIZABLE = "resizable";
   private static final String PROP_MOVEABLE = "moveable";
   private static final String PROP_VISIBLE = "visibility";
+  private static final String PROP_CHECK = "check";
   private static final String PROP_FONT = "font";
   private static final String PROP_FOOTER_FONT = "footerFont";
   private static final String PROP_FOOTER_TEXT = "footerText";
@@ -92,6 +93,7 @@ public class GridColumnLCA extends AbstractWidgetLCA {
     preserveProperty( column, PROP_RESIZABLE, column.getResizeable() );
     preserveProperty( column, PROP_MOVEABLE, column.getMoveable() );
     preserveProperty( column, PROP_VISIBLE, column.isVisible() );
+    preserveProperty( column, PROP_CHECK, column.isCheck() );
     preserveProperty( column, PROP_FONT, column.getHeaderFont() );
     preserveProperty( column, PROP_FOOTER_FONT, column.getFooterFont() );
     preserveProperty( column, PROP_FOOTER_TEXT, column.getFooterText() );
@@ -112,6 +114,7 @@ public class GridColumnLCA extends AbstractWidgetLCA {
     renderProperty( column, PROP_RESIZABLE, column.getResizeable(), true );
     renderProperty( column, PROP_MOVEABLE, column.getMoveable(), false );
     renderProperty( column, PROP_VISIBLE, column.isVisible(), true );
+    renderProperty( column, PROP_CHECK, column.isCheck(), false );
     renderFont( column, PROP_FONT, column.getHeaderFont() );
     renderFont( column, PROP_FOOTER_FONT, column.getFooterFont() );
     renderProperty( column, PROP_FOOTER_TEXT, column.getFooterText(), "" );
