@@ -3,6 +3,7 @@ package org.eclipse.rap.nebula.widgets.grid.snippets;
 import java.util.Arrays;
 import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridColumn;
+import org.eclipse.nebula.widgets.grid.GridColumnGroup;
 import org.eclipse.nebula.widgets.grid.GridItem;
 import org.eclipse.rap.nebula.widgets.grid.snippets.internal.GridSnippetBase;
 import org.eclipse.swt.SWT;
@@ -25,7 +26,7 @@ import org.eclipse.swt.widgets.Text;
 @SuppressWarnings("serial")
 public class GridSnippet extends GridSnippetBase {
 
-  private static int COLUMN_COUNT = 3;
+  private static int COLUMN_COUNT = 5;
   private static int ROOT_ITEM_COUNT = 20;
   private static int SUB_ITEM_COUNT = 10;
 
@@ -83,11 +84,20 @@ public class GridSnippet extends GridSnippetBase {
   }
 
   private void createGridColumns() {
+    GridColumnGroup group = new GridColumnGroup( grid, SWT.TOGGLE );
+    group.setText( "Column Group" );
+    group.setImage( image );
+    group.setHeaderFont( new Font( group.getDisplay(), "Verdana", 16, SWT.BOLD ) );
     for( int i = 0; i < COLUMN_COUNT; i++ ) {
-      GridColumn column = new GridColumn( grid, SWT.NONE );
+      GridColumn column;
+      if( i > 0 && i < 4 ) {
+        column = new GridColumn( group, SWT.NONE );
+      } else {
+        column = new GridColumn( grid, SWT.NONE );
+      }
       column.setText( "Column " + i );
       column.setFooterText( "Footer " + i );
-      column.setWidth( 250 );
+      column.setWidth( 200 );
       column.setMoveable( true );
       column.addControlListener( new ControlListener() {
 
@@ -120,10 +130,15 @@ public class GridSnippet extends GridSnippetBase {
           column.setImage( image );
           column.setHeaderFont( new Font( column.getDisplay(), "Comic Sans MS", 16, SWT.NORMAL ) );
           column.setFooterFont( new Font( column.getDisplay(), "Segoe Script", 16, SWT.NORMAL ) );
+          column.setSummary( false );
           break;
         case 2:
           column.setAlignment( SWT.RIGHT );
           column.setMinimumWidth( 100 );
+          column.setSummary( false );
+          break;
+        case 3:
+          column.setDetail( false );
           break;
       }
     }
