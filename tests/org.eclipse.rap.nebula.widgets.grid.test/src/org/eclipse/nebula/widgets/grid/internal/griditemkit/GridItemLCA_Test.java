@@ -495,76 +495,83 @@ public class GridItemLCA_Test extends TestCase {
     assertNull( message.findSetOperation( item, "expanded" ) );
   }
 
-  public void testRenderInitialChecked() throws IOException {
+  public void testRenderInitialCellChecked() throws IOException {
     grid = new Grid( shell, SWT.CHECK );
+    createGridColumns( grid, 2, SWT.NONE );
     item = new GridItem( grid, SWT.NONE );
 
     lca.render( item );
 
     Message message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( item );
-    assertTrue( operation.getPropertyNames().indexOf( "checked" ) == -1 );
+    assertTrue( operation.getPropertyNames().indexOf( "cellChecked" ) == -1 );
   }
 
-  public void testRenderChecked() throws IOException {
+  public void testRenderCellChecked() throws IOException, JSONException {
     grid = new Grid( shell, SWT.CHECK );
+    createGridColumns( grid, 2, SWT.NONE );
     item = new GridItem( grid, SWT.NONE );
 
-    item.setChecked( true );
+    item.setChecked( 1, true );
     lca.renderChanges( item );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( Boolean.TRUE, message.findSetProperty( item, "checked" ) );
-  }
+    JSONArray actual = ( JSONArray )message.findSetProperty( item, "cellChecked" );
+    assertTrue( jsonEquals( "[false,true]", actual ) );  }
 
-  public void testRenderCheckedUnchanged() throws IOException {
+  public void testRenderCellCheckedUnchanged() throws IOException {
     grid = new Grid( shell, SWT.CHECK );
+    createGridColumns( grid, 2, SWT.NONE );
     item = new GridItem( grid, SWT.NONE );
     Fixture.markInitialized( display );
     Fixture.markInitialized( item );
 
-    item.setChecked( true );
+    item.setChecked( 1, true );
     Fixture.preserveWidgets();
     lca.renderChanges( item );
 
     Message message = Fixture.getProtocolMessage();
-    assertNull( message.findSetOperation( item, "checked" ) );
+    assertNull( message.findSetOperation( item, "cellChecked" ) );
   }
 
-  public void testRenderInitialGrayed() throws IOException {
+  public void testRenderInitialCellGrayed() throws IOException {
     grid = new Grid( shell, SWT.CHECK );
+    createGridColumns( grid, 2, SWT.NONE );
     item = new GridItem( grid, SWT.NONE );
 
     lca.render( item );
 
     Message message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( item );
-    assertTrue( operation.getPropertyNames().indexOf( "grayed" ) == -1 );
+    assertTrue( operation.getPropertyNames().indexOf( "cellGrayed" ) == -1 );
   }
 
-  public void testRenderGrayed() throws IOException {
+  public void testRenderCellGrayed() throws IOException, JSONException {
     grid = new Grid( shell, SWT.CHECK );
+    createGridColumns( grid, 2, SWT.NONE );
     item = new GridItem( grid, SWT.NONE );
 
-    item.setGrayed( true );
+    item.setGrayed( 1, true );
     lca.renderChanges( item );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( Boolean.TRUE, message.findSetProperty( item, "grayed" ) );
+    JSONArray actual = ( JSONArray )message.findSetProperty( item, "cellGrayed" );
+    assertTrue( jsonEquals( "[false,true]", actual ) );
   }
 
   public void testRenderGrayedUnchanged() throws IOException {
     grid = new Grid( shell, SWT.CHECK );
+    createGridColumns( grid, 2, SWT.NONE );
     item = new GridItem( grid, SWT.NONE );
     Fixture.markInitialized( display );
     Fixture.markInitialized( item );
 
-    item.setGrayed( true );
+    item.setGrayed( 1, true );
     Fixture.preserveWidgets();
     lca.renderChanges( item );
 
     Message message = Fixture.getProtocolMessage();
-    assertNull( message.findSetOperation( item, "grayed" ) );
+    assertNull( message.findSetOperation( item, "cellGrayed" ) );
   }
 
   public void testReadChecked_Selected() {

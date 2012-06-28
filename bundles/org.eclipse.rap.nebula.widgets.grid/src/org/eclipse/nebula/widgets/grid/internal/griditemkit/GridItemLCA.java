@@ -47,8 +47,8 @@ public class GridItemLCA extends AbstractWidgetLCA {
   private static final String PROP_CELL_FOREGROUNDS = "cellForegrounds";
   private static final String PROP_CELL_FONTS = "cellFonts";
   private static final String PROP_EXPANDED = "expanded";
-  private static final String PROP_CHECKED = "checked";
-  private static final String PROP_GRAYED = "grayed";
+  private static final String PROP_CELL_CHECKED = "cellChecked";
+  private static final String PROP_CELL_GRAYED = "cellGrayed";
 
   private static final int ZERO = 0;
 
@@ -82,8 +82,8 @@ public class GridItemLCA extends AbstractWidgetLCA {
     preserveProperty( item, PROP_CELL_FOREGROUNDS, getCellForegrounds( item ) );
     preserveProperty( item, PROP_CELL_FONTS, getCellFonts( item ) );
     preserveProperty( item, PROP_EXPANDED, item.isExpanded() );
-    preserveProperty( item, PROP_CHECKED, item.getChecked() );
-    preserveProperty( item, PROP_GRAYED, item.getGrayed() );
+    preserveProperty( item, PROP_CELL_CHECKED, getCellChecked( item ) );
+    preserveProperty( item, PROP_CELL_GRAYED, getCellGrayed( item ) );
   }
 
   @Override
@@ -109,8 +109,14 @@ public class GridItemLCA extends AbstractWidgetLCA {
                     getCellFonts( item ),
                     new Font[ getColumnCount( item ) ] );
     renderProperty( item, PROP_EXPANDED, item.isExpanded(), false );
-    renderProperty( item, PROP_CHECKED, item.getChecked(), false );
-    renderProperty( item, PROP_GRAYED, item.getGrayed(), false );
+    renderProperty( item,
+                    PROP_CELL_CHECKED,
+                    getCellChecked( item ),
+                    new boolean[ getColumnCount( item ) ] );
+    renderProperty( item,
+                    PROP_CELL_GRAYED,
+                    getCellGrayed( item ),
+                    new boolean[ getColumnCount( item ) ] );
   }
 
   @Override
@@ -169,12 +175,11 @@ public class GridItemLCA extends AbstractWidgetLCA {
   }
 
   private static String[] getTexts( GridItem item ) {
-    int columnCount = getColumnCount( item );
-    String[] texts = new String[ columnCount ];
-    for( int i = 0; i < columnCount; i++ ) {
-      texts[ i ] = item.getText( i );
+    String[] result = new String[ getColumnCount( item ) ];
+    for( int i = 0; i < result.length; i++ ) {
+      result[ i ] = item.getText( i );
     }
-    return texts;
+    return result;
   }
 
   private static String[] getDefaultTexts( GridItem item ) {
@@ -186,12 +191,11 @@ public class GridItemLCA extends AbstractWidgetLCA {
   }
 
   private static Image[] getImages( GridItem item ) {
-    int columnCount = getColumnCount( item );
-    Image[] images = new Image[ columnCount ];
-    for( int i = 0; i < columnCount; i++ ) {
-      images[ i ] = item.getImage( i );
+    Image[] result = new Image[ getColumnCount( item ) ];
+    for( int i = 0; i < result.length; i++ ) {
+      result[ i ] = item.getImage( i );
     }
-    return images;
+    return result;
   }
 
   private static Color getUserBackground( GridItem item ) {
@@ -216,6 +220,22 @@ public class GridItemLCA extends AbstractWidgetLCA {
 
   private static Font[] getCellFonts( GridItem item ) {
     return getGridItemAdapter( item ).getCellFonts();
+  }
+
+  private static boolean[] getCellChecked( GridItem item ) {
+    boolean[] result = new boolean[ getColumnCount( item ) ];
+    for( int i = 0; i < result.length; i++ ) {
+      result[ i ] = item.getChecked( i );
+    }
+    return result;
+  }
+
+  private static boolean[] getCellGrayed( GridItem item ) {
+    boolean[] result = new boolean[ getColumnCount( item ) ];
+    for( int i = 0; i < result.length; i++ ) {
+      result[ i ] = item.getGrayed( i );
+    }
+    return result;
   }
 
   private static int getColumnCount( GridItem item ) {
