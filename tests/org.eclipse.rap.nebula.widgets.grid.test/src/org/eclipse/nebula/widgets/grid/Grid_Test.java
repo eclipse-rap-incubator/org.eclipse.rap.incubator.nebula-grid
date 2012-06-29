@@ -2351,11 +2351,46 @@ public class Grid_Test extends TestCase {
     assertTrue( group.isDisposed() );
   }
 
+  public void testCheckBoxLeftOffset() {
+    GridColumn[] columns = createGridColumns( grid, 2, SWT.CHECK );
+    columns[ 0 ].setWidth( 100 );
+    columns[ 1 ].setWidth( 100 );
+    createGridItems( grid, 1, 1 );
+
+    assertEquals( 0, getCheckBoxOffset( 0 ) );
+    assertEquals( 6, getCheckBoxOffset( 1 ) );
+  }
+
+  public void testCheckBoxLeftOffset_CenteredWithoutContent() {
+    GridColumn[] columns = createGridColumns( grid, 2, SWT.CHECK | SWT.CENTER );
+    columns[ 0 ].setWidth( 100 );
+    columns[ 1 ].setWidth( 100 );
+    createGridItems( grid, 1, 1 );
+
+    assertEquals( 0, getCheckBoxOffset( 0 ) );
+    assertEquals( 32, getCheckBoxOffset( 1 ) );
+  }
+
+  public void testCheckBoxLeftOffset_CenteredWithContent() {
+    GridColumn[] columns = createGridColumns( grid, 2, SWT.CHECK | SWT.CENTER );
+    columns[ 0 ].setWidth( 100 );
+    columns[ 1 ].setWidth( 100 );
+    createGridItems( grid, 1, 1 );
+    grid.getRootItem( 0 ).setText( 1, "foo" );
+
+    assertEquals( 0, getCheckBoxOffset( 0 ) );
+    assertEquals( 6, getCheckBoxOffset( 1 ) );
+  }
+
   //////////////////
   // Helping methods
 
   private void fakeCellPadding( Grid grid, Rectangle padding ) {
     grid.layoutCache.cellPadding = padding;
+  }
+
+  private int getCheckBoxOffset( int index ) {
+    return grid.getAdapter( IGridAdapter.class ).getCheckBoxOffset( index );
   }
 
   //////////////////

@@ -190,7 +190,9 @@ public class GridItem extends Item {
   public void dispose() {
     if( !parent.isDisposing() && !isDisposed() ) {
       for( int i = 0; i < parent.getColumnCount(); i++ ) {
-        updateColumnImageCount( i, getItemData( i ).image, null );
+        Data itemData = getItemData( i );
+        updateColumnImageCount( i, itemData.image, null );
+        updateColumnTextCount( i, itemData.text, "" );
       }
       parent.removeItem( this );
       if( parentItem != null ) {
@@ -829,7 +831,9 @@ public class GridItem extends Item {
     if( text == null ) {
       SWT.error( SWT.ERROR_NULL_ARGUMENT );
     }
-    getItemData( index ).text = text;
+    Data itemData = getItemData( index );
+    updateColumnTextCount( index, itemData.text, text );
+    itemData.text = text;
     parent.redraw();
   }
 
@@ -1475,7 +1479,9 @@ public class GridItem extends Item {
    */
   void clear( boolean allChildren ) {
     for( int i = 0; i < parent.getColumnCount(); i++ ) {
-      updateColumnImageCount( i, getItemData( i ).image, null );
+      Data itemData = getItemData( i );
+      updateColumnImageCount( i, itemData.image, null );
+      updateColumnTextCount( i, itemData.text, "" );
     }
     init();
     defaultFont = null;
@@ -1630,6 +1636,18 @@ public class GridItem extends Item {
     }
     if( delta != 0 && index >= 0 && index < parent.getColumnCount() ) {
       parent.getColumn( index ).imageCount += delta;
+    }
+  }
+
+  private void updateColumnTextCount( int index, String oldText, String newText ) {
+    int delta = 0;
+    if( oldText.length() == 0 && newText.length() > 0 ) {
+      delta = +1;
+    } else if( oldText.length() > 0 && newText.length() == 0 ) {
+      delta = -1;
+    }
+    if( delta != 0 && index >= 0 && index < parent.getColumnCount() ) {
+      parent.getColumn( index ).textCount += delta;
     }
   }
 

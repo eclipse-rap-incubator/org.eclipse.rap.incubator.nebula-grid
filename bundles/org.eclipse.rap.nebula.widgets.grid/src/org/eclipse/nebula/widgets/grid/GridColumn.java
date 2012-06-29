@@ -63,6 +63,7 @@ public class GridColumn extends Item {
   private Font footerFont;
   private boolean packed;
   int imageCount;
+  int textCount;
 
   /**
    * Constructs a new instance of this class given its parent (which must be a

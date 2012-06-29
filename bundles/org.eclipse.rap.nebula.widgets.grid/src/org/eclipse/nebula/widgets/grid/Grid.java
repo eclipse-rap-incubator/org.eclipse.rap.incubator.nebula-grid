@@ -2383,15 +2383,6 @@ public class Grid extends Canvas {
     return getMaxInnerWidth( getRootItems(), indexOf( column ) );
   }
 
-  boolean isTreeColumn( int index ) {
-    boolean result = false;
-    if( isTree ) {
-      int columnCount = getColumnCount();
-      result = columnCount == 0 && index == 0 || columnCount > 0 && index == getColumnOrder()[ 0 ];
-    }
-    return result;
-  }
-
   int getBottomIndex() {
     checkWidget();
     if( bottomIndex == -1 ) {
@@ -2711,9 +2702,21 @@ public class Grid extends Canvas {
   }
 
   private int getCheckBoxOffset( int index ) {
-    int result = getCheckBoxMargin().x;
-    if( !isTreeColumn( index ) ) {
-      result += getCellPadding().x;
+    int result = -1;
+    Rectangle padding = getCellPadding();
+    if(    isColumnCentered( index )
+        && !isTreeColumn( index )
+        && !hasColumnImages( index )
+        && !hasColumnTexts( index ) )
+    {
+      result = getCellWidth( index ) - padding.width - getCheckBoxImageOuterSize().x;
+      result = Math.max( result / 2, padding.x );
+    }
+    if( result == -1 ) {
+      result = getCheckBoxMargin().x;
+      if( !isTreeColumn( index ) ) {
+        result += padding.x;
+      }
     }
     return result;
   }
@@ -2775,6 +2778,10 @@ public class Grid extends Canvas {
     return getColumn( index ).imageCount > 0;
   }
 
+  boolean hasColumnTexts( int index ) {
+    return getColumn( index ).textCount > 0;
+  }
+
   private boolean hasCheckBoxes() {
     boolean result = ( getStyle() & SWT.CHECK ) != 0;
     for( int i = 0; i < getColumnCount() && !result; i++ ) {
@@ -2790,6 +2797,19 @@ public class Grid extends Canvas {
     Point imageSize = getCheckBoxImageSize();
     Rectangle margin = getCheckBoxMargin();
     return new Point( imageSize.x + margin.width, imageSize.y + margin.height );
+  }
+
+  boolean isTreeColumn( int index ) {
+    boolean result = false;
+    if( isTree ) {
+      int columnCount = getColumnCount();
+      result = columnCount == 0 && index == 0 || columnCount > 0 && index == getColumnOrder()[ 0 ];
+    }
+    return result;
+  }
+
+  private boolean isColumnCentered( int index ) {
+    return getColumn( index ).getAlignment() == SWT.CENTER;
   }
 
   private Point getCheckBoxImageSize() {
