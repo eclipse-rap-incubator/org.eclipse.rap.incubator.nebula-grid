@@ -903,7 +903,7 @@ public class GridLCA_Test extends TestCase {
 
     Fixture.fakeNewRequest( display );
     Fixture.fakeRequestParam( JSConst.EVENT_WIDGET_SELECTED, gridId );
-    Fixture.fakeRequestParam( JSConst.EVENT_WIDGET_SELECTED + ".item", itemId );
+    Fixture.fakeRequestParam( JSConst.EVENT_WIDGET_SELECTED_ITEM, itemId );
     Fixture.readDataAndProcessAction( display );
 
     assertEquals( 1, events.size() );
@@ -923,9 +923,9 @@ public class GridLCA_Test extends TestCase {
 
     Fixture.fakeNewRequest( display );
     Fixture.fakeRequestParam( JSConst.EVENT_WIDGET_SELECTED, gridId );
-    Fixture.fakeRequestParam( JSConst.EVENT_WIDGET_SELECTED + ".item", itemId );
-    Fixture.fakeRequestParam( JSConst.EVENT_WIDGET_SELECTED + ".detail", "check" );
-    Fixture.fakeRequestParam( JSConst.EVENT_WIDGET_SELECTED + ".index", "3" );
+    Fixture.fakeRequestParam( JSConst.EVENT_WIDGET_SELECTED_ITEM, itemId );
+    Fixture.fakeRequestParam( JSConst.EVENT_WIDGET_SELECTED_DETAIL, "check" );
+    Fixture.fakeRequestParam( JSConst.EVENT_WIDGET_SELECTED_INDEX, "3" );
     Fixture.readDataAndProcessAction( display );
 
     assertEquals( 1, events.size() );
@@ -947,7 +947,7 @@ public class GridLCA_Test extends TestCase {
 
     Fixture.fakeNewRequest( display );
     Fixture.fakeRequestParam( JSConst.EVENT_WIDGET_DEFAULT_SELECTED, gridId );
-    Fixture.fakeRequestParam( JSConst.EVENT_WIDGET_DEFAULT_SELECTED + ".item", itemId );
+    Fixture.fakeRequestParam( JSConst.EVENT_WIDGET_SELECTED_ITEM, itemId );
     Fixture.readDataAndProcessAction( display );
 
     assertEquals( 1, events.size() );
