@@ -93,7 +93,7 @@ public class GridSnippet extends GridSnippetBase {
       if( i > 0 && i < 4 ) {
         column = new GridColumn( group, i == 1 ? SWT.CHECK : SWT.NONE );
       } else {
-        column = new GridColumn( grid, SWT.NONE );
+        column = new GridColumn( grid, i == 4 ? SWT.CHECK : SWT.NONE );
       }
       column.setText( "Column " + i );
       column.setFooterText( "Footer " + i );
@@ -126,6 +126,7 @@ public class GridSnippet extends GridSnippetBase {
           column.setFooterImage( image );
           break;
         case 1:
+          column.setWidth( 100 );
           column.setAlignment( SWT.CENTER );
           column.setImage( image );
           column.setHeaderFont( new Font( column.getDisplay(), "Comic Sans MS", 16, SWT.NORMAL ) );
@@ -133,11 +134,11 @@ public class GridSnippet extends GridSnippetBase {
           column.setSummary( false );
           break;
         case 2:
-          column.setAlignment( SWT.RIGHT );
           column.setMinimumWidth( 100 );
           column.setSummary( false );
           break;
         case 3:
+          column.setAlignment( SWT.RIGHT );
           column.setDetail( false );
           break;
       }
@@ -150,14 +151,18 @@ public class GridSnippet extends GridSnippetBase {
       item.setImage( image );
       int gridItemIndex = grid.indexOf( item );
       for( int k = 0; k < COLUMN_COUNT; k++ ) {
-        item.setText( k, "Item (" + gridItemIndex + "." + k + ")" );
+        if( k != 1 ) {
+          item.setText( k, "Item (" + gridItemIndex + "." + k + ")" );
+        }
       }
       for( int j = 0; j < SUB_ITEM_COUNT; j++ ) {
         GridItem subitem = new GridItem( item, SWT.NONE );
         gridItemIndex = grid.indexOf( subitem );
-        subitem.setImage( 1, image );
+        subitem.setImage( 2, image );
         for( int k = 0; k < COLUMN_COUNT; k++ ) {
-          subitem.setText( k, "Subitem (" + gridItemIndex + "." + k + ")" );
+          if( k != 1 ) {
+            subitem.setText( k, "Subitem (" + gridItemIndex + "." + k + ")" );
+          }
         }
       }
     }
