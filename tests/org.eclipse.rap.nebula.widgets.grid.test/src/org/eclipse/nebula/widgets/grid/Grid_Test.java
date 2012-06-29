@@ -2368,7 +2368,7 @@ public class Grid_Test extends TestCase {
     createGridItems( grid, 1, 1 );
 
     assertEquals( 0, getCheckBoxOffset( 0 ) );
-    assertEquals( 32, getCheckBoxOffset( 1 ) );
+    assertEquals( 39, getCheckBoxOffset( 1 ) );
   }
 
   public void testCheckBoxLeftOffset_CenteredWithContent() {

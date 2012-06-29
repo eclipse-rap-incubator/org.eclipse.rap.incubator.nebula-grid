@@ -2709,8 +2709,8 @@ public class Grid extends Canvas {
         && !hasColumnImages( index )
         && !hasColumnTexts( index ) )
     {
-      result = getCellWidth( index ) - padding.width - getCheckBoxImageOuterSize().x;
-      result = Math.max( result / 2, padding.x );
+      result = ( getCellWidth( index ) - getCheckBoxImageSize().x ) / 2;
+      result = Math.max( result, padding.x );
     }
     if( result == -1 ) {
       result = getCheckBoxMargin().x;
