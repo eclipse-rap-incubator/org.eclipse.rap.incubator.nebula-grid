@@ -358,10 +358,7 @@ public class GridLCA extends AbstractWidgetLCA {
           String detail = request.getParameter( eventName + ".detail" );
           if( "check".equals( detail ) ) {
             String index = request.getParameter( eventName + ".index" );
-            if( index == null ) {
-              index = "0";
-            }
-            item.fireCheckEvent( Integer.valueOf( index ).intValue()  );
+            item.fireCheckEvent( Integer.valueOf( index ).intValue() );
           } else {
             item.fireEvent( SWT.Selection );
           }
