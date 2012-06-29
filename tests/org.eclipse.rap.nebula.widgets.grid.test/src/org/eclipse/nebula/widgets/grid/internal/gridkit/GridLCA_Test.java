@@ -100,19 +100,6 @@ public class GridLCA_Test extends TestCase {
     assertTrue( styles.contains( "MULTI" ) );
   }
 
-  public void testRenderCreateWithCheck() throws IOException, JSONException {
-    grid = new Grid( shell, SWT.CHECK );
-
-    lca.renderInitialization( grid );
-
-    Message message = Fixture.getProtocolMessage();
-    CreateOperation operation = message.findCreateOperation( grid );
-    List<Object> styles = Arrays.asList( operation.getStyles() );
-    assertTrue( styles.contains( "CHECK" ) );
-    JSONArray actual = ( JSONArray )operation.getProperty( "checkBoxMetrics" );
-    assertTrue( jsonEquals( "[0,21]", actual ) );
-  }
-
   public void testRenderDispose() throws IOException {
     lca.renderDispose( grid );
 
@@ -196,7 +183,20 @@ public class GridLCA_Test extends TestCase {
 
     Message message = Fixture.getProtocolMessage();
     JSONArray actual = ( JSONArray )message.findSetProperty( grid, "itemMetrics" );
-    assertTrue( jsonEquals( "[0,0,50,0,0,0,44]", ( JSONArray )actual.get( 0 ) ) );
+    assertTrue( jsonEquals( "[0,0,50,0,0,0,44,0,0]", ( JSONArray )actual.get( 0 ) ) );
+  }
+
+  public void testRenderItemMetrics_WithCheck() throws IOException, JSONException {
+    createGridColumns( grid, 2, SWT.CHECK );
+    GridItem[] items = createGridItems( grid, 3, 1 );
+    items[ 0 ].setText( "foo" );
+
+    lca.renderChanges( grid );
+
+    Message message = Fixture.getProtocolMessage();
+    JSONArray actual = ( JSONArray )message.findSetProperty( grid, "itemMetrics" );
+    assertTrue( jsonEquals( "[0,0,20,23,0,23,0,0,21]", ( JSONArray )actual.get( 0 ) ) );
+    assertTrue( jsonEquals( "[1,20,40,49,0,49,5,26,21]", ( JSONArray )actual.get( 1 ) ) );
   }
 
   public void testRenderItemMetricsUnchanged() throws IOException {

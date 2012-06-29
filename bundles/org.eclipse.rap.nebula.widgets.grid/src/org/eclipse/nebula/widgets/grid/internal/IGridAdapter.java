@@ -17,11 +17,11 @@ public interface IGridAdapter {
 
   void invalidateTopIndex();
   int getIndentationWidth();
-  int getCheckLeft();
-  int getCheckWidth();
 
   int getCellLeft( int index );
   int getCellWidth( int index );
+  int getCheckBoxOffset( int index );
+  int getCheckBoxWidth( int index );
   int getImageOffset( int index );
   int getImageWidth( int index );
   int getTextOffset( int index );

@@ -97,10 +97,6 @@ public class GridLCA extends AbstractWidgetLCA {
     clientObject.set( "appearance", "tree" );
     IGridAdapter adapter = getGridAdapter( grid );
     clientObject.set( "indentionWidth", adapter.getIndentationWidth() );
-    if( ( grid.getStyle() & SWT.CHECK ) != 0 ) {
-      int[] checkMetrics = new int[] { adapter.getCheckLeft(), adapter.getCheckWidth() };
-      clientObject.set( "checkBoxMetrics", checkMetrics );
-    }
   }
 
   public void readData( Widget widget ) {
@@ -383,7 +379,7 @@ public class GridLCA extends AbstractWidgetLCA {
   private static void renderItemMetrics( Grid grid ) {
     ItemMetrics[] itemMetrics = getItemMetrics( grid );
     if( WidgetLCAUtil.hasChanged( grid, PROP_ITEM_METRICS, itemMetrics ) ) {
-      int[][] metrics = new int[ itemMetrics.length ][ 7 ];
+      int[][] metrics = new int[ itemMetrics.length ][ 9 ];
       for( int i = 0; i < itemMetrics.length; i++ ) {
         metrics[ i ] = new int[] {
           i,
@@ -392,7 +388,9 @@ public class GridLCA extends AbstractWidgetLCA {
           itemMetrics[ i ].imageLeft,
           itemMetrics[ i ].imageWidth,
           itemMetrics[ i ].textLeft,
-          itemMetrics[ i ].textWidth
+          itemMetrics[ i ].textWidth,
+          itemMetrics[ i ].checkLeft,
+          itemMetrics[ i ].checkWidth
         };
       }
       IClientObject clientObject = ClientObjectFactory.getClientObject( grid );
@@ -408,6 +406,8 @@ public class GridLCA extends AbstractWidgetLCA {
       result[ i ] = new ItemMetrics();
       result[ i ].left = adapter.getCellLeft( i );
       result[ i ].width = adapter.getCellWidth( i );
+      result[ i ].checkLeft = result[ i ].left + adapter.getCheckBoxOffset( i );
+      result[ i ].checkWidth = adapter.getCheckBoxWidth( i );
       result[ i ].imageLeft = result[ i ].left + adapter.getImageOffset( i );
       result[ i ].imageWidth = adapter.getImageWidth( i );
       result[ i ].textLeft = result[ i ].left + adapter.getTextOffset( i );
@@ -426,6 +426,8 @@ public class GridLCA extends AbstractWidgetLCA {
   static final class ItemMetrics {
     int left;
     int width;
+    int checkLeft;
+    int checkWidth;
     int imageLeft;
     int imageWidth;
     int textLeft;
@@ -440,6 +442,8 @@ public class GridLCA extends AbstractWidgetLCA {
         ItemMetrics other = ( ItemMetrics )obj;
         result =  other.left == left
                && other.width == width
+               && other.checkLeft == checkLeft
+               && other.checkWidth == checkWidth
                && other.imageLeft == imageLeft
                && other.imageWidth == imageWidth
                && other.textLeft == textLeft

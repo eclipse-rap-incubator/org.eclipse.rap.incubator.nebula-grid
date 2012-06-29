@@ -2710,6 +2710,18 @@ public class Grid extends Canvas {
     return column.isVisible() ? column.getWidth() : 0;
   }
 
+  private int getCheckBoxOffset( int index ) {
+    int result = getCheckBoxMargin().x;
+    if( !isTreeColumn( index ) ) {
+      result += getCellPadding().x;
+    }
+    return result;
+  }
+
+  private int getCheckBoxWidth( int index ) {
+    return getColumn( index ).isCheck() ? getCheckBoxImageSize().x : 0;
+  }
+
   private int getImageOffset( int index ) {
     int result = 0;
     if( !isTreeColumn( index ) ) {
@@ -2777,7 +2789,7 @@ public class Grid extends Canvas {
   Point getCheckBoxImageOuterSize() {
     Point imageSize = getCheckBoxImageSize();
     Rectangle margin = getCheckBoxMargin();
-    return new Point( imageSize.x + margin.width, imageSize.y + margin.y );
+    return new Point( imageSize.x + margin.width, imageSize.y + margin.height );
   }
 
   private Point getCheckBoxImageSize() {
@@ -2910,20 +2922,20 @@ public class Grid extends Canvas {
       return Grid.this.getIndentationWidth();
     }
 
-    public int getCheckLeft() {
-      return getCheckBoxMargin().x;
-    }
-
-    public int getCheckWidth() {
-      return getCheckBoxImageSize().x;
-    }
-
     public int getCellLeft( int index ) {
       return Grid.this.getCellLeft( index );
     }
 
     public int getCellWidth( int index ) {
       return Grid.this.getCellWidth( index );
+    }
+
+    public int getCheckBoxOffset( int index ) {
+      return Grid.this.getCheckBoxOffset( index );
+    }
+
+    public int getCheckBoxWidth( int index ) {
+      return Grid.this.getCheckBoxWidth( index );
     }
 
     public int getImageOffset( int index ) {
