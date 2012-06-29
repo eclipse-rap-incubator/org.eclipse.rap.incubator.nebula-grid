@@ -51,7 +51,7 @@ public class GridSnippet extends GridSnippetBase {
   }
 
   private void createGrid( Composite parent ) {
-    int style = SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL | SWT.CHECK | SWT.MULTI;
+    int style = SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL | SWT.MULTI;
     grid = new Grid( parent, style );
     grid.setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, true, 1, 20 ) );
     grid.setHeaderVisible( true );
@@ -91,9 +91,9 @@ public class GridSnippet extends GridSnippetBase {
     for( int i = 0; i < COLUMN_COUNT; i++ ) {
       GridColumn column;
       if( i > 0 && i < 4 ) {
-        column = new GridColumn( group, SWT.NONE );
+        column = new GridColumn( group, i == 1 ? SWT.CHECK : SWT.NONE );
       } else {
-        column = new GridColumn( grid, SWT.NONE );
+        column = new GridColumn( grid, i == 0 ? SWT.CHECK : SWT.NONE );
       }
       column.setText( "Column " + i );
       column.setFooterText( "Footer " + i );
