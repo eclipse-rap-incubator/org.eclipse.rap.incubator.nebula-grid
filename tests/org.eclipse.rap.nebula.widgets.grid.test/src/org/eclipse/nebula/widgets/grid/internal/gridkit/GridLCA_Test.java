@@ -33,10 +33,11 @@ import org.eclipse.rwt.internal.lifecycle.JSConst;
 import org.eclipse.rwt.lifecycle.WidgetUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -894,9 +895,9 @@ public class GridLCA_Test extends TestCase {
   }
 
   public void testProcessSelectionEvent() {
-    List<SelectionEvent> events = new LinkedList<SelectionEvent>();
+    List<Event> events = new LinkedList<Event>();
     GridItem item = new GridItem( grid, SWT.NONE );
-    grid.addSelectionListener( new LoggingSelectionListener( events ) );
+    grid.addListener( SWT.Selection, new LoggingListener( events ) );
     String gridId = WidgetUtil.getId( grid );
     String itemId = WidgetUtil.getId( item );
 
@@ -906,17 +907,17 @@ public class GridLCA_Test extends TestCase {
     Fixture.readDataAndProcessAction( display );
 
     assertEquals( 1, events.size() );
-    SelectionEvent event = events.get( 0 );
-    assertEquals( SWT.Selection, event.getID() );
-    assertEquals( grid, event.getSource() );
+    Event event = events.get( 0 );
+    assertEquals( SWT.Selection, event.type );
+    assertEquals( grid, event.widget );
     assertEquals( item, event.item );
     assertEquals( SWT.NONE, event.detail );
   }
 
   public void testProcessSelectionEvent_Check() {
-    List<SelectionEvent> events = new LinkedList<SelectionEvent>();
+    List<Event> events = new LinkedList<Event>();
     GridItem item = new GridItem( grid, SWT.NONE );
-    grid.addSelectionListener( new LoggingSelectionListener( events ) );
+    grid.addListener( SWT.Selection, new LoggingListener( events ) );
     String gridId = WidgetUtil.getId( grid );
     String itemId = WidgetUtil.getId( item );
 
@@ -924,20 +925,23 @@ public class GridLCA_Test extends TestCase {
     Fixture.fakeRequestParam( JSConst.EVENT_WIDGET_SELECTED, gridId );
     Fixture.fakeRequestParam( JSConst.EVENT_WIDGET_SELECTED + ".item", itemId );
     Fixture.fakeRequestParam( JSConst.EVENT_WIDGET_SELECTED + ".detail", "check" );
+    Fixture.fakeRequestParam( JSConst.EVENT_WIDGET_SELECTED + ".index", "3" );
     Fixture.readDataAndProcessAction( display );
 
     assertEquals( 1, events.size() );
-    SelectionEvent event = events.get( 0 );
-    assertEquals( SWT.Selection, event.getID() );
-    assertEquals( grid, event.getSource() );
+    Event event = events.get( 0 );
+    assertEquals( SWT.Selection, event.type );
+    assertEquals( grid, event.widget );
     assertEquals( item, event.item );
     assertEquals( SWT.CHECK, event.detail );
+    // FIXME: As untyped event is wrapped around typed SelectionEvent this field is lost
+    // assertEquals( 3, event.index );
   }
 
   public void testProcessDefaultSelectionEvent() {
-    List<SelectionEvent> events = new LinkedList<SelectionEvent>();
+    List<Event> events = new LinkedList<Event>();
     GridItem item = new GridItem( grid, SWT.NONE );
-    grid.addSelectionListener( new LoggingSelectionListener( events ) );
+    grid.addListener( SWT.DefaultSelection, new LoggingListener( events ) );
     String gridId = WidgetUtil.getId( grid );
     String itemId = WidgetUtil.getId( item );
 
@@ -947,9 +951,9 @@ public class GridLCA_Test extends TestCase {
     Fixture.readDataAndProcessAction( display );
 
     assertEquals( 1, events.size() );
-    SelectionEvent event = events.get( 0 );
-    assertEquals( SWT.DefaultSelection, event.getID() );
-    assertEquals( grid, event.getSource() );
+    Event event = events.get( 0 );
+    assertEquals( SWT.DefaultSelection, event.type );
+    assertEquals( grid, event.widget );
     assertEquals( item, event.item );
     assertEquals( SWT.NONE, event.detail );
   }
@@ -1079,17 +1083,12 @@ public class GridLCA_Test extends TestCase {
   //////////////////
   // Helping classes
 
-  private static class LoggingSelectionListener extends SelectionAdapter {
-    private final List<SelectionEvent> events;
-    private LoggingSelectionListener( List<SelectionEvent> events ) {
+  private static class LoggingListener implements Listener {
+    private final List<Event> events;
+    private LoggingListener( List<Event> events ) {
       this.events = events;
     }
-    @Override
-    public void widgetSelected( SelectionEvent event ) {
-      events.add( event );
-    }
-    @Override
-    public void widgetDefaultSelected( SelectionEvent event ) {
+    public void handleEvent( Event event ) {
       events.add( event );
     }
   }
