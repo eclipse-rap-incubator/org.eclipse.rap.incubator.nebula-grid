@@ -51,7 +51,6 @@ public class GridLCA extends AbstractWidgetLCA {
     "SINGLE",
     "MULTI",
     "FULL_SELECTION",
-    "CHECK",
     "VIRTUAL",
     "NO_FOCUS",
     "BORDER"
