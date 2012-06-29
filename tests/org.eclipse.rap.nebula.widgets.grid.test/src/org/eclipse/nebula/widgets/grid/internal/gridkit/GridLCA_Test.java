@@ -947,7 +947,7 @@ public class GridLCA_Test extends TestCase {
 
     Fixture.fakeNewRequest( display );
     Fixture.fakeRequestParam( JSConst.EVENT_WIDGET_DEFAULT_SELECTED, gridId );
-    Fixture.fakeRequestParam( JSConst.EVENT_WIDGET_SELECTED_ITEM, itemId );
+    Fixture.fakeRequestParam( JSConst.EVENT_WIDGET_DEFAULT_SELECTED + ".item", itemId );
     Fixture.readDataAndProcessAction( display );
 
     assertEquals( 1, events.size() );
