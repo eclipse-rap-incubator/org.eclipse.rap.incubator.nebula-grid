@@ -1910,6 +1910,8 @@ public class Grid_Test extends TestCase {
   }
 
   public void testUpdateScrollBars_Initial() {
+    doFakeRedraw();
+
     assertFalse( verticalBar.getVisible() );
     assertEquals( 0, verticalBar.getSelection() );
     assertEquals( 1, verticalBar.getMaximum() );
@@ -1921,6 +1923,8 @@ public class Grid_Test extends TestCase {
   public void testUpdateScrollBars() {
     createGridColumns( grid, 5, SWT.NONE );
     createGridItems( grid, 20, 3 );
+
+    doFakeRedraw();
 
     assertTrue( verticalBar.getVisible() );
     assertEquals( 0, verticalBar.getSelection() );
@@ -1934,9 +1938,11 @@ public class Grid_Test extends TestCase {
     createGridColumns( grid, 4, SWT.NONE );
 
     GridColumn column = new GridColumn( grid, SWT.NONE );
+    doFakeRedraw();
     assertTrue( horizontalBar.getVisible() );
 
     column.dispose();
+    doFakeRedraw();
     assertFalse( horizontalBar.getVisible() );
   }
 
@@ -1944,9 +1950,11 @@ public class Grid_Test extends TestCase {
     createGridColumns( grid, 4, SWT.NONE );
 
     grid.getColumn( 3 ).setWidth( 90 );
+    doFakeRedraw();
     assertTrue( horizontalBar.getVisible() );
 
     grid.getColumn( 3 ).setWidth( 70 );
+    doFakeRedraw();
     assertFalse( horizontalBar.getVisible() );
   }
 
@@ -1954,9 +1962,11 @@ public class Grid_Test extends TestCase {
     createGridItems( grid, 3, 10 );
 
     grid.getItem( 0 ).setExpanded( true );
+    doFakeRedraw();
     assertTrue( verticalBar.getVisible() );
 
     grid.getItem( 0 ).setExpanded( false );
+    doFakeRedraw();
     assertFalse( verticalBar.getVisible() );
   }
 
@@ -1965,6 +1975,7 @@ public class Grid_Test extends TestCase {
     createGridItems( grid, 10, 3 );
 
     grid.setSize( 500, 500 );
+    doFakeRedraw();
 
     assertFalse( verticalBar.getVisible() );
     assertFalse( horizontalBar.getVisible() );
@@ -1975,6 +1986,7 @@ public class Grid_Test extends TestCase {
     createGridItems( grid, 7, 3 );
 
     grid.setHeaderVisible( true );
+    doFakeRedraw();
 
     assertTrue( verticalBar.getVisible() );
   }
@@ -1984,6 +1996,7 @@ public class Grid_Test extends TestCase {
     createGridItems( grid, 7, 3 );
 
     grid.setFooterVisible( true );
+    doFakeRedraw();
 
     assertTrue( verticalBar.getVisible() );
   }
@@ -1996,6 +2009,7 @@ public class Grid_Test extends TestCase {
     columns[ 1 ].setSummary( false );
 
     group.setExpanded( false );
+    doFakeRedraw();
 
     assertFalse( horizontalBar.getVisible() );
   }
@@ -2384,6 +2398,10 @@ public class Grid_Test extends TestCase {
 
   //////////////////
   // Helping methods
+
+  private void doFakeRedraw() {
+    grid.getAdapter( IGridAdapter.class ).doRedraw();
+  }
 
   private void fakeCellPadding( Grid grid, Rectangle padding ) {
     grid.layoutCache.cellPadding = padding;

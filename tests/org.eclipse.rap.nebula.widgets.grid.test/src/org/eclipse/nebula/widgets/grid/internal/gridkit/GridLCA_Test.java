@@ -23,6 +23,7 @@ import java.util.List;
 import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridColumn;
 import org.eclipse.nebula.widgets.grid.GridItem;
+import org.eclipse.nebula.widgets.grid.internal.IGridAdapter;
 import org.eclipse.nebula.widgets.grid.internal.gridkit.GridLCA.ItemMetrics;
 import org.eclipse.rap.rwt.testfixture.Fixture;
 import org.eclipse.rap.rwt.testfixture.Message;
@@ -624,6 +625,8 @@ public class GridLCA_Test extends TestCase {
   }
 
   public void testRenderInitialScrollBarsVisible() throws IOException {
+    doFakeRedraw();
+
     lca.render( grid );
 
     Message message = Fixture.getProtocolMessage();
@@ -636,6 +639,7 @@ public class GridLCA_Test extends TestCase {
     GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
 
     columns[ 0 ].setWidth( 150 );
+    doFakeRedraw();
     lca.renderChanges( grid );
 
     Message message = Fixture.getProtocolMessage();
@@ -648,6 +652,7 @@ public class GridLCA_Test extends TestCase {
     createGridColumns( grid, 3, SWT.NONE );
 
     createGridItems( grid, 20, 0 );
+    doFakeRedraw();
     lca.renderChanges( grid );
 
     Message message = Fixture.getProtocolMessage();
@@ -663,6 +668,7 @@ public class GridLCA_Test extends TestCase {
 
     columns[ 0 ].setWidth( 150 );
     createGridItems( grid, 20, 0 );
+    doFakeRedraw();
     Fixture.preserveWidgets();
     lca.renderChanges( grid );
 
@@ -1078,6 +1084,10 @@ public class GridLCA_Test extends TestCase {
     String cellString = itemId + "," + column;
     Fixture.fakeRequestParam( JSConst.EVENT_CELL_TOOLTIP_DETAILS, cellString );
     Fixture.executeLifeCycleFromServerThread();
+  }
+
+  private void doFakeRedraw() {
+    grid.getAdapter( IGridAdapter.class ).doRedraw();
   }
 
   //////////////////

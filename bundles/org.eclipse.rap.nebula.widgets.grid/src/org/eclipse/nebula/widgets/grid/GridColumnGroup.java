@@ -179,8 +179,7 @@ public class GridColumnGroup extends Item {
     checkWidget();
     if( this.expanded != expanded ) {
       this.expanded = expanded;
-      parent.updateScrollBars();
-      parent.redraw();
+      parent.setScrollValuesObsolete();
     }
   }
 

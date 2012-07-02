@@ -28,5 +28,7 @@ public interface IGridAdapter {
   int getTextWidth( int index );
 
   int getItemIndex( GridItem item );
+  
+  void doRedraw();
 
 }

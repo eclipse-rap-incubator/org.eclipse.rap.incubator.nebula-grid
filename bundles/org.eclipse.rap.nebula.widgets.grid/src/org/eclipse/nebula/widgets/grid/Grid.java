@@ -92,6 +92,7 @@ public class Grid extends Canvas {
   private boolean isTemporaryResize;
   private IScrollBarProxy vScroll;
   private IScrollBarProxy hScroll;
+  private boolean scrollValuesObsolete;
   private int topIndex = -1;
   private int bottomIndex = -1;
   private boolean bottomIndexShownCompletely;
@@ -138,6 +139,7 @@ public class Grid extends Canvas {
     }
     gridAdapter = new GridAdapter();
     layoutCache = new LayoutCache();
+    setScrollValuesObsolete();
     initListeners();
   }
 
@@ -1739,8 +1741,7 @@ public class Grid extends Canvas {
     if( columnHeadersVisible != show ) {
       columnHeadersVisible = show;
       layoutCache.invalidateHeaderHeight();
-      updateScrollBars();
-      redraw();
+      setScrollValuesObsolete();
     }
   }
 
@@ -1798,8 +1799,7 @@ public class Grid extends Canvas {
     if( columnFootersVisible != show ) {
       columnFootersVisible = show;
       layoutCache.invalidateFooterHeight();
-      updateScrollBars();
-      redraw();
+      setScrollValuesObsolete();
     }
   }
 
@@ -1958,8 +1958,7 @@ public class Grid extends Canvas {
       SWT.error( SWT.ERROR_INVALID_ARGUMENT );
     }
     customItemHeight = height;
-    updateScrollBars();
-    redraw();
+    setScrollValuesObsolete();
   }
 
   /**
@@ -1992,8 +1991,7 @@ public class Grid extends Canvas {
   public void setFont( Font font ) {
     super.setFont( font );
     layoutCache.invalidateItemHeight();
-    updateScrollBars();
-    redraw();
+    setScrollValuesObsolete();
   }
 
   /**
@@ -2012,6 +2010,7 @@ public class Grid extends Canvas {
   public void setTopIndex( int index ) {
     checkWidget();
     if( index >= 0 && index < items.size() ) {
+      updateScrollBars();
       GridItem item = items.get( index );
       if( item.isVisible() && vScroll.getVisible() ) {
         int vScrollAmount = 0;
@@ -2042,6 +2041,7 @@ public class Grid extends Canvas {
   public int getTopIndex() {
     checkWidget();
     if( topIndex == -1 ) {
+      updateScrollBars();
       if( vScroll.getVisible() ) {
         int firstVisibleIndex = vScroll.getSelection();
         if( isTree ) {
@@ -2279,8 +2279,7 @@ public class Grid extends Canvas {
       if( item.isVisible() ) {
         updateVisibleItems( -1 );
       }
-      updateScrollBars();
-      redraw();
+      setScrollValuesObsolete();
     }
   }
 
@@ -2314,8 +2313,7 @@ public class Grid extends Canvas {
     }
     layoutCache.invalidateHeaderHeight();
     layoutCache.invalidateFooterHeight();
-    updateScrollBars();
-    redraw();
+    setScrollValuesObsolete();
     return columns.size() - 1;
   }
 
@@ -2333,8 +2331,7 @@ public class Grid extends Canvas {
     }
     layoutCache.invalidateHeaderHeight();
     layoutCache.invalidateFooterHeight();
-    updateScrollBars();
-    redraw();
+    setScrollValuesObsolete();
   }
 
   void newColumnGroup( GridColumnGroup group ) {
@@ -2342,8 +2339,7 @@ public class Grid extends Canvas {
     if( columnGroups.size() == 1 ) {
       layoutCache.invalidateHeaderHeight();
     }
-    updateScrollBars();
-    redraw();
+    setScrollValuesObsolete();
   }
 
   void removeColumnGroup( GridColumnGroup group ) {
@@ -2351,8 +2347,7 @@ public class Grid extends Canvas {
     if( columnGroups.size() == 0 ) {
       layoutCache.invalidateHeaderHeight();
     }
-    updateScrollBars();
-    redraw();
+    setScrollValuesObsolete();
   }
 
   boolean isDisposing() {
@@ -2374,8 +2369,7 @@ public class Grid extends Canvas {
       Rectangle imageBounds = image.getBounds();
       itemImageSize = new Point( imageBounds.width, imageBounds.height );
       layoutCache.invalidateItemHeight();
-      updateScrollBars();
-      redraw();
+      setScrollValuesObsolete();
     }
   }
 
@@ -2462,33 +2456,45 @@ public class Grid extends Canvas {
     return result;
   }
 
+  private void doRedraw() {
+    updateScrollBars();
+  }
+
+  void setScrollValuesObsolete() {
+    scrollValuesObsolete = true;
+    redraw();
+  }
+
   void updateScrollBars() {
-    Point preferredSize = getTableSize();
-    Rectangle clientArea = getClientArea();
-    for( int doublePass = 1; doublePass <= 2; doublePass++ ) {
-      if( preferredSize.y > clientArea.height ) {
-        vScroll.setVisible( true );
-      } else {
-        vScroll.setVisible( false );
-        vScroll.setValues( 0, 0, 1, 1, 1, 1 );
+    if( scrollValuesObsolete ) {
+      Point preferredSize = getTableSize();
+      Rectangle clientArea = getClientArea();
+      for( int doublePass = 1; doublePass <= 2; doublePass++ ) {
+        if( preferredSize.y > clientArea.height ) {
+          vScroll.setVisible( true );
+        } else {
+          vScroll.setVisible( false );
+          vScroll.setValues( 0, 0, 1, 1, 1, 1 );
+        }
+        if( preferredSize.x > clientArea.width ) {
+          hScroll.setVisible( true );
+        } else {
+          hScroll.setVisible( false );
+          hScroll.setValues( 0, 0, 1, 1, 1, 1 );
+        }
+        clientArea = getClientArea();
       }
-      if( preferredSize.x > clientArea.width ) {
-        hScroll.setVisible( true );
-      } else {
-        hScroll.setVisible( false );
-        hScroll.setValues( 0, 0, 1, 1, 1, 1 );
+      if( vScroll.getVisible() ) {
+        int thumb = getVisibleGridHeight() / getItemHeight();
+        int selection = Math.min( vScroll.getSelection(), currentVisibleItems );
+        vScroll.setValues( selection, 0, currentVisibleItems, thumb, 1, thumb );
       }
-      clientArea = getClientArea();
-    }
-    if( vScroll.getVisible() ) {
-      int thumb = getVisibleGridHeight() / getItemHeight();
-      int selection = Math.min( vScroll.getSelection(), currentVisibleItems );
-      vScroll.setValues( selection, 0, currentVisibleItems, thumb, 1, thumb );
-    }
-    if( hScroll.getVisible() ) {
-      int hiddenArea = preferredSize.x - clientArea.width;
-      int selection = Math.min( hScroll.getSelection(), hiddenArea );
-      hScroll.setValues( selection, 0, preferredSize.x, clientArea.width, 5, clientArea.width );
+      if( hScroll.getVisible() ) {
+        int hiddenArea = preferredSize.x - clientArea.width;
+        int selection = Math.min( hScroll.getSelection(), hiddenArea );
+        hScroll.setValues( selection, 0, preferredSize.x, clientArea.width, 5, clientArea.width );
+      }
+      scrollValuesObsolete = false;
     }
   }
 
@@ -2918,8 +2924,7 @@ public class Grid extends Canvas {
           repackColumns();
         }
         invalidateTopIndex();
-        updateScrollBars();
-        redraw();
+        setScrollValuesObsolete();
       }
     }
   }
@@ -2992,6 +2997,10 @@ public class Grid extends Canvas {
 
     public void setCellToolTipText( String toolTipText ) {
       this.toolTipText = toolTipText;
+    }
+
+    public void doRedraw() {
+      Grid.this.doRedraw();
     }
   }
 

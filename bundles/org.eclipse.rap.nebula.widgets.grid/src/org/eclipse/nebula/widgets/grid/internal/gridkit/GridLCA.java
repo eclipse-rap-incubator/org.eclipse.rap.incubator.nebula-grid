@@ -177,6 +177,12 @@ public class GridLCA extends AbstractWidgetLCA {
   }
 
   @Override
+  public void doRedrawFake( Control control ) {
+    Grid grid = ( Grid )control;
+    getGridAdapter( grid ).doRedraw();
+  }
+
+  @Override
   public void renderDispose( Widget widget ) throws IOException {
     ClientObjectFactory.getClientObject( widget ).destroy();
   }

@@ -118,7 +118,7 @@ public class GridItem extends Item {
     init();
     parent.newItem( this, index, true );
     parent.newRootItem( this, index );
-    parent.updateScrollBars();
+    parent.setScrollValuesObsolete();
   }
 
   /**
@@ -180,7 +180,7 @@ public class GridItem extends Item {
     } else {
       setVisible( false );
     }
-    this.parent.updateScrollBars();
+    this.parent.setScrollValuesObsolete();
   }
 
   /**
@@ -462,7 +462,7 @@ public class GridItem extends Item {
       }
     }
     parent.invalidateTopIndex();
-    parent.updateScrollBars();
+    parent.setScrollValuesObsolete();
     if( unselected ) {
       Event event = new Event();
       event.item = this;

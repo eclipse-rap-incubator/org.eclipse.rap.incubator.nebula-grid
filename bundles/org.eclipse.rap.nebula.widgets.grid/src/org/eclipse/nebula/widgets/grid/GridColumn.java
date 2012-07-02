@@ -1007,8 +1007,8 @@ public class GridColumn extends Item {
     if( this.width != newWidth ) {
       this.width = newWidth;
       packed = false;
-      parent.updateScrollBars();
       processControlEvents();
+      parent.setScrollValuesObsolete();
     }
   }
 

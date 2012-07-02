@@ -1019,7 +1019,7 @@ public class GridItem_Test extends TestCase {
   }
 
   public void testGetBounds_WithOffset() {
-    createGridColumns( grid, 3, SWT.NONE );
+    createGridColumns( grid, 5, SWT.NONE );
     createGridItems( grid, 20, 3 );
     grid.getHorizontalBar().setSelection( 30 );
     grid.setTopIndex( 12 );
