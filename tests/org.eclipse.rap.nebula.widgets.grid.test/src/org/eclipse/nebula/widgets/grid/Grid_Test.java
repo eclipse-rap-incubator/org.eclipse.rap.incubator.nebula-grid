@@ -199,6 +199,38 @@ public class Grid_Test extends TestCase {
     }
   }
 
+  public void testGetItemByPoint_NullArgument() {
+    createGridItems( grid, 3, 1 );
+
+    try {
+      grid.getItem( null );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testGetItemByPoint() {
+    GridItem[] items = createGridItems( grid, 10, 0 );
+
+    assertSame( items[ 2 ], grid.getItem( new Point( 10, 60 ) ) );
+  }
+
+  public void testGetItemByPoint_WithHeaderVisible() {
+    grid.setHeaderVisible( true );
+    createGridColumns( grid, 1, SWT.NONE );
+    GridItem[] items = createGridItems( grid, 10, 0 );
+
+    assertSame( items[ 1 ], grid.getItem( new Point( 10, 60 ) ) );
+  }
+
+  public void testGetItemByPoint_WithinHeader() {
+    grid.setHeaderVisible( true );
+    createGridColumns( grid, 1, SWT.NONE );
+    createGridItems( grid, 10, 0 );
+
+    assertNull( grid.getItem( new Point( 10, 20 ) ) );
+  }
+
   public void testIndexOf() {
     GridItem[] items = createGridItems( grid, 3, 1 );
 

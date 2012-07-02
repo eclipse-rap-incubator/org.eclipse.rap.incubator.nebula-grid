@@ -370,6 +370,53 @@ public class Grid extends Canvas {
   }
 
   /**
+   * Returns the item at the given point in the receiver or null if no such
+   * item exists. The point is in the coordinate system of the receiver.
+   *
+   * @param point the point used to locate the item
+   * @return the item at the given point
+   * @throws IllegalArgumentException
+   * <ul>
+   * <li>ERROR_NULL_ARGUMENT - if the point is null</li>
+   * </ul>
+   * @throws org.eclipse.swt.SWTException
+   * <ul>
+   * <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed</li>
+   * <li>ERROR_THREAD_INVALID_ACCESS - if not called from the thread that
+   * created the receiver</li>
+   * </ul>
+   */
+  public GridItem getItem( Point point ) {
+    checkWidget();
+    if( point == null ) {
+      SWT.error( SWT.ERROR_NULL_ARGUMENT );
+    }
+    GridItem result = null;
+    if( point.x >= 0 && point.x <= getClientArea().width ) {
+      Point p = new Point( point.x, point.y );
+      int y = 0;
+      if( columnHeadersVisible ) {
+        y += getHeaderHeight();
+      }
+      if( p.y > y ) {
+        int row = getTopIndex();
+        while( row < items.size() && y <= getClientArea().height && result == null ) {
+          GridItem currentItem = items.get( row );
+          if( currentItem.isVisible() ) {
+            int currentItemHeight = currentItem.getHeight();
+            if( p.y >= y && p.y < y + currentItemHeight ) {
+              result = currentItem;
+            }
+            y += currentItemHeight;
+          }
+          row++;
+        }
+      }
+    }
+    return result;
+  }
+
+  /**
    * Searches the receiver's list starting at the first item (index 0) until
    * an item is found that is equal to the argument, and returns the index of
    * that item. If no item is found, returns -1.
