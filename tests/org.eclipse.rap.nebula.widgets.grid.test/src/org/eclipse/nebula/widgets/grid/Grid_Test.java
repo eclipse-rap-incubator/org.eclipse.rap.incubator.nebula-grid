@@ -2437,6 +2437,23 @@ public class Grid_Test extends TestCase {
     assertEquals( 6, getCheckBoxOffset( 1 ) );
   }
 
+  public void testGetBottomIndex_SameItemHeight() {
+    createGridItems( grid, 20, 0 );
+
+    grid.setTopIndex( 4 );
+
+    assertEquals( 11, grid.getBottomIndex() );
+  }
+
+  public void testGetBottomIndex_DifferentItemHeight() {
+    GridItem[] items = createGridItems( grid, 20, 0 );
+    items[ 6 ].setHeight( grid.getItemHeight() * 2  );
+
+    grid.setTopIndex( 4 );
+
+    assertEquals( 10, grid.getBottomIndex() );
+  }
+
   //////////////////
   // Helping methods
 
