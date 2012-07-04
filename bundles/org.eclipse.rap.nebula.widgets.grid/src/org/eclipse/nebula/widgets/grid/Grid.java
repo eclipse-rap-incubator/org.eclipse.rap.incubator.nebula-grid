@@ -2969,7 +2969,7 @@ public class Grid extends Canvas {
           GridItem nextItem;
           do {
             nextIndex += inverse ? -1 : 1;
-            if( nextIndex >= 0 && nextIndex < items.size() ) {
+            if( isValidItemIndex( nextIndex ) ) {
               nextItem = items.get( nextIndex );
             } else {
               nextItem = null;
