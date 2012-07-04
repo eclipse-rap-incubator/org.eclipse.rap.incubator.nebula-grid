@@ -906,6 +906,15 @@ public class GridItem_Test extends TestCase {
     assertEquals( 30, item.getHeight() );
   }
 
+  public void testGetHeight_CustomHeight() {
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    item.setHeight( 30 );
+
+    assertEquals( 30, item.getHeight() );
+    assertTrue( grid.getItemHeight() != item.getHeight() );
+  }
+
   public void testGetCellSize_WithoutSpan() {
     createGridColumns( grid, 5, SWT.NONE );
     createGridItems( grid, 5, 5 );

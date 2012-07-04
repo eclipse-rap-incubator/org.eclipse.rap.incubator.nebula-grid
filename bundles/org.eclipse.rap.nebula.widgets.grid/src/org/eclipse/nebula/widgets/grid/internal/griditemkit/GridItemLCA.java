@@ -41,6 +41,7 @@ public class GridItemLCA extends AbstractWidgetLCA {
   private static final String TYPE = "rwt.widgets.GridItem";
 
   private static final String PROP_ITEM_COUNT = "itemCount";
+  private static final String PROP_HEIGHT = "height";
   private static final String PROP_TEXTS = "texts";
   private static final String PROP_IMAGES = "images";
   private static final String PROP_CELL_BACKGROUNDS = "cellBackgrounds";
@@ -73,6 +74,7 @@ public class GridItemLCA extends AbstractWidgetLCA {
     GridItem item = ( GridItem )widget;
     WidgetLCAUtil.preserveCustomVariant( item );
     preserveProperty( item, PROP_ITEM_COUNT, item.getItemCount() );
+    preserveProperty( item, PROP_HEIGHT, item.getHeight() );
     preserveProperty( item, PROP_TEXTS, getTexts( item ) );
     preserveProperty( item, PROP_IMAGES, getImages( item ) );
     WidgetLCAUtil.preserveBackground( item, getUserBackground( item ) );
@@ -91,6 +93,7 @@ public class GridItemLCA extends AbstractWidgetLCA {
     GridItem item = ( GridItem )widget;
     WidgetLCAUtil.renderCustomVariant( item );
     renderProperty( item, PROP_ITEM_COUNT, item.getItemCount(), ZERO );
+    renderProperty( item, PROP_HEIGHT, item.getHeight(), item.getParent().getItemHeight() );
     renderProperty( item, PROP_TEXTS, getTexts( item ), getDefaultTexts( item ) );
     renderProperty( item, PROP_IMAGES, getImages( item ), new Image[ getColumnCount( item ) ] );
     WidgetLCAUtil.renderBackground( item, getUserBackground( item ) );
