@@ -54,6 +54,7 @@ public class GridItem extends Item {
   private ArrayList<GridItem> children = new ArrayList<GridItem>();
   private boolean hasChildren;
   private int level;
+  private int customHeight = -1;
   private boolean visible = true;
   private boolean expanded;
   private boolean hasSetData;
@@ -461,7 +462,7 @@ public class GridItem extends Item {
         }
       }
     }
-    parent.invalidateTopIndex();
+    parent.invalidateTopBottomIndex();
     parent.setScrollValuesObsolete();
     if( unselected ) {
       Event event = new Event();
@@ -1302,13 +1303,39 @@ public class GridItem extends Item {
   }
 
   /**
+   * Sets the height of this <code>GridItem</code>.
+   *
+   * @param height
+   *            new height in pixels
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public void setHeight( int height ) {
+    checkWidget();
+    if( height < 1 ) {
+      SWT.error( SWT.ERROR_INVALID_ARGUMENT );
+    }
+    if( customHeight != height ) {
+      customHeight = height;
+      parent.hasDifferingHeights = true;
+      parent.invalidateTopBottomIndex();
+      parent.setScrollValuesObsolete();
+    }
+  }
+
+  /**
    * Returns the height of this <code>GridItem</code>.
    *
    * @return height of this <code>GridItem</code>
    */
   public int getHeight() {
     checkWidget();
-    return parent.getItemHeight();
+    return customHeight != -1 ? customHeight : parent.getItemHeight();
   }
 
   /**

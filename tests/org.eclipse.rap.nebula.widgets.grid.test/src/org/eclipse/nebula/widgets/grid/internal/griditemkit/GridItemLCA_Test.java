@@ -191,6 +191,35 @@ public class GridItemLCA_Test extends TestCase {
     assertNull( message.findSetOperation( items[ 0 ], "itemCount" ) );
   }
 
+  public void testRenderInitialHeight() throws IOException {
+    lca.render( item );
+
+    Message message = Fixture.getProtocolMessage();
+    CreateOperation operation = message.findCreateOperation( item );
+    assertTrue( operation.getPropertyNames().indexOf( "height" ) == -1 );
+  }
+
+  public void testRenderHeight() throws IOException {
+    item.setHeight( 10 );
+
+    lca.renderChanges( item );
+
+    Message message = Fixture.getProtocolMessage();
+    assertEquals( Integer.valueOf( 10 ), message.findSetProperty( item, "height" ) );
+  }
+
+  public void testRenderHeightUnchanged() throws IOException {
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( item );
+
+    item.setHeight( 10 );
+    Fixture.preserveWidgets();
+    lca.renderChanges( item );
+
+    Message message = Fixture.getProtocolMessage();
+    assertNull( message.findSetOperation( item, "height" ) );
+  }
+
   public void testRenderInitialTexts() throws IOException {
     createGridColumns( grid, 2, SWT.NONE );
 

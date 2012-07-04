@@ -2094,6 +2094,15 @@ public class Grid_Test extends TestCase {
     assertEquals( 9, grid.getTopIndex() );
   }
 
+  public void testGetTopIndex_DifferentItemHeight() {
+    GridItem[] items = createGridItems( grid, 20, 0 );
+    items[ 16 ].setHeight( grid.getItemHeight() * 2  );
+
+    grid.setTopIndex( 18 );
+
+    assertEquals( 14, grid.getTopIndex() );
+  }
+
   public void testAdjustTopIndexOnResize() {
     createGridItems( grid, 15, 3 );
     grid.setTopIndex( 4 );

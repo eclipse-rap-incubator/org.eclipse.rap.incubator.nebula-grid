@@ -40,6 +40,7 @@ public class GridSnippet extends GridSnippetBase {
     createGrid( parent );
     createAddRemoveItemButton( parent );
     createTopIndexButton( parent );
+    createShowItemGroup( parent );
     createShowColumnGroup( parent );
     createShowHeaderButton( parent );
     createShowFooterButton( parent );
@@ -234,6 +235,32 @@ public class GridSnippet extends GridSnippetBase {
         } catch( NumberFormatException e ) {
         }
         grid.setTopIndex( topIndex );
+      }
+    } );
+  }
+
+  private void createShowItemGroup( Composite parent ) {
+    Composite composite = new Composite( parent, SWT.NONE );
+    composite.setLayout( new GridLayout( 3, false ) );
+    Label showItemLabel = new Label( composite, SWT.NONE );
+    showItemLabel.setLayoutData( new GridData( 100, SWT.DEFAULT ) );
+    showItemLabel.setText( "Show item" );
+    final Text showItemText = new Text( composite, SWT.BORDER );
+    showItemText.setLayoutData( new GridData( 50, SWT.DEFAULT ) );
+    Button button = new Button( composite, SWT.PUSH );
+    button.setLayoutData( new GridData( 100, SWT.DEFAULT ) );
+    button.setText( "Show" );
+    button.addSelectionListener( new SelectionAdapter() {
+      @Override
+      public void widgetSelected( SelectionEvent event ) {
+        int index = -1;
+        try {
+          index = Integer.parseInt( showItemText.getText() );
+        } catch( NumberFormatException e ) {
+        }
+        if( index >= 0 && index < grid.getItemCount() ) {
+          grid.showItem( grid.getItem( index ) );
+        }
       }
     } );
   }
