@@ -19,6 +19,7 @@ import org.eclipse.nebula.widgets.grid.internal.IScrollBarProxy;
 import org.eclipse.nebula.widgets.grid.internal.NullScrollBarProxy;
 import org.eclipse.nebula.widgets.grid.internal.ScrollBarProxyAdapter;
 import org.eclipse.nebula.widgets.grid.internal.gridkit.GridThemeAdapter;
+import org.eclipse.rwt.RWT;
 import org.eclipse.rwt.graphics.Graphics;
 import org.eclipse.rwt.internal.textsize.TextSizeUtil;
 import org.eclipse.rwt.internal.theme.IThemeAdapter;
@@ -38,6 +39,7 @@ import org.eclipse.swt.internal.SerializableCompatibility;
 import org.eclipse.swt.internal.widgets.ICellToolTipAdapter;
 import org.eclipse.swt.internal.widgets.ICellToolTipProvider;
 import org.eclipse.swt.internal.widgets.IItemHolderAdapter;
+import org.eclipse.swt.internal.widgets.MarkupValidator;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
@@ -99,6 +101,8 @@ public class Grid extends Canvas {
   private final IGridAdapter gridAdapter;
   private transient CompositeItemHolder itemHolder;
   boolean hasDifferingHeights;
+  boolean markupEnabled;
+  boolean markupValidationDisabled;
   LayoutCache layoutCache;
 
   /**
@@ -2256,6 +2260,16 @@ public class Grid extends Canvas {
       result = super.getAdapter( adapter );
     }
     return result;
+  }
+
+  @Override
+  public void setData( String key, Object value ) {
+    if( RWT.MARKUP_ENABLED.equals( key ) && !markupEnabled ) {
+      markupEnabled = Boolean.TRUE.equals( value );
+    } else if( MarkupValidator.MARKUP_VALIDATION_DISABLED.equals( key ) ) {
+      markupValidationDisabled = Boolean.TRUE.equals( value );
+    }
+    super.setData( key, value );
   }
 
   int newItem( GridItem item, int index, boolean root ) {

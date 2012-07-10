@@ -23,6 +23,7 @@ import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridColumn;
 import org.eclipse.nebula.widgets.grid.GridItem;
 import org.eclipse.nebula.widgets.grid.internal.IGridAdapter;
+import org.eclipse.rwt.RWT;
 import org.eclipse.rwt.internal.lifecycle.JSConst;
 import org.eclipse.rwt.internal.protocol.ClientObjectFactory;
 import org.eclipse.rwt.internal.protocol.IClientObject;
@@ -80,6 +81,7 @@ public class GridLCA extends AbstractWidgetLCA {
   // TODO: [if] Sync toolTipText in GridItemLCA when it's possible on the client
   private static final String PROP_ENABLE_CELL_TOOLTIP = "enableCellToolTip";
   private static final String PROP_CELL_TOOLTIP_TEXT = "cellToolTipText";
+  private static final String PROP_MARKUP_ENABLED = "markupEnabled";
 
   private static final int ZERO = 0 ;
   private static final String[] DEFAULT_SELECTION = new String[ 0 ];
@@ -96,6 +98,7 @@ public class GridLCA extends AbstractWidgetLCA {
     clientObject.set( "appearance", "tree" );
     IGridAdapter adapter = getGridAdapter( grid );
     clientObject.set( "indentionWidth", adapter.getIndentationWidth() );
+    clientObject.set( PROP_MARKUP_ENABLED, isMarkupEnabled( grid ) );
   }
 
   public void readData( Widget widget ) {
@@ -255,6 +258,10 @@ public class GridLCA extends AbstractWidgetLCA {
 
   //////////////////
   // Helping methods
+
+  private static boolean isMarkupEnabled( Grid grid ) {
+    return Boolean.TRUE.equals( grid.getData( RWT.MARKUP_ENABLED ) );
+  }
 
   private static int getTreeColumn( Grid grid ) {
     int[] order = grid.getColumnOrder();

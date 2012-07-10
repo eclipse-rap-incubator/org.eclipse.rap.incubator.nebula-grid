@@ -24,6 +24,7 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.internal.SerializableCompatibility;
 import org.eclipse.swt.internal.widgets.IWidgetColorAdapter;
 import org.eclipse.swt.internal.widgets.IWidgetFontAdapter;
+import org.eclipse.swt.internal.widgets.MarkupValidator;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Item;
 import org.eclipse.swt.widgets.Widget;
@@ -831,6 +832,9 @@ public class GridItem extends Item {
     checkWidget();
     if( text == null ) {
       SWT.error( SWT.ERROR_NULL_ARGUMENT );
+    }
+    if( parent.markupEnabled && !parent.markupValidationDisabled ) {
+      MarkupValidator.getInstance().validate( text );
     }
     Data itemData = getItemData( index );
     updateColumnTextCount( index, itemData.text, text );

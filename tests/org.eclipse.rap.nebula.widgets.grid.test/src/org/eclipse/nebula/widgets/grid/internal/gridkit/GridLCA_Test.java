@@ -30,6 +30,7 @@ import org.eclipse.rap.rwt.testfixture.Message;
 import org.eclipse.rap.rwt.testfixture.Message.CreateOperation;
 import org.eclipse.rap.rwt.testfixture.Message.DestroyOperation;
 import org.eclipse.rap.rwt.testfixture.Message.Operation;
+import org.eclipse.rwt.RWT;
 import org.eclipse.rwt.internal.lifecycle.JSConst;
 import org.eclipse.rwt.lifecycle.WidgetUtil;
 import org.eclipse.swt.SWT;
@@ -1072,6 +1073,15 @@ public class GridLCA_Test extends TestCase {
     ItemMetrics[] metrics = GridLCA.getItemMetrics( grid );
 
     assertEquals( 71, metrics[ 0 ].textWidth );
+  }
+
+  public void testRenderMarkupEnabled() throws IOException {
+    grid.setData( RWT.MARKUP_ENABLED, Boolean.TRUE );
+
+    lca.render( grid );
+
+    Message message = Fixture.getProtocolMessage();
+    assertEquals( Boolean.TRUE, message.findCreateProperty( grid, "markupEnabled" ) );
   }
 
   //////////////////

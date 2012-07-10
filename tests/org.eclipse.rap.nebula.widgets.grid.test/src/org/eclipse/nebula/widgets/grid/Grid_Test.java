@@ -22,6 +22,7 @@ import org.eclipse.nebula.widgets.grid.internal.IGridAdapter;
 import org.eclipse.nebula.widgets.grid.internal.NullScrollBarProxy;
 import org.eclipse.nebula.widgets.grid.internal.ScrollBarProxyAdapter;
 import org.eclipse.rap.rwt.testfixture.Fixture;
+import org.eclipse.rwt.RWT;
 import org.eclipse.rwt.lifecycle.PhaseId;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
@@ -38,6 +39,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.internal.widgets.ICellToolTipAdapter;
 import org.eclipse.swt.internal.widgets.IItemHolderAdapter;
+import org.eclipse.swt.internal.widgets.MarkupValidator;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Item;
@@ -2452,6 +2454,48 @@ public class Grid_Test extends TestCase {
     grid.setTopIndex( 4 );
 
     assertEquals( 10, grid.getBottomIndex() );
+  }
+
+  public void testMarkupTextWithoutMarkupEnabled() {
+    grid.setData( RWT.MARKUP_ENABLED, Boolean.FALSE );
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    try {
+      item.setText( "invalid xhtml: <<&>>" );
+    } catch( IllegalArgumentException notExpected ) {
+      fail();
+    }
+  }
+
+  public void testMarkupTextWithMarkupEnabled() {
+    grid.setData( RWT.MARKUP_ENABLED, Boolean.TRUE );
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    try {
+      item.setText( "invalid xhtml: <<&>>" );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  public void testMarkupTextWithMarkupEnabled_ValidationDisabled() {
+    grid.setData( RWT.MARKUP_ENABLED, Boolean.TRUE );
+    grid.setData( MarkupValidator.MARKUP_VALIDATION_DISABLED, Boolean.TRUE );
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    try {
+      item.setText( "invalid xhtml: <<&>>" );
+    } catch( IllegalArgumentException notExpected ) {
+      fail();
+    }
+  }
+
+  public void testDisableMarkupIsIgnored() {
+    grid.setData( RWT.MARKUP_ENABLED, Boolean.TRUE );
+
+    grid.setData( RWT.MARKUP_ENABLED, Boolean.FALSE );
+
+    assertTrue( grid.markupEnabled );
   }
 
   //////////////////
