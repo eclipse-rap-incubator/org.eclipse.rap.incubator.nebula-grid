@@ -156,6 +156,9 @@ public class GridSnippet extends GridSnippetBase {
           item.setText( k, "Item (" + gridItemIndex + "." + k + ")" );
         }
       }
+      if( gridItemIndex % 5 == 0 ) {
+        grid.getItem( gridItemIndex ).setHeight( 2 * grid.getItemHeight() );
+      }
       for( int j = 0; j < SUB_ITEM_COUNT; j++ ) {
         GridItem subitem = new GridItem( item, SWT.NONE );
         gridItemIndex = grid.indexOf( subitem );
@@ -164,6 +167,9 @@ public class GridSnippet extends GridSnippetBase {
           if( k != 1 ) {
             subitem.setText( k, "Subitem (" + gridItemIndex + "." + k + ")" );
           }
+        }
+        if( gridItemIndex % 5 == 0 ) {
+          grid.getItem( gridItemIndex ).setHeight( 2 * grid.getItemHeight() );
         }
       }
     }
