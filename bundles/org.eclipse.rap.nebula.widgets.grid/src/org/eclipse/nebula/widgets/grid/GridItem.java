@@ -1541,6 +1541,17 @@ public class GridItem extends Item {
     return result;
   }
 
+  int getTextOffset( int index ) {
+    int result = getIndentationWidth( index );
+    if( !parent.isTreeColumn( index ) ) {
+      result += parent.getCellPadding().x;
+    }
+    result += getCheckBoxWidth( index );
+    result += getImageWidth( index );
+    result += getSpacing( index );
+    return result;
+  }
+
   private Font internalGetFont( int index ) {
     Font result = getItemData( index ).font;
     if( result == null ) {
