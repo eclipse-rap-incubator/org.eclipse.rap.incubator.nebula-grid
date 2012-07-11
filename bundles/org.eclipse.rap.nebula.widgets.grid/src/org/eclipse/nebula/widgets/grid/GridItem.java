@@ -1404,35 +1404,14 @@ public class GridItem extends Item {
     return result;
   }
 
-  /**
-   * Sets whether this item has children.
-   *
-   * @param hasChildren
-   *            true if this item has children
-   */
   void setHasChildren( boolean hasChildren ) {
     this.hasChildren = hasChildren;
   }
 
-  /**
-   * Returns true if the item is visible because its parent items are all
-   * expanded. This method does not determine if the item is in the currently
-   * visible range.
-   *
-   * @return Returns the visible.
-   */
   boolean isVisible() {
     return visible;
   }
 
-  /**
-   * Sets the visible state of this item. The visible state is determined by
-   * the expansion state of all of its parent items. If all parent items are
-   * expanded it is visible.
-   *
-   * @param visible
-   *            The visible to set.
-   */
   void setVisible( boolean visible ) {
     if( this.visible != visible ) {
       this.visible = visible;
@@ -1454,14 +1433,6 @@ public class GridItem extends Item {
     }
   }
 
-  /**
-   * Creates a new child item in this item at the given index.
-   *
-   * @param item
-   *            new child item
-   * @param index
-   *            index
-   */
   private void newItem( GridItem item, int index ) {
     setHasChildren( true );
     if( index == -1 ) {
@@ -1471,12 +1442,6 @@ public class GridItem extends Item {
     }
   }
 
-  /**
-   * Removes the given child item from the list of children.
-   *
-   * @param child
-   *            child to remove
-   */
   private void remove( GridItem child ) {
     children.remove( child );
     hasChildren = children.size() > 0;
@@ -1501,13 +1466,6 @@ public class GridItem extends Item {
     }
   }
 
-  /**
-   * Clears all properties of this item and resets values to their defaults.
-   *
-   * @param allChildren
-   *            <code>true</code> if all child items should be cleared
-   *            recursively, and <code>false</code> otherwise
-   */
   void clear( boolean allChildren ) {
     for( int i = 0; i < parent.getColumnCount(); i++ ) {
       Data itemData = getItemData( i );
