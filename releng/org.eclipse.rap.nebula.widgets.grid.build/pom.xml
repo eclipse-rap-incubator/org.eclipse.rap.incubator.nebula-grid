@@ -26,6 +26,7 @@
 
   <modules>
     <module>../../bundles/org.eclipse.rap.nebula.widgets.grid</module>
+    <module>../../bundles/org.eclipse.rap.nebula.jface.gridviewer</module>
     <module>../../tests/org.eclipse.rap.nebula.widgets.grid.test</module>
     <module>../../features/org.eclipse.rap.nebula.widgets.grid.feature</module>
     <module>repository</module>
