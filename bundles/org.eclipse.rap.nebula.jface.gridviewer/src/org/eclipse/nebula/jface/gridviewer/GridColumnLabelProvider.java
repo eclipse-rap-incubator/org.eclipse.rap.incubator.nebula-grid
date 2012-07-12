@@ -13,7 +13,6 @@ package org.eclipse.nebula.jface.gridviewer;
 
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ViewerCell;
-import org.eclipse.nebula.widgets.grid.GridItem;
 
 /**
  * A label provider that provides hooks for extra functionality in the {@link Grid}.  This is currently
@@ -27,7 +26,7 @@ public class GridColumnLabelProvider extends ColumnLabelProvider {
 
 	/**
 	 * Returns the row header text for this element.
-	 * 
+	 *
 	 * @param element
 	 *            the model element
 	 * @return the text displayed in the row-header or <code>null</code> if
@@ -37,12 +36,14 @@ public class GridColumnLabelProvider extends ColumnLabelProvider {
 		return null;
 	}
 
-	public void update(ViewerCell cell) {
+	@Override
+  public void update(ViewerCell cell) {
 		super.update(cell);
 		String rowText = getRowHeaderText(cell.getElement());
 
 		if (rowText != null) {
-			((GridItem) cell.getViewerRow().getItem()).setHeaderText(rowText);
+// RAP [if] Row headers not supported
+//			((GridItem) cell.getViewerRow().getItem()).setHeaderText(rowText);
 		}
 	}
 

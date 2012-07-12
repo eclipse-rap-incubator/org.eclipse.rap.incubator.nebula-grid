@@ -42,6 +42,7 @@ public class GridViewerRow extends ViewerRow
     }
 
     /** {@inheritDoc} */
+    @Override
     public Rectangle getBounds(int columnIndex)
     {
     	if( columnIndex == Integer.MAX_VALUE ) {
@@ -58,6 +59,7 @@ public class GridViewerRow extends ViewerRow
     }
 
     /** {@inheritDoc} */
+    @Override
     public Rectangle getBounds()
     {
         // TODO This is not correct. Update once item returns the correct information.
@@ -66,12 +68,14 @@ public class GridViewerRow extends ViewerRow
 
 
     /** {@inheritDoc} */
+    @Override
     public int getColumnCount()
     {
         return item.getParent().getColumnCount();
     }
 
     /** {@inheritDoc} */
+    @Override
     public Color getBackground(int columnIndex)
     {
     	if( columnIndex == Integer.MAX_VALUE ) {
@@ -83,6 +87,7 @@ public class GridViewerRow extends ViewerRow
     }
 
     /** {@inheritDoc} */
+    @Override
     public Font getFont(int columnIndex)
     {
     	if( columnIndex == Integer.MAX_VALUE ) {
@@ -94,6 +99,7 @@ public class GridViewerRow extends ViewerRow
     }
 
     /** {@inheritDoc} */
+    @Override
     public Color getForeground(int columnIndex)
     {
     	if( columnIndex == Integer.MAX_VALUE ) {
@@ -105,6 +111,7 @@ public class GridViewerRow extends ViewerRow
     }
 
     /** {@inheritDoc} */
+    @Override
     public Image getImage(int columnIndex)
     {
     	if( columnIndex == Integer.MAX_VALUE ) {
@@ -117,10 +124,13 @@ public class GridViewerRow extends ViewerRow
     }
 
     /** {@inheritDoc} */
+    @Override
     public String getText(int columnIndex)
     {
     	if( columnIndex == Integer.MAX_VALUE ) {
-    		return item.getHeaderText();
+// RAP [if] Row headers not supported
+//    		return item.getHeaderText();
+    	  return null;
     	} else {
     		return item.getText(columnIndex);
     	}
@@ -128,6 +138,7 @@ public class GridViewerRow extends ViewerRow
     }
 
     /** {@inheritDoc} */
+    @Override
     public void setBackground(int columnIndex, Color color)
     {
     	if( columnIndex == Integer.MAX_VALUE ) {
@@ -138,6 +149,7 @@ public class GridViewerRow extends ViewerRow
     }
 
     /** {@inheritDoc} */
+    @Override
     public void setFont(int columnIndex, Font font)
     {
     	if( columnIndex == Integer.MAX_VALUE ) {
@@ -148,6 +160,7 @@ public class GridViewerRow extends ViewerRow
     }
 
     /** {@inheritDoc} */
+    @Override
     public void setForeground(int columnIndex, Color color)
     {
     	if( columnIndex == Integer.MAX_VALUE ) {
@@ -158,6 +171,7 @@ public class GridViewerRow extends ViewerRow
     }
 
     /** {@inheritDoc} */
+    @Override
     public void setImage(int columnIndex, Image image)
     {
     	if( columnIndex == Integer.MAX_VALUE ) {
@@ -169,21 +183,25 @@ public class GridViewerRow extends ViewerRow
     }
 
     /** {@inheritDoc} */
+    @Override
     public void setText(int columnIndex, String text)
     {
     	if( columnIndex == Integer.MAX_VALUE ) {
-    		item.setHeaderText(text);
+// RAP [if] Row headers not supported
+//    		item.setHeaderText(text);
     	} else {
     		item.setText(columnIndex, text == null ? "" : text); //$NON-NLS-1$
     	}
     }
 
     /** {@inheritDoc} */
+    @Override
     public Control getControl()
     {
         return item.getParent();
     }
 
+    @Override
     public ViewerRow getNeighbor(int direction, boolean sameLevel) {
 		if( direction == ViewerRow.ABOVE ) {
 			return getRowAbove();
@@ -218,15 +236,18 @@ public class GridViewerRow extends ViewerRow
 		return null;
 	}
 
-	public TreePath getTreePath() {
+	@Override
+  public TreePath getTreePath() {
 		return new TreePath(new Object[] {item.getData()});
 	}
 
-	public Object clone() {
+	@Override
+  public Object clone() {
 		return new GridViewerRow(item);
 	}
 
-	public Object getElement() {
+	@Override
+  public Object getElement() {
 		return item.getData();
 	}
 
@@ -234,6 +255,7 @@ public class GridViewerRow extends ViewerRow
 		this.item = item;
 	}
 
+    @Override
     public Widget getItem()
     {
         return item;
