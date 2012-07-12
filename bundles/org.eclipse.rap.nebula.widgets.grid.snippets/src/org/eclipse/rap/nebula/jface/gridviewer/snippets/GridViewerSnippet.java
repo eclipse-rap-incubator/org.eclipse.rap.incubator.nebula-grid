@@ -110,10 +110,12 @@ public class GridViewerSnippet extends GridSnippetBase {
       = new ColumnViewerEditorActivationStrategy( viewer ) {
         @Override
         protected boolean isEditorActivationEvent( ColumnViewerEditorActivationEvent event ) {
-          return    event.eventType == ColumnViewerEditorActivationEvent.TRAVERSAL
-                 || event.eventType == ColumnViewerEditorActivationEvent.MOUSE_DOUBLE_CLICK_SELECTION
-                 || ( event.eventType == ColumnViewerEditorActivationEvent.KEY_PRESSED && event.keyCode == SWT.CR )
-                 || event.eventType == ColumnViewerEditorActivationEvent.PROGRAMMATIC;
+          int type = event.eventType;
+          int keyCode = event.keyCode;
+          return    type == ColumnViewerEditorActivationEvent.TRAVERSAL
+                 || type == ColumnViewerEditorActivationEvent.MOUSE_DOUBLE_CLICK_SELECTION
+                 || ( type == ColumnViewerEditorActivationEvent.KEY_PRESSED && keyCode == SWT.CR )
+                 || type == ColumnViewerEditorActivationEvent.PROGRAMMATIC;
         }
     };
     int feature = ColumnViewerEditor.TABBING_HORIZONTAL | ColumnViewerEditor.KEYBOARD_ACTIVATION;
