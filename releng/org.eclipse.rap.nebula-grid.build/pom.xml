@@ -21,14 +21,14 @@
     <relativePath>../../../org.eclipse.rap.incubator.releng/releng/org.eclipse.rap.incubator.releng/parent</relativePath>
   </parent>
 
-  <artifactId>org.eclipse.rap.nebula.widgets.grid.build</artifactId>
+  <artifactId>org.eclipse.rap.nebula-grid.build</artifactId>
   <packaging>pom</packaging>
 
   <modules>
     <module>../../bundles/org.eclipse.rap.nebula.widgets.grid</module>
     <module>../../bundles/org.eclipse.rap.nebula.jface.gridviewer</module>
     <module>../../tests/org.eclipse.rap.nebula.widgets.grid.test</module>
-    <module>../../features/org.eclipse.rap.nebula.widgets.grid.feature</module>
+    <module>../../features/org.eclipse.rap.nebula-grid.feature</module>
     <module>repository</module>
   </modules>
 

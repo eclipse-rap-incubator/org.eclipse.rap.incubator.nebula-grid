@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="org.eclipse.rap.nebula.widgets.grid.feature"
+      id="org.eclipse.rap.nebula-grid.feature"
       label="RAP Nebula Grid (Incubation)"
       version="0.1.0.qualifier"
       provider-name="Eclipse.org - RAP Incubator">

@@ -16,7 +16,7 @@
       label="Rich Ajax Platform (RAP) Incubator" />
 
   <feature url="http://eclipse.org/rap"
-      id="org.eclipse.rap.nebula.widgets.grid.feature"
+      id="org.eclipse.rap.nebula-grid.feature"
       version="0.1.0.qualifier">
     <category name="org.eclipse.rap.category"/>
   </feature>
