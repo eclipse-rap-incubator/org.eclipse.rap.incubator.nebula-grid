@@ -11,12 +11,19 @@
  *******************************************************************************/ 
 package org.eclipse.nebula.jface.gridviewer;
 
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.jface.viewers.AbstractTreeViewer;
+import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.ColumnViewerEditor;
 import org.eclipse.jface.viewers.ColumnViewerEditorActivationStrategy;
 import org.eclipse.jface.viewers.ITreeContentProvider;
+import org.eclipse.jface.viewers.TreePath;
+import org.eclipse.jface.viewers.TreeSelection;
+import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.jface.viewers.ViewerRow;
 import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridItem;
@@ -26,6 +33,8 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Item;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
 
 /**
@@ -52,6 +61,8 @@ public class GridTreeViewer extends AbstractTreeViewer {
 	 * rows / GridItems are always sized to their preferred height.
 	 */
 	private boolean autoPreferredHeight = false;
+	
+	private CellLabelProvider rowHeaderLabelProvider;
 
 
 	/**
@@ -228,6 +239,7 @@ public class GridTreeViewer extends AbstractTreeViewer {
 		GridItem[] newItems = new GridItem[items.size()];
 		items.toArray(newItems);
 		getGrid().setSelection(newItems);
+		getGrid().showSelection();
 	}
 
 	/** {@inheritDoc} */
@@ -311,7 +323,91 @@ public class GridTreeViewer extends AbstractTreeViewer {
 	/** {@inheritDoc} */
 	protected void doUpdateItem(final Item item, Object element) {
 		super.doUpdateItem(item, element);
+		updateRowHeader(item);
 		if(autoPreferredHeight && !item.isDisposed())
 			((GridItem)item).pack();
+	}
+	
+	/**
+	 * Removes the element at the specified index of the parent.  The selection is updated if required.
+	 *
+	 * @param parentOrTreePath the parent element, the input element, or a tree path to the parent element
+	 * @param index child index
+	 * @since 3.3
+	 */
+	public void remove(final Object parentOrTreePath, final int index) {
+		if (checkBusy())
+			return;
+		final List oldSelection = new LinkedList(Arrays
+				.asList(((TreeSelection) getSelection()).getPaths()));
+		preservingSelection(new Runnable() {
+			public void run() {
+				TreePath removedPath = null;
+				if (internalIsInputOrEmptyPath(parentOrTreePath)) {
+					Tree tree = (Tree) getControl();
+					if (index < tree.getItemCount()) {
+						TreeItem item = tree.getItem(index);
+						if (item.getData() != null) {
+							removedPath = getTreePathFromItem(item);
+							disassociate(item);
+						}
+						item.dispose();
+					}
+				} else {
+					Widget[] parentItems = internalFindItems(parentOrTreePath);
+					for (int i = 0; i < parentItems.length; i++) {
+						TreeItem parentItem = (TreeItem) parentItems[i];
+						if (parentItem.isDisposed())
+							continue;
+						if (index < parentItem.getItemCount()) {
+							TreeItem item = parentItem.getItem(index);
+							if (item.getData() != null) {
+								removedPath = getTreePathFromItem(item);
+								disassociate(item);
+							}
+							item.dispose();
+						}
+					}
+				}
+				if (removedPath != null) {
+					boolean removed = false;
+					for (Iterator it = oldSelection.iterator(); it
+							.hasNext();) {
+						TreePath path = (TreePath) it.next();
+						if (path.startsWith(removedPath, getComparer())) {
+							it.remove();
+							removed = true;
+						}
+					}
+					if (removed) {
+						setSelection(new TreeSelection(
+								(TreePath[]) oldSelection
+										.toArray(new TreePath[oldSelection
+												.size()]), getComparer()),
+								false);
+					}
+
+				}
+			}
+		});
+	}
+	
+	/**
+	 * Label provider used by calculate the row header text
+	 * 
+	 * @param rowHeaderLabelProvider
+	 *            the provider
+	 */
+	public void setRowHeaderLabelProvider(
+			CellLabelProvider rowHeaderLabelProvider) {
+		this.rowHeaderLabelProvider = rowHeaderLabelProvider;
+	}
+	
+	private void updateRowHeader(Widget widget) {
+		if (rowHeaderLabelProvider != null) {
+			ViewerCell cell = getViewerRowFromItem(widget).getCell(
+					Integer.MAX_VALUE);
+			rowHeaderLabelProvider.update(cell);
+		}
 	}
 }

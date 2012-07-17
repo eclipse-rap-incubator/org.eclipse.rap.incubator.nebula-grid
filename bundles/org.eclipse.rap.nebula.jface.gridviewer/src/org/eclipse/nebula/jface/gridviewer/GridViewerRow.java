@@ -128,7 +128,7 @@ public class GridViewerRow extends ViewerRow
     public String getText(int columnIndex)
     {
     	if( columnIndex == Integer.MAX_VALUE ) {
-// RAP [if] Row headers not supported
+// RAP [if] Row headers are not supported
 //    		return item.getHeaderText();
     	  return null;
     	} else {
@@ -142,7 +142,8 @@ public class GridViewerRow extends ViewerRow
     public void setBackground(int columnIndex, Color color)
     {
     	if( columnIndex == Integer.MAX_VALUE ) {
-    		//TODO Provide implementation for GridItem
+// RAP [if] Row headers are not supported
+//    		item.setHeaderBackground(color);
     	} else {
     		item.setBackground(columnIndex, color);
     	}
@@ -164,7 +165,8 @@ public class GridViewerRow extends ViewerRow
     public void setForeground(int columnIndex, Color color)
     {
     	if( columnIndex == Integer.MAX_VALUE ) {
-    		//TODO Provide implementation for GridItem
+// RAP [if] Row headers are not supported
+//    		item.setHeaderForeground(color);
     	} else {
     		item.setForeground(columnIndex, color);
     	}
@@ -175,7 +177,8 @@ public class GridViewerRow extends ViewerRow
     public void setImage(int columnIndex, Image image)
     {
     	if( columnIndex == Integer.MAX_VALUE ) {
-    		//TODO Provide implementation for GridItem
+// RAP [if] Row headers are not supported
+//    		item.setHeaderImage(image);
     	} else {
     		item.setImage(columnIndex, image);
     	}
@@ -187,7 +190,7 @@ public class GridViewerRow extends ViewerRow
     public void setText(int columnIndex, String text)
     {
     	if( columnIndex == Integer.MAX_VALUE ) {
-// RAP [if] Row headers not supported
+// RAP [if] Row headers are not supported
 //    		item.setHeaderText(text);
     	} else {
     		item.setText(columnIndex, text == null ? "" : text); //$NON-NLS-1$
@@ -201,6 +204,9 @@ public class GridViewerRow extends ViewerRow
         return item.getParent();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public ViewerRow getNeighbor(int direction, boolean sameLevel) {
 		if( direction == ViewerRow.ABOVE ) {
@@ -236,16 +242,25 @@ public class GridViewerRow extends ViewerRow
 		return null;
 	}
 
+    /**
+     * {@inheritDoc}
+     */
 	@Override
   public TreePath getTreePath() {
 		return new TreePath(new Object[] {item.getData()});
 	}
 
+    /**
+     * {@inheritDoc}
+     */
 	@Override
   public Object clone() {
 		return new GridViewerRow(item);
 	}
 
+    /**
+     * {@inheritDoc}
+     */
 	@Override
   public Object getElement() {
 		return item.getData();
@@ -255,9 +270,70 @@ public class GridViewerRow extends ViewerRow
 		this.item = item;
 	}
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Widget getItem()
     {
         return item;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getVisualIndex(int creationIndex) {
+		int[] order = item.getParent().getColumnOrder();
+
+		for (int i = 0; i < order.length; i++) {
+			if (order[i] == creationIndex) {
+				return i;
+			}
+		}
+
+		return super.getVisualIndex(creationIndex);
+	}
+
+    /**
+     * {@inheritDoc}
+     */
+	@Override
+  public int getCreationIndex(int visualIndex) {
+		if( item != null && ! item.isDisposed() && hasColumns() && isValidOrderIndex(visualIndex) ) {
+			return item.getParent().getColumnOrder()[visualIndex];
+		}
+		return super.getCreationIndex(visualIndex);
+	}
+
+//	public Rectangle getTextBounds(int index) {
+//		return item.getTextBounds(index);
+//	}
+//
+//	/* (non-Javadoc)
+//	 * @see org.eclipse.jface.viewers.ViewerRow#getImageBounds(int)
+//	 */
+//	public Rectangle getImageBounds(int index) {
+//		return item.getImageBounds(index);
+//	}
+
+	private boolean hasColumns() {
+		return this.item.getParent().getColumnCount() != 0;
+	}
+
+	private boolean isValidOrderIndex(int currentIndex) {
+		return currentIndex < this.item.getParent().getColumnOrder().length;
+	}
+
+	/**
+	 * Check if the column of the cell is part of is visible
+	 *
+	 * @param columnIndex the column index
+	 *
+	 * @return <code>true</code> if the column is visible
+	 */
+	@Override
+  protected boolean isColumnVisible(int columnIndex) {
+		return item.getParent().getColumn(columnIndex).isVisible();
+	}
 }

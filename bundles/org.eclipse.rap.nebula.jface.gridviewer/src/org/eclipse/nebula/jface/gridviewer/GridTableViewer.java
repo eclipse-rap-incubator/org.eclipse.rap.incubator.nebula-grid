@@ -15,9 +15,13 @@ package org.eclipse.nebula.jface.gridviewer;
 import org.eclipse.jface.viewers.AbstractTableViewer;
 import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.ColumnViewerEditor;
+import org.eclipse.jface.viewers.ColumnViewerEditorActivationEvent;
 import org.eclipse.jface.viewers.ColumnViewerEditorActivationStrategy;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.jface.viewers.ViewerRow;
+import org.eclipse.nebula.jface.gridviewer.internal.SelectionWithFocusRow;
 import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridItem;
 import org.eclipse.swt.SWT;
@@ -35,9 +39,9 @@ import org.eclipse.swt.widgets.Widget;
  * configured with a domain-specific content provider, label provider, element
  * filter (optional), and element sorter (optional).
  * <p>
- * Content providers for grid table viewers must not implement the
- * {@code ITreeContentProvider} interface. Instead a {@link GridTreeViewer}
- * should be used.
+ * Content providers for grid table viewers must not implement the {@code
+ * ITreeContentProvider} interface. Instead a {@link GridTreeViewer} should be
+ * used.
  * <p>
  */
 public class GridTableViewer extends AbstractTableViewer {
@@ -105,7 +109,8 @@ public class GridTableViewer extends AbstractTableViewer {
 	}
 
 	/** {@inheritDoc} */
-	protected ViewerRow internalCreateNewRowPart(int style, int rowIndex) {
+	@Override
+  protected ViewerRow internalCreateNewRowPart(int style, int rowIndex) {
 		GridItem item;
 
 		if (rowIndex >= 0) {
@@ -118,123 +123,147 @@ public class GridTableViewer extends AbstractTableViewer {
 	}
 
 	/** {@inheritDoc} */
-	protected ColumnViewerEditor createViewerEditor() {
+	@Override
+  protected ColumnViewerEditor createViewerEditor() {
 		return new GridViewerEditor(this,
 				new ColumnViewerEditorActivationStrategy(this),
 				ColumnViewerEditor.DEFAULT);
 	}
 
 	/** {@inheritDoc} */
-	protected void doClear(int index) {
+	@Override
+  protected void doClear(int index) {
 		// TODO Fix when grid supports virtual
 	}
 
 	/** {@inheritDoc} */
-	protected void doClearAll() {
+	@Override
+  protected void doClearAll() {
 		// TODO Fix when grid supports virtual
 	}
 
 	/** {@inheritDoc} */
-	protected void doSetItemCount(int count) {
+	@Override
+  protected void doSetItemCount(int count) {
 		// TODO Once grid supports virtual
 	}
 
 	/** {@inheritDoc} */
-	protected void doDeselectAll() {
+	@Override
+  protected void doDeselectAll() {
 		grid.deselectAll();
 	}
 
 	/** {@inheritDoc} */
-	protected Widget doGetColumn(int index) {
+	@Override
+  protected Widget doGetColumn(int index) {
 		return grid.getColumn(index);
 	}
 
 	/** {@inheritDoc} */
-	protected int doGetColumnCount() {
+	@Override
+  protected int doGetColumnCount() {
 		return grid.getColumnCount();
 	}
 
 	/** {@inheritDoc} */
-	protected Item doGetItem(int index) {
+	@Override
+  protected Item doGetItem(int index) {
 		return grid.getItem(index);
 	}
 
 	/** {@inheritDoc} */
-	protected int doGetItemCount() {
+	@Override
+  protected int doGetItemCount() {
 		return grid.getItemCount();
 	}
 
 	/** {@inheritDoc} */
-	protected Item[] doGetItems() {
+	@Override
+  protected Item[] doGetItems() {
 		return grid.getItems();
 	}
 
 	/** {@inheritDoc} */
-	protected Item[] doGetSelection() {
+	@Override
+  protected Item[] doGetSelection() {
 		return grid.getSelection();
 	}
 
 	/** {@inheritDoc} */
-	protected int[] doGetSelectionIndices() {
+	@Override
+  protected int[] doGetSelectionIndices() {
 		return grid.getSelectionIndices();
 	}
 
 	/** {@inheritDoc} */
-	protected int doIndexOf(Item item) {
+	@Override
+  protected int doIndexOf(Item item) {
 		return grid.indexOf((GridItem) item);
 	}
 
 	/** {@inheritDoc} */
-	protected void doRemove(int[] indices) {
+	@Override
+  protected void doRemove(int[] indices) {
 		grid.remove(indices);
 	}
 
 	/** {@inheritDoc} */
-	protected void doRemove(int start, int end) {
+	@Override
+  protected void doRemove(int start, int end) {
 		grid.remove(start, end);
 	}
 
 	/** {@inheritDoc} */
-	protected void doRemoveAll() {
+	@Override
+  protected void doRemoveAll() {
 		grid.removeAll();
 	}
 
 	/** {@inheritDoc} */
-	protected void doSetSelection(Item[] items) {
+	@Override
+  protected void doSetSelection(Item[] items) {
 		GridItem[] items2 = new GridItem[items.length];
 		for (int i = 0; i < items.length; i++) {
 			items2[i] = (GridItem) items[i];
 		}
 		grid.setSelection(items2);
-	}
-
-	/** {@inheritDoc} */
-	protected void doSetSelection(int[] indices) {
-		grid.setSelection(indices);
-	}
-
-	/** {@inheritDoc} */
-	protected void doShowItem(Item item) {
-		grid.showItem((GridItem) item);
-	}
-
-	/** {@inheritDoc} */
-	protected void doShowSelection() {
 		grid.showSelection();
 	}
 
 	/** {@inheritDoc} */
-	protected Item getItemAt(Point point) {
+	@Override
+  protected void doSetSelection(int[] indices) {
+		grid.setSelection(indices);
+	}
+
+	/** {@inheritDoc} */
+	@Override
+  protected void doShowItem(Item item) {
+		grid.showItem((GridItem) item);
+	}
+
+	/** {@inheritDoc} */
+	@Override
+  protected void doShowSelection() {
+		grid.showSelection();
+	}
+
+	/** {@inheritDoc} */
+	@Override
+  protected Item getItemAt(Point point) {
 		return grid.getItem(point);
 	}
 
 	/** {@inheritDoc} */
-	public Control getControl() {
+	@Override
+  public Control getControl() {
 		return grid;
 	}
 
 	/** {@inheritDoc} */
-	protected ViewerRow getViewerRowFromItem(Widget item) {
+	@Override
+  protected ViewerRow getViewerRowFromItem(Widget item) {
 		if (cachedRow == null) {
 			cachedRow = new GridViewerRow((GridItem) item);
 		} else {
@@ -247,7 +276,8 @@ public class GridTableViewer extends AbstractTableViewer {
 	/**
 	 * {@inheritDoc}
 	 */
-	protected void doResetItem(Item item) {
+	@Override
+  protected void doResetItem(Item item) {
 		GridItem gridItem = (GridItem) item;
 		int columnCount = Math.max(1, grid.getColumnCount());
 		for (int i = 0; i < columnCount; i++) {
@@ -256,7 +286,11 @@ public class GridTableViewer extends AbstractTableViewer {
 		}
 	}
 
-	protected void doSelect(int[] indices) {
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+  protected void doSelect(int[] indices) {
 		grid.select(indices);
 	}
 
@@ -291,7 +325,8 @@ public class GridTableViewer extends AbstractTableViewer {
 	}
 
 	/** {@inheritDoc} */
-	protected void doUpdateItem(Widget widget, Object element, boolean fullMap) {
+	@Override
+  protected void doUpdateItem(Widget widget, Object element, boolean fullMap) {
 		super.doUpdateItem(widget, element, fullMap);
 		updateRowHeader(widget);
 		if (autoPreferredHeight && !widget.isDisposed())
@@ -306,6 +341,12 @@ public class GridTableViewer extends AbstractTableViewer {
 		}
 	}
 
+	/**
+	 * Label provider used by calculate the row header text
+	 *
+	 * @param rowHeaderLabelProvider
+	 *            the provider
+	 */
 	public void setRowHeaderLabelProvider(
 			CellLabelProvider rowHeaderLabelProvider) {
 		this.rowHeaderLabelProvider = rowHeaderLabelProvider;
@@ -329,4 +370,150 @@ public class GridTableViewer extends AbstractTableViewer {
 			}
 		}
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+  public void editElement(Object element, int column) {
+		try {
+			getControl().setRedraw(false);
+			Widget item = findItem(element);
+			if (item != null) {
+				ViewerRow row = getViewerRowFromItem(item);
+				if (row != null) {
+					ViewerCell cell = row.getCell(column);
+					if (cell != null) {
+						triggerEditorActivationEvent(new ColumnViewerEditorActivationEvent(
+								cell));
+					}
+				}
+			}
+		} finally {
+			getControl().setRedraw(true);
+		}
+		// }
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+  protected void setSelectionToWidget(ISelection selection, boolean reveal) {
+// RAP [if] Cell selection is not supported
+//		if( ! grid.isCellSelectionEnabled() || !(selection instanceof CellSelection) ) {
+			super.setSelectionToWidget(selection, reveal);
+			if( selection instanceof SelectionWithFocusRow ) {
+				Object el = ((SelectionWithFocusRow)selection).getFocusElement();
+				if( el != null ) {
+					GridItem[] items = grid.getItems();
+					for( int i = 0; i < items.length; i++) {
+						GridItem item = items[i];
+						if( item.getData() == el || item.getData().equals(el) || (getComparer() != null && getComparer().equals(item.getData(), el)) ) {
+							grid.setFocusItem(item);
+							break;
+						}
+					}
+				}
+			}
+//		} else {
+//			CellSelection cellSelection = (CellSelection) selection;
+//			List l = cellSelection.toList();
+//			GridItem[] items = grid.getItems();
+//			ArrayList pts = new ArrayList();
+//
+//			for( int i = 0; i < items.length; i++ ) {
+//				Iterator it = l.iterator();
+//				Object itemObject = items[i].getData();
+//				while( it.hasNext() ) {
+//					Object checkObject = it.next();
+//					if( itemObject == checkObject || (getComparer() != null && getComparer().equals(itemObject, checkObject) ) ) {
+//						Iterator idxIt = cellSelection.getIndices(checkObject).iterator();
+//						while( idxIt.hasNext() ) {
+//							Integer idx = (Integer) idxIt.next();
+//							pts.add(new Point(idx.intValue(),i));
+//						}
+//					}
+//				}
+//			}
+//			Point[] tmp = new Point[pts.size()];
+//			pts.toArray(tmp);
+//			grid.setCellSelection(tmp);
+//			if( cellSelection.getFocusElement() != null ) {
+//				Object el = cellSelection.getFocusElement();
+//				for( int i = 0; i < items.length; i++) {
+//					GridItem item = items[i];
+//					if( item.getData() == el || item.getData().equals(el) || (getComparer() != null && getComparer().equals(item.getData(), el)) ) {
+//						grid.setFocusItem(item);
+//						break;
+//					}
+//				}
+//			}
+//		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+  public ISelection getSelection() {
+// RAP [if] Cell selection is not supported
+//		if (!grid.isCellSelectionEnabled()) {
+			IStructuredSelection selection = (IStructuredSelection) super
+					.getSelection();
+			Object el = null;
+			if (grid.getFocusItem() != null) {
+				el = grid.getFocusItem().getData();
+			}
+			return new SelectionWithFocusRow(selection.toList(), el,
+					getComparer());
+//		} else {
+//			return createCellSelection();
+//		}
+	}
+
+//RAP [if] Cell selection is not supported
+//	private CellSelection createCellSelection() {
+//		Point[] ps = grid.getCellSelection();
+//		Arrays.sort(ps, new Comparator() {
+//
+//			public int compare(Object arg0, Object arg1) {
+//				Point a = (Point) arg0;
+//				Point b = (Point) arg1;
+//				int rv = a.y - b.y;
+//
+//				if (rv == 0) {
+//					rv = a.x - b.x;
+//				}
+//
+//				return rv;
+//			}
+//		});
+//
+//		ArrayList objectList = new ArrayList();
+//		ArrayList indiceLists = new ArrayList();
+//		ArrayList indiceList = new ArrayList();
+//
+//		int curLine = -1;
+//
+//		for (int i = 0; i < ps.length; i++) {
+//			if (curLine != ps[i].y) {
+//				curLine = ps[i].y;
+//				indiceList = new ArrayList();
+//
+//				indiceLists.add(indiceList);
+//				objectList.add(grid.getItem(curLine).getData());
+//			}
+//			indiceList.add(new Integer(ps[i].x));
+//		}
+//
+//		Object focusElement = null;
+//
+//		if (grid.getFocusItem() != null) {
+//			focusElement = grid.getFocusItem().getData();
+//		}
+//
+//		return new CellSelection(objectList, indiceLists, focusElement,
+//				getComparer());
+//	}
 }

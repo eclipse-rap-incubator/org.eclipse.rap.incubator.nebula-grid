@@ -7,12 +7,14 @@
  *
  * Contributors:
  *     Tom Schindl - initial API and implementation
+ *     Claes Rosell<claes.rosell@solme.se> - rowspan in bug 272384
  *******************************************************************************/
 
 package org.eclipse.nebula.jface.gridviewer;
 
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ViewerCell;
+import org.eclipse.nebula.widgets.grid.Grid;
 
 /**
  * A label provider that provides hooks for extra functionality in the {@link Grid}.  This is currently
@@ -36,15 +38,53 @@ public class GridColumnLabelProvider extends ColumnLabelProvider {
 		return null;
 	}
 
+	/**
+	 * Returns the number of columns this element should span
+	 *
+	 * @param element
+	 *            the model element
+	 * @return colSpan
+	 */
+	public int getColumnSpan(Object element)
+	{
+		return 0;
+	}
+
+	/**
+	 * Returns the number of rows this element should span
+	 *
+	 * @param element
+	 *            the model element
+	 * @return rowSpan
+	 */
+	public int getRowSpan(Object element)
+	{
+		return 0;
+	}
+
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
   public void update(ViewerCell cell) {
 		super.update(cell);
-		String rowText = getRowHeaderText(cell.getElement());
 
-		if (rowText != null) {
-// RAP [if] Row headers not supported
-//			((GridItem) cell.getViewerRow().getItem()).setHeaderText(rowText);
-		}
+// RAP [if] Row/column span and row headers are not supported
+//		Object element = cell.getElement();
+//
+//		String rowText = getRowHeaderText(element);
+//		int colSpan = getColumnSpan(element);
+//		int rowSpan = getRowSpan(element);
+//
+//		GridItem gridItem = (GridItem)cell.getViewerRow().getItem();
+//		if (rowText != null) {
+//			gridItem.setHeaderText(rowText);
+//		}
+//
+//		gridItem.setColumnSpan(cell.getColumnIndex(), colSpan);
+//		gridItem.setRowSpan(cell.getColumnIndex(), rowSpan);
+// ENDRAP
 	}
 
 }

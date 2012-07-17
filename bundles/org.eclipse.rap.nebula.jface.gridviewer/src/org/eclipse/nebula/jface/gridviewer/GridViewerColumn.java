@@ -37,6 +37,7 @@ public final class GridViewerColumn extends ViewerColumn
     /** Editor support for handling check events. */
     private CheckEditingSupport checkEditingSupport;
 
+    /** Listener used to get informed when the colum resizes */
     protected Listener columnResizeListener = null;
 
 
@@ -186,7 +187,7 @@ public final class GridViewerColumn extends ViewerColumn
     }
 
 
-    protected void hookColumnResizeListener() {
+    private void hookColumnResizeListener() {
         if (columnResizeListener == null)
         {
             columnResizeListener = new Listener() {
@@ -198,7 +199,7 @@ public final class GridViewerColumn extends ViewerColumn
                     if(viewer instanceof GridTreeViewer)
                         autoPreferredSize = ((GridTreeViewer)viewer).getAutoPreferredHeight();
 
-// RAP [if] GridColumn#getWordWrap() is missing
+// RAP [if] GridColumn word wrap is not supported
 //                    if(autoPreferredSize && column.getWordWrap())
 //                    {
 //                        Grid grid = column.getParent();
@@ -206,6 +207,7 @@ public final class GridViewerColumn extends ViewerColumn
 //                            grid.getItem(cnt).pack();
 //                        grid.redraw();
 //                    }
+// ENDRAP
                 }
             };
             column.addListener(SWT.Resize, columnResizeListener);
@@ -213,13 +215,17 @@ public final class GridViewerColumn extends ViewerColumn
             column.addListener(SWT.Show, columnResizeListener);
         }
     }
-    protected void unhookColumnResizeListener() {
+    private void unhookColumnResizeListener() {
         if (columnResizeListener != null)
         {
             column.removeListener(SWT.Resize, columnResizeListener);
             columnResizeListener = null;
         }
     }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void handleDispose() {
         unhookColumnResizeListener();
