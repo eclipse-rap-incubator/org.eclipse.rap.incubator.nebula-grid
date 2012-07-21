@@ -13,8 +13,8 @@ package org.eclipse.nebula.widgets.grid;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridColumns;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
 
+import org.eclipse.rap.rwt.lifecycle.PhaseId;
 import org.eclipse.rap.rwt.testfixture.Fixture;
-import org.eclipse.rwt.lifecycle.PhaseId;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.TreeAdapter;
 import org.eclipse.swt.events.TreeEvent;

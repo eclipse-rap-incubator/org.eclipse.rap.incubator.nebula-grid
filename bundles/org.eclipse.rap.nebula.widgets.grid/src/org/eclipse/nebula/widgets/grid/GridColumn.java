@@ -10,7 +10,7 @@
  ******************************************************************************/
 package org.eclipse.nebula.widgets.grid;
 
-import org.eclipse.rwt.graphics.Graphics;
+import org.eclipse.rap.rwt.graphics.Graphics;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;

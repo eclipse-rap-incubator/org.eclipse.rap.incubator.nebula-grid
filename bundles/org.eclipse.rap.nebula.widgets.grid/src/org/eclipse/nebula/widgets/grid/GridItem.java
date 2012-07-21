@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.eclipse.nebula.widgets.grid.internal.IGridItemAdapter;
-import org.eclipse.rwt.graphics.Graphics;
+import org.eclipse.rap.rwt.graphics.Graphics;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;

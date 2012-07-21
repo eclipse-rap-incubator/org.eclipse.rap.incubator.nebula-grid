@@ -21,13 +21,13 @@ import java.util.List;
 
 import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridItem;
+import org.eclipse.rap.rwt.graphics.Graphics;
 import org.eclipse.rap.rwt.internal.lifecycle.JSConst;
+import org.eclipse.rap.rwt.lifecycle.WidgetUtil;
 import org.eclipse.rap.rwt.testfixture.Fixture;
 import org.eclipse.rap.rwt.testfixture.Message;
 import org.eclipse.rap.rwt.testfixture.Message.CreateOperation;
 import org.eclipse.rap.rwt.testfixture.Message.DestroyOperation;
-import org.eclipse.rwt.graphics.Graphics;
-import org.eclipse.rwt.lifecycle.WidgetUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.TreeAdapter;

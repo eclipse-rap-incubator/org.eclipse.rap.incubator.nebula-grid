@@ -13,7 +13,7 @@ package org.eclipse.rap.nebula.widgets.grid.snippets.internal;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.eclipse.rwt.lifecycle.IEntryPoint;
+import org.eclipse.rap.rwt.lifecycle.IEntryPoint;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;

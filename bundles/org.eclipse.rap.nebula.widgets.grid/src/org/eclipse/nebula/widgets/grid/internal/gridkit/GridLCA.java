@@ -10,10 +10,10 @@
  ******************************************************************************/
 package org.eclipse.nebula.widgets.grid.internal.gridkit;
 
-import static org.eclipse.rwt.lifecycle.WidgetLCAUtil.preserveListener;
-import static org.eclipse.rwt.lifecycle.WidgetLCAUtil.preserveProperty;
-import static org.eclipse.rwt.lifecycle.WidgetLCAUtil.renderListener;
-import static org.eclipse.rwt.lifecycle.WidgetLCAUtil.renderProperty;
+import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.preserveListener;
+import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.preserveProperty;
+import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.renderListener;
+import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.renderProperty;
 
 import java.io.IOException;
 
@@ -23,16 +23,16 @@ import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridColumn;
 import org.eclipse.nebula.widgets.grid.GridItem;
 import org.eclipse.nebula.widgets.grid.internal.IGridAdapter;
+import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.internal.lifecycle.JSConst;
 import org.eclipse.rap.rwt.internal.protocol.ClientObjectFactory;
 import org.eclipse.rap.rwt.internal.protocol.IClientObject;
 import org.eclipse.rap.rwt.internal.service.ContextProvider;
 import org.eclipse.rap.rwt.internal.util.NumberFormatUtil;
-import org.eclipse.rwt.RWT;
-import org.eclipse.rwt.lifecycle.AbstractWidgetLCA;
-import org.eclipse.rwt.lifecycle.ControlLCAUtil;
-import org.eclipse.rwt.lifecycle.WidgetLCAUtil;
-import org.eclipse.rwt.lifecycle.WidgetUtil;
+import org.eclipse.rap.rwt.lifecycle.AbstractWidgetLCA;
+import org.eclipse.rap.rwt.lifecycle.ControlLCAUtil;
+import org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil;
+import org.eclipse.rap.rwt.lifecycle.WidgetUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.internal.events.EventLCAUtil;
