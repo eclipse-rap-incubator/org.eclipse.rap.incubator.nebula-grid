@@ -8,9 +8,13 @@
   </maintainer>
   <description>
     <p>
-      The Grid widget is a spreadsheet/table component for RAP that offers features not currently
-      available in the base SWT Tree/Table like row and column spanning, checkboxes on multiple
-      columns, column grouping and more.
+      RAP port of the <a href="http://www.eclipse.org/nebula/widgets/grid/grid.php">Grid widget</a>
+      from the <a href="http://www.eclipse.org/nebula">Nebula project</a>.
+    </p>
+    <p>
+      The Grid widget is a spreadsheet/table component that offers features not currently
+      available in the base SWT Tree/Table like column grouping, checkboxes on multiple
+      columns, variable item height and more.
     </p>
   </description>
 </component>
