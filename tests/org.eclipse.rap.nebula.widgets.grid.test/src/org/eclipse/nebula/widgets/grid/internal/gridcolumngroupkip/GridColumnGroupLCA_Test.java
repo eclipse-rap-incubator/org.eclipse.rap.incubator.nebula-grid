@@ -13,6 +13,7 @@ package org.eclipse.nebula.widgets.grid.internal.gridcolumngroupkip;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridColumns;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
 import static org.eclipse.nebula.widgets.grid.internal.gridkit.GridLCATestUtil.jsonEquals;
+import static org.eclipse.rap.rwt.lifecycle.WidgetUtil.getId;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -22,7 +23,7 @@ import java.util.List;
 import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridColumnGroup;
 import org.eclipse.nebula.widgets.grid.internal.gridcolumngroupkit.GridColumnGroupLCA;
-import org.eclipse.rap.rwt.internal.lifecycle.JSConst;
+import org.eclipse.rap.rwt.internal.protocol.ClientMessageConst;
 import org.eclipse.rap.rwt.lifecycle.WidgetUtil;
 import org.eclipse.rap.rwt.testfixture.Fixture;
 import org.eclipse.rap.rwt.testfixture.Message;
@@ -244,9 +245,8 @@ public class GridColumnGroupLCA_Test extends TestCase {
     List<TreeEvent> events = new LinkedList<TreeEvent>();
     group.addTreeListener( new LoggingTreeListener( events ) );
     group.setExpanded( false );
-    String groupId = WidgetUtil.getId( group );
 
-    Fixture.fakeRequestParam( JSConst.EVENT_TREE_EXPANDED, groupId );
+    Fixture.fakeNotifyOperation( getId( group ), ClientMessageConst.EVENT_TREE_EXPANDED, null );
     Fixture.readDataAndProcessAction( group );
 
     assertEquals( 1, events.size() );
@@ -259,9 +259,8 @@ public class GridColumnGroupLCA_Test extends TestCase {
   public void testProcessTreeEvent_Collapsed() {
     List<TreeEvent> events = new LinkedList<TreeEvent>();
     group.addTreeListener( new LoggingTreeListener( events ) );
-    String groupId = WidgetUtil.getId( group );
 
-    Fixture.fakeRequestParam( JSConst.EVENT_TREE_COLLAPSED, groupId );
+    Fixture.fakeNotifyOperation( getId( group ), ClientMessageConst.EVENT_TREE_COLLAPSED, null );
     Fixture.readDataAndProcessAction( group );
 
     assertEquals( 1, events.size() );

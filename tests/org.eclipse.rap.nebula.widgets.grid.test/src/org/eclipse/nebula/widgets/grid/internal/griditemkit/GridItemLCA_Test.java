@@ -14,6 +14,8 @@ import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridColumns;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridItems;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
 import static org.eclipse.nebula.widgets.grid.internal.gridkit.GridLCATestUtil.jsonEquals;
+import static org.eclipse.rap.rwt.internal.protocol.ClientMessageConst.EVENT_TREE_EXPANDED;
+import static org.eclipse.rap.rwt.lifecycle.WidgetUtil.getId;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -22,7 +24,7 @@ import java.util.List;
 import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridItem;
 import org.eclipse.rap.rwt.graphics.Graphics;
-import org.eclipse.rap.rwt.internal.lifecycle.JSConst;
+import org.eclipse.rap.rwt.internal.protocol.ClientMessageConst;
 import org.eclipse.rap.rwt.lifecycle.WidgetUtil;
 import org.eclipse.rap.rwt.testfixture.Fixture;
 import org.eclipse.rap.rwt.testfixture.Message;
@@ -607,9 +609,8 @@ public class GridItemLCA_Test extends TestCase {
     grid = new Grid( shell, SWT.CHECK );
     createGridColumns( grid, 3, SWT.NONE );
     item = new GridItem( grid, SWT.NONE );
-    String itemId = WidgetUtil.getId( item );
 
-    Fixture.fakeRequestParam( itemId + ".cellChecked", "[ true, false, true ]" );
+    Fixture.fakeSetParameter( getId( item ), "cellChecked", "[ true, false, true ]" );
     Fixture.readDataAndProcessAction( item );
 
     assertTrue( item.getChecked( 0 ) );
@@ -621,9 +622,8 @@ public class GridItemLCA_Test extends TestCase {
     List<TreeEvent> events = new LinkedList<TreeEvent>();
     grid.addTreeListener( new LoggingTreeListener( events ) );
     new GridItem( item, SWT.NONE );
-    String itemId = WidgetUtil.getId( item );
 
-    Fixture.fakeRequestParam( JSConst.EVENT_TREE_EXPANDED, itemId );
+    Fixture.fakeNotifyOperation( getId( item ), ClientMessageConst.EVENT_TREE_EXPANDED, null );
     Fixture.readDataAndProcessAction( item );
 
     assertEquals( 1, events.size() );
@@ -639,9 +639,8 @@ public class GridItemLCA_Test extends TestCase {
     grid.addTreeListener( new LoggingTreeListener( events ) );
     new GridItem( item, SWT.NONE );
     item.setExpanded( true );
-    String itemId = WidgetUtil.getId( item );
 
-    Fixture.fakeRequestParam( JSConst.EVENT_TREE_COLLAPSED, itemId );
+    Fixture.fakeNotifyOperation( getId( item ), ClientMessageConst.EVENT_TREE_COLLAPSED, null );
     Fixture.readDataAndProcessAction( item );
 
     assertEquals( 1, events.size() );
@@ -656,10 +655,9 @@ public class GridItemLCA_Test extends TestCase {
     grid.setSize( 200, 200 );
     createGridColumns( grid, 3, SWT.NONE );
     GridItem[] items = createGridItems( grid, 5, 10 );
-    String itemId = WidgetUtil.getId( items[ 0 ] );
 
     Fixture.markInitialized( grid );
-    Fixture.fakeRequestParam( JSConst.EVENT_TREE_EXPANDED, itemId );
+    Fixture.fakeNotifyOperation( getId( items[ 0 ] ), EVENT_TREE_EXPANDED, null );
     Fixture.executeLifeCycleFromServerThread();
 
     Message message = Fixture.getProtocolMessage();

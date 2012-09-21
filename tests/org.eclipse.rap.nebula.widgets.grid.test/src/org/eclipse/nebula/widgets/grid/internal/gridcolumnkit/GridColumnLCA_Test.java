@@ -13,6 +13,10 @@ package org.eclipse.nebula.widgets.grid.internal.gridcolumnkit;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridColumns;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
 import static org.eclipse.nebula.widgets.grid.internal.gridkit.GridLCATestUtil.jsonEquals;
+import static org.eclipse.rap.rwt.lifecycle.WidgetUtil.getId;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -21,7 +25,7 @@ import java.util.List;
 import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridColumn;
 import org.eclipse.nebula.widgets.grid.GridColumnGroup;
-import org.eclipse.rap.rwt.internal.lifecycle.JSConst;
+import org.eclipse.rap.rwt.internal.protocol.ClientMessageConst;
 import org.eclipse.rap.rwt.lifecycle.WidgetUtil;
 import org.eclipse.rap.rwt.testfixture.Fixture;
 import org.eclipse.rap.rwt.testfixture.Message;
@@ -42,6 +46,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.mockito.ArgumentCaptor;
 
 import junit.framework.TestCase;
 
@@ -520,7 +525,6 @@ public class GridColumnLCA_Test extends TestCase {
     GridColumn[] columns = createGridColumns( grid, 2, SWT.NONE );
     columns[ 0 ].addControlListener( new LoggingControlListener( events ) );
     columns[ 1 ].addControlListener( new LoggingControlListener( events ) );
-    String columnId = WidgetUtil.getId( columns[ 0 ] );
 
     // Simulate request that initializes widgets
     Fixture.fakeNewRequest( display );
@@ -529,7 +533,7 @@ public class GridColumnLCA_Test extends TestCase {
     int newWidth = columns[ 0 ].getWidth() + 2;
     int newLeft = column.getWidth() + newWidth;
     Fixture.fakeNewRequest( display );
-    Fixture.fakeRequestParam( columnId + ".width", String.valueOf( newWidth ) );
+    Fixture.fakeSetParameter( getId( columns[ 0 ] ), "width", Integer.valueOf( newWidth ) );
     Fixture.executeLifeCycleFromServerThread();
 
     assertEquals( 2, events.size() );
@@ -551,7 +555,6 @@ public class GridColumnLCA_Test extends TestCase {
     column.addControlListener( new LoggingControlListener( events ) );
     columns[ 0 ].addControlListener( new LoggingControlListener( events ) );
     columns[ 1 ].addControlListener( new LoggingControlListener( events ) );
-    String columnId = WidgetUtil.getId( columns[ 0 ] );
 
     // Simulate request that initializes widgets
     Fixture.fakeNewRequest( display );
@@ -559,7 +562,7 @@ public class GridColumnLCA_Test extends TestCase {
     // Simulate request that changes column left
     int newLeft = 3;
     Fixture.fakeNewRequest( display );
-    Fixture.fakeRequestParam( columnId + ".left", String.valueOf( newLeft ) );
+    Fixture.fakeSetParameter( getId( columns[ 0 ] ), "left", Integer.valueOf( newLeft ) );
     Fixture.executeLifeCycleFromServerThread();
 
     assertEquals( 2, events.size() );
@@ -817,21 +820,16 @@ public class GridColumnLCA_Test extends TestCase {
   }
 
   public void testReadSelectionEvent() {
-    final List<SelectionEvent> events = new LinkedList<SelectionEvent>();
-    String columnId = WidgetUtil.getId( column );
-    column.addSelectionListener( new SelectionAdapter() {
-      @Override
-      public void widgetSelected( SelectionEvent event ) {
-        events.add( event );
-      }
-    } );
+    SelectionListener listener = mock( SelectionListener.class );
+    column.addSelectionListener( listener );
 
     Fixture.fakeNewRequest( display );
-    Fixture.fakeRequestParam( JSConst.EVENT_WIDGET_SELECTED, columnId );
+    Fixture.fakeNotifyOperation( getId( column ), ClientMessageConst.EVENT_WIDGET_SELECTED, null );
     Fixture.readDataAndProcessAction( column );
 
-    assertEquals( 1, events.size() );
-    SelectionEvent event = events.get( 0 );
+    ArgumentCaptor<SelectionEvent> captor = ArgumentCaptor.forClass( SelectionEvent.class );
+    verify( listener, times( 1 ) ).widgetSelected( captor.capture() );
+    SelectionEvent event = captor.getValue();
     assertSame( column, event.widget );
   }
 

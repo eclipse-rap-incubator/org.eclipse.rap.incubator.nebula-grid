@@ -10,24 +10,26 @@
  ******************************************************************************/
 package org.eclipse.nebula.widgets.grid.internal.gridkit;
 
+import static org.eclipse.rap.rwt.internal.protocol.ClientMessageConst.EVENT_PARAM_CELL;
+import static org.eclipse.rap.rwt.internal.protocol.ClientMessageConst.EVENT_PARAM_DETAIL;
+import static org.eclipse.rap.rwt.internal.protocol.ClientMessageConst.EVENT_PARAM_INDEX;
+import static org.eclipse.rap.rwt.internal.protocol.ClientMessageConst.EVENT_PARAM_ITEM;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.preserveListener;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.preserveProperty;
+import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.readEventPropertyValue;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.renderListener;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.renderProperty;
 
 import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridColumn;
 import org.eclipse.nebula.widgets.grid.GridItem;
 import org.eclipse.nebula.widgets.grid.internal.IGridAdapter;
 import org.eclipse.rap.rwt.RWT;
-import org.eclipse.rap.rwt.internal.lifecycle.JSConst;
 import org.eclipse.rap.rwt.internal.protocol.ClientObjectFactory;
 import org.eclipse.rap.rwt.internal.protocol.IClientObject;
-import org.eclipse.rap.rwt.internal.service.ContextProvider;
+import org.eclipse.rap.rwt.internal.protocol.ClientMessageConst;
 import org.eclipse.rap.rwt.internal.util.NumberFormatUtil;
 import org.eclipse.rap.rwt.lifecycle.AbstractWidgetLCA;
 import org.eclipse.rap.rwt.lifecycle.ControlLCAUtil;
@@ -107,9 +109,9 @@ public class GridLCA extends AbstractWidgetLCA {
     readScrollLeft( grid );
     readTopItemIndex( grid );
     readCellToolTipTextRequested( grid );
-    processSelectionEvent( grid, JSConst.EVENT_WIDGET_SELECTED );
-    processSelectionEvent( grid, JSConst.EVENT_WIDGET_DEFAULT_SELECTED );
-    ControlLCAUtil.processMouseEvents( grid );
+    processSelectionEvent( grid, ClientMessageConst.EVENT_WIDGET_SELECTED );
+    processSelectionEvent( grid, ClientMessageConst.EVENT_WIDGET_DEFAULT_SELECTED );
+    ControlLCAUtil.processEvents( grid );
     ControlLCAUtil.processKeyEvents( grid );
     ControlLCAUtil.processMenuDetect( grid );
     WidgetLCAUtil.processHelp( grid );
@@ -235,12 +237,11 @@ public class GridLCA extends AbstractWidgetLCA {
   private static void readCellToolTipTextRequested( Grid grid ) {
     ICellToolTipAdapter adapter = CellToolTipUtil.getAdapter( grid );
     adapter.setCellToolTipText( null );
-    String event = JSConst.EVENT_CELL_TOOLTIP_REQUESTED;
-    if( WidgetLCAUtil.wasEventSent( grid, event ) ) {
+    String eventName = ClientMessageConst.EVENT_CELL_TOOLTIP_REQUESTED;
+    if( WidgetLCAUtil.wasEventSent( grid, eventName ) ) {
       ICellToolTipProvider provider = adapter.getCellToolTipProvider();
       if( provider != null ) {
-        HttpServletRequest request = ContextProvider.getRequest();
-        String cell = request.getParameter( JSConst.EVENT_CELL_TOOLTIP_DETAILS );
+        String cell = readEventPropertyValue( grid, eventName, EVENT_PARAM_CELL );
         String[] details = cell.split( "," );
         String itemId = details[ 0 ];
         int columnIndex = NumberFormatUtil.parseInt( details[ 1 ] );
@@ -354,9 +355,9 @@ public class GridLCA extends AbstractWidgetLCA {
     if( scrollBar != null ) {
       scrollBar.setSelection( selection );
       if( SelectionEvent.hasListener( scrollBar ) ) {
-        int eventId = SelectionEvent.WIDGET_SELECTED;
-        SelectionEvent evt = new SelectionEvent( scrollBar, null, eventId );
-        evt.stateMask = EventLCAUtil.readStateMask( JSConst.EVENT_WIDGET_SELECTED_MODIFIER );
+        SelectionEvent evt = new SelectionEvent( scrollBar, null, SelectionEvent.WIDGET_SELECTED );
+        evt.stateMask = EventLCAUtil.readStateMask( scrollBar,
+                                                    ClientMessageConst.EVENT_WIDGET_SELECTED );
         evt.processEvent();
       }
     }
@@ -364,13 +365,12 @@ public class GridLCA extends AbstractWidgetLCA {
 
   private static void processSelectionEvent( Grid grid, String eventName ) {
     if( WidgetLCAUtil.wasEventSent( grid, eventName ) ) {
-      HttpServletRequest request = ContextProvider.getRequest();
-      GridItem item = getItem( grid, request.getParameter( eventName + ".item" ) );
+      GridItem item = getItem( grid, readEventPropertyValue( grid, eventName, EVENT_PARAM_ITEM ) );
       if( item != null ) {
-        if( eventName.equals( JSConst.EVENT_WIDGET_SELECTED ) ) {
-          String detail = request.getParameter( eventName + ".detail" );
+        if( eventName.equals( ClientMessageConst.EVENT_WIDGET_SELECTED ) ) {
+          String detail = readEventPropertyValue( grid, eventName, EVENT_PARAM_DETAIL );
           if( "check".equals( detail ) ) {
-            String index = request.getParameter( eventName + ".index" );
+            String index = readEventPropertyValue( grid, eventName, EVENT_PARAM_INDEX );
             item.fireCheckEvent( Integer.valueOf( index ).intValue() );
           } else {
             item.fireEvent( SWT.Selection );

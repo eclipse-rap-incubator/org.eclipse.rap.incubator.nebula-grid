@@ -19,9 +19,9 @@ import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridItem;
 import org.eclipse.nebula.widgets.grid.internal.IGridAdapter;
 import org.eclipse.nebula.widgets.grid.internal.IGridItemAdapter;
-import org.eclipse.rap.rwt.internal.lifecycle.JSConst;
 import org.eclipse.rap.rwt.internal.protocol.ClientObjectFactory;
 import org.eclipse.rap.rwt.internal.protocol.IClientObject;
+import org.eclipse.rap.rwt.internal.protocol.ClientMessageConst;
 import org.eclipse.rap.rwt.lifecycle.AbstractWidgetLCA;
 import org.eclipse.rap.rwt.lifecycle.ProcessActionRunner;
 import org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil;
@@ -65,8 +65,8 @@ public class GridItemLCA extends AbstractWidgetLCA {
   public void readData( Widget widget ) {
     GridItem item = ( GridItem )widget;
     readChecked( item );
-    processTreeEvent( item, JSConst.EVENT_TREE_EXPANDED );
-    processTreeEvent( item, JSConst.EVENT_TREE_COLLAPSED );
+    processTreeEvent( item, ClientMessageConst.EVENT_TREE_EXPANDED );
+    processTreeEvent( item, ClientMessageConst.EVENT_TREE_COLLAPSED );
   }
 
   @Override
@@ -146,7 +146,7 @@ public class GridItemLCA extends AbstractWidgetLCA {
 
   private static void processTreeEvent( final GridItem item, String eventName ) {
     if( WidgetLCAUtil.wasEventSent( item, eventName ) ) {
-      final boolean expanded = eventName.equals( JSConst.EVENT_TREE_EXPANDED );
+      final boolean expanded = eventName.equals( ClientMessageConst.EVENT_TREE_EXPANDED );
       ProcessActionRunner.add( new Runnable() {
         public void run() {
           item.setExpanded( expanded );

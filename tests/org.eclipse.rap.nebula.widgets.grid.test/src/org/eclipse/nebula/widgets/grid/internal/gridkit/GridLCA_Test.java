@@ -14,11 +14,16 @@ import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridColumns;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridItems;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
 import static org.eclipse.nebula.widgets.grid.internal.gridkit.GridLCATestUtil.jsonEquals;
+import static org.eclipse.rap.rwt.internal.protocol.ClientMessageConst.EVENT_WIDGET_DEFAULT_SELECTED;
+import static org.eclipse.rap.rwt.internal.protocol.ClientMessageConst.EVENT_WIDGET_SELECTED;
+import static org.eclipse.rap.rwt.lifecycle.WidgetUtil.getId;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridColumn;
@@ -26,7 +31,7 @@ import org.eclipse.nebula.widgets.grid.GridItem;
 import org.eclipse.nebula.widgets.grid.internal.IGridAdapter;
 import org.eclipse.nebula.widgets.grid.internal.gridkit.GridLCA.ItemMetrics;
 import org.eclipse.rap.rwt.RWT;
-import org.eclipse.rap.rwt.internal.lifecycle.JSConst;
+import org.eclipse.rap.rwt.internal.protocol.ClientMessageConst;
 import org.eclipse.rap.rwt.lifecycle.WidgetUtil;
 import org.eclipse.rap.rwt.testfixture.Fixture;
 import org.eclipse.rap.rwt.testfixture.Message;
@@ -842,13 +847,11 @@ public class GridLCA_Test extends TestCase {
   }
 
   public void testReadSelection() {
-    String gridId = WidgetUtil.getId( grid );
     GridItem[] items = createGridItems( grid, 3, 0 );
-    String item0Id = WidgetUtil.getId( items[ 0 ] );
-    String item2Id = WidgetUtil.getId( items[ 2 ] );
-
     Fixture.fakeNewRequest( display );
-    Fixture.fakeRequestParam( gridId + ".selection", item0Id + "," + item2Id );
+    Fixture.fakeSetParameter( getId( grid ),
+                              "selection",
+                              getId( items[ 0 ] ) + "," + getId( items[ 2 ] ) );
     Fixture.readDataAndProcessAction( grid );
 
     GridItem[] selectedItems = grid.getSelection();
@@ -858,14 +861,13 @@ public class GridLCA_Test extends TestCase {
   }
 
   public void testReadSelectionDisposedItem() {
-    String gridId = WidgetUtil.getId( grid );
     GridItem[] items = createGridItems( grid, 3, 0 );
-    String item0Id = WidgetUtil.getId( items[ 0 ] );
-    String item2Id = WidgetUtil.getId( items[ 2 ] );
     items[ 0 ].dispose();
 
     Fixture.fakeNewRequest( display );
-    Fixture.fakeRequestParam( gridId + ".selection", item0Id + "," + item2Id );
+    Fixture.fakeSetParameter( getId( grid ),
+                              "selection",
+                              getId( items[ 0 ] ) + "," + getId( items[ 2 ] ) );
     Fixture.readDataAndProcessAction( grid );
 
     GridItem[] selectedItems = grid.getSelection();
@@ -875,12 +877,11 @@ public class GridLCA_Test extends TestCase {
 
   public void testReadScrollLeft() {
     grid.setSize( 100, 100 );
-    String gridId = WidgetUtil.getId( grid );
     createGridColumns( grid, 5, SWT.NONE );
     createGridItems( grid, 10, 0 );
 
     Fixture.fakeNewRequest( display );
-    Fixture.fakeRequestParam( gridId + ".scrollLeft", "30" );
+    Fixture.fakeSetParameter( getId( grid ), "scrollLeft", Integer.valueOf( 30 ) );
     Fixture.readDataAndProcessAction( grid );
 
     assertEquals( 30, grid.getHorizontalBar().getSelection() );
@@ -888,13 +889,12 @@ public class GridLCA_Test extends TestCase {
 
   public void testReadTopIndex() {
     grid.setSize( 100, 100 );
-    String gridId = WidgetUtil.getId( grid );
     createGridColumns( grid, 5, SWT.NONE );
     GridItem[] items = createGridItems( grid, 10, 3 );
     items[ 4 ].setExpanded( true );
 
     Fixture.fakeNewRequest( display );
-    Fixture.fakeRequestParam( gridId + ".topItemIndex", "3" );
+    Fixture.fakeSetParameter( getId( grid ), "topItemIndex", Integer.valueOf( 3 ) );
     Fixture.readDataAndProcessAction( grid );
 
     assertEquals( 3, grid.getVerticalBar().getSelection() );
@@ -905,12 +905,11 @@ public class GridLCA_Test extends TestCase {
     List<Event> events = new LinkedList<Event>();
     GridItem item = new GridItem( grid, SWT.NONE );
     grid.addListener( SWT.Selection, new LoggingListener( events ) );
-    String gridId = WidgetUtil.getId( grid );
-    String itemId = WidgetUtil.getId( item );
 
     Fixture.fakeNewRequest( display );
-    Fixture.fakeRequestParam( JSConst.EVENT_WIDGET_SELECTED, gridId );
-    Fixture.fakeRequestParam( JSConst.EVENT_WIDGET_SELECTED_ITEM, itemId );
+    Map<String, Object> parameters = new HashMap<String, Object>();
+    parameters.put( ClientMessageConst.EVENT_PARAM_ITEM, getId( item ) );
+    Fixture.fakeNotifyOperation( getId( grid ), EVENT_WIDGET_SELECTED, parameters );
     Fixture.readDataAndProcessAction( display );
 
     assertEquals( 1, events.size() );
@@ -925,14 +924,13 @@ public class GridLCA_Test extends TestCase {
     List<Event> events = new LinkedList<Event>();
     GridItem item = new GridItem( grid, SWT.NONE );
     grid.addListener( SWT.Selection, new LoggingListener( events ) );
-    String gridId = WidgetUtil.getId( grid );
-    String itemId = WidgetUtil.getId( item );
 
     Fixture.fakeNewRequest( display );
-    Fixture.fakeRequestParam( JSConst.EVENT_WIDGET_SELECTED, gridId );
-    Fixture.fakeRequestParam( JSConst.EVENT_WIDGET_SELECTED_ITEM, itemId );
-    Fixture.fakeRequestParam( JSConst.EVENT_WIDGET_SELECTED_DETAIL, "check" );
-    Fixture.fakeRequestParam( JSConst.EVENT_WIDGET_SELECTED_INDEX, "3" );
+    Map<String, Object> parameters = new HashMap<String, Object>();
+    parameters.put( ClientMessageConst.EVENT_PARAM_ITEM, getId( item ) );
+    parameters.put( ClientMessageConst.EVENT_PARAM_DETAIL, "check" );
+    parameters.put( ClientMessageConst.EVENT_PARAM_INDEX, Integer.valueOf( 3 ) );
+    Fixture.fakeNotifyOperation( getId( grid ), EVENT_WIDGET_SELECTED, parameters );
     Fixture.readDataAndProcessAction( display );
 
     assertEquals( 1, events.size() );
@@ -949,12 +947,11 @@ public class GridLCA_Test extends TestCase {
     List<Event> events = new LinkedList<Event>();
     GridItem item = new GridItem( grid, SWT.NONE );
     grid.addListener( SWT.DefaultSelection, new LoggingListener( events ) );
-    String gridId = WidgetUtil.getId( grid );
-    String itemId = WidgetUtil.getId( item );
 
     Fixture.fakeNewRequest( display );
-    Fixture.fakeRequestParam( JSConst.EVENT_WIDGET_DEFAULT_SELECTED, gridId );
-    Fixture.fakeRequestParam( JSConst.EVENT_WIDGET_DEFAULT_SELECTED + ".item", itemId );
+    Map<String, Object> parameters = new HashMap<String, Object>();
+    parameters.put( ClientMessageConst.EVENT_PARAM_ITEM, getId( item ) );
+    Fixture.fakeNotifyOperation( getId( grid ), EVENT_WIDGET_DEFAULT_SELECTED, parameters );
     Fixture.readDataAndProcessAction( display );
 
     assertEquals( 1, events.size() );
@@ -1089,10 +1086,12 @@ public class GridLCA_Test extends TestCase {
 
   private static void processCellToolTipRequest( Grid grid, String itemId, int column ) {
     Fixture.fakeNewRequest( grid.getDisplay() );
-    String gridId = WidgetUtil.getId( grid );
-    Fixture.fakeRequestParam( JSConst.EVENT_CELL_TOOLTIP_REQUESTED, gridId );
     String cellString = itemId + "," + column;
-    Fixture.fakeRequestParam( JSConst.EVENT_CELL_TOOLTIP_DETAILS, cellString );
+    Map<String, Object> parameters = new HashMap<String, Object>();
+    parameters.put( ClientMessageConst.EVENT_PARAM_CELL, cellString );
+    Fixture.fakeNotifyOperation( getId( grid ),
+                                 ClientMessageConst.EVENT_CELL_TOOLTIP_REQUESTED,
+                                 parameters );
     Fixture.executeLifeCycleFromServerThread();
   }
 
