@@ -14,10 +14,6 @@ import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridColumns;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
 import static org.eclipse.nebula.widgets.grid.internal.gridkit.GridLCATestUtil.jsonEquals;
 import static org.eclipse.rap.rwt.lifecycle.WidgetUtil.getId;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
@@ -46,8 +42,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.mockito.ArgumentCaptor;
-
 import junit.framework.TestCase;
 
 
@@ -820,16 +814,20 @@ public class GridColumnLCA_Test extends TestCase {
   }
 
   public void testReadSelectionEvent() {
-    SelectionListener listener = mock( SelectionListener.class );
-    column.addSelectionListener( listener );
+    final List<SelectionEvent> events = new LinkedList<SelectionEvent>();
+    column.addSelectionListener( new SelectionAdapter() {
+      @Override
+      public void widgetSelected( SelectionEvent event ) {
+        events.add( event );
+      }
+    } );
 
     Fixture.fakeNewRequest( display );
     Fixture.fakeNotifyOperation( getId( column ), ClientMessageConst.EVENT_WIDGET_SELECTED, null );
     Fixture.readDataAndProcessAction( column );
 
-    ArgumentCaptor<SelectionEvent> captor = ArgumentCaptor.forClass( SelectionEvent.class );
-    verify( listener, times( 1 ) ).widgetSelected( captor.capture() );
-    SelectionEvent event = captor.getValue();
+    assertEquals( 1, events.size() );
+    SelectionEvent event = events.get( 0 );
     assertSame( column, event.widget );
   }
 
