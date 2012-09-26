@@ -19,6 +19,7 @@ import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.preserveProperty;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.readEventPropertyValue;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.renderListener;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.renderProperty;
+import static org.eclipse.rap.rwt.lifecycle.WidgetUtil.getId;
 
 import java.io.IOException;
 
@@ -30,6 +31,7 @@ import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.internal.protocol.ClientObjectFactory;
 import org.eclipse.rap.rwt.internal.protocol.IClientObject;
 import org.eclipse.rap.rwt.internal.protocol.ClientMessageConst;
+import org.eclipse.rap.rwt.internal.protocol.ProtocolUtil;
 import org.eclipse.rap.rwt.internal.util.NumberFormatUtil;
 import org.eclipse.rap.rwt.lifecycle.AbstractWidgetLCA;
 import org.eclipse.rap.rwt.lifecycle.ControlLCAUtil;
@@ -95,7 +97,7 @@ public class GridLCA extends AbstractWidgetLCA {
     Grid grid = ( Grid )widget;
     IClientObject clientObject = ClientObjectFactory.getClientObject( grid );
     clientObject.create( TYPE );
-    clientObject.set( "parent", WidgetUtil.getId( grid.getParent() ) );
+    clientObject.set( "parent", getId( grid.getParent() ) );
     clientObject.set( "style", WidgetLCAUtil.getStyles( grid, ALLOWED_STYLES ) );
     clientObject.set( "appearance", "tree" );
     IGridAdapter adapter = getGridAdapter( grid );
@@ -196,9 +198,8 @@ public class GridLCA extends AbstractWidgetLCA {
   // Helping methods to read client-side state
 
   private static void readSelection( Grid grid ) {
-    String value = WidgetLCAUtil.readPropertyValue( grid, "selection" );
-    if( value != null ) {
-      String[] values = value.split( "," );
+    String[] values = ProtocolUtil.readPropertyValueAsStringArray( getId( grid ), "selection" );
+    if( values != null ) {
       GridItem[] selectedItems = new GridItem[ values.length ];
       boolean validItemFound = false;
       for( int i = 0; i < values.length; i++ ) {
@@ -291,7 +292,7 @@ public class GridLCA extends AbstractWidgetLCA {
     GridItem[] selection = grid.getSelection();
     String[] result = new String[ selection.length ];
     for( int i = 0; i < result.length; i++ ) {
-      result[ i ] = WidgetUtil.getId( selection[ i ] );
+      result[ i ] = getId( selection[ i ] );
     }
     return result;
   }

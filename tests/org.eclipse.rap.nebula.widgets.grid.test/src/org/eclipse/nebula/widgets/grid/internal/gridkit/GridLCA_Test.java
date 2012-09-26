@@ -851,7 +851,7 @@ public class GridLCA_Test extends TestCase {
     Fixture.fakeNewRequest( display );
     Fixture.fakeSetParameter( getId( grid ),
                               "selection",
-                              getId( items[ 0 ] ) + "," + getId( items[ 2 ] ) );
+                              new String[] { getId( items[ 0 ] ), getId( items[ 2 ] ) } );
     Fixture.readDataAndProcessAction( grid );
 
     GridItem[] selectedItems = grid.getSelection();
@@ -867,7 +867,7 @@ public class GridLCA_Test extends TestCase {
     Fixture.fakeNewRequest( display );
     Fixture.fakeSetParameter( getId( grid ),
                               "selection",
-                              getId( items[ 0 ] ) + "," + getId( items[ 2 ] ) );
+                              new String[] { getId( items[ 0 ] ), getId( items[ 2 ] ) } );
     Fixture.readDataAndProcessAction( grid );
 
     GridItem[] selectedItems = grid.getSelection();
