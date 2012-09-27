@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridItem;
+import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.graphics.Graphics;
 import org.eclipse.rap.rwt.internal.protocol.ClientMessageConst;
 import org.eclipse.rap.rwt.lifecycle.WidgetUtil;
@@ -146,7 +147,7 @@ public class GridItemLCA_Test extends TestCase {
   }
 
   public void testRenderCustomVariant() throws IOException {
-    item.setData( WidgetUtil.CUSTOM_VARIANT, "blue" );
+    item.setData( RWT.CUSTOM_VARIANT, "blue" );
     lca.renderChanges( item );
 
     Message message = Fixture.getProtocolMessage();
@@ -157,7 +158,7 @@ public class GridItemLCA_Test extends TestCase {
     Fixture.markInitialized( display );
     Fixture.markInitialized( item );
 
-    item.setData( WidgetUtil.CUSTOM_VARIANT, "blue" );
+    item.setData( RWT.CUSTOM_VARIANT, "blue" );
     Fixture.preserveWidgets();
     lca.renderChanges( item );
 
@@ -610,7 +611,7 @@ public class GridItemLCA_Test extends TestCase {
     createGridColumns( grid, 3, SWT.NONE );
     item = new GridItem( grid, SWT.NONE );
 
-    Fixture.fakeSetParameter( getId( item ), "cellChecked", "[ true, false, true ]" );
+    Fixture.fakeSetParameter( getId( item ), "cellChecked", new boolean[] { true, false, true } );
     Fixture.readDataAndProcessAction( item );
 
     assertTrue( item.getChecked( 0 ) );

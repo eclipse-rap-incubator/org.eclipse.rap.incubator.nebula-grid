@@ -12,6 +12,7 @@ package org.eclipse.nebula.widgets.grid.internal.griditemkit;
 
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.preserveProperty;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.renderProperty;
+import static org.eclipse.rap.rwt.lifecycle.WidgetUtil.getId;
 
 import java.io.IOException;
 
@@ -22,6 +23,7 @@ import org.eclipse.nebula.widgets.grid.internal.IGridItemAdapter;
 import org.eclipse.rap.rwt.internal.protocol.ClientObjectFactory;
 import org.eclipse.rap.rwt.internal.protocol.IClientObject;
 import org.eclipse.rap.rwt.internal.protocol.ClientMessageConst;
+import org.eclipse.rap.rwt.internal.protocol.ProtocolUtil;
 import org.eclipse.rap.rwt.lifecycle.AbstractWidgetLCA;
 import org.eclipse.rap.rwt.lifecycle.ProcessActionRunner;
 import org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil;
@@ -135,11 +137,10 @@ public class GridItemLCA extends AbstractWidgetLCA {
   // Helping methods to read client-side state
 
   private static void readChecked( GridItem item ) {
-    String value = WidgetLCAUtil.readPropertyValue( item, "cellChecked" );
+    boolean[] value = ProtocolUtil.readPropertyValueAsBooleanArray( getId( item ), "cellChecked" );
     if( value != null ) {
-      boolean[] cellChecked = parseJSonBooleanArray( value.trim() );
-      for( int i = 0; i < cellChecked.length; i++ ) {
-        item.setChecked( i, cellChecked[ i ] );
+      for( int i = 0; i < value.length; i++ ) {
+        item.setChecked( i, value[ i ] );
       }
     }
   }
@@ -254,15 +255,5 @@ public class GridItemLCA extends AbstractWidgetLCA {
 
   private static IGridItemAdapter getGridItemAdapter( GridItem item ) {
     return item.getAdapter( IGridItemAdapter.class );
-  }
-
-  private static boolean[] parseJSonBooleanArray( String json ) {
-    String value = json.substring( 1, json.length() - 1 );
-    String[] valueParts = value.split( "," );
-    boolean[] result = new boolean[ valueParts.length ];
-    for( int i = 0; i < result.length; i++ ) {
-      result[ i ] = Boolean.valueOf( valueParts[ i ].trim() ).booleanValue();
-    }
-    return result;
   }
 }
