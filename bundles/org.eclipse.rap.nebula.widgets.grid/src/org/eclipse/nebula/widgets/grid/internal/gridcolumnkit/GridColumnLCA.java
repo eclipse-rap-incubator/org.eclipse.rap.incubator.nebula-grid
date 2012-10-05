@@ -10,10 +10,12 @@
  ******************************************************************************/
 package org.eclipse.nebula.widgets.grid.internal.gridcolumnkit;
 
+import static org.eclipse.rap.rwt.internal.protocol.ProtocolUtil.readCallPropertyValueAsString;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.preserveListener;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.preserveProperty;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.renderListener;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.renderProperty;
+import static org.eclipse.rap.rwt.lifecycle.WidgetUtil.getId;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -131,8 +133,9 @@ public class GridColumnLCA extends AbstractWidgetLCA {
   // Helping methods to read client-side state
 
   private static void readLeft( final GridColumn column ) {
-    String value = WidgetLCAUtil.readPropertyValue( column, "left" );
-    if( value != null ) {
+    String methodName = "move";
+    if( ProtocolUtil.wasCallSend( getId( column ), methodName ) ) {
+      String value = readCallPropertyValueAsString( getId( column ), methodName, "left" );
       final int newLeft = NumberFormatUtil.parseInt( value );
       ProcessActionRunner.add( new Runnable() {
         public void run() {
@@ -143,8 +146,9 @@ public class GridColumnLCA extends AbstractWidgetLCA {
   }
 
   private static void readWidth( final GridColumn column ) {
-    String value = WidgetLCAUtil.readPropertyValue( column, "width" );
-    if( value != null ) {
+    String methodName = "resize";
+    if( ProtocolUtil.wasCallSend( getId( column ), methodName ) ) {
+      String value = readCallPropertyValueAsString( getId( column ), methodName, "width" );
       final int newWidth = NumberFormatUtil.parseInt( value );
       ProcessActionRunner.add( new Runnable() {
         public void run() {

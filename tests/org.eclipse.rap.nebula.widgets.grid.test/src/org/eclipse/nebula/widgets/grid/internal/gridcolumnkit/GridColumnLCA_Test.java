@@ -15,12 +15,15 @@ import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
 import static org.eclipse.nebula.widgets.grid.internal.gridkit.GridLCATestUtil.jsonEquals;
 import static org.eclipse.rap.rwt.lifecycle.WidgetUtil.getId;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridColumn;
 import org.eclipse.nebula.widgets.grid.GridColumnGroup;
+import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.internal.protocol.ClientMessageConst;
 import org.eclipse.rap.rwt.lifecycle.WidgetUtil;
 import org.eclipse.rap.rwt.testfixture.Fixture;
@@ -155,7 +158,7 @@ public class GridColumnLCA_Test extends TestCase {
   }
 
   public void testRenderCustomVariant() throws IOException {
-    column.setData( WidgetUtil.CUSTOM_VARIANT, "blue" );
+    column.setData( RWT.CUSTOM_VARIANT, "blue" );
     lca.renderChanges( column );
 
     Message message = Fixture.getProtocolMessage();
@@ -166,7 +169,7 @@ public class GridColumnLCA_Test extends TestCase {
     Fixture.markInitialized( display );
     Fixture.markInitialized( column );
 
-    column.setData( WidgetUtil.CUSTOM_VARIANT, "blue" );
+    column.setData( RWT.CUSTOM_VARIANT, "blue" );
     Fixture.preserveWidgets();
     lca.renderChanges( column );
 
@@ -527,7 +530,9 @@ public class GridColumnLCA_Test extends TestCase {
     int newWidth = columns[ 0 ].getWidth() + 2;
     int newLeft = column.getWidth() + newWidth;
     Fixture.fakeNewRequest( display );
-    Fixture.fakeSetParameter( getId( columns[ 0 ] ), "width", Integer.valueOf( newWidth ) );
+    Map<String, Object> parameters = new HashMap<String, Object>();
+    parameters.put( "width", Integer.valueOf( newWidth ) );
+    Fixture.fakeCallOperation( getId( columns[ 0 ] ), "resize", parameters );
     Fixture.executeLifeCycleFromServerThread();
 
     assertEquals( 2, events.size() );
@@ -556,7 +561,9 @@ public class GridColumnLCA_Test extends TestCase {
     // Simulate request that changes column left
     int newLeft = 3;
     Fixture.fakeNewRequest( display );
-    Fixture.fakeSetParameter( getId( columns[ 0 ] ), "left", Integer.valueOf( newLeft ) );
+    Map<String, Object> parameters = new HashMap<String, Object>();
+    parameters.put( "left", Integer.valueOf( newLeft ) );
+    Fixture.fakeCallOperation( getId( columns[ 0 ] ), "move", parameters );
     Fixture.executeLifeCycleFromServerThread();
 
     assertEquals( 2, events.size() );

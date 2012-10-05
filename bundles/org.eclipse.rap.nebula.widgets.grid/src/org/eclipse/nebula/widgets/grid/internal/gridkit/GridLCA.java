@@ -13,6 +13,7 @@ package org.eclipse.nebula.widgets.grid.internal.gridkit;
 import static org.eclipse.rap.rwt.internal.protocol.ClientMessageConst.EVENT_PARAM_DETAIL;
 import static org.eclipse.rap.rwt.internal.protocol.ClientMessageConst.EVENT_PARAM_INDEX;
 import static org.eclipse.rap.rwt.internal.protocol.ClientMessageConst.EVENT_PARAM_ITEM;
+import static org.eclipse.rap.rwt.internal.protocol.ProtocolUtil.readCallPropertyValueAsString;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.preserveListener;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.preserveProperty;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.readEventPropertyValue;
@@ -27,12 +28,10 @@ import org.eclipse.nebula.widgets.grid.GridColumn;
 import org.eclipse.nebula.widgets.grid.GridItem;
 import org.eclipse.nebula.widgets.grid.internal.IGridAdapter;
 import org.eclipse.rap.rwt.RWT;
-import org.eclipse.rap.rwt.internal.protocol.ClientMessage;
 import org.eclipse.rap.rwt.internal.protocol.ClientObjectFactory;
 import org.eclipse.rap.rwt.internal.protocol.IClientObject;
 import org.eclipse.rap.rwt.internal.protocol.ClientMessageConst;
 import org.eclipse.rap.rwt.internal.protocol.ProtocolUtil;
-import org.eclipse.rap.rwt.internal.protocol.ClientMessage.CallOperation;
 import org.eclipse.rap.rwt.internal.util.NumberFormatUtil;
 import org.eclipse.rap.rwt.lifecycle.AbstractWidgetLCA;
 import org.eclipse.rap.rwt.lifecycle.ControlLCAUtil;
@@ -240,18 +239,14 @@ public class GridLCA extends AbstractWidgetLCA {
     ICellToolTipAdapter adapter = CellToolTipUtil.getAdapter( grid );
     adapter.setCellToolTipText( null );
     ICellToolTipProvider provider = adapter.getCellToolTipProvider();
-    if( provider != null ) {
-      ClientMessage message = ProtocolUtil.getClientMessage();
-      CallOperation[] operations
-        = message.getAllCallOperationsFor( getId( grid ), "renderToolTipText" );
-      if( operations.length > 0 ) {
-        CallOperation operation = operations[ operations.length - 1 ];
-        String itemId = ( String )operation.getProperty( "item" );
-        int columnIndex = ( ( Integer )operation.getProperty( "column" ) ).intValue();
-        GridItem item = getItem( grid, itemId );
-        if( item != null && ( columnIndex == 0 || columnIndex < grid.getColumnCount() ) ) {
-          provider.getToolTipText( item, columnIndex );
-        }
+    String methodName = "renderToolTipText";
+    if( provider != null && ProtocolUtil.wasCallSend( getId( grid ), methodName ) ) {
+      String itemId = readCallPropertyValueAsString( getId( grid ), methodName, "item" );
+      String column = readCallPropertyValueAsString( getId( grid ), methodName, "column" );
+      int columnIndex = NumberFormatUtil.parseInt( column );
+      GridItem item = getItem( grid, itemId );
+      if( item != null && ( columnIndex == 0 || columnIndex < grid.getColumnCount() ) ) {
+        provider.getToolTipText( item, columnIndex );
       }
     }
   }
