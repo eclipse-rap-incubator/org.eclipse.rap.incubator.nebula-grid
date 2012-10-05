@@ -1086,12 +1086,10 @@ public class GridLCA_Test extends TestCase {
 
   private static void processCellToolTipRequest( Grid grid, String itemId, int column ) {
     Fixture.fakeNewRequest( grid.getDisplay() );
-    String cellString = itemId + "," + column;
     Map<String, Object> parameters = new HashMap<String, Object>();
-    parameters.put( ClientMessageConst.EVENT_PARAM_CELL, cellString );
-    Fixture.fakeNotifyOperation( getId( grid ),
-                                 ClientMessageConst.EVENT_CELL_TOOLTIP_REQUESTED,
-                                 parameters );
+    parameters.put( "item", itemId );
+    parameters.put( "column", Integer.valueOf( column ) );
+    Fixture.fakeCallOperation( getId( grid ), "renderToolTipText", parameters );
     Fixture.executeLifeCycleFromServerThread();
   }
 
