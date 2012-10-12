@@ -26,9 +26,10 @@ import org.eclipse.rap.rwt.lifecycle.AbstractWidgetLCA;
 import org.eclipse.rap.rwt.lifecycle.ProcessActionRunner;
 import org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil;
 import org.eclipse.rap.rwt.lifecycle.WidgetUtil;
-import org.eclipse.swt.events.TreeEvent;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.internal.widgets.ItemLCAUtil;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Widget;
 
 
@@ -104,10 +105,11 @@ public class GridColumnGroupLCA extends AbstractWidgetLCA {
           group.setExpanded( expanded );
         }
       } );
-      if( TreeEvent.hasListener( group ) ) {
-        int eventType = expanded ? TreeEvent.TREE_EXPANDED : TreeEvent.TREE_COLLAPSED;
-        TreeEvent event = new TreeEvent( group, null, eventType );
-        event.processEvent();
+      if( expanded && group.isListening( SWT.Expand ) ) {
+        processGroupExpandedEvent( group );
+      }
+      if( !expanded && group.isListening( SWT.Collapse ) ) {
+        processGroupCollapsedEvent( group );
       }
     }
   }
@@ -165,5 +167,18 @@ public class GridColumnGroupLCA extends AbstractWidgetLCA {
       }
     }
     return result;
+  }
+
+  /////////////////////////////////
+  // Process expand/collapse events
+
+  private static void processGroupExpandedEvent( GridColumnGroup group ) {
+    Event event = new Event();
+    group.notifyListeners( SWT.Expand, event );
+  }
+
+  private static void processGroupCollapsedEvent( GridColumnGroup group ) {
+    Event event = new Event();
+    group.notifyListeners( SWT.Collapse, event );
   }
 }

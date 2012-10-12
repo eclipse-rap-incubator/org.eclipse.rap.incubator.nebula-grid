@@ -17,7 +17,6 @@ import org.eclipse.rap.rwt.lifecycle.PhaseId;
 import org.eclipse.rap.rwt.testfixture.Fixture;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.TreeAdapter;
-import org.eclipse.swt.events.TreeEvent;
 import org.eclipse.swt.events.TreeListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
@@ -85,10 +84,12 @@ public class GridColumnGroup_Test extends TestCase {
     TreeListener listener = new TreeAdapter() {};
     group.addTreeListener( listener );
 
-    assertTrue( TreeEvent.hasListener( group ) );
+    assertTrue( group.isListening( SWT.Expand ) );
+    assertTrue( group.isListening( SWT.Collapse ) );
 
     group.removeTreeListener( listener );
-    assertFalse( TreeEvent.hasListener( group ) );
+    assertFalse( group.isListening( SWT.Expand ) );
+    assertFalse( group.isListening( SWT.Collapse ) );
   }
 
   public void testGetHeaderText_Initial() {

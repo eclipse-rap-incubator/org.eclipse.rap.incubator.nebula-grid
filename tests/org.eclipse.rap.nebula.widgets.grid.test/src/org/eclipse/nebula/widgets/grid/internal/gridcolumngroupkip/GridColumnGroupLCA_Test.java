@@ -14,15 +14,18 @@ import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridColumns;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
 import static org.eclipse.nebula.widgets.grid.internal.gridkit.GridLCATestUtil.jsonEquals;
 import static org.eclipse.rap.rwt.lifecycle.WidgetUtil.getId;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridColumnGroup;
 import org.eclipse.nebula.widgets.grid.internal.gridcolumngroupkit.GridColumnGroupLCA;
+import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.internal.protocol.ClientMessageConst;
 import org.eclipse.rap.rwt.lifecycle.WidgetUtil;
 import org.eclipse.rap.rwt.testfixture.Fixture;
@@ -31,8 +34,8 @@ import org.eclipse.rap.rwt.testfixture.Message.CreateOperation;
 import org.eclipse.rap.rwt.testfixture.Message.DestroyOperation;
 import org.eclipse.rap.rwt.testfixture.Message.Operation;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.TreeAdapter;
 import org.eclipse.swt.events.TreeEvent;
+import org.eclipse.swt.events.TreeListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.internal.graphics.ImageFactory;
@@ -41,6 +44,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.mockito.ArgumentCaptor;
 
 import junit.framework.TestCase;
 
@@ -242,30 +246,30 @@ public class GridColumnGroupLCA_Test extends TestCase {
   }
 
   public void testProcessTreeEvent_Expanded() {
-    List<TreeEvent> events = new LinkedList<TreeEvent>();
-    group.addTreeListener( new LoggingTreeListener( events ) );
+    TreeListener treeListener = mock( TreeListener.class );
+    group.addTreeListener( treeListener );
     group.setExpanded( false );
 
     Fixture.fakeNotifyOperation( getId( group ), ClientMessageConst.EVENT_TREE_EXPANDED, null );
     Fixture.readDataAndProcessAction( group );
 
-    assertEquals( 1, events.size() );
-    TreeEvent event = events.get( 0 );
-    assertEquals( SWT.Expand, event.getID() );
+    ArgumentCaptor<TreeEvent> captor = ArgumentCaptor.forClass( TreeEvent.class );
+    verify( treeListener, times( 1 ) ).treeExpanded( captor.capture() );
+    TreeEvent event = captor.getValue();
     assertEquals( group, event.getSource() );
     assertTrue( group.getExpanded() );
   }
 
   public void testProcessTreeEvent_Collapsed() {
-    List<TreeEvent> events = new LinkedList<TreeEvent>();
-    group.addTreeListener( new LoggingTreeListener( events ) );
+    TreeListener treeListener = mock( TreeListener.class );
+    group.addTreeListener( treeListener );
 
     Fixture.fakeNotifyOperation( getId( group ), ClientMessageConst.EVENT_TREE_COLLAPSED, null );
     Fixture.readDataAndProcessAction( group );
 
-    assertEquals( 1, events.size() );
-    TreeEvent event = events.get( 0 );
-    assertEquals( SWT.Collapse, event.getID() );
+    ArgumentCaptor<TreeEvent> captor = ArgumentCaptor.forClass( TreeEvent.class );
+    verify( treeListener, times( 1 ) ).treeCollapsed( captor.capture() );
+    TreeEvent event = captor.getValue();
     assertEquals( group, event.getSource() );
     assertFalse( group.getExpanded() );
   }
@@ -407,7 +411,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
   }
 
   public void testRenderCustomVariant() throws IOException {
-    group.setData( WidgetUtil.CUSTOM_VARIANT, "blue" );
+    group.setData( RWT.CUSTOM_VARIANT, "blue" );
     lca.renderChanges( group );
 
     Message message = Fixture.getProtocolMessage();
@@ -418,7 +422,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     Fixture.markInitialized( display );
     Fixture.markInitialized( group );
 
-    group.setData( WidgetUtil.CUSTOM_VARIANT, "blue" );
+    group.setData( RWT.CUSTOM_VARIANT, "blue" );
     Fixture.preserveWidgets();
     lca.renderChanges( group );
 
@@ -426,21 +430,4 @@ public class GridColumnGroupLCA_Test extends TestCase {
     assertNull( message.findSetOperation( group, "customVariant" ) );
   }
 
-  //////////////////
-  // Helping classes
-
-  private static class LoggingTreeListener extends TreeAdapter {
-    private final List<TreeEvent> events;
-    private LoggingTreeListener( List<TreeEvent> events ) {
-      this.events = events;
-    }
-    @Override
-    public void treeExpanded( TreeEvent event ) {
-      events.add( event );
-    }
-    @Override
-    public void treeCollapsed( TreeEvent event ) {
-      events.add( event );
-    }
-  }
 }

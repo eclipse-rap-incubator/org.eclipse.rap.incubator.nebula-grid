@@ -12,14 +12,13 @@ package org.eclipse.nebula.widgets.grid;
 
 import org.eclipse.rap.rwt.graphics.Graphics;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Item;
+import org.eclipse.swt.widgets.TypedListener;
 
 
 /**
@@ -224,7 +223,12 @@ public class GridColumn extends Item {
    */
   public void addSelectionListener( SelectionListener listener ) {
     checkWidget();
-    SelectionEvent.addListener( this, listener );
+    if( listener == null ) {
+      SWT.error( SWT.ERROR_NULL_ARGUMENT );
+    }
+    TypedListener typedListener = new TypedListener( listener );
+    addListener( SWT.Selection, typedListener );
+    addListener( SWT.DefaultSelection, typedListener );
   }
 
   /**
@@ -245,7 +249,11 @@ public class GridColumn extends Item {
    */
   public void removeSelectionListener( SelectionListener listener ) {
     checkWidget();
-    SelectionEvent.removeListener( this, listener );
+    if( listener == null ) {
+      SWT.error( SWT.ERROR_NULL_ARGUMENT );
+    }
+    removeListener( SWT.Selection, listener );
+    removeListener( SWT.DefaultSelection, listener );
   }
 
   /**
@@ -268,7 +276,12 @@ public class GridColumn extends Item {
    */
   public void addControlListener( ControlListener listener ) {
     checkWidget();
-    ControlEvent.addListener( this, listener );
+    if( listener == null ) {
+      SWT.error( SWT.ERROR_NULL_ARGUMENT );
+    }
+    TypedListener typedListener = new TypedListener( listener );
+    addListener( SWT.Move, typedListener );
+    addListener( SWT.Resize, typedListener );
   }
 
   /**
@@ -290,7 +303,11 @@ public class GridColumn extends Item {
    */
   public void removeControlListener( ControlListener listener ) {
     checkWidget();
-    ControlEvent.removeListener( this, listener );
+    if( listener == null ) {
+      SWT.error( SWT.ERROR_NULL_ARGUMENT );
+    }
+    removeListener( SWT.Move, listener );
+    removeListener( SWT.Resize, listener );
   }
 
   /**

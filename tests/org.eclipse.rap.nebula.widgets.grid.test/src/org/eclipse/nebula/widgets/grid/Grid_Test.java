@@ -28,10 +28,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TreeAdapter;
-import org.eclipse.swt.events.TreeEvent;
 import org.eclipse.swt.events.TreeListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
@@ -366,20 +364,24 @@ public class Grid_Test extends TestCase {
     SelectionListener listener = new SelectionAdapter() {};
     grid.addSelectionListener( listener );
 
-    assertTrue( SelectionEvent.hasListener( grid ) );
+    assertTrue( grid.isListening( SWT.Selection ) );
+    assertTrue( grid.isListening( SWT.DefaultSelection ) );
 
     grid.removeSelectionListener( listener );
-    assertFalse( SelectionEvent.hasListener( grid ) );
+    assertFalse( grid.isListening( SWT.Selection ) );
+    assertFalse( grid.isListening( SWT.DefaultSelection ) );
   }
 
   public void testAddRemoveTreeListener() {
     TreeListener listener = new TreeAdapter() {};
     grid.addTreeListener( listener );
 
-    assertTrue( TreeEvent.hasListener( grid ) );
+    assertTrue( grid.isListening( SWT.Expand ) );
+    assertTrue( grid.isListening( SWT.Collapse ) );
 
     grid.removeTreeListener( listener );
-    assertFalse( TreeEvent.hasListener( grid ) );
+    assertFalse( grid.isListening( SWT.Expand ) );
+    assertFalse( grid.isListening( SWT.Collapse ) );
   }
 
   public void testClearAll() {

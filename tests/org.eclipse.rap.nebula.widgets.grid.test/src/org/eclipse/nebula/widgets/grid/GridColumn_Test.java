@@ -23,7 +23,6 @@ import org.eclipse.rap.rwt.service.IServiceStore;
 import org.eclipse.rap.rwt.testfixture.Fixture;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlAdapter;
-import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
@@ -481,13 +480,16 @@ public class GridColumn_Test extends TestCase {
   public void testAddRemoveControlListener() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
     ControlListener listener = new ControlAdapter() { };
-    assertFalse( ControlEvent.hasListener( column ) );
+    assertFalse( column.isListening( SWT.Move ) );
+    assertFalse( column.isListening( SWT.Resize ) );
 
     column.addControlListener( listener );
-    assertTrue( ControlEvent.hasListener( column ) );
+    assertTrue( column.isListening( SWT.Move ) );
+    assertTrue( column.isListening( SWT.Resize ) );
 
     column.removeControlListener( listener );
-    assertFalse( ControlEvent.hasListener( column ) );
+    assertFalse( column.isListening( SWT.Move ) );
+    assertFalse( column.isListening( SWT.Resize ) );
   }
 
   public void testAddControlListener_NullArgument() {

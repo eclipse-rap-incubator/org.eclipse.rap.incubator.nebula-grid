@@ -16,11 +16,11 @@ import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
 import static org.eclipse.nebula.widgets.grid.internal.gridkit.GridLCATestUtil.jsonEquals;
 import static org.eclipse.rap.rwt.internal.protocol.ClientMessageConst.EVENT_TREE_EXPANDED;
 import static org.eclipse.rap.rwt.lifecycle.WidgetUtil.getId;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
-
 import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridItem;
 import org.eclipse.rap.rwt.RWT;
@@ -32,9 +32,8 @@ import org.eclipse.rap.rwt.testfixture.Message;
 import org.eclipse.rap.rwt.testfixture.Message.CreateOperation;
 import org.eclipse.rap.rwt.testfixture.Message.DestroyOperation;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.TreeAdapter;
 import org.eclipse.swt.events.TreeEvent;
+import org.eclipse.swt.events.TreeListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
@@ -42,6 +41,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.mockito.ArgumentCaptor;
 
 import junit.framework.TestCase;
 
@@ -620,33 +620,33 @@ public class GridItemLCA_Test extends TestCase {
   }
 
   public void testProcessTreeEvent_Expanded() {
-    List<TreeEvent> events = new LinkedList<TreeEvent>();
-    grid.addTreeListener( new LoggingTreeListener( events ) );
+    TreeListener treeListener = mock( TreeListener.class );
+    grid.addTreeListener( treeListener );
     new GridItem( item, SWT.NONE );
 
     Fixture.fakeNotifyOperation( getId( item ), ClientMessageConst.EVENT_TREE_EXPANDED, null );
     Fixture.readDataAndProcessAction( item );
 
-    assertEquals( 1, events.size() );
-    SelectionEvent event = events.get( 0 );
-    assertEquals( SWT.Expand, event.getID() );
+    ArgumentCaptor<TreeEvent> captor = ArgumentCaptor.forClass( TreeEvent.class );
+    verify( treeListener, times( 1 ) ).treeExpanded( captor.capture() );
+    TreeEvent event = captor.getValue();
     assertEquals( grid, event.getSource() );
     assertEquals( item, event.item );
     assertTrue( item.isExpanded() );
   }
 
   public void testProcessTreeEvent_Collapsed() {
-    List<TreeEvent> events = new LinkedList<TreeEvent>();
-    grid.addTreeListener( new LoggingTreeListener( events ) );
+    TreeListener treeListener = mock( TreeListener.class );
+    grid.addTreeListener( treeListener );
     new GridItem( item, SWT.NONE );
     item.setExpanded( true );
 
     Fixture.fakeNotifyOperation( getId( item ), ClientMessageConst.EVENT_TREE_COLLAPSED, null );
     Fixture.readDataAndProcessAction( item );
 
-    assertEquals( 1, events.size() );
-    SelectionEvent event = events.get( 0 );
-    assertEquals( SWT.Collapse, event.getID() );
+    ArgumentCaptor<TreeEvent> captor = ArgumentCaptor.forClass( TreeEvent.class );
+    verify( treeListener, times( 1 ) ).treeCollapsed( captor.capture() );
+    TreeEvent event = captor.getValue();
     assertEquals( grid, event.getSource() );
     assertEquals( item, event.item );
     assertFalse( item.isExpanded() );
@@ -666,21 +666,4 @@ public class GridItemLCA_Test extends TestCase {
     assertTrue( jsonEquals( "[ false, true ]", actual ) );
   }
 
-  //////////////////
-  // Helping classes
-
-  private static class LoggingTreeListener extends TreeAdapter {
-    private final List<TreeEvent> events;
-    private LoggingTreeListener( List<TreeEvent> events ) {
-      this.events = events;
-    }
-    @Override
-    public void treeExpanded( TreeEvent event ) {
-      events.add( event );
-    }
-    @Override
-    public void treeCollapsed( TreeEvent event ) {
-      events.add( event );
-    }
-  }
 }

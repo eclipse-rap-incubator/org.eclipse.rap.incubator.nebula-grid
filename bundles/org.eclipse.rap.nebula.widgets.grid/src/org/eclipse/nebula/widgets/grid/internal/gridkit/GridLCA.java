@@ -117,6 +117,7 @@ public class GridLCA extends AbstractWidgetLCA {
     ControlLCAUtil.processKeyEvents( grid );
     ControlLCAUtil.processMenuDetect( grid );
     WidgetLCAUtil.processHelp( grid );
+    EventLCAUtil.processScrollBarSelection( grid );
   }
 
   @Override
@@ -336,11 +337,11 @@ public class GridLCA extends AbstractWidgetLCA {
     boolean result = false;
     ScrollBar horizontalBar = grid.getHorizontalBar();
     if( horizontalBar != null ) {
-      result = result || SelectionEvent.hasListener( horizontalBar );
+      result = result || horizontalBar.isListening( SWT.Selection );
     }
     ScrollBar verticalBar = grid.getVerticalBar();
     if( verticalBar != null ) {
-      result = result || SelectionEvent.hasListener( verticalBar );
+      result = result || verticalBar.isListening( SWT.Selection );
     }
     return result;
   }
@@ -352,12 +353,6 @@ public class GridLCA extends AbstractWidgetLCA {
   private static void processScrollBarSelection( ScrollBar scrollBar, int selection ) {
     if( scrollBar != null ) {
       scrollBar.setSelection( selection );
-      if( SelectionEvent.hasListener( scrollBar ) ) {
-        SelectionEvent evt = new SelectionEvent( scrollBar, null, SelectionEvent.WIDGET_SELECTED );
-        evt.stateMask = EventLCAUtil.readStateMask( scrollBar,
-                                                    ClientMessageConst.EVENT_WIDGET_SELECTED );
-        evt.processEvent();
-      }
     }
   }
 

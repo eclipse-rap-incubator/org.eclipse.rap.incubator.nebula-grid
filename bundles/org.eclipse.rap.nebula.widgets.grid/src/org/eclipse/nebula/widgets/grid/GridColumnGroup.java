@@ -14,11 +14,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.TreeEvent;
 import org.eclipse.swt.events.TreeListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Item;
+import org.eclipse.swt.widgets.TypedListener;
 
 
 /**
@@ -120,7 +120,12 @@ public class GridColumnGroup extends Item {
    */
   public void addTreeListener( TreeListener listener ) {
     checkWidget();
-    TreeEvent.addListener( this, listener );
+    if( listener == null ) {
+      SWT.error( SWT.ERROR_NULL_ARGUMENT );
+    }
+    TypedListener typedListener = new TypedListener( listener );
+    addListener( SWT.Expand, typedListener );
+    addListener( SWT.Collapse, typedListener );
   }
 
   /**
@@ -142,7 +147,11 @@ public class GridColumnGroup extends Item {
    */
   public void removeTreeListener( TreeListener listener ) {
     checkWidget();
-    TreeEvent.removeListener( this, listener );
+    if( listener == null ) {
+      SWT.error( SWT.ERROR_NULL_ARGUMENT );
+    }
+    removeListener( SWT.Expand, listener );
+    removeListener( SWT.Collapse, listener );
   }
 
   /**
