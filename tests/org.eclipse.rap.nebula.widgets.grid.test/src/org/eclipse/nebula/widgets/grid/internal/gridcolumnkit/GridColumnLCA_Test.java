@@ -569,7 +569,6 @@ public class GridColumnLCA_Test extends TestCase {
     Fixture.fakeCallOperation( getId( columns[ 0 ] ), "move", parameters );
     Fixture.executeLifeCycleFromServerThread();
 
-
     verify( controlListener, times( 1 ) ).controlMoved( any( ControlEvent.class ) );
     verify( controlListener0, times( 1 ) ).controlMoved( any( ControlEvent.class ) );
     verify( controlListener1, times( 0 ) ).controlMoved( any( ControlEvent.class ) );
