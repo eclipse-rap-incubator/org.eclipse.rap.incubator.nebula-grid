@@ -319,8 +319,7 @@ public class GridItem_Test extends TestCase {
     assertSame( grid, event.widget );
     assertSame( item, event.item );
     assertEquals( SWT.CHECK, event.detail );
-    // FIXME: As untyped event is wrapped around typed SelectionEvent this field is lost
-    // assertEquals( 3, event.index );
+    assertEquals( 3, event.index );
   }
 
   public void testGetText_Inital() {

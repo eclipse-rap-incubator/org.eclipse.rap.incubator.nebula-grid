@@ -939,8 +939,7 @@ public class GridLCA_Test extends TestCase {
     assertEquals( grid, event.widget );
     assertEquals( item, event.item );
     assertEquals( SWT.CHECK, event.detail );
-    // FIXME: As untyped event is wrapped around typed SelectionEvent this field is lost
-    // assertEquals( 3, event.index );
+    assertEquals( 3, event.index );
   }
 
   public void testProcessDefaultSelectionEvent() {
