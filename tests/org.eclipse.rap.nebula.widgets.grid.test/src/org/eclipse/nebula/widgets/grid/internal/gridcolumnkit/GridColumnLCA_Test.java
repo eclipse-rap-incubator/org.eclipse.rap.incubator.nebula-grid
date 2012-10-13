@@ -14,11 +14,6 @@ import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridColumns;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
 import static org.eclipse.nebula.widgets.grid.internal.gridkit.GridLCATestUtil.jsonEquals;
 import static org.eclipse.rap.rwt.lifecycle.WidgetUtil.getId;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -37,8 +32,6 @@ import org.eclipse.rap.rwt.testfixture.Message.CreateOperation;
 import org.eclipse.rap.rwt.testfixture.Message.DestroyOperation;
 import org.eclipse.rap.rwt.testfixture.Message.Operation;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -46,6 +39,8 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.internal.graphics.ImageFactory;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -523,11 +518,10 @@ public class GridColumnLCA_Test extends TestCase {
   }
 
   public void testReadWidth() {
+    final List<Event> events = new LinkedList<Event>();
     GridColumn[] columns = createGridColumns( grid, 2, SWT.NONE );
-    ControlListener controlListener0 = mock( ControlListener.class );
-    columns[ 0 ].addControlListener( controlListener0 );
-    ControlListener controlListener1 = mock( ControlListener.class );
-    columns[ 1 ].addControlListener( controlListener1 );
+    columns[ 0 ].addListener( SWT.Resize, new LoggingControlListener( events ) );
+    columns[ 1 ].addListener( SWT.Move, new LoggingControlListener( events ) );
 
     // Simulate request that initializes widgets
     Fixture.fakeNewRequest( display );
@@ -541,22 +535,23 @@ public class GridColumnLCA_Test extends TestCase {
     Fixture.fakeCallOperation( getId( columns[ 0 ] ), "resize", parameters );
     Fixture.executeLifeCycleFromServerThread();
 
-    verify( controlListener0, times( 1 ) ).controlResized( any( ControlEvent.class ) );
+    assertEquals( 2, events.size() );
+    Event event = events.get( 0 );
+    assertSame( columns[ 0 ], event.widget );
     assertEquals( newWidth, columns[ 0 ].getWidth() );
-    verify( controlListener1, times( 1 ) ).controlMoved( any( ControlEvent.class ) );
+    event = events.get( 1 );
+    assertSame( columns[ 1 ], event.widget );
     Message message = Fixture.getProtocolMessage();
     assertEquals( Integer.valueOf( newWidth ), message.findSetProperty( columns[ 0 ], "width" ) );
     assertEquals( Integer.valueOf( newLeft ), message.findSetProperty( columns[ 1 ], "left" ) );
   }
 
   public void testReadLeft() {
+    final List<Event> events = new LinkedList<Event>();
     GridColumn[] columns = createGridColumns( grid, 2, SWT.NONE );
-    ControlListener controlListener = mock( ControlListener.class );
-    column.addControlListener( controlListener );
-    ControlListener controlListener0 = mock( ControlListener.class );
-    columns[ 0 ].addControlListener( controlListener0 );
-    ControlListener controlListener1 = mock( ControlListener.class );
-    columns[ 1 ].addControlListener( controlListener1 );
+    column.addListener( SWT.Move, new LoggingControlListener( events ) );
+    columns[ 0 ].addListener( SWT.Move, new LoggingControlListener( events ) );
+    columns[ 1 ].addListener( SWT.Move, new LoggingControlListener( events ) );
 
     // Simulate request that initializes widgets
     Fixture.fakeNewRequest( display );
@@ -569,9 +564,11 @@ public class GridColumnLCA_Test extends TestCase {
     Fixture.fakeCallOperation( getId( columns[ 0 ] ), "move", parameters );
     Fixture.executeLifeCycleFromServerThread();
 
-    verify( controlListener, times( 1 ) ).controlMoved( any( ControlEvent.class ) );
-    verify( controlListener0, times( 1 ) ).controlMoved( any( ControlEvent.class ) );
-    verify( controlListener1, times( 0 ) ).controlMoved( any( ControlEvent.class ) );
+    assertEquals( 2, events.size() );
+    Event event = events.get( 0 );
+    assertSame( columns[ 0 ], event.widget );
+    event = events.get( 1 );
+    assertSame( column, event.widget );
     Message message = Fixture.getProtocolMessage();
     assertEquals( Integer.valueOf( 20 ), message.findSetProperty( column, "left" ) );
     assertEquals( Integer.valueOf( 0 ), message.findSetProperty( columns[ 0 ], "left" ) );
@@ -974,6 +971,19 @@ public class GridColumnLCA_Test extends TestCase {
 
     Message message = Fixture.getProtocolMessage();
     assertEquals( JSONObject.NULL, message.findSetProperty( column, "footerImage" ) );
+  }
+
+  //////////////////
+  // Helping classes
+
+  private static class LoggingControlListener implements Listener {
+    private final List<Event> events;
+    private LoggingControlListener( List<Event> events ) {
+      this.events = events;
+    }
+    public void handleEvent( Event event ) {
+      events.add( event );
+    }
   }
 
 }
