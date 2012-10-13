@@ -671,7 +671,7 @@ public class GridItemLCA_Test extends TestCase {
 
   // [if] Workaround for mockito exception on the build server:
   // "Mockito cannot mock this class: interface org.eclipse.swt.events.TreeListener"
-  private class TestTreeListener implements TreeListener {
+  public static class TestTreeListener implements TreeListener {
     public void treeCollapsed( TreeEvent event ) {
     }
     public void treeExpanded( TreeEvent event ) {
