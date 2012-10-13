@@ -620,7 +620,7 @@ public class GridItemLCA_Test extends TestCase {
   }
 
   public void testProcessTreeEvent_Expanded() {
-    TreeListener treeListener = mock( TreeListener.class );
+    TreeListener treeListener = mock( TestTreeListener.class );
     grid.addTreeListener( treeListener );
     new GridItem( item, SWT.NONE );
 
@@ -636,7 +636,7 @@ public class GridItemLCA_Test extends TestCase {
   }
 
   public void testProcessTreeEvent_Collapsed() {
-    TreeListener treeListener = mock( TreeListener.class );
+    TreeListener treeListener = mock( TestTreeListener.class );
     grid.addTreeListener( treeListener );
     new GridItem( item, SWT.NONE );
     item.setExpanded( true );
@@ -664,6 +664,18 @@ public class GridItemLCA_Test extends TestCase {
     Message message = Fixture.getProtocolMessage();
     JSONArray actual = ( JSONArray )message.findSetProperty( grid, "scrollBarsVisible" );
     assertTrue( jsonEquals( "[ false, true ]", actual ) );
+  }
+
+  //////////////////
+  // Helping classes
+
+  // [if] Workaround for mockito exception on the build server:
+  // "Mockito cannot mock this class: interface org.eclipse.swt.events.TreeListener"
+  private class TestTreeListener implements TreeListener {
+    public void treeCollapsed( TreeEvent event ) {
+    }
+    public void treeExpanded( TreeEvent event ) {
+    }
   }
 
 }
