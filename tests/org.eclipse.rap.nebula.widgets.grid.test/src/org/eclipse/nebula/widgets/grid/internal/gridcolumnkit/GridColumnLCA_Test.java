@@ -487,7 +487,7 @@ public class GridColumnLCA_Test extends TestCase {
     lca.renderChanges( column );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( Boolean.TRUE, message.findListenProperty( column, "selection" ) );
+    assertEquals( Boolean.TRUE, message.findListenProperty( column, "Selection" ) );
   }
 
   public void testRenderRemoveSelectionListener() throws Exception {
@@ -501,7 +501,7 @@ public class GridColumnLCA_Test extends TestCase {
     lca.renderChanges( column );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( Boolean.FALSE, message.findListenProperty( column, "selection" ) );
+    assertEquals( Boolean.FALSE, message.findListenProperty( column, "Selection" ) );
   }
 
   public void testRenderSelectionListenerUnchanged() throws Exception {
@@ -514,7 +514,7 @@ public class GridColumnLCA_Test extends TestCase {
     lca.renderChanges( column );
 
     Message message = Fixture.getProtocolMessage();
-    assertNull( message.findListenOperation( column, "selection" ) );
+    assertNull( message.findListenOperation( column, "Selection" ) );
   }
 
   public void testReadWidth() {
@@ -826,7 +826,7 @@ public class GridColumnLCA_Test extends TestCase {
     } );
 
     Fixture.fakeNewRequest( display );
-    Fixture.fakeNotifyOperation( getId( column ), ClientMessageConst.EVENT_WIDGET_SELECTED, null );
+    Fixture.fakeNotifyOperation( getId( column ), ClientMessageConst.EVENT_SELECTION, null );
     Fixture.readDataAndProcessAction( column );
 
     assertEquals( 1, events.size() );

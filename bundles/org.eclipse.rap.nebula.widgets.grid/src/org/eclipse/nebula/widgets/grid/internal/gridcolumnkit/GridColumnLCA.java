@@ -35,7 +35,6 @@ import org.eclipse.rap.rwt.lifecycle.ProcessActionRunner;
 import org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil;
 import org.eclipse.rap.rwt.lifecycle.WidgetUtil;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.internal.widgets.ItemLCAUtil;
 import org.eclipse.swt.widgets.Widget;
@@ -58,7 +57,7 @@ public class GridColumnLCA extends AbstractWidgetLCA {
   private static final String PROP_FOOTER_FONT = "footerFont";
   private static final String PROP_FOOTER_TEXT = "footerText";
   private static final String PROP_FOOTER_IMAGE = "footerImage";
-  private static final String PROP_SELECTION_LISTENER = "selection";
+  private static final String PROP_SELECTION_LISTENER = "Selection";
 
   private static final int ZERO = 0;
   private static final String DEFAULT_ALIGNMENT = "left";
@@ -100,7 +99,7 @@ public class GridColumnLCA extends AbstractWidgetLCA {
     preserveProperty( column, PROP_FOOTER_FONT, column.getFooterFont() );
     preserveProperty( column, PROP_FOOTER_TEXT, column.getFooterText() );
     preserveProperty( column, PROP_FOOTER_IMAGE, column.getFooterImage() );
-    preserveListener( column, PROP_SELECTION_LISTENER, SelectionEvent.hasListener( column ) );
+    preserveListener( column, PROP_SELECTION_LISTENER, column.isListening( SWT.Selection ) );
   }
 
   @Override
@@ -121,7 +120,7 @@ public class GridColumnLCA extends AbstractWidgetLCA {
     renderFont( column, PROP_FOOTER_FONT, column.getFooterFont() );
     renderProperty( column, PROP_FOOTER_TEXT, column.getFooterText(), "" );
     renderProperty( column, PROP_FOOTER_IMAGE, column.getFooterImage(), null );
-    renderListener( column, PROP_SELECTION_LISTENER, SelectionEvent.hasListener( column ), false );
+    renderListener( column, PROP_SELECTION_LISTENER, column.isListening( SWT.Selection ), false );
   }
 
   @Override

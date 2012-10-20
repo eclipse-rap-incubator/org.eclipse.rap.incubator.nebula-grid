@@ -27,7 +27,6 @@ import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
@@ -448,13 +447,13 @@ public class GridColumn_Test extends TestCase {
   public void testAddRemoveSelectionListener() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
     SelectionListener listener = new SelectionAdapter() { };
-    assertFalse( SelectionEvent.hasListener( column ) );
+    assertFalse( column.isListening( SWT.Selection ) );
 
     column.addSelectionListener( listener );
-    assertTrue( SelectionEvent.hasListener( column ) );
+    assertTrue( column.isListening( SWT.Selection ) );
 
     column.removeSelectionListener( listener );
-    assertFalse( SelectionEvent.hasListener( column ) );
+    assertFalse( column.isListening( SWT.Selection ) );
   }
 
   public void testAddSelectionListener_NullArgument() {

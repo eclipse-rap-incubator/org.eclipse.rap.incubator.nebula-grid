@@ -14,8 +14,8 @@ import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridColumns;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridItems;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
 import static org.eclipse.nebula.widgets.grid.internal.gridkit.GridLCATestUtil.jsonEquals;
-import static org.eclipse.rap.rwt.internal.protocol.ClientMessageConst.EVENT_WIDGET_DEFAULT_SELECTED;
-import static org.eclipse.rap.rwt.internal.protocol.ClientMessageConst.EVENT_WIDGET_SELECTED;
+import static org.eclipse.rap.rwt.internal.protocol.ClientMessageConst.EVENT_DEFAULT_SELECTION;
+import static org.eclipse.rap.rwt.internal.protocol.ClientMessageConst.EVENT_SELECTION;
 import static org.eclipse.rap.rwt.lifecycle.WidgetUtil.getId;
 
 import java.io.IOException;
@@ -769,7 +769,8 @@ public class GridLCA_Test extends TestCase {
     lca.renderChanges( grid );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( Boolean.TRUE, message.findListenProperty( grid, "selection" ) );
+    assertEquals( Boolean.TRUE, message.findListenProperty( grid, "Selection" ) );
+    assertEquals( Boolean.TRUE, message.findListenProperty( grid, "DefaultSelection" ) );
   }
 
   public void testRenderRemoveSelectionListener() throws Exception {
@@ -783,7 +784,8 @@ public class GridLCA_Test extends TestCase {
     lca.renderChanges( grid );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( Boolean.FALSE, message.findListenProperty( grid, "selection" ) );
+    assertEquals( Boolean.FALSE, message.findListenProperty( grid, "Selection" ) );
+    assertEquals( Boolean.FALSE, message.findListenProperty( grid, "DefaultSelection" ) );
   }
 
   public void testRenderSelectionListenerUnchanged() throws Exception {
@@ -796,7 +798,8 @@ public class GridLCA_Test extends TestCase {
     lca.renderChanges( grid );
 
     Message message = Fixture.getProtocolMessage();
-    assertNull( message.findListenOperation( grid, "selection" ) );
+    assertNull( message.findListenOperation( grid, "Selection" ) );
+    assertNull( message.findListenOperation( grid, "DefaultSelection" ) );
   }
 
   public void testRenderInitialEnableCellToolTip() throws IOException {
@@ -909,7 +912,7 @@ public class GridLCA_Test extends TestCase {
     Fixture.fakeNewRequest( display );
     Map<String, Object> parameters = new HashMap<String, Object>();
     parameters.put( ClientMessageConst.EVENT_PARAM_ITEM, getId( item ) );
-    Fixture.fakeNotifyOperation( getId( grid ), EVENT_WIDGET_SELECTED, parameters );
+    Fixture.fakeNotifyOperation( getId( grid ), EVENT_SELECTION, parameters );
     Fixture.readDataAndProcessAction( display );
 
     assertEquals( 1, events.size() );
@@ -930,7 +933,7 @@ public class GridLCA_Test extends TestCase {
     parameters.put( ClientMessageConst.EVENT_PARAM_ITEM, getId( item ) );
     parameters.put( ClientMessageConst.EVENT_PARAM_DETAIL, "check" );
     parameters.put( ClientMessageConst.EVENT_PARAM_INDEX, Integer.valueOf( 3 ) );
-    Fixture.fakeNotifyOperation( getId( grid ), EVENT_WIDGET_SELECTED, parameters );
+    Fixture.fakeNotifyOperation( getId( grid ), EVENT_SELECTION, parameters );
     Fixture.readDataAndProcessAction( display );
 
     assertEquals( 1, events.size() );
@@ -950,7 +953,7 @@ public class GridLCA_Test extends TestCase {
     Fixture.fakeNewRequest( display );
     Map<String, Object> parameters = new HashMap<String, Object>();
     parameters.put( ClientMessageConst.EVENT_PARAM_ITEM, getId( item ) );
-    Fixture.fakeNotifyOperation( getId( grid ), EVENT_WIDGET_DEFAULT_SELECTED, parameters );
+    Fixture.fakeNotifyOperation( getId( grid ), EVENT_DEFAULT_SELECTION, parameters );
     Fixture.readDataAndProcessAction( display );
 
     assertEquals( 1, events.size() );

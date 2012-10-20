@@ -38,7 +38,6 @@ import org.eclipse.rap.rwt.lifecycle.ControlLCAUtil;
 import org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil;
 import org.eclipse.rap.rwt.lifecycle.WidgetUtil;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.internal.events.EventLCAUtil;
 import org.eclipse.swt.internal.widgets.CellToolTipUtil;
 import org.eclipse.swt.internal.widgets.ICellToolTipAdapter;
@@ -81,7 +80,8 @@ public class GridLCA extends AbstractWidgetLCA {
   private static final String PROP_SORT_COLUMN = "sortColumn";
   private static final String PROP_SCROLLBARS_VISIBLE = "scrollBarsVisible";
   private static final String PROP_SCROLLBARS_SELECTION_LISTENER = "scrollBarsSelection";
-  private static final String PROP_SELECTION_LISTENER = "selection";
+  private static final String PROP_SELECTION_LISTENER = "Selection";
+  private static final String PROP_DEFAULT_SELECTION_LISTENER = "DefaultSelection";
   // TODO: [if] Sync toolTipText in GridItemLCA when it's possible on the client
   private static final String PROP_ENABLE_CELL_TOOLTIP = "enableCellToolTip";
   private static final String PROP_CELL_TOOLTIP_TEXT = "cellToolTipText";
@@ -111,8 +111,8 @@ public class GridLCA extends AbstractWidgetLCA {
     readScrollLeft( grid );
     readTopItemIndex( grid );
     readCellToolTipTextRequested( grid );
-    processSelectionEvent( grid, ClientMessageConst.EVENT_WIDGET_SELECTED );
-    processSelectionEvent( grid, ClientMessageConst.EVENT_WIDGET_DEFAULT_SELECTED );
+    processSelectionEvent( grid, ClientMessageConst.EVENT_SELECTION );
+    processSelectionEvent( grid, ClientMessageConst.EVENT_DEFAULT_SELECTION );
     ControlLCAUtil.processEvents( grid );
     ControlLCAUtil.processKeyEvents( grid );
     ControlLCAUtil.processMenuDetect( grid );
@@ -144,8 +144,11 @@ public class GridLCA extends AbstractWidgetLCA {
     preserveProperty( grid, PROP_SCROLLBARS_VISIBLE, getScrollBarsVisible( grid ) );
     preserveListener( grid,
                       PROP_SCROLLBARS_SELECTION_LISTENER,
-                      hasScrollBarsSelectionListener( grid ) );
-    preserveListener( grid, PROP_SELECTION_LISTENER, SelectionEvent.hasListener( grid ) );
+                      EventLCAUtil.hasScrollBarsSelectionListener( grid ) );
+    preserveListener( grid, PROP_SELECTION_LISTENER, grid.isListening( SWT.Selection ) );
+    preserveListener( grid,
+                      PROP_DEFAULT_SELECTION_LISTENER,
+                      grid.isListening( SWT.DefaultSelection ) );
     preserveProperty( grid, PROP_ENABLE_CELL_TOOLTIP, CellToolTipUtil.isEnabledFor( grid ) );
     preserveProperty( grid, PROP_CELL_TOOLTIP_TEXT, null );
   }
@@ -177,9 +180,13 @@ public class GridLCA extends AbstractWidgetLCA {
                     DEFAULT_SCROLLBARS_VISIBLE );
     renderListener( grid,
                     PROP_SCROLLBARS_SELECTION_LISTENER,
-                    hasScrollBarsSelectionListener( grid ),
+                    EventLCAUtil.hasScrollBarsSelectionListener( grid ),
                     false );
-    renderListener( grid, PROP_SELECTION_LISTENER, SelectionEvent.hasListener( grid ), false );
+    renderListener( grid, PROP_SELECTION_LISTENER, grid.isListening( SWT.Selection ), false );
+    renderListener( grid,
+                    PROP_DEFAULT_SELECTION_LISTENER,
+                    grid.isListening( SWT.DefaultSelection ),
+                    false );
     renderProperty( grid, PROP_ENABLE_CELL_TOOLTIP, CellToolTipUtil.isEnabledFor( grid ), false );
     renderProperty( grid, PROP_CELL_TOOLTIP_TEXT, getCellToolTipText( grid ), null );
   }
@@ -333,19 +340,6 @@ public class GridLCA extends AbstractWidgetLCA {
     return new boolean[] { horizontalBarVisible, verticalBarVisible };
   }
 
-  private static boolean hasScrollBarsSelectionListener( Grid grid ) {
-    boolean result = false;
-    ScrollBar horizontalBar = grid.getHorizontalBar();
-    if( horizontalBar != null ) {
-      result = result || horizontalBar.isListening( SWT.Selection );
-    }
-    ScrollBar verticalBar = grid.getVerticalBar();
-    if( verticalBar != null ) {
-      result = result || verticalBar.isListening( SWT.Selection );
-    }
-    return result;
-  }
-
   private static GridItem getItem( Grid grid, String itemId ) {
     return ( GridItem )WidgetUtil.find( grid, itemId );
   }
@@ -360,7 +354,7 @@ public class GridLCA extends AbstractWidgetLCA {
     if( WidgetLCAUtil.wasEventSent( grid, eventName ) ) {
       GridItem item = getItem( grid, readEventPropertyValue( grid, eventName, EVENT_PARAM_ITEM ) );
       if( item != null ) {
-        if( eventName.equals( ClientMessageConst.EVENT_WIDGET_SELECTED ) ) {
+        if( eventName.equals( ClientMessageConst.EVENT_SELECTION ) ) {
           String detail = readEventPropertyValue( grid, eventName, EVENT_PARAM_DETAIL );
           if( "check".equals( detail ) ) {
             String index = readEventPropertyValue( grid, eventName, EVENT_PARAM_INDEX );
