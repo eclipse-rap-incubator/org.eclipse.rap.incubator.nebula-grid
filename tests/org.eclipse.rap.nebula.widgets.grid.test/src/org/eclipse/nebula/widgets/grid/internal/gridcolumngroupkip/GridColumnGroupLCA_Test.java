@@ -23,7 +23,6 @@ import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridColumnGroup;
 import org.eclipse.nebula.widgets.grid.internal.gridcolumngroupkit.GridColumnGroupLCA;
 import org.eclipse.rap.rwt.RWT;
-import org.eclipse.rap.rwt.internal.protocol.ClientMessageConst;
 import org.eclipse.rap.rwt.lifecycle.WidgetUtil;
 import org.eclipse.rap.rwt.testfixture.Fixture;
 import org.eclipse.rap.rwt.testfixture.Message;
@@ -245,7 +244,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     group.addListener( SWT.Expand, new LoggingTreeListener( events ) );
     group.setExpanded( false );
 
-    Fixture.fakeNotifyOperation( getId( group ), ClientMessageConst.EVENT_EXPAND, null );
+    Fixture.fakeNotifyOperation( getId( group ), "treeExpanded", null );
     Fixture.readDataAndProcessAction( group );
 
     assertEquals( 1, events.size() );
@@ -258,7 +257,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     List<Event> events = new LinkedList<Event>();
     group.addListener( SWT.Collapse, new LoggingTreeListener( events ) );
 
-    Fixture.fakeNotifyOperation( getId( group ), ClientMessageConst.EVENT_COLLAPSE, null );
+    Fixture.fakeNotifyOperation( getId( group ), "treeCollapsed", null );
     Fixture.readDataAndProcessAction( group );
 
     assertEquals( 1, events.size() );

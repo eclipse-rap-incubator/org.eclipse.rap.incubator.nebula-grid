@@ -20,7 +20,6 @@ import org.eclipse.nebula.widgets.grid.GridColumn;
 import org.eclipse.nebula.widgets.grid.GridColumnGroup;
 import org.eclipse.rap.rwt.internal.protocol.ClientObjectFactory;
 import org.eclipse.rap.rwt.internal.protocol.IClientObject;
-import org.eclipse.rap.rwt.internal.protocol.ClientMessageConst;
 import org.eclipse.rap.rwt.internal.protocol.ProtocolUtil;
 import org.eclipse.rap.rwt.lifecycle.AbstractWidgetLCA;
 import org.eclipse.rap.rwt.lifecycle.ProcessActionRunner;
@@ -59,8 +58,8 @@ public class GridColumnGroupLCA extends AbstractWidgetLCA {
 
   public void readData( Widget widget ) {
     GridColumnGroup group = ( GridColumnGroup )widget;
-    processTreeEvent( group, ClientMessageConst.EVENT_EXPAND );
-    processTreeEvent( group, ClientMessageConst.EVENT_COLLAPSE );
+    processTreeEvent( group, "treeExpanded" );
+    processTreeEvent( group, "treeCollapsed" );
   }
 
   @Override
@@ -99,7 +98,7 @@ public class GridColumnGroupLCA extends AbstractWidgetLCA {
 
   private static void processTreeEvent( final GridColumnGroup group, String eventName ) {
     if( WidgetLCAUtil.wasEventSent( group, eventName ) ) {
-      final boolean expanded = eventName.equals( ClientMessageConst.EVENT_EXPAND );
+      final boolean expanded = eventName.equals( "treeExpanded" );
       ProcessActionRunner.add( new Runnable() {
         public void run() {
           group.setExpanded( expanded );
