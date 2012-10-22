@@ -116,8 +116,8 @@ public class GridLCA extends AbstractWidgetLCA {
     readCellToolTipTextRequested( grid );
     processSelectionEvent( grid, ClientMessageConst.EVENT_SELECTION );
     processSelectionEvent( grid, ClientMessageConst.EVENT_DEFAULT_SELECTION );
-    processTreeEvent( grid, SWT.Expand, "Expand" );
-    processTreeEvent( grid, SWT.Collapse, "Collapse" );
+    processTreeEvent( grid, SWT.Expand, ClientMessageConst.EVENT_EXPAND );
+    processTreeEvent( grid, SWT.Collapse, ClientMessageConst.EVENT_COLLAPSE );
     ControlLCAUtil.processEvents( grid );
     ControlLCAUtil.processKeyEvents( grid );
     ControlLCAUtil.processMenuDetect( grid );
