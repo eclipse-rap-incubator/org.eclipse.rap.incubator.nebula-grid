@@ -22,13 +22,11 @@ import org.eclipse.nebula.widgets.grid.internal.IGridAdapter;
 import org.eclipse.nebula.widgets.grid.internal.IGridItemAdapter;
 import org.eclipse.rap.rwt.internal.protocol.ClientObjectFactory;
 import org.eclipse.rap.rwt.internal.protocol.IClientObject;
-import org.eclipse.rap.rwt.internal.protocol.ClientMessageConst;
 import org.eclipse.rap.rwt.internal.protocol.ProtocolUtil;
 import org.eclipse.rap.rwt.lifecycle.AbstractWidgetLCA;
 import org.eclipse.rap.rwt.lifecycle.ProcessActionRunner;
 import org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil;
 import org.eclipse.rap.rwt.lifecycle.WidgetUtil;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
@@ -67,8 +65,7 @@ public class GridItemLCA extends AbstractWidgetLCA {
   public void readData( Widget widget ) {
     GridItem item = ( GridItem )widget;
     readChecked( item );
-    processTreeEvent( item, ClientMessageConst.EVENT_TREE_EXPANDED );
-    processTreeEvent( item, ClientMessageConst.EVENT_TREE_COLLAPSED );
+    readExpanded( item );
   }
 
   @Override
@@ -145,19 +142,15 @@ public class GridItemLCA extends AbstractWidgetLCA {
     }
   }
 
-  private static void processTreeEvent( final GridItem item, String eventName ) {
-    if( WidgetLCAUtil.wasEventSent( item, eventName ) ) {
-      final boolean expanded = eventName.equals( ClientMessageConst.EVENT_TREE_EXPANDED );
+  private static void readExpanded( final GridItem item ) {
+    final String expanded = WidgetLCAUtil.readPropertyValue( item, PROP_EXPANDED );
+    if( expanded != null ) {
       ProcessActionRunner.add( new Runnable() {
         public void run() {
-          item.setExpanded( expanded );
+          item.setExpanded( Boolean.valueOf( expanded ).booleanValue() );
+          preserveProperty( item, PROP_EXPANDED, item.isExpanded() );
         }
       } );
-      if( expanded ) {
-        item.fireEvent( SWT.Expand );
-      } else {
-        item.fireEvent( SWT.Collapse );
-      }
     }
   }
 

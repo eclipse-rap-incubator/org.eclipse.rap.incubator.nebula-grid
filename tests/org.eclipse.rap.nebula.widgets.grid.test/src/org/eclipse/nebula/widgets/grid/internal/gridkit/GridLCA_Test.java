@@ -1083,6 +1083,20 @@ public class GridLCA_Test extends TestCase {
     assertEquals( Boolean.TRUE, message.findCreateProperty( grid, "markupEnabled" ) );
   }
 
+  public void testRenderAddExpandListener() throws Exception {
+    lca.renderChanges( grid );
+
+    Message message = Fixture.getProtocolMessage();
+    assertEquals( Boolean.TRUE, message.findListenProperty( grid, "Expand" ) );
+  }
+
+  public void testRenderAddCollapseListener() throws Exception {
+    lca.renderChanges( grid );
+
+    Message message = Fixture.getProtocolMessage();
+    assertEquals( Boolean.TRUE, message.findListenProperty( grid, "Collapse" ) );
+  }
+
   //////////////////
   // Helping methods
 

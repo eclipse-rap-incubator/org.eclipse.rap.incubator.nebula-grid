@@ -43,6 +43,7 @@ import org.eclipse.swt.internal.widgets.CellToolTipUtil;
 import org.eclipse.swt.internal.widgets.ICellToolTipAdapter;
 import org.eclipse.swt.internal.widgets.ICellToolTipProvider;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Widget;
 
@@ -82,6 +83,8 @@ public class GridLCA extends AbstractWidgetLCA {
   private static final String PROP_SCROLLBARS_SELECTION_LISTENER = "scrollBarsSelection";
   private static final String PROP_SELECTION_LISTENER = "Selection";
   private static final String PROP_DEFAULT_SELECTION_LISTENER = "DefaultSelection";
+  private static final String PROP_EXPAND_LISTENER = "Expand";
+  private static final String PROP_COLLAPSE_LISTENER = "Collapse";
   // TODO: [if] Sync toolTipText in GridItemLCA when it's possible on the client
   private static final String PROP_ENABLE_CELL_TOOLTIP = "enableCellToolTip";
   private static final String PROP_CELL_TOOLTIP_TEXT = "cellToolTipText";
@@ -113,6 +116,8 @@ public class GridLCA extends AbstractWidgetLCA {
     readCellToolTipTextRequested( grid );
     processSelectionEvent( grid, ClientMessageConst.EVENT_SELECTION );
     processSelectionEvent( grid, ClientMessageConst.EVENT_DEFAULT_SELECTION );
+    processTreeEvent( grid, SWT.Expand, "Expand" );
+    processTreeEvent( grid, SWT.Collapse, "Collapse" );
     ControlLCAUtil.processEvents( grid );
     ControlLCAUtil.processKeyEvents( grid );
     ControlLCAUtil.processMenuDetect( grid );
@@ -149,6 +154,8 @@ public class GridLCA extends AbstractWidgetLCA {
     preserveListener( grid,
                       PROP_DEFAULT_SELECTION_LISTENER,
                       grid.isListening( SWT.DefaultSelection ) );
+    preserveListener( grid, PROP_EXPAND_LISTENER, hasExpandListener( grid ) );
+    preserveListener( grid, PROP_COLLAPSE_LISTENER, hasCollapseListener( grid ) );
     preserveProperty( grid, PROP_ENABLE_CELL_TOOLTIP, CellToolTipUtil.isEnabledFor( grid ) );
     preserveProperty( grid, PROP_CELL_TOOLTIP_TEXT, null );
   }
@@ -187,6 +194,8 @@ public class GridLCA extends AbstractWidgetLCA {
                     PROP_DEFAULT_SELECTION_LISTENER,
                     grid.isListening( SWT.DefaultSelection ),
                     false );
+    renderListener( grid, PROP_EXPAND_LISTENER, hasExpandListener( grid ), false );
+    renderListener( grid, PROP_COLLAPSE_LISTENER, hasCollapseListener( grid ), false );
     renderProperty( grid, PROP_ENABLE_CELL_TOOLTIP, CellToolTipUtil.isEnabledFor( grid ), false );
     renderProperty( grid, PROP_CELL_TOOLTIP_TEXT, getCellToolTipText( grid ), null );
   }
@@ -366,6 +375,30 @@ public class GridLCA extends AbstractWidgetLCA {
           item.fireEvent( SWT.DefaultSelection );
         }
       }
+    }
+  }
+
+  private static boolean hasExpandListener( Grid grid ) {
+    // Always render listen for Expand and Collapse, currently required for scrollbar
+    // visibility update and setData events.
+    return true;
+  }
+
+  private static boolean hasCollapseListener( Grid grid ) {
+    // Always render listen for Expand and Collapse, currently required for scrollbar
+    // visibility update and setData events.
+    return true;
+  }
+
+  /////////////////////////////////
+  // Process expand/collapse events
+
+  private static void processTreeEvent( Grid grid, int eventType, String eventName ) {
+    if( WidgetLCAUtil.wasEventSent( grid, eventName ) ) {
+      String value = readEventPropertyValue( grid, eventName, ClientMessageConst.EVENT_PARAM_ITEM );
+      Event event = new Event();
+      event.item = getItem( grid, value );
+      grid.notifyListeners( eventType, event );
     }
   }
 

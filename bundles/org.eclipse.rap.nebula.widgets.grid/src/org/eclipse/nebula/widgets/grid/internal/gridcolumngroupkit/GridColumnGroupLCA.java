@@ -59,8 +59,8 @@ public class GridColumnGroupLCA extends AbstractWidgetLCA {
 
   public void readData( Widget widget ) {
     GridColumnGroup group = ( GridColumnGroup )widget;
-    processTreeEvent( group, ClientMessageConst.EVENT_TREE_EXPANDED );
-    processTreeEvent( group, ClientMessageConst.EVENT_TREE_COLLAPSED );
+    processTreeEvent( group, ClientMessageConst.EVENT_EXPAND );
+    processTreeEvent( group, ClientMessageConst.EVENT_COLLAPSE );
   }
 
   @Override
@@ -99,7 +99,7 @@ public class GridColumnGroupLCA extends AbstractWidgetLCA {
 
   private static void processTreeEvent( final GridColumnGroup group, String eventName ) {
     if( WidgetLCAUtil.wasEventSent( group, eventName ) ) {
-      final boolean expanded = eventName.equals( ClientMessageConst.EVENT_TREE_EXPANDED );
+      final boolean expanded = eventName.equals( ClientMessageConst.EVENT_EXPAND );
       ProcessActionRunner.add( new Runnable() {
         public void run() {
           group.setExpanded( expanded );

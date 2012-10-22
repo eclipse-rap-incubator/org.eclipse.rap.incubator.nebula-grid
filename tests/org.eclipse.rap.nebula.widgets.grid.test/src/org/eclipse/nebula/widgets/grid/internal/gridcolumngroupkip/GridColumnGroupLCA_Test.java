@@ -245,7 +245,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     group.addListener( SWT.Expand, new LoggingTreeListener( events ) );
     group.setExpanded( false );
 
-    Fixture.fakeNotifyOperation( getId( group ), ClientMessageConst.EVENT_TREE_EXPANDED, null );
+    Fixture.fakeNotifyOperation( getId( group ), ClientMessageConst.EVENT_EXPAND, null );
     Fixture.readDataAndProcessAction( group );
 
     assertEquals( 1, events.size() );
@@ -258,7 +258,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     List<Event> events = new LinkedList<Event>();
     group.addListener( SWT.Collapse, new LoggingTreeListener( events ) );
 
-    Fixture.fakeNotifyOperation( getId( group ), ClientMessageConst.EVENT_TREE_COLLAPSED, null );
+    Fixture.fakeNotifyOperation( getId( group ), ClientMessageConst.EVENT_COLLAPSE, null );
     Fixture.readDataAndProcessAction( group );
 
     assertEquals( 1, events.size() );

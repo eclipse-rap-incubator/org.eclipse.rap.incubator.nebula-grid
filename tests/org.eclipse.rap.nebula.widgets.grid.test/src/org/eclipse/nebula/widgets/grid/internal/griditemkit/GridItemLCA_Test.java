@@ -14,11 +14,12 @@ import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridColumns;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridItems;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
 import static org.eclipse.nebula.widgets.grid.internal.gridkit.GridLCATestUtil.jsonEquals;
-import static org.eclipse.rap.rwt.internal.protocol.ClientMessageConst.EVENT_TREE_EXPANDED;
 import static org.eclipse.rap.rwt.lifecycle.WidgetUtil.getId;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridItem;
@@ -621,8 +622,9 @@ public class GridItemLCA_Test extends TestCase {
     grid.addListener( SWT.Expand, new LoggingTreeListener( events ) );
     new GridItem( item, SWT.NONE );
 
-    Fixture.fakeNotifyOperation( getId( item ), ClientMessageConst.EVENT_TREE_EXPANDED, null );
-    Fixture.readDataAndProcessAction( item );
+    Fixture.fakeSetParameter( getId( item ), "expanded", Boolean.TRUE );
+    fakeTreeEvent( item, ClientMessageConst.EVENT_EXPAND );
+    Fixture.readDataAndProcessAction( display );
 
     assertEquals( 1, events.size() );
     Event event = events.get( 0 );
@@ -637,8 +639,9 @@ public class GridItemLCA_Test extends TestCase {
     new GridItem( item, SWT.NONE );
     item.setExpanded( true );
 
-    Fixture.fakeNotifyOperation( getId( item ), ClientMessageConst.EVENT_TREE_COLLAPSED, null );
-    Fixture.readDataAndProcessAction( item );
+    Fixture.fakeSetParameter( getId( item ), "expanded", Boolean.FALSE );
+    fakeTreeEvent( item, ClientMessageConst.EVENT_COLLAPSE );
+    Fixture.readDataAndProcessAction( display );
 
     assertEquals( 1, events.size() );
     Event event = events.get( 0 );
@@ -653,12 +656,18 @@ public class GridItemLCA_Test extends TestCase {
     GridItem[] items = createGridItems( grid, 5, 10 );
 
     Fixture.markInitialized( grid );
-    Fixture.fakeNotifyOperation( getId( items[ 0 ] ), EVENT_TREE_EXPANDED, null );
+    Fixture.fakeSetParameter( getId( items[ 0 ] ), "expanded", Boolean.TRUE );
     Fixture.executeLifeCycleFromServerThread();
 
     Message message = Fixture.getProtocolMessage();
     JSONArray actual = ( JSONArray )message.findSetProperty( grid, "scrollBarsVisible" );
     assertTrue( jsonEquals( "[ false, true ]", actual ) );
+  }
+
+  private static void fakeTreeEvent( GridItem item, String eventName ) {
+    Map<String, Object> parameters = new HashMap<String, Object>();
+    parameters.put( ClientMessageConst.EVENT_PARAM_ITEM, getId( item ) );
+    Fixture.fakeNotifyOperation( getId( item.getParent() ), eventName, parameters );
   }
 
   //////////////////
