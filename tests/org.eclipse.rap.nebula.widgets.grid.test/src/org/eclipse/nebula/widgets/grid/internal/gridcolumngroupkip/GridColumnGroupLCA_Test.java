@@ -23,6 +23,7 @@ import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridColumnGroup;
 import org.eclipse.nebula.widgets.grid.internal.gridcolumngroupkit.GridColumnGroupLCA;
 import org.eclipse.rap.rwt.RWT;
+import org.eclipse.rap.rwt.internal.protocol.ClientMessageConst;
 import org.eclipse.rap.rwt.lifecycle.WidgetUtil;
 import org.eclipse.rap.rwt.testfixture.Fixture;
 import org.eclipse.rap.rwt.testfixture.Message;
@@ -244,25 +245,39 @@ public class GridColumnGroupLCA_Test extends TestCase {
     group.addListener( SWT.Expand, new LoggingTreeListener( events ) );
     group.setExpanded( false );
 
-    Fixture.fakeNotifyOperation( getId( group ), "treeExpanded", null );
+    Fixture.fakeNotifyOperation( getId( group ), ClientMessageConst.EVENT_EXPAND, null );
     Fixture.readDataAndProcessAction( group );
 
     assertEquals( 1, events.size() );
     Event event = events.get( 0 );
     assertEquals( group, event.widget );
-    assertTrue( group.getExpanded() );
   }
 
   public void testProcessTreeEvent_Collapsed() {
     List<Event> events = new LinkedList<Event>();
     group.addListener( SWT.Collapse, new LoggingTreeListener( events ) );
 
-    Fixture.fakeNotifyOperation( getId( group ), "treeCollapsed", null );
+    Fixture.fakeNotifyOperation( getId( group ), ClientMessageConst.EVENT_COLLAPSE, null );
     Fixture.readDataAndProcessAction( group );
 
     assertEquals( 1, events.size() );
     Event event = events.get( 0 );
     assertEquals( group, event.widget );
+  }
+
+  public void testReadExpanded_Expanded() {
+    group.setExpanded( false );
+
+    Fixture.fakeSetParameter( getId( group ), "expanded", Boolean.TRUE );
+    Fixture.readDataAndProcessAction( group );
+
+    assertTrue( group.getExpanded() );
+  }
+
+  public void testReadExpanded_Collapsed() {
+    Fixture.fakeSetParameter( getId( group ), "expanded", Boolean.FALSE );
+    Fixture.readDataAndProcessAction( group );
+
     assertFalse( group.getExpanded() );
   }
 
