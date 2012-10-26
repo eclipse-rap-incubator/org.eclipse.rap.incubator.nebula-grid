@@ -92,6 +92,20 @@ public class GridSnippet extends GridSnippetBase {
         log( "selection: " + Arrays.toString( grid.getSelection() ) );
       }
     } );
+    grid.getHorizontalBar().addSelectionListener( new SelectionAdapter() {
+      @Override
+      public void widgetSelected( SelectionEvent event ) {
+        log( "horizontal croll widgetSelected: " + event );
+        log( "selection: " + grid.getHorizontalBar().getSelection() );
+      }
+    } );
+    grid.getVerticalBar().addSelectionListener( new SelectionAdapter() {
+      @Override
+      public void widgetSelected( SelectionEvent event ) {
+        log( "vertical scroll widgetSelected: " + event );
+        log( "selection: " + grid.getVerticalBar().getSelection() );
+      }
+    } );
   }
 
   private void createGridColumns() {
