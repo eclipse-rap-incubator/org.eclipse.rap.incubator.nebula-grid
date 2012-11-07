@@ -276,7 +276,7 @@ public class GridItemLCA_Test extends TestCase {
 
     Message message = Fixture.getProtocolMessage();
     JSONArray actual = ( JSONArray )message.findSetProperty( item, "images" );
-    String expected = "[\"rwt-resources/generated/90fb0bfe\",58,12]";
+    String expected = "[\"rwt-resources/generated/90fb0bfe.gif\",58,12]";
     assertEquals( JSONObject.NULL, actual.get( 0 ) );
     assertTrue( jsonEquals( expected, actual.getJSONArray( 1 ) ) );
   }
