@@ -38,10 +38,10 @@ import org.eclipse.rap.rwt.lifecycle.ControlLCAUtil;
 import org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil;
 import org.eclipse.rap.rwt.lifecycle.WidgetUtil;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.internal.events.EventLCAUtil;
 import org.eclipse.swt.internal.widgets.CellToolTipUtil;
 import org.eclipse.swt.internal.widgets.ICellToolTipAdapter;
 import org.eclipse.swt.internal.widgets.ICellToolTipProvider;
+import org.eclipse.swt.internal.widgets.ScrollBarLCAUtil;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.ScrollBar;
@@ -79,10 +79,9 @@ public class GridLCA extends AbstractWidgetLCA {
   // possible on the client
   private static final String PROP_SORT_DIRECTION = "sortDirection";
   private static final String PROP_SORT_COLUMN = "sortColumn";
-  private static final String PROP_SCROLLBARS_VISIBLE = "scrollBarsVisible";
-  private static final String PROP_SCROLLBARS_SELECTION_LISTENER = "scrollBarsSelection";
   private static final String PROP_SELECTION_LISTENER = "Selection";
   private static final String PROP_DEFAULT_SELECTION_LISTENER = "DefaultSelection";
+  private static final String PROP_SETDATA_LISTENER = "SetData";
   private static final String PROP_EXPAND_LISTENER = "Expand";
   private static final String PROP_COLLAPSE_LISTENER = "Collapse";
   // TODO: [if] Sync toolTipText in GridItemLCA when it's possible on the client
@@ -93,7 +92,6 @@ public class GridLCA extends AbstractWidgetLCA {
   private static final int ZERO = 0 ;
   private static final String[] DEFAULT_SELECTION = new String[ 0 ];
   private static final String DEFAULT_SORT_DIRECTION = "none";
-  private static final boolean[] DEFAULT_SCROLLBARS_VISIBLE = new boolean[] { false, false };
 
   @Override
   public void renderInitialization( Widget widget ) throws IOException {
@@ -106,6 +104,7 @@ public class GridLCA extends AbstractWidgetLCA {
     IGridAdapter adapter = getGridAdapter( grid );
     clientObject.set( "indentionWidth", adapter.getIndentationWidth() );
     clientObject.set( PROP_MARKUP_ENABLED, isMarkupEnabled( grid ) );
+    ScrollBarLCAUtil.renderInitialization( grid );
   }
 
   public void readData( Widget widget ) {
@@ -122,7 +121,7 @@ public class GridLCA extends AbstractWidgetLCA {
     ControlLCAUtil.processKeyEvents( grid );
     ControlLCAUtil.processMenuDetect( grid );
     WidgetLCAUtil.processHelp( grid );
-    EventLCAUtil.processScrollBarSelection( grid );
+    ScrollBarLCAUtil.processSelectionEvent( grid );
   }
 
   @Override
@@ -146,18 +145,16 @@ public class GridLCA extends AbstractWidgetLCA {
     preserveProperty( grid, PROP_SELECTION, getSelection( grid ) );
     preserveProperty( grid, PROP_SORT_DIRECTION, getSortDirection( grid ) );
     preserveProperty( grid, PROP_SORT_COLUMN, getSortColumn( grid ) );
-    preserveProperty( grid, PROP_SCROLLBARS_VISIBLE, getScrollBarsVisible( grid ) );
-    preserveListener( grid,
-                      PROP_SCROLLBARS_SELECTION_LISTENER,
-                      EventLCAUtil.hasScrollBarsSelectionListener( grid ) );
     preserveListener( grid, PROP_SELECTION_LISTENER, grid.isListening( SWT.Selection ) );
     preserveListener( grid,
                       PROP_DEFAULT_SELECTION_LISTENER,
                       grid.isListening( SWT.DefaultSelection ) );
+    preserveListener( grid, PROP_SETDATA_LISTENER, listensToSetData( grid ) );
     preserveListener( grid, PROP_EXPAND_LISTENER, hasExpandListener( grid ) );
     preserveListener( grid, PROP_COLLAPSE_LISTENER, hasCollapseListener( grid ) );
     preserveProperty( grid, PROP_ENABLE_CELL_TOOLTIP, CellToolTipUtil.isEnabledFor( grid ) );
     preserveProperty( grid, PROP_CELL_TOOLTIP_TEXT, null );
+    ScrollBarLCAUtil.preserveValues( grid );
   }
 
   @Override
@@ -181,23 +178,17 @@ public class GridLCA extends AbstractWidgetLCA {
     renderProperty( grid, PROP_SELECTION, getSelection( grid ), DEFAULT_SELECTION );
     renderProperty( grid, PROP_SORT_DIRECTION, getSortDirection( grid ), DEFAULT_SORT_DIRECTION );
     renderProperty( grid, PROP_SORT_COLUMN, getSortColumn( grid ), null );
-    renderProperty( grid,
-                    PROP_SCROLLBARS_VISIBLE,
-                    getScrollBarsVisible( grid ),
-                    DEFAULT_SCROLLBARS_VISIBLE );
-    renderListener( grid,
-                    PROP_SCROLLBARS_SELECTION_LISTENER,
-                    EventLCAUtil.hasScrollBarsSelectionListener( grid ),
-                    false );
     renderListener( grid, PROP_SELECTION_LISTENER, grid.isListening( SWT.Selection ), false );
     renderListener( grid,
                     PROP_DEFAULT_SELECTION_LISTENER,
                     grid.isListening( SWT.DefaultSelection ),
                     false );
+    renderListener( grid, PROP_SETDATA_LISTENER, listensToSetData( grid ), false );
     renderListener( grid, PROP_EXPAND_LISTENER, hasExpandListener( grid ), false );
     renderListener( grid, PROP_COLLAPSE_LISTENER, hasCollapseListener( grid ), false );
     renderProperty( grid, PROP_ENABLE_CELL_TOOLTIP, CellToolTipUtil.isEnabledFor( grid ), false );
     renderProperty( grid, PROP_CELL_TOOLTIP_TEXT, getCellToolTipText( grid ), null );
+    ScrollBarLCAUtil.renderChanges( grid );
   }
 
   @Override
@@ -275,6 +266,10 @@ public class GridLCA extends AbstractWidgetLCA {
   //////////////////
   // Helping methods
 
+  private boolean listensToSetData( Grid grid ) {
+    return ( grid.getStyle() & SWT.VIRTUAL ) != 0;
+  }
+
   private static boolean isMarkupEnabled( Grid grid ) {
     return Boolean.TRUE.equals( grid.getData( RWT.MARKUP_ENABLED ) );
   }
@@ -333,20 +328,6 @@ public class GridLCA extends AbstractWidgetLCA {
       }
     }
     return result;
-  }
-
-  private static boolean[] getScrollBarsVisible( Grid grid ) {
-    boolean horizontalBarVisible = false;
-    ScrollBar horizontalBar = grid.getHorizontalBar();
-    if( horizontalBar != null ) {
-      horizontalBarVisible = horizontalBar.getVisible();
-    }
-    boolean verticalBarVisible = false;
-    ScrollBar verticalBar = grid.getVerticalBar();
-    if( verticalBar != null ) {
-      verticalBarVisible = verticalBar.getVisible();
-    }
-    return new boolean[] { horizontalBarVisible, verticalBarVisible };
   }
 
   private static GridItem getItem( Grid grid, String itemId ) {
