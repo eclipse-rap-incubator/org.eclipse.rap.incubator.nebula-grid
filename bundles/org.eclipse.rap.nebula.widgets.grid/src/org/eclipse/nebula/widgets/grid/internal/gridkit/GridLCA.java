@@ -197,11 +197,6 @@ public class GridLCA extends AbstractWidgetLCA {
     getGridAdapter( grid ).doRedraw();
   }
 
-  @Override
-  public void renderDispose( Widget widget ) throws IOException {
-    ClientObjectFactory.getClientObject( widget ).destroy();
-  }
-
   ////////////////////////////////////////////
   // Helping methods to read client-side state
 

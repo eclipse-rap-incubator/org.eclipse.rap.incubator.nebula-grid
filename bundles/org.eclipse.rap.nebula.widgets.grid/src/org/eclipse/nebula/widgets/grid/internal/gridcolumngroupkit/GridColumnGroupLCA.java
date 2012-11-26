@@ -98,11 +98,6 @@ public class GridColumnGroupLCA extends AbstractWidgetLCA {
     renderListener( group, PROP_COLLAPSE_LISTENER, hasCollapseListener( group ), false );
   }
 
-  @Override
-  public void renderDispose( Widget widget ) throws IOException {
-    ClientObjectFactory.getClientObject( widget ).destroy();
-  }
-
   ////////////////////////////////////////////
   // Helping methods to read client-side state
 
