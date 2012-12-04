@@ -13,14 +13,14 @@ package org.eclipse.rap.nebula.widgets.grid.snippets.internal;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.eclipse.rap.rwt.lifecycle.IEntryPoint;
+import org.eclipse.rap.rwt.application.EntryPoint;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 
-public abstract class GridSnippetBase implements IEntryPoint {
+public abstract class GridSnippetBase implements EntryPoint {
 
   public int createUI() {
     Display display = new Display();
