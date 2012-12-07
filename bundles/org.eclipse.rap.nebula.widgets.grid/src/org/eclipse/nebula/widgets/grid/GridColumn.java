@@ -986,15 +986,13 @@ public class GridColumn extends Item {
 
   private int getPreferredWidth() {
     int headerWidth = 0;
-    if( parent.getHeaderVisible() ) {
-      String headerText = getText();
-      Image headerImage = getImage();
-      headerWidth = getContentWidth( getHeaderFont(), headerText, headerImage );
-      if( sortStyle != SWT.NONE ) {
-        headerWidth += SORT_INDICATOR_WIDTH;
-        if( headerText.length() > 0 || headerImage != null ) {
-          headerWidth += MARGIN_IMAGE;
-        }
+    String headerText = getText();
+    Image headerImage = getImage();
+    headerWidth = getContentWidth( getHeaderFont(), headerText, headerImage );
+    if( sortStyle != SWT.NONE ) {
+      headerWidth += SORT_INDICATOR_WIDTH;
+      if( headerText.length() > 0 || headerImage != null ) {
+        headerWidth += MARGIN_IMAGE;
       }
     }
     int footerWidth = 0;

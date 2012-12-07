@@ -672,6 +672,7 @@ public class GridColumn_Test extends TestCase {
     GridItem item = new GridItem( grid, SWT.NONE );
     item.setExpanded( true );
     new GridItem( item, SWT.NONE );
+    columns[ 0 ].setText( "" );
 
     columns[ 0 ].pack();
 
@@ -683,10 +684,11 @@ public class GridColumn_Test extends TestCase {
     GridItem item = new GridItem( grid, SWT.NONE );
     item.setExpanded( true );
     new GridItem( item, SWT.NONE );
+    columns[ 1 ].setText( "" );
 
     columns[ 1 ].pack();
 
-    assertEquals( 12, columns[ 1 ].getWidth() );
+    assertEquals( 16, columns[ 1 ].getWidth() );
   }
 
   public void testPack_TreeColumn() {
