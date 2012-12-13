@@ -17,9 +17,11 @@ import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
 import java.util.ArrayList;
 import java.util.List;
 
+import junit.framework.TestCase;
+
 import org.eclipse.rap.rwt.internal.service.ContextProvider;
+import org.eclipse.rap.rwt.internal.service.ServiceStore;
 import org.eclipse.rap.rwt.lifecycle.PhaseId;
-import org.eclipse.rap.rwt.service.IServiceStore;
 import org.eclipse.rap.rwt.testfixture.Fixture;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlAdapter;
@@ -34,8 +36,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
-
-import junit.framework.TestCase;
 
 
 @SuppressWarnings("restriction")
@@ -825,7 +825,7 @@ public class GridColumn_Test extends TestCase {
   // Helping methods
 
   private void markTemporaryResize( boolean value ) {
-    IServiceStore serviceStore = ContextProvider.getServiceStore();
+    ServiceStore serviceStore = ContextProvider.getServiceStore();
     String key = "org.eclipse.rap.rwt.internal.textsize.TextSizeRecalculation#temporaryResize";
     serviceStore.setAttribute( key, Boolean.valueOf( value ) );
   }
