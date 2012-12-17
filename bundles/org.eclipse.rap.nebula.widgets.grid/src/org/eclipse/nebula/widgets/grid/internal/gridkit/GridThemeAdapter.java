@@ -11,12 +11,12 @@
 package org.eclipse.nebula.widgets.grid.internal.gridkit;
 
 import org.eclipse.swt.graphics.*;
-import org.eclipse.swt.internal.widgets.controlkit.ControlThemeAdapter;
+import org.eclipse.swt.internal.widgets.controlkit.ControlThemeAdapterImpl;
 import org.eclipse.swt.widgets.Control;
 
 
 @SuppressWarnings("restriction")
-public final class GridThemeAdapter extends ControlThemeAdapter {
+public final class GridThemeAdapter extends ControlThemeAdapterImpl {
 
   @Override
   public Font getFont( Control control ) {
