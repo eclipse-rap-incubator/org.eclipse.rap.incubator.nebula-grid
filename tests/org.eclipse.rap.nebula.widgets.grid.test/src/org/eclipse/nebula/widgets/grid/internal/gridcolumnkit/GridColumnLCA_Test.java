@@ -65,7 +65,7 @@ public class GridColumnLCA_Test extends TestCase {
     grid = new Grid( shell, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL );
     column = new GridColumn( grid, SWT.NONE );
     lca = ( GridColumnLCA )WidgetUtil.getLCA( column );
-    Fixture.fakeNewRequest( display );
+    Fixture.fakeNewRequest();
   }
 
   @Override
@@ -524,12 +524,12 @@ public class GridColumnLCA_Test extends TestCase {
     columns[ 1 ].addListener( SWT.Move, new LoggingControlListener( events ) );
 
     // Simulate request that initializes widgets
-    Fixture.fakeNewRequest( display );
+    Fixture.fakeNewRequest();
     Fixture.executeLifeCycleFromServerThread();
     // Simulate request that changes column width
     int newWidth = columns[ 0 ].getWidth() + 2;
     int newLeft = column.getWidth() + newWidth;
-    Fixture.fakeNewRequest( display );
+    Fixture.fakeNewRequest();
     Map<String, Object> parameters = new HashMap<String, Object>();
     parameters.put( "width", Integer.valueOf( newWidth ) );
     Fixture.fakeCallOperation( getId( columns[ 0 ] ), "resize", parameters );
@@ -554,11 +554,11 @@ public class GridColumnLCA_Test extends TestCase {
     columns[ 1 ].addListener( SWT.Move, new LoggingControlListener( events ) );
 
     // Simulate request that initializes widgets
-    Fixture.fakeNewRequest( display );
+    Fixture.fakeNewRequest();
     Fixture.executeLifeCycleFromServerThread();
     // Simulate request that changes column left
     int newLeft = 3;
-    Fixture.fakeNewRequest( display );
+    Fixture.fakeNewRequest();
     Map<String, Object> parameters = new HashMap<String, Object>();
     parameters.put( "left", Integer.valueOf( newLeft ) );
     Fixture.fakeCallOperation( getId( columns[ 0 ] ), "move", parameters );
@@ -825,7 +825,7 @@ public class GridColumnLCA_Test extends TestCase {
       }
     } );
 
-    Fixture.fakeNewRequest( display );
+    Fixture.fakeNewRequest();
     Fixture.fakeNotifyOperation( getId( column ), ClientMessageConst.EVENT_SELECTION, null );
     Fixture.readDataAndProcessAction( column );
 

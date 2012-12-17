@@ -61,7 +61,7 @@ public class GridItemLCA_Test extends TestCase {
     grid = new Grid( shell, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL );
     item = new GridItem( grid, SWT.NONE );
     lca = new GridItemLCA();
-    Fixture.fakeNewRequest( display );
+    Fixture.fakeNewRequest();
   }
 
   @Override

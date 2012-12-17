@@ -61,7 +61,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     grid = new Grid( shell, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL );
     group = new GridColumnGroup( grid, SWT.NONE );
     lca = ( GridColumnGroupLCA )WidgetUtil.getLCA( group );
-    Fixture.fakeNewRequest( display );
+    Fixture.fakeNewRequest();
   }
 
   @Override

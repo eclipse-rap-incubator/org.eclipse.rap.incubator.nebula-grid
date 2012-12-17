@@ -68,7 +68,7 @@ public class GridLCA_Test extends TestCase {
     shell = new Shell( display );
     grid = new Grid( shell, SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL );
     lca = ( GridLCA )WidgetUtil.getLCA( grid );
-    Fixture.fakeNewRequest( display );
+    Fixture.fakeNewRequest();
   }
 
   @Override
@@ -866,7 +866,7 @@ public class GridLCA_Test extends TestCase {
 
   public void testReadSelection() {
     GridItem[] items = createGridItems( grid, 3, 0 );
-    Fixture.fakeNewRequest( display );
+    Fixture.fakeNewRequest();
     Fixture.fakeSetParameter( getId( grid ),
                               "selection",
                               new String[] { getId( items[ 0 ] ), getId( items[ 2 ] ) } );
@@ -882,7 +882,7 @@ public class GridLCA_Test extends TestCase {
     GridItem[] items = createGridItems( grid, 3, 0 );
     items[ 0 ].dispose();
 
-    Fixture.fakeNewRequest( display );
+    Fixture.fakeNewRequest();
     Fixture.fakeSetParameter( getId( grid ),
                               "selection",
                               new String[] { getId( items[ 0 ] ), getId( items[ 2 ] ) } );
@@ -898,7 +898,7 @@ public class GridLCA_Test extends TestCase {
     createGridColumns( grid, 5, SWT.NONE );
     createGridItems( grid, 10, 0 );
 
-    Fixture.fakeNewRequest( display );
+    Fixture.fakeNewRequest();
     Fixture.fakeSetParameter( getId( grid ), "scrollLeft", Integer.valueOf( 30 ) );
     Fixture.readDataAndProcessAction( grid );
 
@@ -911,7 +911,7 @@ public class GridLCA_Test extends TestCase {
     GridItem[] items = createGridItems( grid, 10, 3 );
     items[ 4 ].setExpanded( true );
 
-    Fixture.fakeNewRequest( display );
+    Fixture.fakeNewRequest();
     Fixture.fakeSetParameter( getId( grid ), "topItemIndex", Integer.valueOf( 3 ) );
     Fixture.readDataAndProcessAction( grid );
 
@@ -924,7 +924,7 @@ public class GridLCA_Test extends TestCase {
     GridItem item = new GridItem( grid, SWT.NONE );
     grid.addListener( SWT.Selection, new LoggingListener( events ) );
 
-    Fixture.fakeNewRequest( display );
+    Fixture.fakeNewRequest();
     Map<String, Object> parameters = new HashMap<String, Object>();
     parameters.put( ClientMessageConst.EVENT_PARAM_ITEM, getId( item ) );
     Fixture.fakeNotifyOperation( getId( grid ), EVENT_SELECTION, parameters );
@@ -943,7 +943,7 @@ public class GridLCA_Test extends TestCase {
     GridItem item = new GridItem( grid, SWT.NONE );
     grid.addListener( SWT.Selection, new LoggingListener( events ) );
 
-    Fixture.fakeNewRequest( display );
+    Fixture.fakeNewRequest();
     Map<String, Object> parameters = new HashMap<String, Object>();
     parameters.put( ClientMessageConst.EVENT_PARAM_ITEM, getId( item ) );
     parameters.put( ClientMessageConst.EVENT_PARAM_DETAIL, "check" );
@@ -965,7 +965,7 @@ public class GridLCA_Test extends TestCase {
     GridItem item = new GridItem( grid, SWT.NONE );
     grid.addListener( SWT.DefaultSelection, new LoggingListener( events ) );
 
-    Fixture.fakeNewRequest( display );
+    Fixture.fakeNewRequest();
     Map<String, Object> parameters = new HashMap<String, Object>();
     parameters.put( ClientMessageConst.EVENT_PARAM_ITEM, getId( item ) );
     Fixture.fakeNotifyOperation( getId( grid ), EVENT_DEFAULT_SELECTION, parameters );
@@ -1139,7 +1139,7 @@ public class GridLCA_Test extends TestCase {
   // Helping methods
 
   private static void processCellToolTipRequest( Grid grid, String itemId, int column ) {
-    Fixture.fakeNewRequest( grid.getDisplay() );
+    Fixture.fakeNewRequest();
     Map<String, Object> parameters = new HashMap<String, Object>();
     parameters.put( "item", itemId );
     parameters.put( "column", Integer.valueOf( column ) );
