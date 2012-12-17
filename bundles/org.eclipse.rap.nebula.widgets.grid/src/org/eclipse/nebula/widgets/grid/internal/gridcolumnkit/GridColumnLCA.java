@@ -30,7 +30,7 @@ import org.eclipse.rap.rwt.internal.protocol.ProtocolUtil;
 import org.eclipse.rap.rwt.internal.util.NumberFormatUtil;
 import org.eclipse.rap.rwt.lifecycle.AbstractWidgetLCA;
 import org.eclipse.rap.rwt.lifecycle.ControlLCAUtil;
-import org.eclipse.rap.rwt.lifecycle.IWidgetAdapter;
+import org.eclipse.rap.rwt.lifecycle.WidgetAdapter;
 import org.eclipse.rap.rwt.lifecycle.ProcessActionRunner;
 import org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil;
 import org.eclipse.rap.rwt.lifecycle.WidgetUtil;
@@ -179,7 +179,7 @@ public class GridColumnLCA extends AbstractWidgetLCA {
     if( Arrays.equals( columnOrder, grid.getColumnOrder() ) ) {
       GridColumn[] columns = grid.getColumns();
       for( int i = 0; i < columns.length; i++ ) {
-        IWidgetAdapter adapter = WidgetUtil.getAdapter( columns[ i ] );
+        WidgetAdapter adapter = WidgetUtil.getAdapter( columns[ i ] );
         adapter.preserve( PROP_LEFT, null );
       }
     } else {
@@ -188,7 +188,7 @@ public class GridColumnLCA extends AbstractWidgetLCA {
       } catch( IllegalArgumentException exception ) {
         // move the column in/out of a group is invalid
       } finally {
-        IWidgetAdapter adapter = WidgetUtil.getAdapter( column );
+        WidgetAdapter adapter = WidgetUtil.getAdapter( column );
         adapter.preserve( PROP_LEFT, null );
       }
     }
