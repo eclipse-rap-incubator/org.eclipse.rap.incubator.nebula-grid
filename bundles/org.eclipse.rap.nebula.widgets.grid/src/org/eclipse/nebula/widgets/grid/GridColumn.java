@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 EclipseSource and others.
+ * Copyright (c) 2012, 2013 EclipseSource and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,7 +10,7 @@
  ******************************************************************************/
 package org.eclipse.nebula.widgets.grid;
 
-import org.eclipse.rap.rwt.graphics.Graphics;
+import org.eclipse.rap.rwt.internal.textsize.TextSizeUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.SelectionListener;
@@ -36,6 +36,7 @@ import org.eclipse.swt.widgets.TypedListener;
  * <dd>Move, Resize, Selection, Show, Hide</dd>
  * </dl>
  */
+@SuppressWarnings( "restriction" )
 public class GridColumn extends Item {
 
   private static final int SORT_INDICATOR_WIDTH = 10;
@@ -1005,7 +1006,7 @@ public class GridColumn extends Item {
   private int getContentWidth( Font font, String text, Image image ) {
     int contentWidth = 0;
     if( text.length() > 0 ) {
-      contentWidth += Graphics.textExtent( font, text, 0 ).x;
+      contentWidth += TextSizeUtil.textExtent( font, text, 0 ).x;
     }
     if( image != null ) {
       contentWidth += image.getBounds().width;

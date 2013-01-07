@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 EclipseSource and others.
+ * Copyright (c) 2012, 2013 EclipseSource and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.eclipse.nebula.widgets.grid.internal.IGridItemAdapter;
-import org.eclipse.rap.rwt.graphics.Graphics;
+import org.eclipse.rap.rwt.internal.textsize.TextSizeUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
@@ -1366,7 +1366,7 @@ public class GridItem extends Item {
     int result = 0;
     String text = getItemData( index ).text;
     if( text.length() > 0 ) {
-      result += Graphics.stringExtent( internalGetFont( index ), text ).x;
+      result += TextSizeUtil.stringExtent( internalGetFont( index ), text ).x;
     }
     return result;
   }

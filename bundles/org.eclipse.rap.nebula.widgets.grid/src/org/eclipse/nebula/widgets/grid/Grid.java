@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 EclipseSource and others.
+ * Copyright (c) 2012, 2013 EclipseSource and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,7 +20,6 @@ import org.eclipse.nebula.widgets.grid.internal.NullScrollBarProxy;
 import org.eclipse.nebula.widgets.grid.internal.ScrollBarProxyAdapter;
 import org.eclipse.nebula.widgets.grid.internal.gridkit.GridThemeAdapter;
 import org.eclipse.rap.rwt.RWT;
-import org.eclipse.rap.rwt.graphics.Graphics;
 import org.eclipse.rap.rwt.internal.textsize.TextSizeUtil;
 import org.eclipse.rap.rwt.internal.theme.IThemeAdapter;
 import org.eclipse.swt.SWT;
@@ -2682,7 +2681,7 @@ public class Grid extends Canvas {
   }
 
   private int computeItemHeight() {
-    int result = Math.max( getItemImageSize().y, Graphics.getCharHeight( getFont() ) );
+    int result = Math.max( getItemImageSize().y, TextSizeUtil.getCharHeight( getFont() ) );
     if( hasCheckBoxes() ) {
       result = Math.max( getCheckBoxImageOuterSize().y, result );
     }
@@ -2740,9 +2739,9 @@ public class Grid extends Canvas {
     int result = minHeight;
     int textHeight = 0;
     if( text.contains( "\n" ) ) {
-      textHeight = Graphics.textExtent( font, text, 0 ).y;
+      textHeight = TextSizeUtil.textExtent( font, text, 0 ).y;
     } else {
-      textHeight = Graphics.getCharHeight( font );
+      textHeight = TextSizeUtil.getCharHeight( font );
     }
     result = Math.max( result, textHeight );
     int imageHeight = image == null ? 0 : image.getBounds().height;
