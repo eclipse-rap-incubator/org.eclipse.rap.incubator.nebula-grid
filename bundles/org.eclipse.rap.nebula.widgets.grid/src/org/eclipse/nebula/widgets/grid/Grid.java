@@ -23,8 +23,8 @@ import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.internal.textsize.TextSizeUtil;
 import org.eclipse.rap.rwt.internal.theme.IThemeAdapter;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlAdapter;
+import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TreeListener;
@@ -1669,8 +1669,8 @@ public class Grid extends Canvas {
     if( cellSelectionEnabled ) {
       int index = indexOf( item );
       if( index != -1 ) {
-        for( Iterator iterатор = selectedCells.iterator(); iterатор.hasNext(); ) {
-          Point cell = ( Point )iterатор.next();
+        for( Iterator iterator = selectedCells.iterator(); iterator.hasNext(); ) {
+          Point cell = ( Point )iterator.next();
           if( cell.y == index ) {
             result = true;
           }
