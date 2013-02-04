@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 EclipseSource and others.
+ * Copyright (c) 2012, 2013 EclipseSource and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,8 @@
 package org.eclipse.rap.nebula.widgets.grid.snippets;
 
 import java.util.Arrays;
+
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridColumn;
 import org.eclipse.nebula.widgets.grid.GridColumnGroup;
@@ -31,6 +33,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 @SuppressWarnings("serial")
@@ -54,6 +57,7 @@ public class GridSnippet extends GridSnippetBase {
     createShowColumnGroup( parent );
     createShowHeaderButton( parent );
     createShowFooterButton( parent );
+    createQueryFocusItem( parent );
   }
 
   @Override
@@ -342,6 +346,19 @@ public class GridSnippet extends GridSnippetBase {
       public void widgetSelected( SelectionEvent event ) {
         grid.setFooterVisible( button.getSelection() );
       };
+    } );
+  }
+
+  private void createQueryFocusItem( Composite parent ) {
+    Button button = new Button( parent, SWT.PUSH );
+    button.setText( "Query focusItem" );
+    button.addSelectionListener( new SelectionAdapter() {
+      @Override
+      public void widgetSelected( SelectionEvent e ) {
+        Shell shell = grid.getShell();
+        String msg = "Current focusItem: " + grid.getFocusItem();
+        MessageDialog.openInformation( shell, "Information", msg );
+      }
     } );
   }
 

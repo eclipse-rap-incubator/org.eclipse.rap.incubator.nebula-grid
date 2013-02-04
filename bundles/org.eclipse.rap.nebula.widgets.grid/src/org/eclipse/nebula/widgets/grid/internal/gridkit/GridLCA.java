@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 EclipseSource and others.
+ * Copyright (c) 2012, 2013 EclipseSource and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,9 +28,9 @@ import org.eclipse.nebula.widgets.grid.GridColumn;
 import org.eclipse.nebula.widgets.grid.GridItem;
 import org.eclipse.nebula.widgets.grid.internal.IGridAdapter;
 import org.eclipse.rap.rwt.RWT;
+import org.eclipse.rap.rwt.internal.protocol.ClientMessageConst;
 import org.eclipse.rap.rwt.internal.protocol.ClientObjectFactory;
 import org.eclipse.rap.rwt.internal.protocol.IClientObject;
-import org.eclipse.rap.rwt.internal.protocol.ClientMessageConst;
 import org.eclipse.rap.rwt.internal.protocol.ProtocolUtil;
 import org.eclipse.rap.rwt.internal.util.NumberFormatUtil;
 import org.eclipse.rap.rwt.lifecycle.AbstractWidgetLCA;
@@ -112,6 +112,7 @@ public class GridLCA extends AbstractWidgetLCA {
     readSelection( grid );
     readScrollLeft( grid );
     readTopItemIndex( grid );
+    readFocusItem( grid );
     readCellToolTipTextRequested( grid );
     processSelectionEvent( grid, ClientMessageConst.EVENT_SELECTION );
     processSelectionEvent( grid, ClientMessageConst.EVENT_DEFAULT_SELECTION );
@@ -232,6 +233,16 @@ public class GridLCA extends AbstractWidgetLCA {
       int topOffset = NumberFormatUtil.parseInt( topItemIndex );
       getGridAdapter( grid ).invalidateTopIndex();
       processScrollBarSelection( grid.getVerticalBar(), topOffset );
+    }
+  }
+
+  private static void readFocusItem( Grid grid ) {
+    String value = WidgetLCAUtil.readPropertyValue( grid, "focusItem" );
+    if( value != null ) {
+      GridItem item = getItem( grid, value );
+      if( item != null ) {
+        grid.setFocusItem( item );
+      }
     }
   }
 

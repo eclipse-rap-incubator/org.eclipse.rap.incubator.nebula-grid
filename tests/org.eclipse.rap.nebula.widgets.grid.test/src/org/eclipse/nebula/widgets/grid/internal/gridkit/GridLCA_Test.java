@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 EclipseSource and others.
+ * Copyright (c) 2012, 2013 EclipseSource and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,6 +25,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import junit.framework.TestCase;
+
 import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridColumn;
 import org.eclipse.nebula.widgets.grid.GridItem;
@@ -49,8 +51,6 @@ import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
 import org.json.JSONArray;
 import org.json.JSONException;
-
-import junit.framework.TestCase;
 
 
 @SuppressWarnings("restriction")
@@ -1133,6 +1133,15 @@ public class GridLCA_Test extends TestCase {
 
     Message message = Fixture.getProtocolMessage();
     assertNull( message.findListenOperation( grid, "SetData" ) );
+  }
+
+  public void testReadFocusItem() {
+    GridItem[] items = createGridItems( grid, 3, 1 );
+
+    Fixture.fakeSetParameter( getId( grid ), "focusItem", getId( items[ 2 ] ) );
+    lca.readData( grid );
+
+    assertSame( items[ 2 ], grid.getFocusItem() );
   }
 
   //////////////////
