@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 EclipseSource and others.
+ * Copyright (c) 2012, 2013 EclipseSource and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import junit.framework.TestCase;
+
 import org.eclipse.rap.rwt.lifecycle.PhaseId;
 import org.eclipse.rap.rwt.testfixture.Fixture;
 import org.eclipse.swt.SWT;
@@ -30,8 +32,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
-
-import junit.framework.TestCase;
 
 
 public class GridItem_Test extends TestCase {
@@ -492,6 +492,7 @@ public class GridItem_Test extends TestCase {
 
     try {
       item.getFont( 10 );
+      fail();
     } catch( IndexOutOfBoundsException expected ) {
     }
   }
@@ -504,6 +505,7 @@ public class GridItem_Test extends TestCase {
 
     try {
       item.setFont( 1, font );
+      fail();
     } catch( IllegalArgumentException expected ) {
     }
   }
@@ -553,6 +555,7 @@ public class GridItem_Test extends TestCase {
 
     try {
       item.getBackground( 10 );
+      fail();
     } catch( IndexOutOfBoundsException expected ) {
     }
   }
@@ -565,6 +568,7 @@ public class GridItem_Test extends TestCase {
 
     try {
       item.setBackground( 1, background );
+      fail();
     } catch( IllegalArgumentException expected ) {
     }
   }
@@ -614,6 +618,7 @@ public class GridItem_Test extends TestCase {
 
     try {
       item.getForeground( 10 );
+      fail();
     } catch( IndexOutOfBoundsException expected ) {
     }
   }
@@ -626,6 +631,7 @@ public class GridItem_Test extends TestCase {
 
     try {
       item.setForeground( 1, foreground );
+      fail();
     } catch( IllegalArgumentException expected ) {
     }
   }
@@ -710,6 +716,7 @@ public class GridItem_Test extends TestCase {
 
     try {
       item.getImage( 10 );
+      fail();
     } catch( IndexOutOfBoundsException expected ) {
     }
   }
@@ -722,6 +729,7 @@ public class GridItem_Test extends TestCase {
 
     try {
       item.setImage( 1, image );
+      fail();
     } catch( IllegalArgumentException expected ) {
     }
   }
@@ -757,6 +765,7 @@ public class GridItem_Test extends TestCase {
 
     try {
       item.getChecked( 10 );
+      fail();
     } catch( IndexOutOfBoundsException expected ) {
     }
   }
@@ -792,8 +801,44 @@ public class GridItem_Test extends TestCase {
 
     try {
       item.getGrayed( 10 );
+      fail();
     } catch( IndexOutOfBoundsException expected ) {
     }
+  }
+
+  public void testGetCheckable_Inital() {
+    createGridColumns( grid, 3, SWT.NONE );
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    assertTrue( item.getCheckable( 1 ) );
+  }
+
+  public void testGetCheckable() {
+    createGridColumns( grid, 3, SWT.NONE );
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    item.setCheckable( 1, false );
+
+    assertFalse( item.getCheckable( 1 ) );
+  }
+
+  public void testGetCheckableByIndex_InvalidIndex() {
+    createGridColumns( grid, 3, SWT.NONE );
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    try {
+      item.getCheckable( 10 );
+      fail();
+    } catch( IndexOutOfBoundsException expected ) {
+    }
+  }
+
+  public void testGetCheckable_NotCheckableColumn() {
+    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
+    columns[ 1 ].setCheckable( false );
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    assertFalse( item.getCheckable( 1 ) );
   }
 
   public void testGetHeight_Initial() {

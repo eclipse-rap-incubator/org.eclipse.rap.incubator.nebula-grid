@@ -1137,6 +1137,57 @@ public class GridItem extends Item {
   }
 
   /**
+   * Sets the checkable state at the given column index in the receiver. A
+   * checkbox which is uncheckable will not be modifiable by the user but
+   * still make be modified programmatically. If the column at the given index
+   * is not checkable then individual cell will not be checkable regardless.
+   *
+   * @param index
+   *            the column index
+   * @param checked
+   *            the new checked state
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public void setCheckable( int index, boolean checked ) {
+    checkWidget();
+    // [if] TODO: probably need a check for parent.getColumn( index ).isCheck() ?
+    getItemData( index ).checkable = checked;
+    parent.redraw();
+  }
+
+  /**
+   * Returns the checkable state at the given column index in the receiver. If
+   * the column at the given index is not checkable then this will return
+   * false regardless of the individual cell's checkable state.
+   *
+   * @param index
+   *            the column index
+   * @return the checked state
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public boolean getCheckable( int index ) {
+    checkWidget();
+    handleVirtual();
+    boolean result = getItemData( index ).checkable;
+    if( parent.getColumnCount() > 0 && !parent.getColumn( index ).getCheckable() ) {
+      result = false;
+    }
+    return result;
+  }
+
+  /**
    * Sets the height of this <code>GridItem</code>.
    *
    * @param height
@@ -1493,6 +1544,7 @@ public class GridItem extends Item {
     public Image image;
     public boolean checked;
     public boolean grayed;
+    public boolean checkable = true;
   }
 
   private final class GridItemAdapter

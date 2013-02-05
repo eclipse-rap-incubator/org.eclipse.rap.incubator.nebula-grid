@@ -15,16 +15,18 @@ import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridItems;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
 import static org.eclipse.nebula.widgets.grid.internal.gridkit.GridLCATestUtil.jsonEquals;
 import static org.eclipse.rap.rwt.lifecycle.WidgetUtil.getId;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import junit.framework.TestCase;
+
 import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridItem;
 import org.eclipse.rap.rwt.RWT;
-import org.eclipse.rap.rwt.graphics.Graphics;
 import org.eclipse.rap.rwt.internal.protocol.ClientMessageConst;
 import org.eclipse.rap.rwt.lifecycle.WidgetUtil;
 import org.eclipse.rap.rwt.testfixture.Fixture;
@@ -41,7 +43,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import junit.framework.TestCase;
 
 
 @SuppressWarnings("restriction")
@@ -468,7 +469,7 @@ public class GridItemLCA_Test extends TestCase {
   public void testRenderCellFonts() throws IOException, JSONException {
     createGridColumns( grid, 2, SWT.NONE );
 
-    item.setFont( 1, Graphics.getFont( "Arial", 20, SWT.BOLD ) );
+    item.setFont( 1, new Font( display, "Arial", 20, SWT.BOLD ) );
     lca.renderChanges( item );
 
     Message message = Fixture.getProtocolMessage();
@@ -486,7 +487,7 @@ public class GridItemLCA_Test extends TestCase {
     Fixture.markInitialized( display );
     Fixture.markInitialized( item );
 
-    item.setFont( 1, Graphics.getFont( "Arial", 20, SWT.BOLD ) );
+    item.setFont( 1, new Font( display, "Arial", 20, SWT.BOLD ) );
     Fixture.preserveWidgets();
     lca.renderChanges( item );
 
@@ -602,6 +603,45 @@ public class GridItemLCA_Test extends TestCase {
 
     Message message = Fixture.getProtocolMessage();
     assertNull( message.findSetOperation( item, "cellGrayed" ) );
+  }
+
+  public void testRenderInitialCellCheckable() throws IOException {
+    grid = new Grid( shell, SWT.CHECK );
+    createGridColumns( grid, 2, SWT.NONE );
+    item = new GridItem( grid, SWT.NONE );
+
+    lca.render( item );
+
+    Message message = Fixture.getProtocolMessage();
+    CreateOperation operation = message.findCreateOperation( item );
+    assertTrue( operation.getPropertyNames().indexOf( "cellCheckable" ) == -1 );
+  }
+
+  public void testRenderCellCheckable() throws IOException, JSONException {
+    grid = new Grid( shell, SWT.CHECK );
+    createGridColumns( grid, 2, SWT.NONE );
+    item = new GridItem( grid, SWT.NONE );
+
+    item.setCheckable( 1, false );
+    lca.renderChanges( item );
+
+    Message message = Fixture.getProtocolMessage();
+    JSONArray actual = ( JSONArray )message.findSetProperty( item, "cellCheckable" );
+    assertTrue( jsonEquals( "[true,false]", actual ) );  }
+
+  public void testRenderCellCheckableUnchanged() throws IOException {
+    grid = new Grid( shell, SWT.CHECK );
+    createGridColumns( grid, 2, SWT.NONE );
+    item = new GridItem( grid, SWT.NONE );
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( item );
+
+    item.setCheckable( 1, false );
+    Fixture.preserveWidgets();
+    lca.renderChanges( item );
+
+    Message message = Fixture.getProtocolMessage();
+    assertNull( message.findSetOperation( item, "cellCheckable" ) );
   }
 
   public void testReadChecked() {

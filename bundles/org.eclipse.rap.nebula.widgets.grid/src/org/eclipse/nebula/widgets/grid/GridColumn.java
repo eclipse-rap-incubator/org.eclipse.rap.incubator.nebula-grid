@@ -52,6 +52,7 @@ public class GridColumn extends Item {
   private boolean tableCheck;
   private boolean moveable;
   private boolean resizeable = true;
+  private boolean checkable = true;
   private boolean detail = true;
   private boolean summary = true;
   private boolean visible = true;
@@ -498,6 +499,44 @@ public class GridColumn extends Item {
   public boolean getResizeable() {
     checkWidget();
     return resizeable;
+  }
+
+  /**
+   * Sets the checkable state. If false the checkboxes in the column cannot be
+   * checked.
+   *
+   * @param checkable
+   *            the new checkable state.
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public void setCheckable(boolean checkable) {
+    checkWidget();
+    this.checkable = checkable;
+  }
+
+  /**
+   * Returns the checkable state. If false the checkboxes in the column cannot
+   * be checked.
+   *
+   * @return true if the column is checkable (only applicable when style is
+   *         SWT.CHECK).
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public boolean getCheckable() {
+    checkWidget();
+    return checkable;
   }
 
   /**

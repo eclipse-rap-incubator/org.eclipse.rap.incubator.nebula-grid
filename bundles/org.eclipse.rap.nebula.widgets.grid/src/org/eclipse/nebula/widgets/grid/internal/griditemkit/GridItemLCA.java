@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 EclipseSource and others.
+ * Copyright (c) 2012, 2013 EclipseSource and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -50,6 +50,7 @@ public class GridItemLCA extends AbstractWidgetLCA {
   private static final String PROP_EXPANDED = "expanded";
   private static final String PROP_CELL_CHECKED = "cellChecked";
   private static final String PROP_CELL_GRAYED = "cellGrayed";
+  private static final String PROP_CELL_CHECKABLE = "cellCheckable";
 
   private static final int ZERO = 0;
 
@@ -85,6 +86,7 @@ public class GridItemLCA extends AbstractWidgetLCA {
     preserveProperty( item, PROP_EXPANDED, item.isExpanded() );
     preserveProperty( item, PROP_CELL_CHECKED, getCellChecked( item ) );
     preserveProperty( item, PROP_CELL_GRAYED, getCellGrayed( item ) );
+    preserveProperty( item, PROP_CELL_CHECKABLE, getCellCheckable( item ) );
   }
 
   @Override
@@ -119,6 +121,10 @@ public class GridItemLCA extends AbstractWidgetLCA {
                     PROP_CELL_GRAYED,
                     getCellGrayed( item ),
                     new boolean[ getColumnCount( item ) ] );
+    renderProperty( item,
+                    PROP_CELL_CHECKABLE,
+                    getCellCheckable( item ),
+                    getDefaultCellCheckable( item ) );
   }
 
   @Override
@@ -234,6 +240,22 @@ public class GridItemLCA extends AbstractWidgetLCA {
     boolean[] result = new boolean[ getColumnCount( item ) ];
     for( int i = 0; i < result.length; i++ ) {
       result[ i ] = item.getGrayed( i );
+    }
+    return result;
+  }
+
+  private static boolean[] getCellCheckable( GridItem item ) {
+    boolean[] result = new boolean[ getColumnCount( item ) ];
+    for( int i = 0; i < result.length; i++ ) {
+      result[ i ] = item.getCheckable( i );
+    }
+    return result;
+  }
+
+  private static boolean[] getDefaultCellCheckable( GridItem item ) {
+    boolean[] result = new boolean[ getColumnCount( item ) ];
+    for( int i = 0; i < result.length; i++ ) {
+      result[ i ] = true;
     }
     return result;
   }
