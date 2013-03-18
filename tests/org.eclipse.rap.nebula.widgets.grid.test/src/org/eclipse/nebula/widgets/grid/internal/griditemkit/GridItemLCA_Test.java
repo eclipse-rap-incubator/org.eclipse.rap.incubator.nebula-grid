@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 EclipseSource and others.
+ * Copyright (c) 2012, 2013 EclipseSource and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,8 @@ import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridItems;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
 import static org.eclipse.nebula.widgets.grid.internal.gridkit.GridLCATestUtil.jsonEquals;
 import static org.eclipse.rap.rwt.lifecycle.WidgetUtil.getId;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -27,6 +29,8 @@ import junit.framework.TestCase;
 import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridItem;
 import org.eclipse.rap.rwt.RWT;
+import org.eclipse.rap.rwt.client.Client;
+import org.eclipse.rap.rwt.internal.client.WidgetDataWhiteList;
 import org.eclipse.rap.rwt.internal.protocol.ClientMessageConst;
 import org.eclipse.rap.rwt.lifecycle.WidgetUtil;
 import org.eclipse.rap.rwt.testfixture.Fixture;
@@ -43,6 +47,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.Test;
 
 
 @SuppressWarnings("restriction")
@@ -703,10 +708,46 @@ public class GridItemLCA_Test extends TestCase {
     assertNotNull( message.findSetOperation( grid.getVerticalBar(), "visibility" ) );
   }
 
+  @Test
+  public void testRenderData() throws JSONException, IOException {
+    fakeWidgetDataWhiteList( new String[]{ "foo", "bar" } );
+    item.setData( "foo", "string" );
+    item.setData( "bar", Integer.valueOf( 1 ) );
+
+    lca.renderChanges( item );
+
+    Message message = Fixture.getProtocolMessage();
+    JSONObject data = ( JSONObject )message.findSetProperty( item, "data" );
+    assertEquals( "string", data.getString( "foo" ) );
+    assertEquals( Integer.valueOf( 1 ), Integer.valueOf( data.getInt( "bar" ) ) );
+  }
+
+  @Test
+  public void testRenderDataUnchanged() throws IOException {
+    fakeWidgetDataWhiteList( new String[]{ "foo" } );
+    item.setData( "foo", "string" );
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( item );
+
+    Fixture.preserveWidgets();
+    lca.renderChanges( item );
+
+    Message message = Fixture.getProtocolMessage();
+    assertEquals( 0, message.getOperationCount() );
+  }
+
   private static void fakeTreeEvent( GridItem item, String eventName ) {
     Map<String, Object> parameters = new HashMap<String, Object>();
     parameters.put( ClientMessageConst.EVENT_PARAM_ITEM, getId( item ) );
     Fixture.fakeNotifyOperation( getId( item.getParent() ), eventName, parameters );
+  }
+
+  public static void fakeWidgetDataWhiteList( String[] keys ) {
+    WidgetDataWhiteList service = mock( WidgetDataWhiteList.class );
+    when( service.getKeys() ).thenReturn( keys );
+    Client client = mock( Client.class );
+    when( client.getService( WidgetDataWhiteList.class ) ).thenReturn( service );
+    Fixture.fakeClient( client );
   }
 
   //////////////////

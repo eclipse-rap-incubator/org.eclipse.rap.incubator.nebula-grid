@@ -73,6 +73,7 @@ public class GridItemLCA extends AbstractWidgetLCA {
   public void preserveValues( Widget widget ) {
     GridItem item = ( GridItem )widget;
     WidgetLCAUtil.preserveCustomVariant( item );
+    WidgetLCAUtil.preserveData( item );
     preserveProperty( item, PROP_ITEM_COUNT, item.getItemCount() );
     preserveProperty( item, PROP_HEIGHT, item.getHeight() );
     preserveProperty( item, PROP_TEXTS, getTexts( item ) );
@@ -93,6 +94,7 @@ public class GridItemLCA extends AbstractWidgetLCA {
   public void renderChanges( Widget widget ) throws IOException {
     GridItem item = ( GridItem )widget;
     WidgetLCAUtil.renderCustomVariant( item );
+    WidgetLCAUtil.renderData( item );
     renderProperty( item, PROP_ITEM_COUNT, item.getItemCount(), ZERO );
     renderProperty( item, PROP_HEIGHT, item.getHeight(), item.getParent().getItemHeight() );
     renderProperty( item, PROP_TEXTS, getTexts( item ), getDefaultTexts( item ) );
