@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 EclipseSource and others.
+ * Copyright (c) 2012, 2013 EclipseSource and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,16 +14,21 @@ import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridColumns;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
 import static org.eclipse.nebula.widgets.grid.internal.gridkit.GridLCATestUtil.jsonEquals;
 import static org.eclipse.rap.rwt.lifecycle.WidgetUtil.getId;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import junit.framework.TestCase;
+
 import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridColumn;
 import org.eclipse.nebula.widgets.grid.GridColumnGroup;
 import org.eclipse.rap.rwt.RWT;
+import org.eclipse.rap.rwt.internal.json.JsonArray;
+import org.eclipse.rap.rwt.internal.json.JsonObject;
 import org.eclipse.rap.rwt.internal.protocol.ClientMessageConst;
 import org.eclipse.rap.rwt.lifecycle.WidgetUtil;
 import org.eclipse.rap.rwt.testfixture.Fixture;
@@ -42,10 +47,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import junit.framework.TestCase;
 
 
 @SuppressWarnings("restriction")
@@ -212,7 +213,7 @@ public class GridColumnLCA_Test extends TestCase {
     assertNull( message.findSetOperation( column, "image" ) );
   }
 
-  public void testRenderImage() throws IOException, JSONException {
+  public void testRenderImage() throws IOException {
     Image image = loadImage( display, Fixture.IMAGE_100x50 );
 
     column.setImage( image );
@@ -221,7 +222,7 @@ public class GridColumnLCA_Test extends TestCase {
     Message message = Fixture.getProtocolMessage();
     String imageLocation = ImageFactory.getImagePath( image );
     String expected = "[\"" + imageLocation + "\", 100, 50 ]";
-    JSONArray actual = ( JSONArray )message.findSetProperty( column, "image" );
+    JsonArray actual = ( JsonArray )message.findSetProperty( column, "image" );
     assertTrue( jsonEquals( expected, actual ) );
   }
 
@@ -249,7 +250,7 @@ public class GridColumnLCA_Test extends TestCase {
     lca.renderChanges( column );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( JSONObject.NULL, message.findSetProperty( column, "image" ) );
+    assertEquals( JsonObject.NULL, message.findSetProperty( column, "image" ) );
   }
 
   public void testRenderInitialIndex() throws IOException {
@@ -842,16 +843,16 @@ public class GridColumnLCA_Test extends TestCase {
     assertTrue( operation.getPropertyNames().indexOf( "font" ) == -1 );
   }
 
-  public void testRenderFont() throws IOException, JSONException {
+  public void testRenderFont() throws IOException {
     column.setHeaderFont( new Font( display, "Arial", 20, SWT.BOLD ) );
     lca.renderChanges( column );
 
     Message message = Fixture.getProtocolMessage();
-    JSONArray actual = ( JSONArray )message.findSetProperty( column, "font" );
-    assertTrue( jsonEquals( "[\"Arial\"]", actual.getJSONArray( 0 ) ) );
-    assertEquals( Integer.valueOf( 20 ), actual.get( 1 ) );
-    assertEquals( Boolean.TRUE, actual.get( 2 ) );
-    assertEquals( Boolean.FALSE, actual.get( 3 ) );
+    JsonArray actual = ( JsonArray )message.findSetProperty( column, "font" );
+    assertTrue( jsonEquals( "[\"Arial\"]", actual.get( 0 ).asArray() ) );
+    assertEquals( 20, actual.get( 1 ).asInt() );
+    assertTrue( actual.get( 2 ).asBoolean() );
+    assertFalse( actual.get( 3 ).asBoolean() );
   }
 
   public void testRenderFontUnchanged() throws IOException {
@@ -874,16 +875,16 @@ public class GridColumnLCA_Test extends TestCase {
     assertTrue( operation.getPropertyNames().indexOf( "footerFont" ) == -1 );
   }
 
-  public void testRenderFooterFont() throws IOException, JSONException {
+  public void testRenderFooterFont() throws IOException {
     column.setFooterFont( new Font( display, "Arial", 20, SWT.BOLD ) );
     lca.renderChanges( column );
 
     Message message = Fixture.getProtocolMessage();
-    JSONArray actual = ( JSONArray )message.findSetProperty( column, "footerFont" );
-    assertTrue( jsonEquals( "[\"Arial\"]", actual.getJSONArray( 0 ) ) );
-    assertEquals( Integer.valueOf( 20 ), actual.get( 1 ) );
-    assertEquals( Boolean.TRUE, actual.get( 2 ) );
-    assertEquals( Boolean.FALSE, actual.get( 3 ) );
+    JsonArray actual = ( JsonArray )message.findSetProperty( column, "footerFont" );
+    assertTrue( jsonEquals( "[\"Arial\"]", actual.get( 0 ).asArray() ) );
+    assertEquals( 20, actual.get( 1 ).asInt() );
+    assertTrue( actual.get( 2 ).asBoolean() );
+    assertFalse( actual.get( 3 ).asBoolean() );
   }
 
   public void testRenderFooterFontUnchanged() throws IOException {
@@ -933,7 +934,7 @@ public class GridColumnLCA_Test extends TestCase {
     assertNull( message.findSetOperation( column, "footerImage" ) );
   }
 
-  public void testRenderFooterImage() throws IOException, JSONException {
+  public void testRenderFooterImage() throws IOException {
     Image image = loadImage( display, Fixture.IMAGE_100x50 );
 
     column.setFooterImage( image );
@@ -942,7 +943,7 @@ public class GridColumnLCA_Test extends TestCase {
     Message message = Fixture.getProtocolMessage();
     String imageLocation = ImageFactory.getImagePath( image );
     String expected = "[\"" + imageLocation + "\", 100, 50 ]";
-    JSONArray actual = ( JSONArray )message.findSetProperty( column, "footerImage" );
+    JsonArray actual = ( JsonArray )message.findSetProperty( column, "footerImage" );
     assertTrue( jsonEquals( expected, actual ) );
   }
 
@@ -970,7 +971,7 @@ public class GridColumnLCA_Test extends TestCase {
     lca.renderChanges( column );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( JSONObject.NULL, message.findSetProperty( column, "footerImage" ) );
+    assertEquals( JsonObject.NULL, message.findSetProperty( column, "footerImage" ) );
   }
 
   //////////////////

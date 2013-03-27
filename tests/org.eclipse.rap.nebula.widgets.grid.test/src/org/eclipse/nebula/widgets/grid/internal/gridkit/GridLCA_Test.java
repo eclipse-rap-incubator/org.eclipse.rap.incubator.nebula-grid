@@ -33,6 +33,7 @@ import org.eclipse.nebula.widgets.grid.GridItem;
 import org.eclipse.nebula.widgets.grid.internal.IGridAdapter;
 import org.eclipse.nebula.widgets.grid.internal.gridkit.GridLCA.ItemMetrics;
 import org.eclipse.rap.rwt.RWT;
+import org.eclipse.rap.rwt.internal.json.JsonArray;
 import org.eclipse.rap.rwt.internal.protocol.ClientMessageConst;
 import org.eclipse.rap.rwt.lifecycle.WidgetUtil;
 import org.eclipse.rap.rwt.testfixture.Fixture;
@@ -49,8 +50,6 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
-import org.json.JSONArray;
-import org.json.JSONException;
 
 
 @SuppressWarnings("restriction")
@@ -181,7 +180,7 @@ public class GridLCA_Test extends TestCase {
     assertNotNull( message.findSetOperation( grid, "itemMetrics" ) );
   }
 
-  public void testRenderItemMetrics() throws IOException, JSONException {
+  public void testRenderItemMetrics() throws IOException {
     GridColumn column = new GridColumn( grid, SWT.NONE );
     column.setWidth( 50 );
     GridItem[] items = createGridItems( grid, 3, 1 );
@@ -190,11 +189,11 @@ public class GridLCA_Test extends TestCase {
     lca.renderChanges( grid );
 
     Message message = Fixture.getProtocolMessage();
-    JSONArray actual = ( JSONArray )message.findSetProperty( grid, "itemMetrics" );
-    assertTrue( jsonEquals( "[0,0,50,0,0,0,44,0,0]", ( JSONArray )actual.get( 0 ) ) );
+    JsonArray actual = ( JsonArray )message.findSetProperty( grid, "itemMetrics" );
+    assertTrue( jsonEquals( "[0,0,50,0,0,0,44,0,0]", actual.get( 0 ).asArray() ) );
   }
 
-  public void testRenderItemMetrics_WithCheck() throws IOException, JSONException {
+  public void testRenderItemMetrics_WithCheck() throws IOException {
     createGridColumns( grid, 2, SWT.CHECK );
     GridItem[] items = createGridItems( grid, 3, 1 );
     items[ 0 ].setText( "foo" );
@@ -202,9 +201,9 @@ public class GridLCA_Test extends TestCase {
     lca.renderChanges( grid );
 
     Message message = Fixture.getProtocolMessage();
-    JSONArray actual = ( JSONArray )message.findSetProperty( grid, "itemMetrics" );
-    assertTrue( jsonEquals( "[0,0,20,23,0,23,0,0,21]", ( JSONArray )actual.get( 0 ) ) );
-    assertTrue( jsonEquals( "[1,20,40,49,0,49,5,26,21]", ( JSONArray )actual.get( 1 ) ) );
+    JsonArray actual = ( JsonArray )message.findSetProperty( grid, "itemMetrics" );
+    assertTrue( jsonEquals( "[0,0,20,23,0,23,0,0,21]", actual.get( 0 ).asArray() ) );
+    assertTrue( jsonEquals( "[1,20,40,49,0,49,5,26,21]", actual.get( 1 ).asArray() ) );
   }
 
   public void testRenderItemMetricsUnchanged() throws IOException {
@@ -538,20 +537,20 @@ public class GridLCA_Test extends TestCase {
     assertTrue( operation.getPropertyNames().indexOf( "selection" ) == -1 );
   }
 
-  public void testRenderSelection() throws IOException, JSONException {
+  public void testRenderSelection() throws IOException {
     GridItem[] items = createGridItems( grid, 3, 3 );
 
     grid.setSelection( new int[] { 0, 4 } );
     lca.renderChanges( grid );
 
     Message message = Fixture.getProtocolMessage();
-    JSONArray actual = ( JSONArray )message.findSetProperty( grid, "selection" );
+    JsonArray actual = ( JsonArray )message.findSetProperty( grid, "selection" );
     StringBuilder expected = new StringBuilder();
-    expected.append( "[" );
+    expected.append( "[\"" );
     expected.append( WidgetUtil.getId( items[ 0 ] ) );
-    expected.append( "," );
+    expected.append( "\",\"" );
     expected.append( WidgetUtil.getId( items[ 4 ] ) );
-    expected.append( "]" );
+    expected.append( "\"]" );
     assertTrue( jsonEquals( expected.toString(), actual ) );
   }
 

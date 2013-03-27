@@ -31,6 +31,8 @@ import org.eclipse.nebula.widgets.grid.GridItem;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.client.Client;
 import org.eclipse.rap.rwt.internal.client.WidgetDataWhiteList;
+import org.eclipse.rap.rwt.internal.json.JsonArray;
+import org.eclipse.rap.rwt.internal.json.JsonObject;
 import org.eclipse.rap.rwt.internal.protocol.ClientMessageConst;
 import org.eclipse.rap.rwt.lifecycle.WidgetUtil;
 import org.eclipse.rap.rwt.testfixture.Fixture;
@@ -44,9 +46,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.junit.Test;
 
 
@@ -237,7 +236,7 @@ public class GridItemLCA_Test extends TestCase {
     assertTrue( operation.getPropertyNames().indexOf( "texts" ) == -1 );
   }
 
-  public void testRenderTexts() throws IOException, JSONException {
+  public void testRenderTexts() throws IOException {
     createGridColumns( grid, 2, SWT.NONE );
 
     item.setText( 0, "item 0.0" );
@@ -245,7 +244,7 @@ public class GridItemLCA_Test extends TestCase {
     lca.renderChanges( item );
 
     Message message = Fixture.getProtocolMessage();
-    JSONArray actual = ( JSONArray )message.findSetProperty( item, "texts" );
+    JsonArray actual = ( JsonArray )message.findSetProperty( item, "texts" );
     assertTrue( jsonEquals( "[\"item 0.0\",\"item 0.1\"]", actual ) );
   }
 
@@ -273,7 +272,7 @@ public class GridItemLCA_Test extends TestCase {
     assertTrue( operation.getPropertyNames().indexOf( "images" ) == -1 );
   }
 
-  public void testRenderImages() throws IOException, JSONException {
+  public void testRenderImages() throws IOException {
     createGridColumns( grid, 2, SWT.NONE );
     Image image = loadImage( display, Fixture.IMAGE1 );
 
@@ -281,10 +280,10 @@ public class GridItemLCA_Test extends TestCase {
     lca.renderChanges( item );
 
     Message message = Fixture.getProtocolMessage();
-    JSONArray actual = ( JSONArray )message.findSetProperty( item, "images" );
+    JsonArray actual = ( JsonArray )message.findSetProperty( item, "images" );
     String expected = "[\"rwt-resources/generated/90fb0bfe.gif\",58,12]";
-    assertEquals( JSONObject.NULL, actual.get( 0 ) );
-    assertTrue( jsonEquals( expected, actual.getJSONArray( 1 ) ) );
+    assertEquals( JsonObject.NULL, actual.get( 0 ) );
+    assertTrue( jsonEquals( expected, actual.get( 1 ).asArray() ) );
   }
 
   public void testRenderImagesUnchanged() throws IOException {
@@ -309,12 +308,12 @@ public class GridItemLCA_Test extends TestCase {
     assertTrue( operation.getPropertyNames().indexOf( "background" ) == -1 );
   }
 
-  public void testRenderBackground() throws IOException, JSONException {
+  public void testRenderBackground() throws IOException {
     item.setBackground( display.getSystemColor( SWT.COLOR_GREEN ) );
     lca.renderChanges( item );
 
     Message message = Fixture.getProtocolMessage();
-    JSONArray actual = ( JSONArray )message.findSetProperty( item, "background" );
+    JsonArray actual = ( JsonArray )message.findSetProperty( item, "background" );
     assertTrue( jsonEquals( "[0,255,0,255]", actual ) );
   }
 
@@ -338,12 +337,12 @@ public class GridItemLCA_Test extends TestCase {
     assertTrue( operation.getPropertyNames().indexOf( "foreground" ) == -1 );
   }
 
-  public void testRenderForeground() throws IOException, JSONException {
+  public void testRenderForeground() throws IOException {
     item.setForeground( display.getSystemColor( SWT.COLOR_GREEN ) );
     lca.renderChanges( item );
 
     Message message = Fixture.getProtocolMessage();
-    JSONArray actual = ( JSONArray )message.findSetProperty( item, "foreground" );
+    JsonArray actual = ( JsonArray )message.findSetProperty( item, "foreground" );
     assertTrue( jsonEquals( "[0,255,0,255]", actual ) );
   }
 
@@ -367,16 +366,16 @@ public class GridItemLCA_Test extends TestCase {
     assertTrue( operation.getPropertyNames().indexOf( "font" ) == -1 );
   }
 
-  public void testRenderFont() throws IOException, JSONException {
+  public void testRenderFont() throws IOException {
     item.setFont( new Font( display, "Arial", 20, SWT.BOLD ) );
     lca.renderChanges( item );
 
     Message message = Fixture.getProtocolMessage();
-    JSONArray actual = ( JSONArray )message.findSetProperty( item, "font" );
-    assertTrue( jsonEquals( "[\"Arial\"]", actual.getJSONArray( 0 ) ) );
-    assertEquals( Integer.valueOf( 20 ), actual.get( 1 ) );
-    assertEquals( Boolean.TRUE, actual.get( 2 ) );
-    assertEquals( Boolean.FALSE, actual.get( 3 ) );
+    JsonArray actual = ( JsonArray )message.findSetProperty( item, "font" );
+    assertTrue( jsonEquals( "[\"Arial\"]", actual.get( 0 ).asArray() ) );
+    assertEquals( 20, actual.get( 1 ).asInt() );
+    assertTrue( actual.get( 2 ).asBoolean() );
+    assertFalse( actual.get( 3 ).asBoolean() );
   }
 
   public void testRenderFontUnchanged() throws IOException {
@@ -401,16 +400,16 @@ public class GridItemLCA_Test extends TestCase {
     assertTrue( operation.getPropertyNames().indexOf( "cellBackgrounds" ) == -1 );
   }
 
-  public void testRenderCellBackgrounds() throws IOException, JSONException {
+  public void testRenderCellBackgrounds() throws IOException {
     createGridColumns( grid, 2, SWT.NONE );
 
     item.setBackground( 1, display.getSystemColor( SWT.COLOR_GREEN ) );
     lca.renderChanges( item );
 
     Message message = Fixture.getProtocolMessage();
-    JSONArray actual = ( JSONArray )message.findSetProperty( item, "cellBackgrounds" );
-    assertEquals( JSONObject.NULL, actual.get( 0 ) );
-    assertTrue( jsonEquals( "[0,255,0,255]", actual.getJSONArray( 1 ) ) );
+    JsonArray actual = ( JsonArray )message.findSetProperty( item, "cellBackgrounds" );
+    assertEquals( JsonObject.NULL, actual.get( 0 ) );
+    assertTrue( jsonEquals( "[0,255,0,255]", actual.get( 1 ).asArray() ) );
   }
 
   public void testRenderCellBackgroundsUnchanged() throws IOException {
@@ -436,16 +435,16 @@ public class GridItemLCA_Test extends TestCase {
     assertTrue( operation.getPropertyNames().indexOf( "cellForegrounds" ) == -1 );
   }
 
-  public void testRenderCellForegrounds() throws IOException, JSONException {
+  public void testRenderCellForegrounds() throws IOException {
     createGridColumns( grid, 2, SWT.NONE );
 
     item.setForeground( 1, display.getSystemColor( SWT.COLOR_GREEN ) );
     lca.renderChanges( item );
 
     Message message = Fixture.getProtocolMessage();
-    JSONArray actual = ( JSONArray )message.findSetProperty( item, "cellForegrounds" );
-    assertEquals( JSONObject.NULL, actual.get( 0 ) );
-    assertTrue( jsonEquals( "[0,255,0,255]", actual.getJSONArray( 1 ) ) );
+    JsonArray actual = ( JsonArray )message.findSetProperty( item, "cellForegrounds" );
+    assertEquals( JsonObject.NULL, actual.get( 0 ) );
+    assertTrue( jsonEquals( "[0,255,0,255]", actual.get( 1 ).asArray() ) );
   }
 
   public void testRenderCellForegroundsUnchanged() throws IOException {
@@ -471,20 +470,20 @@ public class GridItemLCA_Test extends TestCase {
     assertTrue( operation.getPropertyNames().indexOf( "cellFonts" ) == -1 );
   }
 
-  public void testRenderCellFonts() throws IOException, JSONException {
+  public void testRenderCellFonts() throws IOException {
     createGridColumns( grid, 2, SWT.NONE );
 
     item.setFont( 1, new Font( display, "Arial", 20, SWT.BOLD ) );
     lca.renderChanges( item );
 
     Message message = Fixture.getProtocolMessage();
-    JSONArray actual = ( JSONArray )message.findSetProperty( item, "cellFonts" );
-    assertEquals( JSONObject.NULL, actual.get( 0 ) );
-    JSONArray cellFont = actual.getJSONArray( 1 );
-    assertTrue( jsonEquals( "[\"Arial\"]", cellFont.getJSONArray( 0 ) ) );
-    assertEquals( Integer.valueOf( 20 ), cellFont.get( 1 ) );
-    assertEquals( Boolean.TRUE, cellFont.get( 2 ) );
-    assertEquals( Boolean.FALSE, cellFont.get( 3 ) );
+    JsonArray actual = ( JsonArray )message.findSetProperty( item, "cellFonts" );
+    assertEquals( JsonObject.NULL, actual.get( 0 ) );
+    JsonArray cellFont = actual.get( 1 ).asArray();
+    assertTrue( jsonEquals( "[\"Arial\"]", cellFont.get( 0 ).asArray() ) );
+    assertEquals( 20, cellFont.get( 1 ).asInt() );
+    assertTrue( cellFont.get( 2 ).asBoolean() );
+    assertFalse( cellFont.get( 3 ).asBoolean() );
   }
 
   public void testRenderCellFontsUnchanged() throws IOException {
@@ -543,7 +542,7 @@ public class GridItemLCA_Test extends TestCase {
     assertTrue( operation.getPropertyNames().indexOf( "cellChecked" ) == -1 );
   }
 
-  public void testRenderCellChecked() throws IOException, JSONException {
+  public void testRenderCellChecked() throws IOException {
     grid = new Grid( shell, SWT.CHECK );
     createGridColumns( grid, 2, SWT.NONE );
     item = new GridItem( grid, SWT.NONE );
@@ -552,7 +551,7 @@ public class GridItemLCA_Test extends TestCase {
     lca.renderChanges( item );
 
     Message message = Fixture.getProtocolMessage();
-    JSONArray actual = ( JSONArray )message.findSetProperty( item, "cellChecked" );
+    JsonArray actual = ( JsonArray )message.findSetProperty( item, "cellChecked" );
     assertTrue( jsonEquals( "[false,true]", actual ) );  }
 
   public void testRenderCellCheckedUnchanged() throws IOException {
@@ -582,7 +581,7 @@ public class GridItemLCA_Test extends TestCase {
     assertTrue( operation.getPropertyNames().indexOf( "cellGrayed" ) == -1 );
   }
 
-  public void testRenderCellGrayed() throws IOException, JSONException {
+  public void testRenderCellGrayed() throws IOException {
     grid = new Grid( shell, SWT.CHECK );
     createGridColumns( grid, 2, SWT.NONE );
     item = new GridItem( grid, SWT.NONE );
@@ -591,7 +590,7 @@ public class GridItemLCA_Test extends TestCase {
     lca.renderChanges( item );
 
     Message message = Fixture.getProtocolMessage();
-    JSONArray actual = ( JSONArray )message.findSetProperty( item, "cellGrayed" );
+    JsonArray actual = ( JsonArray )message.findSetProperty( item, "cellGrayed" );
     assertTrue( jsonEquals( "[false,true]", actual ) );
   }
 
@@ -622,7 +621,7 @@ public class GridItemLCA_Test extends TestCase {
     assertTrue( operation.getPropertyNames().indexOf( "cellCheckable" ) == -1 );
   }
 
-  public void testRenderCellCheckable() throws IOException, JSONException {
+  public void testRenderCellCheckable() throws IOException {
     grid = new Grid( shell, SWT.CHECK );
     createGridColumns( grid, 2, SWT.NONE );
     item = new GridItem( grid, SWT.NONE );
@@ -631,7 +630,7 @@ public class GridItemLCA_Test extends TestCase {
     lca.renderChanges( item );
 
     Message message = Fixture.getProtocolMessage();
-    JSONArray actual = ( JSONArray )message.findSetProperty( item, "cellCheckable" );
+    JsonArray actual = ( JsonArray )message.findSetProperty( item, "cellCheckable" );
     assertTrue( jsonEquals( "[true,false]", actual ) );  }
 
   public void testRenderCellCheckableUnchanged() throws IOException {
@@ -709,7 +708,7 @@ public class GridItemLCA_Test extends TestCase {
   }
 
   @Test
-  public void testRenderData() throws JSONException, IOException {
+  public void testRenderData() throws IOException {
     fakeWidgetDataWhiteList( new String[]{ "foo", "bar" } );
     item.setData( "foo", "string" );
     item.setData( "bar", Integer.valueOf( 1 ) );
@@ -717,9 +716,9 @@ public class GridItemLCA_Test extends TestCase {
     lca.renderChanges( item );
 
     Message message = Fixture.getProtocolMessage();
-    JSONObject data = ( JSONObject )message.findSetProperty( item, "data" );
-    assertEquals( "string", data.getString( "foo" ) );
-    assertEquals( Integer.valueOf( 1 ), Integer.valueOf( data.getInt( "bar" ) ) );
+    JsonObject data = ( JsonObject )message.findSetProperty( item, "data" );
+    assertEquals( "string", data.get( "foo" ).asString() );
+    assertEquals( 1, data.get( "bar" ).asInt() );
   }
 
   @Test

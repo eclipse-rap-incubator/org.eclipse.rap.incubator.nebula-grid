@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 EclipseSource and others.
+ * Copyright (c) 2012, 2013 EclipseSource and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,15 +14,20 @@ import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridColumns;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
 import static org.eclipse.nebula.widgets.grid.internal.gridkit.GridLCATestUtil.jsonEquals;
 import static org.eclipse.rap.rwt.lifecycle.WidgetUtil.getId;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import junit.framework.TestCase;
+
 import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridColumnGroup;
 import org.eclipse.nebula.widgets.grid.internal.gridcolumngroupkit.GridColumnGroupLCA;
 import org.eclipse.rap.rwt.RWT;
+import org.eclipse.rap.rwt.internal.json.JsonArray;
+import org.eclipse.rap.rwt.internal.json.JsonObject;
 import org.eclipse.rap.rwt.internal.protocol.ClientMessageConst;
 import org.eclipse.rap.rwt.lifecycle.WidgetUtil;
 import org.eclipse.rap.rwt.testfixture.Fixture;
@@ -38,10 +43,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import junit.framework.TestCase;
 
 
 @SuppressWarnings("restriction")
@@ -140,7 +141,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     assertNull( message.findSetOperation( group, "image" ) );
   }
 
-  public void testRenderImage() throws IOException, JSONException {
+  public void testRenderImage() throws IOException {
     Image image = loadImage( display, Fixture.IMAGE_100x50 );
 
     group.setImage( image );
@@ -149,7 +150,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     Message message = Fixture.getProtocolMessage();
     String imageLocation = ImageFactory.getImagePath( image );
     String expected = "[\"" + imageLocation + "\", 100, 50 ]";
-    JSONArray actual = ( JSONArray )message.findSetProperty( group, "image" );
+    JsonArray actual = ( JsonArray )message.findSetProperty( group, "image" );
     assertTrue( jsonEquals( expected, actual ) );
   }
 
@@ -177,7 +178,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     lca.renderChanges( group );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( JSONObject.NULL, message.findSetProperty( group, "image" ) );
+    assertEquals( JsonObject.NULL, message.findSetProperty( group, "image" ) );
   }
 
   public void testRenderInitialFont() throws IOException {
@@ -188,16 +189,16 @@ public class GridColumnGroupLCA_Test extends TestCase {
     assertTrue( operation.getPropertyNames().indexOf( "font" ) == -1 );
   }
 
-  public void testRenderFont() throws IOException, JSONException {
+  public void testRenderFont() throws IOException {
     group.setHeaderFont( new Font( display, "Arial", 20, SWT.BOLD ) );
     lca.renderChanges( group );
 
     Message message = Fixture.getProtocolMessage();
-    JSONArray actual = ( JSONArray )message.findSetProperty( group, "font" );
-    assertTrue( jsonEquals( "[\"Arial\"]", actual.getJSONArray( 0 ) ) );
-    assertEquals( Integer.valueOf( 20 ), actual.get( 1 ) );
-    assertEquals( Boolean.TRUE, actual.get( 2 ) );
-    assertEquals( Boolean.FALSE, actual.get( 3 ) );
+    JsonArray actual = ( JsonArray )message.findSetProperty( group, "font" );
+    assertTrue( jsonEquals( "[\"Arial\"]", actual.get( 0 ).asArray() ) );
+    assertEquals( 20, actual.get( 1 ).asInt() );
+    assertTrue( actual.get( 2 ).asBoolean() );
+    assertFalse( actual.get( 3 ).asBoolean() );
   }
 
   public void testRenderFontUnchanged() throws IOException {
