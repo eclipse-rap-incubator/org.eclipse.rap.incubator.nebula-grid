@@ -13,12 +13,18 @@ package org.eclipse.nebula.widgets.grid.internal.gridkit;
 import static org.eclipse.rap.rwt.internal.protocol.ClientMessageConst.EVENT_PARAM_DETAIL;
 import static org.eclipse.rap.rwt.internal.protocol.ClientMessageConst.EVENT_PARAM_INDEX;
 import static org.eclipse.rap.rwt.internal.protocol.ClientMessageConst.EVENT_PARAM_ITEM;
+import static org.eclipse.rap.rwt.internal.protocol.ClientObjectFactory.getClientObject;
 import static org.eclipse.rap.rwt.internal.protocol.ProtocolUtil.readCallPropertyValueAsString;
+import static org.eclipse.rap.rwt.internal.protocol.ProtocolUtil.readPropertyValueAsStringArray;
+import static org.eclipse.rap.rwt.internal.protocol.ProtocolUtil.wasCallSend;
+import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.getStyles;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.preserveListener;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.preserveProperty;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.readEventPropertyValue;
+import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.readPropertyValue;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.renderListener;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.renderProperty;
+import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.wasEventSent;
 import static org.eclipse.rap.rwt.lifecycle.WidgetUtil.getId;
 
 import java.io.IOException;
@@ -28,10 +34,9 @@ import org.eclipse.nebula.widgets.grid.GridColumn;
 import org.eclipse.nebula.widgets.grid.GridItem;
 import org.eclipse.nebula.widgets.grid.internal.IGridAdapter;
 import org.eclipse.rap.rwt.RWT;
+import org.eclipse.rap.rwt.internal.json.JsonArray;
 import org.eclipse.rap.rwt.internal.protocol.ClientMessageConst;
-import org.eclipse.rap.rwt.internal.protocol.ClientObjectFactory;
 import org.eclipse.rap.rwt.internal.protocol.IClientObject;
-import org.eclipse.rap.rwt.internal.protocol.ProtocolUtil;
 import org.eclipse.rap.rwt.internal.util.NumberFormatUtil;
 import org.eclipse.rap.rwt.lifecycle.AbstractWidgetLCA;
 import org.eclipse.rap.rwt.lifecycle.ControlLCAUtil;
@@ -96,10 +101,10 @@ public class GridLCA extends AbstractWidgetLCA {
   @Override
   public void renderInitialization( Widget widget ) throws IOException {
     Grid grid = ( Grid )widget;
-    IClientObject clientObject = ClientObjectFactory.getClientObject( grid );
+    IClientObject clientObject = getClientObject( grid );
     clientObject.create( TYPE );
     clientObject.set( "parent", getId( grid.getParent() ) );
-    clientObject.set( "style", WidgetLCAUtil.getStyles( grid, ALLOWED_STYLES ) );
+    clientObject.set( "style", getStyles( grid, ALLOWED_STYLES ) );
     clientObject.set( "appearance", "tree" );
     IGridAdapter adapter = getGridAdapter( grid );
     clientObject.set( "indentionWidth", adapter.getIndentationWidth() );
@@ -194,15 +199,14 @@ public class GridLCA extends AbstractWidgetLCA {
 
   @Override
   public void doRedrawFake( Control control ) {
-    Grid grid = ( Grid )control;
-    getGridAdapter( grid ).doRedraw();
+    getGridAdapter( ( Grid )control ).doRedraw();
   }
 
   ////////////////////////////////////////////
   // Helping methods to read client-side state
 
   private static void readSelection( Grid grid ) {
-    String[] values = ProtocolUtil.readPropertyValueAsStringArray( getId( grid ), "selection" );
+    String[] values = readPropertyValueAsStringArray( getId( grid ), "selection" );
     if( values != null ) {
       GridItem[] selectedItems = new GridItem[ values.length ];
       boolean validItemFound = false;
@@ -220,7 +224,7 @@ public class GridLCA extends AbstractWidgetLCA {
   }
 
   private static void readScrollLeft( Grid grid ) {
-    String left = WidgetLCAUtil.readPropertyValue( grid, "scrollLeft" );
+    String left = readPropertyValue( grid, "scrollLeft" );
     if( left != null ) {
       int leftOffset = NumberFormatUtil.parseInt( left );
       processScrollBarSelection( grid.getHorizontalBar(), leftOffset );
@@ -228,7 +232,7 @@ public class GridLCA extends AbstractWidgetLCA {
   }
 
   private static void readTopItemIndex( Grid grid ) {
-    String topItemIndex = WidgetLCAUtil.readPropertyValue( grid, "topItemIndex" );
+    String topItemIndex = readPropertyValue( grid, "topItemIndex" );
     if( topItemIndex != null ) {
       int topOffset = NumberFormatUtil.parseInt( topItemIndex );
       getGridAdapter( grid ).invalidateTopIndex();
@@ -237,7 +241,7 @@ public class GridLCA extends AbstractWidgetLCA {
   }
 
   private static void readFocusItem( Grid grid ) {
-    String value = WidgetLCAUtil.readPropertyValue( grid, "focusItem" );
+    String value = readPropertyValue( grid, "focusItem" );
     if( value != null ) {
       GridItem item = getItem( grid, value );
       if( item != null ) {
@@ -254,7 +258,7 @@ public class GridLCA extends AbstractWidgetLCA {
     adapter.setCellToolTipText( null );
     ICellToolTipProvider provider = adapter.getCellToolTipProvider();
     String methodName = "renderToolTipText";
-    if( provider != null && ProtocolUtil.wasCallSend( getId( grid ), methodName ) ) {
+    if( provider != null && wasCallSend( getId( grid ), methodName ) ) {
       String itemId = readCallPropertyValueAsString( getId( grid ), methodName, "item" );
       String column = readCallPropertyValueAsString( getId( grid ), methodName, "column" );
       int columnIndex = NumberFormatUtil.parseInt( column );
@@ -347,7 +351,7 @@ public class GridLCA extends AbstractWidgetLCA {
   }
 
   private static void processSelectionEvent( Grid grid, String eventName ) {
-    if( WidgetLCAUtil.wasEventSent( grid, eventName ) ) {
+    if( wasEventSent( grid, eventName ) ) {
       GridItem item = getItem( grid, readEventPropertyValue( grid, eventName, EVENT_PARAM_ITEM ) );
       if( item != null ) {
         if( eventName.equals( ClientMessageConst.EVENT_SELECTION ) ) {
@@ -381,7 +385,7 @@ public class GridLCA extends AbstractWidgetLCA {
   // Process expand/collapse events
 
   private static void processTreeEvent( Grid grid, int eventType, String eventName ) {
-    if( WidgetLCAUtil.wasEventSent( grid, eventName ) ) {
+    if( wasEventSent( grid, eventName ) ) {
       String value = readEventPropertyValue( grid, eventName, ClientMessageConst.EVENT_PARAM_ITEM );
       Event event = new Event();
       event.item = getItem( grid, value );
@@ -395,22 +399,19 @@ public class GridLCA extends AbstractWidgetLCA {
   private static void renderItemMetrics( Grid grid ) {
     ItemMetrics[] itemMetrics = getItemMetrics( grid );
     if( WidgetLCAUtil.hasChanged( grid, PROP_ITEM_METRICS, itemMetrics ) ) {
-      int[][] metrics = new int[ itemMetrics.length ][ 9 ];
+      JsonArray metrics = new JsonArray();
       for( int i = 0; i < itemMetrics.length; i++ ) {
-        metrics[ i ] = new int[] {
-          i,
-          itemMetrics[ i ].left,
-          itemMetrics[ i ].width,
-          itemMetrics[ i ].imageLeft,
-          itemMetrics[ i ].imageWidth,
-          itemMetrics[ i ].textLeft,
-          itemMetrics[ i ].textWidth,
-          itemMetrics[ i ].checkLeft,
-          itemMetrics[ i ].checkWidth
-        };
+        metrics.add( new JsonArray().add( i )
+                                    .add( itemMetrics[ i ].left )
+                                    .add( itemMetrics[ i ].width )
+                                    .add( itemMetrics[ i ].imageLeft )
+                                    .add( itemMetrics[ i ].imageWidth )
+                                    .add( itemMetrics[ i ].textLeft )
+                                    .add( itemMetrics[ i ].textWidth )
+                                    .add( itemMetrics[ i ].checkLeft )
+                                    .add( itemMetrics[ i ].checkWidth ) );
       }
-      IClientObject clientObject = ClientObjectFactory.getClientObject( grid );
-      clientObject.set( PROP_ITEM_METRICS, metrics );
+      getClientObject( grid ).set( PROP_ITEM_METRICS, metrics );
     }
   }
 
