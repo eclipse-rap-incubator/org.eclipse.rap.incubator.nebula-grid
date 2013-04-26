@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 EclipseSource and others.
+ * Copyright (c) 2012,2013 EclipseSource and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.eclipse.nebula.widgets.grid.internal.gridcolumnkit;
 
+import static org.eclipse.rap.rwt.internal.protocol.ProtocolUtil.getJsonForFont;
 import static org.eclipse.rap.rwt.internal.protocol.ProtocolUtil.readCallPropertyValueAsString;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.preserveListener;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.preserveProperty;
@@ -158,7 +159,7 @@ public class GridColumnLCA extends AbstractWidgetLCA {
   private static void renderFont( GridColumn column, String property, Font newValue ) {
     if( WidgetLCAUtil.hasChanged( column, property, newValue, column.getParent().getFont() ) ) {
       IClientObject clientObject = ClientObjectFactory.getClientObject( column );
-      clientObject.set( property, ProtocolUtil.getFontAsArray( newValue ) );
+      clientObject.set( property, getJsonForFont( newValue ) );
     }
   }
 

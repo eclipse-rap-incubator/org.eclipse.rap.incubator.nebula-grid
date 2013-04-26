@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 EclipseSource and others.
+ * Copyright (c) 2012,2013 EclipseSource and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.eclipse.nebula.widgets.grid.internal.gridcolumngroupkit;
 
+import static org.eclipse.rap.rwt.internal.protocol.ProtocolUtil.getJsonForFont;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.preserveListener;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.preserveProperty;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.renderListener;
@@ -125,7 +126,7 @@ public class GridColumnGroupLCA extends AbstractWidgetLCA {
   private static void renderFont( GridColumnGroup group, String property, Font newValue ) {
     if( WidgetLCAUtil.hasChanged( group, property, newValue, group.getParent().getFont() ) ) {
       IClientObject clientObject = ClientObjectFactory.getClientObject( group );
-      clientObject.set( property, ProtocolUtil.getFontAsArray( newValue ) );
+      clientObject.set( property, getJsonForFont( newValue ) );
     }
   }
 
