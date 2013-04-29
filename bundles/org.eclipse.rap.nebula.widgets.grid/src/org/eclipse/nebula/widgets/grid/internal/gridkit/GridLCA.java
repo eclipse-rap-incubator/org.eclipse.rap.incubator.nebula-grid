@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.eclipse.nebula.widgets.grid.internal.gridkit;
 
+import static org.eclipse.rap.rwt.internal.json.JsonUtil.createJsonArray;
 import static org.eclipse.rap.rwt.internal.protocol.ClientMessageConst.EVENT_PARAM_DETAIL;
 import static org.eclipse.rap.rwt.internal.protocol.ClientMessageConst.EVENT_PARAM_INDEX;
 import static org.eclipse.rap.rwt.internal.protocol.ClientMessageConst.EVENT_PARAM_ITEM;
@@ -104,7 +105,7 @@ public class GridLCA extends AbstractWidgetLCA {
     IClientObject clientObject = getClientObject( grid );
     clientObject.create( TYPE );
     clientObject.set( "parent", getId( grid.getParent() ) );
-    clientObject.set( "style", getStyles( grid, ALLOWED_STYLES ) );
+    clientObject.set( "style", createJsonArray( getStyles( grid, ALLOWED_STYLES ) ) );
     clientObject.set( "appearance", "tree" );
     IGridAdapter adapter = getGridAdapter( grid );
     clientObject.set( "indentionWidth", adapter.getIndentationWidth() );
