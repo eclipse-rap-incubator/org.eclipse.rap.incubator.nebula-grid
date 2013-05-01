@@ -110,7 +110,7 @@ public class GridColumnLCA_Test extends TestCase {
 
     Message message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( column );
-    assertEquals( WidgetUtil.getId( group ), operation.getProperty( "group" ) );
+    assertEquals( getId( group ), operation.getProperty( "group" ).asString() );
   }
 
   public void testRenderDispose() throws IOException {

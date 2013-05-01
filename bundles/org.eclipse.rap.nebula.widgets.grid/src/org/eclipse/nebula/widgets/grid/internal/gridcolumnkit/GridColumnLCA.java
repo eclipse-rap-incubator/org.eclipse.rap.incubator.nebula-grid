@@ -129,7 +129,7 @@ public class GridColumnLCA extends AbstractWidgetLCA {
 
   private static void readLeft( final GridColumn column ) {
     String methodName = "move";
-    if( ProtocolUtil.wasCallSend( getId( column ), methodName ) ) {
+    if( ProtocolUtil.wasCallReceived( getId( column ), methodName ) ) {
       String value = readCallPropertyValueAsString( getId( column ), methodName, "left" );
       final int newLeft = NumberFormatUtil.parseInt( value );
       ProcessActionRunner.add( new Runnable() {
@@ -142,7 +142,7 @@ public class GridColumnLCA extends AbstractWidgetLCA {
 
   private static void readWidth( final GridColumn column ) {
     String methodName = "resize";
-    if( ProtocolUtil.wasCallSend( getId( column ), methodName ) ) {
+    if( ProtocolUtil.wasCallReceived( getId( column ), methodName ) ) {
       String value = readCallPropertyValueAsString( getId( column ), methodName, "width" );
       final int newWidth = NumberFormatUtil.parseInt( value );
       ProcessActionRunner.add( new Runnable() {

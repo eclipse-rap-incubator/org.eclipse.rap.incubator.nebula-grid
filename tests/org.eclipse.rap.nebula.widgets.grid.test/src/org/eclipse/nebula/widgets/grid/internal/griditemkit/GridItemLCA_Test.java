@@ -82,7 +82,7 @@ public class GridItemLCA_Test extends TestCase {
     Message message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( items[ 8 ] );
     assertEquals( "rwt.widgets.GridItem", operation.getType() );
-    assertEquals( Integer.valueOf( 3 ), operation.getProperty( "index" ) );
+    assertEquals( 3, operation.getProperty( "index" ).asInt() );
   }
 
   public void testRenderCreate_WithParentItem() throws IOException {
@@ -93,7 +93,7 @@ public class GridItemLCA_Test extends TestCase {
     Message message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( items[ 10 ] );
     assertEquals( "rwt.widgets.GridItem", operation.getType() );
-    assertEquals( Integer.valueOf( 1 ), operation.getProperty( "index" ) );
+    assertEquals( 1, operation.getProperty( "index" ).asInt() );
   }
 
   public void testRenderParent() throws IOException {

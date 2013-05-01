@@ -82,8 +82,8 @@ public class GridLCA_Test extends TestCase {
     CreateOperation operation = message.findCreateOperation( grid );
     List<Object> styles = Arrays.asList( operation.getStyles() );
     assertEquals( "rwt.widgets.Grid", operation.getType() );
-    assertEquals( "tree", operation.getProperty( "appearance" ) );
-    assertEquals( Integer.valueOf( 16 ), operation.getProperty( "indentionWidth" ) );
+    assertEquals( "tree", operation.getProperty( "appearance" ).asString() );
+    assertEquals( 16, operation.getProperty( "indentionWidth" ).asInt() );
     assertFalse( operation.getPropertyNames().contains( "checkBoxMetrics" ) );
     assertTrue( styles.contains( "FULL_SELECTION" ) );
   }
