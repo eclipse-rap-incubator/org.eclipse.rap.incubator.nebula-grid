@@ -12,7 +12,6 @@ package org.eclipse.nebula.widgets.grid.internal.gridcolumngroupkip;
 
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridColumns;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
-import static org.eclipse.nebula.widgets.grid.internal.gridkit.GridLCATestUtil.jsonEquals;
 import static org.eclipse.rap.rwt.lifecycle.WidgetUtil.getId;
 
 import java.io.IOException;
@@ -25,9 +24,10 @@ import junit.framework.TestCase;
 import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridColumnGroup;
 import org.eclipse.nebula.widgets.grid.internal.gridcolumngroupkit.GridColumnGroupLCA;
+import org.eclipse.rap.json.JsonArray;
+import org.eclipse.rap.json.JsonObject;
+import org.eclipse.rap.json.JsonValue;
 import org.eclipse.rap.rwt.RWT;
-import org.eclipse.rap.rwt.internal.json.JsonArray;
-import org.eclipse.rap.rwt.internal.json.JsonObject;
 import org.eclipse.rap.rwt.internal.protocol.ClientMessageConst;
 import org.eclipse.rap.rwt.lifecycle.WidgetUtil;
 import org.eclipse.rap.rwt.testfixture.Fixture;
@@ -119,7 +119,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     lca.renderChanges( group );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( "foo", message.findSetProperty( group, "text" ) );
+    assertEquals( "foo", message.findSetProperty( group, "text" ).asString() );
   }
 
   public void testRenderTextUnchanged() throws IOException {
@@ -150,8 +150,8 @@ public class GridColumnGroupLCA_Test extends TestCase {
     Message message = Fixture.getProtocolMessage();
     String imageLocation = ImageFactory.getImagePath( image );
     String expected = "[\"" + imageLocation + "\", 100, 50 ]";
-    JsonArray actual = ( JsonArray )message.findSetProperty( group, "image" );
-    assertTrue( jsonEquals( expected, actual ) );
+    JsonArray actual = message.findSetProperty( group, "image" ).asArray();
+    assertEquals( JsonArray.readFrom( expected ), actual );
   }
 
   public void testRenderImageUnchanged() throws IOException {
@@ -194,11 +194,8 @@ public class GridColumnGroupLCA_Test extends TestCase {
     lca.renderChanges( group );
 
     Message message = Fixture.getProtocolMessage();
-    JsonArray actual = ( JsonArray )message.findSetProperty( group, "font" );
-    assertTrue( jsonEquals( "[\"Arial\"]", actual.get( 0 ).asArray() ) );
-    assertEquals( 20, actual.get( 1 ).asInt() );
-    assertTrue( actual.get( 2 ).asBoolean() );
-    assertFalse( actual.get( 3 ).asBoolean() );
+    JsonArray expected = JsonArray.readFrom( "[[\"Arial\"], 20, true, false]" );
+    assertEquals( expected, message.findSetProperty( group, "font" ) );
   }
 
   public void testRenderFontUnchanged() throws IOException {
@@ -226,7 +223,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     lca.renderChanges( group );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( Boolean.FALSE, message.findSetProperty( group, "expanded" ) );
+    assertEquals( JsonValue.FALSE, message.findSetProperty( group, "expanded" ) );
   }
 
   public void testRenderExpandedUnchanged() throws IOException {
@@ -269,14 +266,14 @@ public class GridColumnGroupLCA_Test extends TestCase {
   public void testReadExpanded_Expanded() {
     group.setExpanded( false );
 
-    Fixture.fakeSetParameter( getId( group ), "expanded", Boolean.TRUE );
+    Fixture.fakeSetProperty( getId( group ), "expanded", true );
     Fixture.readDataAndProcessAction( group );
 
     assertTrue( group.getExpanded() );
   }
 
   public void testReadExpanded_Collapsed() {
-    Fixture.fakeSetParameter( getId( group ), "expanded", Boolean.FALSE );
+    Fixture.fakeSetProperty( getId( group ), "expanded", false );
     Fixture.readDataAndProcessAction( group );
 
     assertFalse( group.getExpanded() );
@@ -299,7 +296,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     lca.renderChanges( group );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( Integer.valueOf( 90 ), message.findSetProperty( group, "left" ) );
+    assertEquals( 90, message.findSetProperty( group, "left" ).asInt() );
   }
 
   public void testRenderLeftUnchanged() throws IOException {
@@ -331,7 +328,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     lca.renderChanges( group );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( Integer.valueOf( 20 ), message.findSetProperty( group, "width" ) );
+    assertEquals( 20, message.findSetProperty( group, "width" ).asInt() );
   }
 
   public void testRenderWidthUnchanged() throws IOException {
@@ -361,7 +358,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     lca.renderChanges( group );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( Integer.valueOf( 31 ), message.findSetProperty( group, "height" ) );
+    assertEquals( 31, message.findSetProperty( group, "height" ).asInt() );
   }
 
   public void testRenderHeightUnchanged() throws IOException {
@@ -394,7 +391,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     lca.renderChanges( group );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( Boolean.FALSE, message.findSetProperty( group, "visibility" ) );
+    assertEquals( JsonValue.FALSE, message.findSetProperty( group, "visibility" ) );
   }
 
   public void testRenderVisibleUnchanged() throws IOException {
@@ -423,7 +420,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     lca.renderChanges( group );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( "variant_blue", message.findSetProperty( group, "customVariant" ) );
+    assertEquals( "variant_blue", message.findSetProperty( group, "customVariant" ).asString() );
   }
 
   public void testRenderCustomVariantUnchanged() throws IOException {

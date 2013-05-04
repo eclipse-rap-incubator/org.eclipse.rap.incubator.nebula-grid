@@ -333,7 +333,7 @@ public class GridSnippet extends GridSnippetBase {
       @Override
       public void widgetSelected( SelectionEvent event ) {
         grid.setHeaderVisible( button.getSelection() );
-      };
+      }
     } );
   }
 
@@ -345,7 +345,7 @@ public class GridSnippet extends GridSnippetBase {
       @Override
       public void widgetSelected( SelectionEvent event ) {
         grid.setFooterVisible( button.getSelection() );
-      };
+      }
     } );
   }
 
@@ -372,4 +372,5 @@ public class GridSnippet extends GridSnippetBase {
       }
     }
   }
+
 }

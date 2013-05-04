@@ -13,17 +13,12 @@ package org.eclipse.nebula.widgets.grid.internal.gridkit;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridColumns;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridItems;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
-import static org.eclipse.nebula.widgets.grid.internal.gridkit.GridLCATestUtil.jsonEquals;
-import static org.eclipse.rap.rwt.internal.protocol.ClientMessageConst.EVENT_DEFAULT_SELECTION;
-import static org.eclipse.rap.rwt.internal.protocol.ClientMessageConst.EVENT_SELECTION;
 import static org.eclipse.rap.rwt.lifecycle.WidgetUtil.getId;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import junit.framework.TestCase;
 
@@ -32,9 +27,10 @@ import org.eclipse.nebula.widgets.grid.GridColumn;
 import org.eclipse.nebula.widgets.grid.GridItem;
 import org.eclipse.nebula.widgets.grid.internal.IGridAdapter;
 import org.eclipse.nebula.widgets.grid.internal.gridkit.GridLCA.ItemMetrics;
+import org.eclipse.rap.json.JsonArray;
+import org.eclipse.rap.json.JsonObject;
+import org.eclipse.rap.json.JsonValue;
 import org.eclipse.rap.rwt.RWT;
-import org.eclipse.rap.rwt.internal.json.JsonArray;
-import org.eclipse.rap.rwt.internal.protocol.ClientMessageConst;
 import org.eclipse.rap.rwt.lifecycle.WidgetUtil;
 import org.eclipse.rap.rwt.testfixture.Fixture;
 import org.eclipse.rap.rwt.testfixture.Message;
@@ -52,7 +48,6 @@ import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
 
 
-@SuppressWarnings("restriction")
 public class GridLCA_Test extends TestCase {
 
   private Display display;
@@ -93,7 +88,7 @@ public class GridLCA_Test extends TestCase {
 
     Message message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( grid );
-    assertEquals( WidgetUtil.getId( grid.getParent() ), operation.getParent() );
+    assertEquals( getId( grid.getParent() ), operation.getParent() );
   }
 
   public void testRenderCreateWithVirtualMulti() throws IOException {
@@ -106,7 +101,7 @@ public class GridLCA_Test extends TestCase {
     List<Object> styles = Arrays.asList( operation.getStyles() );
     assertTrue( styles.contains( "VIRTUAL" ) );
     assertTrue( styles.contains( "MULTI" ) );
-    assertEquals( Boolean.TRUE, message.findListenProperty( grid, "SetData" ) );
+    assertEquals( JsonValue.TRUE, message.findListenProperty( grid, "SetData" ) );
   }
 
   public void testRenderDispose() throws IOException {
@@ -115,7 +110,7 @@ public class GridLCA_Test extends TestCase {
     Message message = Fixture.getProtocolMessage();
     Operation operation = message.getOperation( 0 );
     assertTrue( operation instanceof DestroyOperation );
-    assertEquals( WidgetUtil.getId( grid ), operation.getTarget() );
+    assertEquals( getId( grid ), operation.getTarget() );
   }
 
   public void testRenderInitialItemCount() throws IOException {
@@ -131,7 +126,7 @@ public class GridLCA_Test extends TestCase {
     lca.renderChanges( grid );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( Integer.valueOf( 10 ), message.findSetProperty( grid, "itemCount" ) );
+    assertEquals( 10, message.findSetProperty( grid, "itemCount" ).asInt() );
   }
 
   public void testRenderItemCountUnchanged() throws IOException {
@@ -158,7 +153,7 @@ public class GridLCA_Test extends TestCase {
     lca.renderChanges( grid );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( Integer.valueOf( 40 ), message.findSetProperty( grid, "itemHeight" ) );
+    assertEquals( 40, message.findSetProperty( grid, "itemHeight" ).asInt() );
   }
 
   public void testRenderItemHeightUnchanged() throws IOException {
@@ -189,8 +184,8 @@ public class GridLCA_Test extends TestCase {
     lca.renderChanges( grid );
 
     Message message = Fixture.getProtocolMessage();
-    JsonArray actual = ( JsonArray )message.findSetProperty( grid, "itemMetrics" );
-    assertTrue( jsonEquals( "[0,0,50,0,0,0,44,0,0]", actual.get( 0 ).asArray() ) );
+    JsonArray actual = message.findSetProperty( grid, "itemMetrics" ).asArray();
+    assertEquals( JsonArray.readFrom( "[0, 0, 50, 0, 0, 0, 44, 0, 0]" ), actual.get( 0 ) );
   }
 
   public void testRenderItemMetrics_WithCheck() throws IOException {
@@ -201,9 +196,9 @@ public class GridLCA_Test extends TestCase {
     lca.renderChanges( grid );
 
     Message message = Fixture.getProtocolMessage();
-    JsonArray actual = ( JsonArray )message.findSetProperty( grid, "itemMetrics" );
-    assertTrue( jsonEquals( "[0,0,20,23,0,23,0,0,21]", actual.get( 0 ).asArray() ) );
-    assertTrue( jsonEquals( "[1,20,40,49,0,49,5,26,21]", actual.get( 1 ).asArray() ) );
+    JsonArray actual = message.findSetProperty( grid, "itemMetrics" ).asArray();
+    assertEquals( JsonArray.readFrom( "[0, 0, 20, 23, 0, 23, 0, 0, 21]" ), actual.get( 0 ) );
+    assertEquals( JsonArray.readFrom( "[1, 20, 40, 49, 0, 49, 5, 26, 21]" ), actual.get( 1 ) );
   }
 
   public void testRenderItemMetricsUnchanged() throws IOException {
@@ -233,7 +228,7 @@ public class GridLCA_Test extends TestCase {
     lca.renderChanges( grid );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( Integer.valueOf( 1 ), message.findSetProperty( grid, "columnCount" ) );
+    assertEquals( 1, message.findSetProperty( grid, "columnCount" ).asInt() );
   }
 
   public void testRenderColumnCountUnchanged() throws IOException {
@@ -265,7 +260,7 @@ public class GridLCA_Test extends TestCase {
     lca.renderChanges( grid );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( Integer.valueOf( 1 ), message.findSetProperty( grid, "treeColumn" ) );
+    assertEquals( 1, message.findSetProperty( grid, "treeColumn" ).asInt() );
   }
 
   public void testRenderTreeColumnUnchanged() throws IOException {
@@ -298,7 +293,7 @@ public class GridLCA_Test extends TestCase {
     lca.renderChanges( grid );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( Integer.valueOf( 31 ), message.findSetProperty( grid, "headerHeight" ) );
+    assertEquals( 31, message.findSetProperty( grid, "headerHeight" ).asInt() );
   }
 
   public void testRenderHeaderHeightUnchanged() throws IOException {
@@ -327,7 +322,7 @@ public class GridLCA_Test extends TestCase {
     lca.renderChanges( grid );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( Boolean.TRUE, message.findSetProperty( grid, "headerVisible" ) );
+    assertEquals( JsonValue.TRUE, message.findSetProperty( grid, "headerVisible" ) );
   }
 
   public void testRenderHeaderVisibleUnchanged() throws IOException {
@@ -359,7 +354,7 @@ public class GridLCA_Test extends TestCase {
     lca.renderChanges( grid );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( Integer.valueOf( 31 ), message.findSetProperty( grid, "footerHeight" ) );
+    assertEquals( 31, message.findSetProperty( grid, "footerHeight" ).asInt() );
   }
 
   public void testRenderFooterHeightUnchanged() throws IOException {
@@ -388,7 +383,7 @@ public class GridLCA_Test extends TestCase {
     lca.renderChanges( grid );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( Boolean.TRUE, message.findSetProperty( grid, "footerVisible" ) );
+    assertEquals( JsonValue.TRUE, message.findSetProperty( grid, "footerVisible" ) );
   }
 
   public void testRenderFooterVisibleUnchanged() throws IOException {
@@ -407,7 +402,7 @@ public class GridLCA_Test extends TestCase {
     lca.render( grid );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( Boolean.TRUE, message.findSetProperty( grid, "linesVisible" ) );
+    assertEquals( JsonValue.TRUE, message.findSetProperty( grid, "linesVisible" ) );
   }
 
   public void testRenderLinesVisible() throws IOException {
@@ -416,7 +411,7 @@ public class GridLCA_Test extends TestCase {
     lca.renderChanges( grid );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( Boolean.FALSE, message.findSetProperty( grid, "linesVisible" ) );
+    assertEquals( JsonValue.FALSE, message.findSetProperty( grid, "linesVisible" ) );
   }
 
   public void testRenderLinesVisibleUnchanged() throws IOException {
@@ -450,7 +445,7 @@ public class GridLCA_Test extends TestCase {
     lca.renderChanges( grid );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( Integer.valueOf( 2 ), message.findSetProperty( grid, "topItemIndex" ) );
+    assertEquals( 2, message.findSetProperty( grid, "topItemIndex" ).asInt() );
   }
 
   public void testRenderTopItemIndexUnchanged() throws IOException {
@@ -482,7 +477,7 @@ public class GridLCA_Test extends TestCase {
     lca.renderChanges( grid );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( WidgetUtil.getId( items[ 1 ] ), message.findSetProperty( grid, "focusItem" ) );
+    assertEquals( getId( items[ 1 ] ), message.findSetProperty( grid, "focusItem" ).asString() );
   }
 
   public void testRenderFocusItemUnchanged() throws IOException {
@@ -513,7 +508,7 @@ public class GridLCA_Test extends TestCase {
     lca.renderChanges( grid );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( Integer.valueOf( 10 ), message.findSetProperty( grid, "scrollLeft" ) );
+    assertEquals( 10, message.findSetProperty( grid, "scrollLeft" ).asInt() );
   }
 
   public void testRenderScrollLeftUnchanged() throws IOException {
@@ -544,14 +539,10 @@ public class GridLCA_Test extends TestCase {
     lca.renderChanges( grid );
 
     Message message = Fixture.getProtocolMessage();
-    JsonArray actual = ( JsonArray )message.findSetProperty( grid, "selection" );
-    StringBuilder expected = new StringBuilder();
-    expected.append( "[\"" );
-    expected.append( WidgetUtil.getId( items[ 0 ] ) );
-    expected.append( "\",\"" );
-    expected.append( WidgetUtil.getId( items[ 4 ] ) );
-    expected.append( "\"]" );
-    assertTrue( jsonEquals( expected.toString(), actual ) );
+    Object expected = new JsonArray()
+      .add( getId( items[ 0 ] ) )
+      .add( getId( items[ 4 ] ) );
+    assertEquals( expected, message.findSetProperty( grid, "selection" ) );
   }
 
   public void testRenderSelectionUnchanged() throws IOException {
@@ -582,7 +573,7 @@ public class GridLCA_Test extends TestCase {
     lca.renderChanges( grid );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( "up", message.findSetProperty( grid, "sortDirection" ) );
+    assertEquals( "up", message.findSetProperty( grid, "sortDirection" ).asString() );
   }
 
   public void testRenderSortDirectionUnchanged() throws IOException {
@@ -613,7 +604,7 @@ public class GridLCA_Test extends TestCase {
     lca.renderChanges( grid );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( WidgetUtil.getId( columns[ 1 ] ), message.findSetProperty( grid, "sortColumn" ) );
+    assertEquals( getId( columns[ 1 ] ), message.findSetProperty( grid, "sortColumn" ).asString() );
   }
 
   public void testRenderSortColumnUnchanged() throws IOException {
@@ -648,7 +639,7 @@ public class GridLCA_Test extends TestCase {
     lca.renderChanges( grid );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( Boolean.TRUE, message.findSetProperty( grid.getHorizontalBar(), "visibility" ) );
+    assertEquals( JsonValue.TRUE, message.findSetProperty( grid.getHorizontalBar(), "visibility" ) );
     assertNull( message.findSetOperation( grid.getVerticalBar(), "visibility" ) );
   }
 
@@ -662,7 +653,7 @@ public class GridLCA_Test extends TestCase {
 
     Message message = Fixture.getProtocolMessage();
     assertNull( message.findSetOperation( grid.getHorizontalBar(), "visibility" ) );
-    assertEquals( Boolean.TRUE, message.findSetProperty( grid.getVerticalBar(), "visibility" ) );
+    assertEquals( JsonValue.TRUE, message.findSetProperty( grid.getVerticalBar(), "visibility" ) );
   }
 
   public void testRenderScrollBarsVisibleUnchanged() throws IOException {
@@ -695,7 +686,7 @@ public class GridLCA_Test extends TestCase {
     lca.renderChanges( grid );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( Boolean.TRUE, message.findListenProperty( hScroll, "Selection" ) );
+    assertEquals( JsonValue.TRUE, message.findListenProperty( hScroll, "Selection" ) );
   }
 
   public void testRenderRemoveScrollBarsSelectionListener_Horizontal() throws Exception {
@@ -711,7 +702,7 @@ public class GridLCA_Test extends TestCase {
     lca.renderChanges( grid );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( Boolean.FALSE, message.findListenProperty( hScroll, "Selection" ) );
+    assertEquals( JsonValue.FALSE, message.findListenProperty( hScroll, "Selection" ) );
   }
 
   public void testRenderScrollBarsSelectionListenerUnchanged_Horizontal() throws Exception {
@@ -740,7 +731,7 @@ public class GridLCA_Test extends TestCase {
     lca.renderChanges( grid );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( Boolean.TRUE, message.findListenProperty( vScroll, "Selection" ) );
+    assertEquals( JsonValue.TRUE, message.findListenProperty( vScroll, "Selection" ) );
   }
 
   public void testRenderRemoveScrollBarsSelectionListener_Vertical() throws Exception {
@@ -756,7 +747,7 @@ public class GridLCA_Test extends TestCase {
     lca.renderChanges( grid );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( Boolean.FALSE, message.findListenProperty( vScroll, "Selection" ) );
+    assertEquals( JsonValue.FALSE, message.findListenProperty( vScroll, "Selection" ) );
   }
 
   public void testRenderScrollBarsSelectionListenerUnchanged_Vertical() throws Exception {
@@ -783,8 +774,8 @@ public class GridLCA_Test extends TestCase {
     lca.renderChanges( grid );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( Boolean.TRUE, message.findListenProperty( grid, "Selection" ) );
-    assertEquals( Boolean.TRUE, message.findListenProperty( grid, "DefaultSelection" ) );
+    assertEquals( JsonValue.TRUE, message.findListenProperty( grid, "Selection" ) );
+    assertEquals( JsonValue.TRUE, message.findListenProperty( grid, "DefaultSelection" ) );
   }
 
   public void testRenderRemoveSelectionListener() throws Exception {
@@ -798,8 +789,8 @@ public class GridLCA_Test extends TestCase {
     lca.renderChanges( grid );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( Boolean.FALSE, message.findListenProperty( grid, "Selection" ) );
-    assertEquals( Boolean.FALSE, message.findListenProperty( grid, "DefaultSelection" ) );
+    assertEquals( JsonValue.FALSE, message.findListenProperty( grid, "Selection" ) );
+    assertEquals( JsonValue.FALSE, message.findListenProperty( grid, "DefaultSelection" ) );
   }
 
   public void testRenderSelectionListenerUnchanged() throws Exception {
@@ -832,7 +823,7 @@ public class GridLCA_Test extends TestCase {
     lca.renderChanges( grid );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( Boolean.TRUE, message.findSetProperty( grid, "enableCellToolTip" ) );
+    assertEquals( JsonValue.TRUE, message.findSetProperty( grid, "enableCellToolTip" ) );
   }
 
   public void testRenderEnableCellToolTipUnchanged() throws IOException {
@@ -856,19 +847,19 @@ public class GridLCA_Test extends TestCase {
     Fixture.markInitialized( display );
     Fixture.markInitialized( grid );
 
-    String itemId = WidgetUtil.getId( item );
+    String itemId = getId( item );
     processCellToolTipRequest( grid, itemId, 1 );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( "foo", message.findSetProperty( grid, "cellToolTipText" ) );
+    assertEquals( "foo", message.findSetProperty( grid, "cellToolTipText" ).asString() );
   }
 
   public void testReadSelection() {
     GridItem[] items = createGridItems( grid, 3, 0 );
     Fixture.fakeNewRequest();
-    Fixture.fakeSetParameter( getId( grid ),
+    Fixture.fakeSetProperty( getId( grid ),
                               "selection",
-                              new String[] { getId( items[ 0 ] ), getId( items[ 2 ] ) } );
+                              createArray( getId( items[ 0 ] ), getId( items[ 2 ] ) ) );
     Fixture.readDataAndProcessAction( grid );
 
     GridItem[] selectedItems = grid.getSelection();
@@ -882,9 +873,9 @@ public class GridLCA_Test extends TestCase {
     items[ 0 ].dispose();
 
     Fixture.fakeNewRequest();
-    Fixture.fakeSetParameter( getId( grid ),
+    Fixture.fakeSetProperty( getId( grid ),
                               "selection",
-                              new String[] { getId( items[ 0 ] ), getId( items[ 2 ] ) } );
+                              createArray( getId( items[ 0 ] ), getId( items[ 2 ] ) ) );
     Fixture.readDataAndProcessAction( grid );
 
     GridItem[] selectedItems = grid.getSelection();
@@ -898,7 +889,7 @@ public class GridLCA_Test extends TestCase {
     createGridItems( grid, 10, 0 );
 
     Fixture.fakeNewRequest();
-    Fixture.fakeSetParameter( getId( grid ), "scrollLeft", Integer.valueOf( 30 ) );
+    Fixture.fakeSetProperty( getId( grid ), "scrollLeft", 30 );
     Fixture.readDataAndProcessAction( grid );
 
     assertEquals( 30, grid.getHorizontalBar().getSelection() );
@@ -911,7 +902,7 @@ public class GridLCA_Test extends TestCase {
     items[ 4 ].setExpanded( true );
 
     Fixture.fakeNewRequest();
-    Fixture.fakeSetParameter( getId( grid ), "topItemIndex", Integer.valueOf( 3 ) );
+    Fixture.fakeSetProperty( getId( grid ), "topItemIndex", 3 );
     Fixture.readDataAndProcessAction( grid );
 
     assertEquals( 3, grid.getVerticalBar().getSelection() );
@@ -924,9 +915,8 @@ public class GridLCA_Test extends TestCase {
     grid.addListener( SWT.Selection, new LoggingListener( events ) );
 
     Fixture.fakeNewRequest();
-    Map<String, Object> parameters = new HashMap<String, Object>();
-    parameters.put( ClientMessageConst.EVENT_PARAM_ITEM, getId( item ) );
-    Fixture.fakeNotifyOperation( getId( grid ), EVENT_SELECTION, parameters );
+    JsonObject parameters = new JsonObject().add( "item", getId( item ) );
+    Fixture.fakeNotifyOperation( getId( grid ), "Selection", parameters );
     Fixture.readDataAndProcessAction( display );
 
     assertEquals( 1, events.size() );
@@ -943,11 +933,11 @@ public class GridLCA_Test extends TestCase {
     grid.addListener( SWT.Selection, new LoggingListener( events ) );
 
     Fixture.fakeNewRequest();
-    Map<String, Object> parameters = new HashMap<String, Object>();
-    parameters.put( ClientMessageConst.EVENT_PARAM_ITEM, getId( item ) );
-    parameters.put( ClientMessageConst.EVENT_PARAM_DETAIL, "check" );
-    parameters.put( ClientMessageConst.EVENT_PARAM_INDEX, Integer.valueOf( 3 ) );
-    Fixture.fakeNotifyOperation( getId( grid ), EVENT_SELECTION, parameters );
+    JsonObject parameters = new JsonObject()
+      .add( "item", getId( item ) )
+      .add( "detail", "check" )
+      .add( "index", 3 );
+    Fixture.fakeNotifyOperation( getId( grid ), "Selection", parameters );
     Fixture.readDataAndProcessAction( display );
 
     assertEquals( 1, events.size() );
@@ -965,9 +955,8 @@ public class GridLCA_Test extends TestCase {
     grid.addListener( SWT.DefaultSelection, new LoggingListener( events ) );
 
     Fixture.fakeNewRequest();
-    Map<String, Object> parameters = new HashMap<String, Object>();
-    parameters.put( ClientMessageConst.EVENT_PARAM_ITEM, getId( item ) );
-    Fixture.fakeNotifyOperation( getId( grid ), EVENT_DEFAULT_SELECTION, parameters );
+    JsonObject parameters = new JsonObject().add( "item", getId( item ) );
+    Fixture.fakeNotifyOperation( getId( grid ), "DefaultSelection", parameters );
     Fixture.readDataAndProcessAction( display );
 
     assertEquals( 1, events.size() );
@@ -1094,21 +1083,21 @@ public class GridLCA_Test extends TestCase {
     lca.render( grid );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( Boolean.TRUE, message.findCreateProperty( grid, "markupEnabled" ) );
+    assertEquals( JsonValue.TRUE, message.findCreateProperty( grid, "markupEnabled" ) );
   }
 
   public void testRenderAddExpandListener() throws Exception {
     lca.renderChanges( grid );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( Boolean.TRUE, message.findListenProperty( grid, "Expand" ) );
+    assertEquals( JsonValue.TRUE, message.findListenProperty( grid, "Expand" ) );
   }
 
   public void testRenderAddCollapseListener() throws Exception {
     lca.renderChanges( grid );
 
     Message message = Fixture.getProtocolMessage();
-    assertEquals( Boolean.TRUE, message.findListenProperty( grid, "Collapse" ) );
+    assertEquals( JsonValue.TRUE, message.findListenProperty( grid, "Collapse" ) );
   }
 
   public void testDontRenderSetDataListenerTwice() throws Exception {
@@ -1137,10 +1126,18 @@ public class GridLCA_Test extends TestCase {
   public void testReadFocusItem() {
     GridItem[] items = createGridItems( grid, 3, 1 );
 
-    Fixture.fakeSetParameter( getId( grid ), "focusItem", getId( items[ 2 ] ) );
+    Fixture.fakeSetProperty( getId( grid ), "focusItem", getId( items[ 2 ] ) );
     lca.readData( grid );
 
     assertSame( items[ 2 ], grid.getFocusItem() );
+  }
+
+  private static JsonValue createArray( String... values ) {
+    JsonArray array = new JsonArray();
+    for( int i = 0; i < values.length; i++ ) {
+      array.add( values[ i ] );
+    }
+    return array;
   }
 
   //////////////////
@@ -1148,9 +1145,9 @@ public class GridLCA_Test extends TestCase {
 
   private static void processCellToolTipRequest( Grid grid, String itemId, int column ) {
     Fixture.fakeNewRequest();
-    Map<String, Object> parameters = new HashMap<String, Object>();
-    parameters.put( "item", itemId );
-    parameters.put( "column", Integer.valueOf( column ) );
+    JsonObject parameters = new JsonObject()
+      .add( "item", itemId )
+      .add( "column", column );
     Fixture.fakeCallOperation( getId( grid ), "renderToolTipText", parameters );
     Fixture.executeLifeCycleFromServerThread();
   }
