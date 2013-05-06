@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012,2013 EclipseSource and others.
+ * Copyright (c) 2012, 2013 EclipseSource and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,6 +17,7 @@ import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.preserveProperty;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.renderListener;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.renderProperty;
 import static org.eclipse.rap.rwt.lifecycle.WidgetUtil.getId;
+import static org.eclipse.swt.internal.events.EventLCAUtil.isListening;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -31,8 +32,8 @@ import org.eclipse.rap.rwt.internal.protocol.ProtocolUtil;
 import org.eclipse.rap.rwt.internal.util.NumberFormatUtil;
 import org.eclipse.rap.rwt.lifecycle.AbstractWidgetLCA;
 import org.eclipse.rap.rwt.lifecycle.ControlLCAUtil;
-import org.eclipse.rap.rwt.lifecycle.WidgetAdapter;
 import org.eclipse.rap.rwt.lifecycle.ProcessActionRunner;
+import org.eclipse.rap.rwt.lifecycle.WidgetAdapter;
 import org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil;
 import org.eclipse.rap.rwt.lifecycle.WidgetUtil;
 import org.eclipse.swt.SWT;
@@ -100,7 +101,7 @@ public class GridColumnLCA extends AbstractWidgetLCA {
     preserveProperty( column, PROP_FOOTER_FONT, column.getFooterFont() );
     preserveProperty( column, PROP_FOOTER_TEXT, column.getFooterText() );
     preserveProperty( column, PROP_FOOTER_IMAGE, column.getFooterImage() );
-    preserveListener( column, PROP_SELECTION_LISTENER, column.isListening( SWT.Selection ) );
+    preserveListener( column, PROP_SELECTION_LISTENER, isListening( column, SWT.Selection ) );
   }
 
   @Override
@@ -121,7 +122,7 @@ public class GridColumnLCA extends AbstractWidgetLCA {
     renderFont( column, PROP_FOOTER_FONT, column.getFooterFont() );
     renderProperty( column, PROP_FOOTER_TEXT, column.getFooterText(), "" );
     renderProperty( column, PROP_FOOTER_IMAGE, column.getFooterImage(), null );
-    renderListener( column, PROP_SELECTION_LISTENER, column.isListening( SWT.Selection ), false );
+    renderListener( column, PROP_SELECTION_LISTENER, isListening( column, SWT.Selection ), false );
   }
 
   ////////////////////////////////////////////

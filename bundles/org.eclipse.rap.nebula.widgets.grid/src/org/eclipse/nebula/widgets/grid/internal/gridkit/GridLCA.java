@@ -27,6 +27,7 @@ import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.renderListener;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.renderProperty;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.wasEventSent;
 import static org.eclipse.rap.rwt.lifecycle.WidgetUtil.getId;
+import static org.eclipse.swt.internal.events.EventLCAUtil.isListening;
 
 import java.io.IOException;
 
@@ -152,10 +153,10 @@ public class GridLCA extends AbstractWidgetLCA {
     preserveProperty( grid, PROP_SELECTION, getSelection( grid ) );
     preserveProperty( grid, PROP_SORT_DIRECTION, getSortDirection( grid ) );
     preserveProperty( grid, PROP_SORT_COLUMN, getSortColumn( grid ) );
-    preserveListener( grid, PROP_SELECTION_LISTENER, grid.isListening( SWT.Selection ) );
+    preserveListener( grid, PROP_SELECTION_LISTENER, isListening( grid, SWT.Selection ) );
     preserveListener( grid,
                       PROP_DEFAULT_SELECTION_LISTENER,
-                      grid.isListening( SWT.DefaultSelection ) );
+                      isListening( grid, SWT.DefaultSelection ) );
     preserveListener( grid, PROP_SETDATA_LISTENER, listensToSetData( grid ) );
     preserveListener( grid, PROP_EXPAND_LISTENER, hasExpandListener( grid ) );
     preserveListener( grid, PROP_COLLAPSE_LISTENER, hasCollapseListener( grid ) );
@@ -185,10 +186,10 @@ public class GridLCA extends AbstractWidgetLCA {
     renderProperty( grid, PROP_SELECTION, getSelection( grid ), DEFAULT_SELECTION );
     renderProperty( grid, PROP_SORT_DIRECTION, getSortDirection( grid ), DEFAULT_SORT_DIRECTION );
     renderProperty( grid, PROP_SORT_COLUMN, getSortColumn( grid ), null );
-    renderListener( grid, PROP_SELECTION_LISTENER, grid.isListening( SWT.Selection ), false );
+    renderListener( grid, PROP_SELECTION_LISTENER, isListening( grid, SWT.Selection ), false );
     renderListener( grid,
                     PROP_DEFAULT_SELECTION_LISTENER,
-                    grid.isListening( SWT.DefaultSelection ),
+                    isListening( grid, SWT.DefaultSelection ),
                     false );
     renderListener( grid, PROP_SETDATA_LISTENER, listensToSetData( grid ), false );
     renderListener( grid, PROP_EXPAND_LISTENER, hasExpandListener( grid ), false );

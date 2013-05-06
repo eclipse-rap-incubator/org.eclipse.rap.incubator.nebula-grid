@@ -21,6 +21,7 @@ import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.renderListener;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.renderProperty;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.wasEventSent;
 import static org.eclipse.rap.rwt.lifecycle.WidgetUtil.getId;
+import static org.eclipse.swt.internal.events.EventLCAUtil.isListening;
 
 import java.io.IOException;
 
@@ -119,7 +120,7 @@ public class GridColumnGroupLCA extends AbstractWidgetLCA {
   }
 
   private static void processTreeEvent( GridColumnGroup group, int eventType, String eventName ) {
-    if( wasEventSent( group, eventName ) && group.isListening( eventType ) ) {
+    if( wasEventSent( group, eventName ) && isListening( group, eventType ) ) {
       group.notifyListeners( eventType, new Event() );
     }
   }
