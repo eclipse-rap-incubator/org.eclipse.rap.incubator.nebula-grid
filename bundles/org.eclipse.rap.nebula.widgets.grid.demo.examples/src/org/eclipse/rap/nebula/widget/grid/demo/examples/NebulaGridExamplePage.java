@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.eclipse.rap.nebula.widget.grid.demo.examples;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +23,6 @@ import org.eclipse.rap.examples.IExamplePage;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
@@ -31,46 +31,62 @@ import org.eclipse.swt.widgets.Listener;
 
 public class NebulaGridExamplePage implements IExamplePage {
 
+  private static final int NO_DATA = Integer.MIN_VALUE;
   private static final String EURO = "€ ";
-  private static final String[] MONTHS = new String[] {
-    "January", "February", "March", "Apil", "May", "June"
+  private static final String[] YEARS = new String[] {
+    "2005", "2006", "2007", "2008", "2009"
   };
 
-  private Image euro;
-  private List<Expenses> expenses;
+  private List<CompanyData> data;
 
   public void createControl( Composite parent ) {
     initData();
     parent.setLayout( ExampleUtil.createGridLayout( 1, true, true, true ) );
+    ExampleUtil.createHeading( parent, "Profit and Loss Balance Sheet", 1 );
     parent.setLayoutData( ExampleUtil.createFillData() );
     Grid grid = createGrid( parent );
-    GridColumn category = createColumn( grid, null, "Company Expenses", 215, SWT.CENTER );
-    category.setFooterText( "Grand Total" );
-    GridColumnGroup group = createGridColumnGroup( grid, "Period ( six monts )", SWT.CENTER );
-    for( int i = 0; i < MONTHS.length; i++ ) {
-      createMonthColumn( grid, group, MONTHS[ i ] );
+    GridColumn category = createColumn( grid, null, "", 235, SWT.CENTER );
+    category.setFooterText( "Net income" );
+    GridColumnGroup group
+      = createGridColumnGroup( grid, "Period ( Year Ended December 31 )", SWT.CENTER );
+    for( int i = 0; i < YEARS.length; i++ ) {
+      createYearColumn( grid, group, YEARS[ i ] );
     }
     createTotalColumn( grid, group );
-    createColumn( grid, null, "", 55, SWT.CENTER | SWT.CHECK );
     createItems( grid );
-    calcTotals( grid );
+    calcNetIncome( grid );
   }
 
   private void initData() {
-    expenses = new ArrayList<Expenses>();
-    expenses.add( new Expenses( "Business Property<br/>Rent/Lease", 450, 85, 1200, 140, 450, 235 ) );
-    expenses.add( new Expenses( "Salaries and Wages of<br/>Employees", 12970, 14075, 13560, 15980, 15780, 14120 ) );
-    expenses.add( new Expenses( "Employee Benefits", 1200, 700, 880, 3200, 2430, 1750 ) );
-    expenses.add( new Expenses( "Equipment Lease<br/>Payments", 0, 0, 0, 0, 0, 0 ) );
-    expenses.add( new Expenses( "Secured Debt Payments", 0, 0, 0, 0, 0, 0 ) );
-    expenses.add( new Expenses( "Supplies", 0, 0, 0, 0, 0, 0 ) );
-    expenses.add( new Expenses( "Utilities", 0, 0, 0, 0, 0, 0 ) );
-    expenses.add( new Expenses( "Telephone", 420, 340, 200, 235, 210, 180 ) );
-    expenses.add( new Expenses( "Repairs and Maintenance", 0, 0, 0, 0, 0, 0 ) );
-    expenses.add( new Expenses( "Miscellaneous Office<br/>Expense", 0, 0, 0, 0, 0, 0 ) );
-    expenses.add( new Expenses( "Advertising", 0, 0, 0, 0, 0, 0 ) );
-    expenses.add( new Expenses( "Travel and Entertainment", 0, 0, 0, 0, 0, 0 ) );
-    expenses.add( new Expenses( "Professional Fees", 0, 0, 0, 0, 0, 0 ) );
+    data = new ArrayList<CompanyData>();
+    data.add( new CompanyData( "Consolidated Statements of<br/>Incoming Data:",
+                               NO_DATA, NO_DATA, NO_DATA, NO_DATA, NO_DATA ) );
+    data.add( new CompanyData( "Revenues",
+                               6138560, 10604917, 16593986, 21795550, 23650563 ) );
+    data.add( new CompanyData( "Costs and expenses:",
+                               NO_DATA, NO_DATA, NO_DATA, NO_DATA, NO_DATA ) );
+    data.add( new CompanyData( "Costs of ravenues",
+                               2577088, 4225027, 6649085, 8621506, 8844115 ) );
+    data.add( new CompanyData( "Research and development",
+                               599510, 1228589, 2119985, 2793192, 2843027 ) );
+    data.add( new CompanyData( "Sales and marketing",
+                               468152, 849518, 1461266, 1946244, 1983941 ) );
+    data.add( new CompanyData( "General and administrative",
+                               386532, 751787, 1279250, 1802639, 1667294 ) );
+    data.add( new CompanyData( "Contribution to Google<br/>Foundation",
+                               90000, 0, 0, 0, 0 ) );
+    data.add( new CompanyData( "Total costs and expenses",
+                               4121282, 7054921, 11509586, 15163581, 15338377 ) );
+    data.add( new CompanyData( "Income from operations",
+                               2017287, 3549996, 5084400, 6631969, 8312186 ) );
+    data.add( new CompanyData( "Impairment of equity<br/>investments",
+                               0, 0, 0, 1094757, 0 ) );
+    data.add( new CompanyData( "Interest income and other, net",
+                               124399, 461044, 589580, 316384, 69003 ) );
+    data.add( new CompanyData( "Income before income taxes",
+                               2141677, 4011040, 5673980, 5853596, 8381189 ) );
+    data.add( new CompanyData( "Provision for income taxes",
+                               676280, 933594, 1470260, 1626738, 1860741 ) );
   }
 
   private Grid createGrid( Composite parent ) {
@@ -84,7 +100,7 @@ public class NebulaGridExamplePage implements IExamplePage {
     grid.setLinesVisible( true );
     grid.addListener( SWT.Selection, new Listener() {
       public void handleEvent( Event event ) {
-        calcTotals( ( Grid )event.widget );
+        calcNetIncome( ( Grid )event.widget );
       }
     } );
     return grid;
@@ -97,17 +113,15 @@ public class NebulaGridExamplePage implements IExamplePage {
     return group;
   }
 
-  private void createMonthColumn( Grid grid, GridColumnGroup group, String text ) {
-    GridColumn column = createColumn( grid, group, text, 120, SWT.CENTER );
+  private void createYearColumn( Grid grid, GridColumnGroup group, String text ) {
+    GridColumn column = createColumn( grid, group, text, 148, SWT.RIGHT );
     column.setSummary( false );
-    column.setFooterImage( euro );
-    column.setData( "month" );
   }
 
   private void createTotalColumn( Grid grid, GridColumnGroup columnGroup ) {
-    GridColumn totalColumn = createColumn( grid, columnGroup, "Total", 720, SWT.CENTER );
+    GridColumn totalColumn
+      = createColumn( grid, columnGroup, "Total (2005 - 2009)", 740, SWT.RIGHT );
     totalColumn.setDetail( false );
-    totalColumn.setData( "total" );
   }
 
   private static GridColumn createColumn( Grid grid,
@@ -131,41 +145,49 @@ public class NebulaGridExamplePage implements IExamplePage {
   }
 
   private void createItems( Grid grid ) {
-    for( int i = 0; i < expenses.size(); i++ ) {
-      Expenses current = expenses.get( i );
-      GridItem item = new GridItem( grid, SWT.NONE );
+    for( int i = 0; i < data.size(); i++ ) {
+      CompanyData current = data.get( i );
+      GridItem item;
+      if( i > 2 && i < 8 ) {
+        item = new GridItem( grid.getItem( 2 ), SWT.NONE );
+      } else {
+        item = new GridItem( grid, SWT.NONE );
+      }
       if( current.name.indexOf( "<br/>" ) != -1 ) {
         item.setHeight( 2 * grid.getItemHeight() );
       }
       item.setText( current.name );
       for( int j = 0; j < current.amount.length; j++ ) {
-        String text = EURO + String.valueOf( current.amount[ j ] );
+        String text = "";
+        if( current.amount[ j ] != NO_DATA ) {
+          text = format( current.amount[ j ] );
+        }
         item.setText( j + 1, text );
       }
-      item.setChecked( 8, true );
+      item.setExpanded( true );
     }
   }
 
-  private void calcTotals( Grid grid ) {
-    for( int i = 0; i < MONTHS.length + 1; i++ ) {
-      int total = 0;
-      for( int j = 0; j < expenses.size(); j++ ) {
-        Expenses current = expenses.get( j );
-        if( grid.getItem( j ).getChecked( 8 ) ) {
-          total += current.amount[ i ];
-        }
-      }
-      String text = EURO + String.valueOf( total );
-      grid.getColumn( i + 1 ).setFooterText( text );
+  private void calcNetIncome( Grid grid ) {
+    for( int i = 0; i < YEARS.length + 1; i++ ) {
+      CompanyData income = data.get( data.size() - 2 );
+      CompanyData taxes = data.get( data.size() - 1 );
+      int netIncome = income.amount[ i ] - taxes.amount[ i ];
+      grid.getColumn( i + 1 ).setFooterText( format( netIncome ) );
     }
   }
 
-  private class Expenses {
+  private String format( int amount ) {
+    NumberFormat formatter = NumberFormat.getInstance( RWT.getLocale() );
+    return amount == 0 ? "-" : EURO + formatter.format( amount );
+  }
+
+  private class CompanyData {
 
     public final String name;
-    public final int[] amount = new int[ MONTHS.length + 1 ];
+    public final int[] amount = new int[ YEARS.length + 1 ];
 
-    public Expenses( String name, int... amount ) {
+    public CompanyData( String name, int... amount ) {
       this.name = name;
       int sum = 0;
       for( int i = 0; i < this.amount.length - 1; i++ ) {
