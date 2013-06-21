@@ -25,8 +25,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
 
 
 public class NebulaGridExamplePage implements IExamplePage {
@@ -98,11 +96,6 @@ public class NebulaGridExamplePage implements IExamplePage {
     grid.setHeaderVisible( true );
     grid.setFooterVisible( true );
     grid.setLinesVisible( true );
-    grid.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event event ) {
-        calcNetIncome( ( Grid )event.widget );
-      }
-    } );
     return grid;
   }
 
@@ -154,7 +147,7 @@ public class NebulaGridExamplePage implements IExamplePage {
         item = new GridItem( grid, SWT.NONE );
       }
       if( current.name.indexOf( "<br/>" ) != -1 ) {
-        item.setHeight( 2 * grid.getItemHeight() );
+        item.setHeight( 44 );
       }
       item.setText( current.name );
       for( int j = 0; j < current.amount.length; j++ ) {
