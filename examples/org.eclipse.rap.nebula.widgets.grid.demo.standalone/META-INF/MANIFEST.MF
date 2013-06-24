@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %Bundle-Name
 Bundle-Vendor: %Bundle-Vendor
-Bundle-SymbolicName: org.eclipse.rap.nebula.widgets.grid.snippets
+Bundle-SymbolicName: org.eclipse.rap.nebula.widgets.grid.demo.standalone
 Bundle-Version: 0.1.0.qualifier
 Require-Bundle: org.eclipse.rap.rwt;bundle-version="[2.0.0,3.0.0)",
  org.eclipse.rap.jface;bundle-version="[2.0.0,3.0.0)",
