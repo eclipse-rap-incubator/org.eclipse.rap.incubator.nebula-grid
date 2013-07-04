@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.eclipse.nebula.widgets.grid.internal.griditemkit;
 
+import static org.eclipse.rap.rwt.internal.protocol.RemoteObjectFactory.createRemoteObject;
+import static org.eclipse.rap.rwt.internal.protocol.RemoteObjectFactory.getRemoteObject;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.preserveProperty;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.renderProperty;
 import static org.eclipse.rap.rwt.lifecycle.WidgetUtil.getId;
@@ -20,13 +22,12 @@ import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridItem;
 import org.eclipse.nebula.widgets.grid.internal.IGridAdapter;
 import org.eclipse.nebula.widgets.grid.internal.IGridItemAdapter;
-import org.eclipse.rap.rwt.internal.protocol.ClientObjectFactory;
-import org.eclipse.rap.rwt.internal.protocol.IClientObject;
 import org.eclipse.rap.rwt.internal.protocol.ProtocolUtil;
 import org.eclipse.rap.rwt.lifecycle.AbstractWidgetLCA;
 import org.eclipse.rap.rwt.lifecycle.ProcessActionRunner;
 import org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil;
 import org.eclipse.rap.rwt.lifecycle.WidgetUtil;
+import org.eclipse.rap.rwt.remote.RemoteObject;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
@@ -57,10 +58,9 @@ public class GridItemLCA extends AbstractWidgetLCA {
   @Override
   public void renderInitialization( Widget widget ) throws IOException {
     GridItem item = ( GridItem )widget;
-    IClientObject clientObject = ClientObjectFactory.getClientObject( item );
-    clientObject.create( TYPE );
-    clientObject.set( "parent", WidgetUtil.getId( getParent( item ) ) );
-    clientObject.set( "index", getItemIndex( item ) );
+    RemoteObject remoteObject = createRemoteObject( item, TYPE );
+    remoteObject.set( "parent", WidgetUtil.getId( getParent( item ) ) );
+    remoteObject.set( "index", getItemIndex( item ) );
   }
 
   public void readData( Widget widget ) {
@@ -134,7 +134,7 @@ public class GridItemLCA extends AbstractWidgetLCA {
     GridItem item = ( GridItem )widget;
     if( !isParentDisposed( item ) ) {
       // The tree disposes the items itself on the client (faster)
-      ClientObjectFactory.getClientObject( widget ).destroy();
+      getRemoteObject( widget ).destroy();
     }
   }
 

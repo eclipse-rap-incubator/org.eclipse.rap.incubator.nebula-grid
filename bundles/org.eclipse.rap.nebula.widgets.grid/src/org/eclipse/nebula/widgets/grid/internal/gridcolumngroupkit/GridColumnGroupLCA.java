@@ -10,9 +10,10 @@
  ******************************************************************************/
 package org.eclipse.nebula.widgets.grid.internal.gridcolumngroupkit;
 
-import static org.eclipse.rap.rwt.internal.protocol.ClientObjectFactory.getClientObject;
 import static org.eclipse.rap.rwt.internal.protocol.JsonUtil.createJsonArray;
 import static org.eclipse.rap.rwt.internal.protocol.ProtocolUtil.getJsonForFont;
+import static org.eclipse.rap.rwt.internal.protocol.RemoteObjectFactory.createRemoteObject;
+import static org.eclipse.rap.rwt.internal.protocol.RemoteObjectFactory.getRemoteObject;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.getStyles;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.hasChanged;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.preserveListener;
@@ -29,11 +30,10 @@ import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridColumn;
 import org.eclipse.nebula.widgets.grid.GridColumnGroup;
 import org.eclipse.rap.rwt.internal.protocol.ClientMessageConst;
-import org.eclipse.rap.rwt.internal.protocol.ClientObjectFactory;
-import org.eclipse.rap.rwt.internal.protocol.IClientObject;
 import org.eclipse.rap.rwt.lifecycle.AbstractWidgetLCA;
 import org.eclipse.rap.rwt.lifecycle.ProcessActionRunner;
 import org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil;
+import org.eclipse.rap.rwt.remote.RemoteObject;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.internal.widgets.ItemLCAUtil;
@@ -61,10 +61,9 @@ public class GridColumnGroupLCA extends AbstractWidgetLCA {
   @Override
   public void renderInitialization( Widget widget ) throws IOException {
     GridColumnGroup group = ( GridColumnGroup )widget;
-    IClientObject clientObject = ClientObjectFactory.getClientObject( group );
-    clientObject.create( TYPE );
-    clientObject.set( "parent", getId( group.getParent() ) );
-    clientObject.set( "style", createJsonArray( getStyles( group, ALLOWED_STYLES ) ) );
+    RemoteObject remoteObject = createRemoteObject( group, TYPE );
+    remoteObject.set( "parent", getId( group.getParent() ) );
+    remoteObject.set( "style", createJsonArray( getStyles( group, ALLOWED_STYLES ) ) );
   }
 
   public void readData( Widget widget ) {
@@ -130,7 +129,7 @@ public class GridColumnGroupLCA extends AbstractWidgetLCA {
 
   private static void renderFont( GridColumnGroup group, String property, Font newValue ) {
     if( hasChanged( group, property, newValue, group.getParent().getFont() ) ) {
-      getClientObject( group ).set( property, getJsonForFont( newValue ) );
+      getRemoteObject( group ).set( property, getJsonForFont( newValue ) );
     }
   }
 

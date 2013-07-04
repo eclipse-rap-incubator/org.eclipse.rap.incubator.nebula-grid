@@ -12,6 +12,8 @@ package org.eclipse.nebula.widgets.grid.internal.gridcolumnkit;
 
 import static org.eclipse.rap.rwt.internal.protocol.ProtocolUtil.getJsonForFont;
 import static org.eclipse.rap.rwt.internal.protocol.ProtocolUtil.readCallPropertyValueAsString;
+import static org.eclipse.rap.rwt.internal.protocol.RemoteObjectFactory.createRemoteObject;
+import static org.eclipse.rap.rwt.internal.protocol.RemoteObjectFactory.getRemoteObject;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.preserveListener;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.preserveProperty;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.renderListener;
@@ -26,8 +28,6 @@ import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridColumn;
 import org.eclipse.nebula.widgets.grid.GridColumnGroup;
 import org.eclipse.nebula.widgets.grid.internal.IGridAdapter;
-import org.eclipse.rap.rwt.internal.protocol.ClientObjectFactory;
-import org.eclipse.rap.rwt.internal.protocol.IClientObject;
 import org.eclipse.rap.rwt.internal.protocol.ProtocolUtil;
 import org.eclipse.rap.rwt.internal.util.NumberFormatUtil;
 import org.eclipse.rap.rwt.lifecycle.AbstractWidgetLCA;
@@ -36,6 +36,7 @@ import org.eclipse.rap.rwt.lifecycle.ProcessActionRunner;
 import org.eclipse.rap.rwt.lifecycle.WidgetAdapter;
 import org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil;
 import org.eclipse.rap.rwt.lifecycle.WidgetUtil;
+import org.eclipse.rap.rwt.remote.RemoteObject;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.internal.widgets.ItemLCAUtil;
@@ -67,12 +68,11 @@ public class GridColumnLCA extends AbstractWidgetLCA {
   @Override
   public void renderInitialization( Widget widget ) throws IOException {
     GridColumn column = ( GridColumn )widget;
-    IClientObject clientObject = ClientObjectFactory.getClientObject( column );
-    clientObject.create( TYPE );
-    clientObject.set( "parent", WidgetUtil.getId( column.getParent() ) );
+    RemoteObject remoteObject = createRemoteObject( column, TYPE );
+    remoteObject.set( "parent", WidgetUtil.getId( column.getParent() ) );
     GridColumnGroup group = column.getColumnGroup();
     if( group != null ) {
-      clientObject.set( "group", WidgetUtil.getId( group ) );
+      remoteObject.set( "group", WidgetUtil.getId( group ) );
     }
   }
 
@@ -159,8 +159,8 @@ public class GridColumnLCA extends AbstractWidgetLCA {
 
   private static void renderFont( GridColumn column, String property, Font newValue ) {
     if( WidgetLCAUtil.hasChanged( column, property, newValue, column.getParent().getFont() ) ) {
-      IClientObject clientObject = ClientObjectFactory.getClientObject( column );
-      clientObject.set( property, getJsonForFont( newValue ) );
+      RemoteObject remoteObject = getRemoteObject( column );
+      remoteObject.set( property, getJsonForFont( newValue ) );
     }
   }
 

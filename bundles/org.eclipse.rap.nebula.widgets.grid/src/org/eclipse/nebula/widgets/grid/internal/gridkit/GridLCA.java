@@ -13,11 +13,12 @@ package org.eclipse.nebula.widgets.grid.internal.gridkit;
 import static org.eclipse.rap.rwt.internal.protocol.ClientMessageConst.EVENT_PARAM_DETAIL;
 import static org.eclipse.rap.rwt.internal.protocol.ClientMessageConst.EVENT_PARAM_INDEX;
 import static org.eclipse.rap.rwt.internal.protocol.ClientMessageConst.EVENT_PARAM_ITEM;
-import static org.eclipse.rap.rwt.internal.protocol.ClientObjectFactory.getClientObject;
 import static org.eclipse.rap.rwt.internal.protocol.JsonUtil.createJsonArray;
 import static org.eclipse.rap.rwt.internal.protocol.ProtocolUtil.readCallPropertyValueAsString;
 import static org.eclipse.rap.rwt.internal.protocol.ProtocolUtil.readPropertyValueAsStringArray;
 import static org.eclipse.rap.rwt.internal.protocol.ProtocolUtil.wasCallReceived;
+import static org.eclipse.rap.rwt.internal.protocol.RemoteObjectFactory.createRemoteObject;
+import static org.eclipse.rap.rwt.internal.protocol.RemoteObjectFactory.getRemoteObject;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.getStyles;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.preserveListener;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.preserveProperty;
@@ -38,12 +39,12 @@ import org.eclipse.nebula.widgets.grid.internal.IGridAdapter;
 import org.eclipse.rap.json.JsonArray;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.internal.protocol.ClientMessageConst;
-import org.eclipse.rap.rwt.internal.protocol.IClientObject;
 import org.eclipse.rap.rwt.internal.util.NumberFormatUtil;
 import org.eclipse.rap.rwt.lifecycle.AbstractWidgetLCA;
 import org.eclipse.rap.rwt.lifecycle.ControlLCAUtil;
 import org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil;
 import org.eclipse.rap.rwt.lifecycle.WidgetUtil;
+import org.eclipse.rap.rwt.remote.RemoteObject;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.internal.widgets.CellToolTipUtil;
 import org.eclipse.swt.internal.widgets.ICellToolTipAdapter;
@@ -103,14 +104,13 @@ public class GridLCA extends AbstractWidgetLCA {
   @Override
   public void renderInitialization( Widget widget ) throws IOException {
     Grid grid = ( Grid )widget;
-    IClientObject clientObject = getClientObject( grid );
-    clientObject.create( TYPE );
-    clientObject.set( "parent", getId( grid.getParent() ) );
-    clientObject.set( "style", createJsonArray( getStyles( grid, ALLOWED_STYLES ) ) );
-    clientObject.set( "appearance", "tree" );
+    RemoteObject remoteObject = createRemoteObject( grid, TYPE );
+    remoteObject.set( "parent", getId( grid.getParent() ) );
+    remoteObject.set( "style", createJsonArray( getStyles( grid, ALLOWED_STYLES ) ) );
+    remoteObject.set( "appearance", "tree" );
     IGridAdapter adapter = getGridAdapter( grid );
-    clientObject.set( "indentionWidth", adapter.getIndentationWidth() );
-    clientObject.set( PROP_MARKUP_ENABLED, isMarkupEnabled( grid ) );
+    remoteObject.set( "indentionWidth", adapter.getIndentationWidth() );
+    remoteObject.set( PROP_MARKUP_ENABLED, isMarkupEnabled( grid ) );
     ScrollBarLCAUtil.renderInitialization( grid );
   }
 
@@ -413,7 +413,7 @@ public class GridLCA extends AbstractWidgetLCA {
                                     .add( itemMetrics[ i ].checkLeft )
                                     .add( itemMetrics[ i ].checkWidth ) );
       }
-      getClientObject( grid ).set( PROP_ITEM_METRICS, metrics );
+      getRemoteObject( grid ).set( PROP_ITEM_METRICS, metrics );
     }
   }
 
