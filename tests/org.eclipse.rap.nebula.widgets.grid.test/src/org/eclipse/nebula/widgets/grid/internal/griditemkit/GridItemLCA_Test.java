@@ -32,6 +32,8 @@ import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.client.Client;
 import org.eclipse.rap.rwt.internal.client.WidgetDataWhiteList;
 import org.eclipse.rap.rwt.internal.protocol.ClientMessageConst;
+import org.eclipse.rap.rwt.internal.remote.RemoteObjectImpl;
+import org.eclipse.rap.rwt.internal.remote.RemoteObjectRegistry;
 import org.eclipse.rap.rwt.lifecycle.WidgetUtil;
 import org.eclipse.rap.rwt.testfixture.Fixture;
 import org.eclipse.rap.rwt.testfixture.Message;
@@ -137,6 +139,17 @@ public class GridItemLCA_Test extends TestCase {
 
     Message message = Fixture.getProtocolMessage();
     assertEquals( 0, message.getOperationCount() );
+  }
+
+  @Test
+  public void testRenderDispose_withDisposedParent_destroysRemoteObjects() throws IOException {
+    lca.renderInitialization( item );
+    RemoteObjectImpl remoteObject = RemoteObjectRegistry.getInstance().get( getId( item ) );
+    grid.dispose();
+
+    lca.renderDispose( item );
+
+    assertTrue( remoteObject.isDestroyed() );
   }
 
   public void testRenderInitialCustomVariant() throws IOException {

@@ -23,6 +23,7 @@ import org.eclipse.nebula.widgets.grid.GridItem;
 import org.eclipse.nebula.widgets.grid.internal.IGridAdapter;
 import org.eclipse.nebula.widgets.grid.internal.IGridItemAdapter;
 import org.eclipse.rap.rwt.internal.protocol.ProtocolUtil;
+import org.eclipse.rap.rwt.internal.remote.RemoteObjectImpl;
 import org.eclipse.rap.rwt.lifecycle.AbstractWidgetLCA;
 import org.eclipse.rap.rwt.lifecycle.ProcessActionRunner;
 import org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil;
@@ -63,6 +64,7 @@ public class GridItemLCA extends AbstractWidgetLCA {
     remoteObject.set( "index", getItemIndex( item ) );
   }
 
+  @Override
   public void readData( Widget widget ) {
     GridItem item = ( GridItem )widget;
     readChecked( item );
@@ -132,9 +134,12 @@ public class GridItemLCA extends AbstractWidgetLCA {
   @Override
   public void renderDispose( Widget widget ) throws IOException {
     GridItem item = ( GridItem )widget;
+    RemoteObject remoteObject = getRemoteObject( widget );
     if( !isParentDisposed( item ) ) {
       // The tree disposes the items itself on the client (faster)
-      getRemoteObject( widget ).destroy();
+      remoteObject.destroy();
+    } else {
+      ( ( RemoteObjectImpl )remoteObject ).markDestroyed();
     }
   }
 
