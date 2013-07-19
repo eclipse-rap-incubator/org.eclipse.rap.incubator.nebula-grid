@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 EclipseSource and others.
+ * Copyright (c) 2012, 2013 EclipseSource and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,10 +13,15 @@ package org.eclipse.nebula.widgets.grid;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridColumns;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridItems;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import junit.framework.TestCase;
 
 import org.eclipse.nebula.widgets.grid.internal.IGridAdapter;
 import org.eclipse.nebula.widgets.grid.internal.NullScrollBarProxy;
@@ -27,9 +32,7 @@ import org.eclipse.rap.rwt.testfixture.Fixture;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
-import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.events.TreeAdapter;
 import org.eclipse.swt.events.TreeListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
@@ -44,7 +47,6 @@ import org.eclipse.swt.widgets.Item;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
-import junit.framework.TestCase;
 
 
 @SuppressWarnings("restriction")
@@ -347,21 +349,16 @@ public class Grid_Test extends TestCase {
   }
 
   public void testSendDisposeEvent() {
-    final List<DisposeEvent> log = new ArrayList<DisposeEvent>();
-    grid.addDisposeListener( new DisposeListener() {
-      public void widgetDisposed( DisposeEvent event ) {
-        log.add( event );
-      }
-    } );
+    DisposeListener listener = mock( DisposeListener.class );
+    grid.addDisposeListener( listener );
 
     grid.dispose();
 
-    assertEquals( 1, log.size() );
-    assertSame( grid, log.get( 0 ).widget );
+    verify( listener ).widgetDisposed( any( DisposeEvent.class ) );
   }
 
   public void testAddRemoveSelectionListener() {
-    SelectionListener listener = new SelectionAdapter() {};
+    SelectionListener listener = mock( SelectionListener.class );
     grid.addSelectionListener( listener );
 
     assertTrue( grid.isListening( SWT.Selection ) );
@@ -373,7 +370,7 @@ public class Grid_Test extends TestCase {
   }
 
   public void testAddRemoveTreeListener() {
-    TreeListener listener = new TreeAdapter() {};
+    TreeListener listener = mock( TreeListener.class );
     grid.addTreeListener( listener );
 
     assertTrue( grid.isListening( SWT.Expand ) );
