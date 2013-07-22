@@ -114,6 +114,7 @@ public class GridLCA extends AbstractWidgetLCA {
     ScrollBarLCAUtil.renderInitialization( grid );
   }
 
+  @Override
   public void readData( Widget widget ) {
     Grid grid = ( Grid )widget;
     readSelection( grid );
@@ -278,7 +279,7 @@ public class GridLCA extends AbstractWidgetLCA {
   //////////////////
   // Helping methods
 
-  private boolean listensToSetData( Grid grid ) {
+  private static boolean listensToSetData( Grid grid ) {
     return ( grid.getStyle() & SWT.VIRTUAL ) != 0;
   }
 

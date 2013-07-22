@@ -76,6 +76,7 @@ public class GridColumnLCA extends AbstractWidgetLCA {
     }
   }
 
+  @Override
   public void readData( Widget widget ) {
     GridColumn column = ( GridColumn )widget;
     readLeft( column );

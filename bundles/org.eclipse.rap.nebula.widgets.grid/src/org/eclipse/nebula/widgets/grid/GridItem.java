@@ -446,8 +446,8 @@ public class GridItem extends Item {
     checkWidget();
     this.expanded = expanded;
     boolean unselected = false;
-    for( Iterator itemIterator = children.iterator(); itemIterator.hasNext(); ) {
-      GridItem item = ( GridItem )itemIterator.next();
+    for( Iterator<GridItem> itemIterator = children.iterator(); itemIterator.hasNext(); ) {
+      GridItem item = itemIterator.next();
       item.setVisible( expanded && visible );
       if( !expanded ) {
         if( parent.isSelected( item ) ) {
@@ -1306,8 +1306,8 @@ public class GridItem extends Item {
         if( visible ) {
           childrenVisible = expanded;
         }
-        for( Iterator itemIterator = children.iterator(); itemIterator.hasNext(); ) {
-          GridItem item = ( GridItem )itemIterator.next();
+        for( Iterator<GridItem> itemIterator = children.iterator(); itemIterator.hasNext(); ) {
+          GridItem item = itemIterator.next();
           item.setVisible( childrenVisible );
         }
       }

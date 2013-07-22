@@ -66,6 +66,7 @@ public class GridColumnGroupLCA extends AbstractWidgetLCA {
     remoteObject.set( "style", createJsonArray( getStyles( group, ALLOWED_STYLES ) ) );
   }
 
+  @Override
   public void readData( Widget widget ) {
     GridColumnGroup group = ( GridColumnGroup )widget;
     readExpanded( group );
