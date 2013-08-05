@@ -255,8 +255,7 @@ public class GridColumnLCA_Test extends TestCase {
     lca.render( column );
 
     Message message = Fixture.getProtocolMessage();
-    CreateOperation operation = message.findCreateOperation( column );
-    assertTrue( operation.getPropertyNames().indexOf( "index" ) == -1 );
+    assertEquals( 0, message.findCreateProperty( column, "index" ).asInt() );
   }
 
   public void testRenderIndex() throws IOException {

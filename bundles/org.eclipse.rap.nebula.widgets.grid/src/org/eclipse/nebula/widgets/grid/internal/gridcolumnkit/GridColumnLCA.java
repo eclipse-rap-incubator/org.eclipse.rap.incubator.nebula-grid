@@ -111,7 +111,7 @@ public class GridColumnLCA extends AbstractWidgetLCA {
     WidgetLCAUtil.renderToolTip( column, column.getHeaderTooltip() );
     WidgetLCAUtil.renderCustomVariant( column );
     ItemLCAUtil.renderChanges( column );
-    renderProperty( column, PROP_INDEX, getIndex( column ), ZERO );
+    renderProperty( column, PROP_INDEX, getIndex( column ), -1 );
     renderProperty( column, PROP_LEFT, getLeft( column ), ZERO );
     renderProperty( column, PROP_WIDTH, column.getWidth(), ZERO );
     renderProperty( column, PROP_ALIGNMENT, getAlignment( column ), DEFAULT_ALIGNMENT );
