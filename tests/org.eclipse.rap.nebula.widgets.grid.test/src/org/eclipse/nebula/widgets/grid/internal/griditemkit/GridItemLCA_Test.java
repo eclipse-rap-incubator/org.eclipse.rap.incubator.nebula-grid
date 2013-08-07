@@ -14,8 +14,6 @@ import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridColumns;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridItems;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
 import static org.eclipse.rap.rwt.lifecycle.WidgetUtil.getId;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -29,8 +27,6 @@ import org.eclipse.rap.json.JsonArray;
 import org.eclipse.rap.json.JsonObject;
 import org.eclipse.rap.json.JsonValue;
 import org.eclipse.rap.rwt.RWT;
-import org.eclipse.rap.rwt.client.Client;
-import org.eclipse.rap.rwt.internal.client.WidgetDataWhiteList;
 import org.eclipse.rap.rwt.internal.protocol.ClientMessageConst;
 import org.eclipse.rap.rwt.internal.remote.RemoteObjectImpl;
 import org.eclipse.rap.rwt.internal.remote.RemoteObjectRegistry;
@@ -715,7 +711,7 @@ public class GridItemLCA_Test extends TestCase {
 
   @Test
   public void testRenderData() throws IOException {
-    fakeWidgetDataWhiteList( new String[]{ "foo", "bar" } );
+    WidgetUtil.registerDataKeys( new String[]{ "foo", "bar" } );
     item.setData( "foo", "string" );
     item.setData( "bar", Integer.valueOf( 1 ) );
 
@@ -729,7 +725,7 @@ public class GridItemLCA_Test extends TestCase {
 
   @Test
   public void testRenderDataUnchanged() throws IOException {
-    fakeWidgetDataWhiteList( new String[]{ "foo" } );
+    WidgetUtil.registerDataKeys( new String[]{ "foo" } );
     item.setData( "foo", "string" );
     Fixture.markInitialized( display );
     Fixture.markInitialized( item );
@@ -745,14 +741,6 @@ public class GridItemLCA_Test extends TestCase {
     JsonObject parameters = new JsonObject()
       .add( ClientMessageConst.EVENT_PARAM_ITEM, getId( item ) );
     Fixture.fakeNotifyOperation( getId( item.getParent() ), eventName, parameters );
-  }
-
-  public static void fakeWidgetDataWhiteList( String[] keys ) {
-    WidgetDataWhiteList service = mock( WidgetDataWhiteList.class );
-    when( service.getKeys() ).thenReturn( keys );
-    Client client = mock( Client.class );
-    when( client.getService( WidgetDataWhiteList.class ) ).thenReturn( service );
-    Fixture.fakeClient( client );
   }
 
   //////////////////
