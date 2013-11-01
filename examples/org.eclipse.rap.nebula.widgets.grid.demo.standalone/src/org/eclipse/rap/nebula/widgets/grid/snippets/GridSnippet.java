@@ -18,6 +18,7 @@ import org.eclipse.nebula.widgets.grid.GridColumn;
 import org.eclipse.nebula.widgets.grid.GridColumnGroup;
 import org.eclipse.nebula.widgets.grid.GridItem;
 import org.eclipse.rap.nebula.widgets.grid.snippets.internal.GridSnippetBase;
+import org.eclipse.rap.rwt.RWT;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
@@ -124,7 +125,9 @@ public class GridSnippet extends GridSnippetBase {
       } else {
         column = new GridColumn( grid, i == 4 ? SWT.CHECK : SWT.NONE );
       }
+      column.setData( RWT.TOOLTIP_MARKUP_ENABLED, Boolean.TRUE );
       column.setText( "Column " + i );
+      column.setHeaderTooltip( "<span style='font-weight:bold'><i>Column " + i + "</i></span>" );
       column.setFooterText( "Footer " + i );
       column.setWidth( 200 );
       column.setMoveable( true );
