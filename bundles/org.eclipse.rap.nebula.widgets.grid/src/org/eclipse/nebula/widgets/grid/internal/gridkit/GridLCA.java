@@ -29,6 +29,7 @@ import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.renderProperty;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.wasEventSent;
 import static org.eclipse.rap.rwt.lifecycle.WidgetUtil.getId;
 import static org.eclipse.swt.internal.events.EventLCAUtil.isListening;
+import static org.eclipse.swt.internal.widgets.MarkupUtil.isMarkupEnabledFor;
 
 import java.io.IOException;
 
@@ -37,7 +38,6 @@ import org.eclipse.nebula.widgets.grid.GridColumn;
 import org.eclipse.nebula.widgets.grid.GridItem;
 import org.eclipse.nebula.widgets.grid.internal.IGridAdapter;
 import org.eclipse.rap.json.JsonArray;
-import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.internal.protocol.ClientMessageConst;
 import org.eclipse.rap.rwt.internal.util.NumberFormatUtil;
 import org.eclipse.rap.rwt.lifecycle.AbstractWidgetLCA;
@@ -110,7 +110,7 @@ public class GridLCA extends AbstractWidgetLCA {
     remoteObject.set( "appearance", "tree" );
     IGridAdapter adapter = getGridAdapter( grid );
     remoteObject.set( "indentionWidth", adapter.getIndentationWidth() );
-    remoteObject.set( PROP_MARKUP_ENABLED, isMarkupEnabled( grid ) );
+    remoteObject.set( PROP_MARKUP_ENABLED, isMarkupEnabledFor( grid ) );
     ScrollBarLCAUtil.renderInitialization( grid );
   }
 
@@ -281,10 +281,6 @@ public class GridLCA extends AbstractWidgetLCA {
 
   private static boolean listensToSetData( Grid grid ) {
     return ( grid.getStyle() & SWT.VIRTUAL ) != 0;
-  }
-
-  private static boolean isMarkupEnabled( Grid grid ) {
-    return Boolean.TRUE.equals( grid.getData( RWT.MARKUP_ENABLED ) );
   }
 
   private static int getTreeColumn( Grid grid ) {

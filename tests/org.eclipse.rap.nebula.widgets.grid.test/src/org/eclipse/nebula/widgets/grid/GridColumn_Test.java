@@ -19,6 +19,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.internal.service.ContextProvider;
 import org.eclipse.rap.rwt.internal.service.ServiceStore;
 import org.eclipse.rap.rwt.lifecycle.PhaseId;
@@ -32,10 +33,12 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.internal.widgets.MarkupValidator;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
+import org.junit.Test;
 
 
 @SuppressWarnings("restriction")
@@ -833,6 +836,61 @@ public class GridColumn_Test extends TestCase {
     column.setSummary( false );
 
     assertFalse( column.isVisible() );
+  }
+
+  @Test
+  public void testMarkupToolTipTextWithoutMarkupEnabled() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+    column.setData( RWT.TOOLTIP_MARKUP_ENABLED, Boolean.FALSE );
+
+    try {
+      column.setHeaderTooltip( "invalid xhtml: <<&>>" );
+    } catch( IllegalArgumentException notExpected ) {
+      fail();
+    }
+  }
+
+  @Test
+  public void testMarkupToolTipTextWithMarkupEnabled() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+    column.setData( RWT.TOOLTIP_MARKUP_ENABLED, Boolean.TRUE );
+
+    try {
+      column.setHeaderTooltip( "invalid xhtml: <<&>>" );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  @Test
+  public void testMarkupTextWithMarkupEnabled_ValidationDisabled() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+    column.setData( RWT.TOOLTIP_MARKUP_ENABLED, Boolean.TRUE );
+    column.setData( MarkupValidator.MARKUP_VALIDATION_DISABLED, Boolean.TRUE );
+
+    try {
+      column.setHeaderTooltip( "invalid xhtml: <<&>>" );
+    } catch( IllegalArgumentException notExpected ) {
+      fail();
+    }
+  }
+
+  @Test
+  public void testDisableMarkupIsIgnored() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+    column.setData( RWT.TOOLTIP_MARKUP_ENABLED, Boolean.TRUE );
+
+    column.setData( RWT.TOOLTIP_MARKUP_ENABLED, Boolean.FALSE );
+
+    assertEquals( Boolean.TRUE, column.getData( RWT.TOOLTIP_MARKUP_ENABLED ) );
+  }
+
+  @Test
+  public void testSetData() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+    column.setData( "foo", "bar" );
+
+    assertEquals( "bar", column.getData( "foo" ) );
   }
 
   //////////////////

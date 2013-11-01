@@ -10,12 +10,17 @@
  ******************************************************************************/
 package org.eclipse.nebula.widgets.grid;
 
+import static org.eclipse.swt.internal.widgets.MarkupUtil.isToolTipMarkupEnabledFor;
+import static org.eclipse.swt.internal.widgets.MarkupValidator.isValidationDisabledFor;
+
+import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.internal.textsize.TextSizeUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.internal.widgets.MarkupValidator;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Item;
 import org.eclipse.swt.widgets.TypedListener;
@@ -814,7 +819,7 @@ public class GridColumn extends Item {
   /**
    * Sets the tooltip text of the column header.
    *
-   * @param tooltip the tooltip text
+   * @param toolTipText the tooltip text
    * @throws org.eclipse.swt.SWTException
    *             <ul>
    *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
@@ -823,9 +828,15 @@ public class GridColumn extends Item {
    *             thread that created the receiver</li>
    *             </ul>
    */
-  public void setHeaderTooltip(String tooltip) {
+  public void setHeaderTooltip( String toolTipText ) {
     checkWidget();
-    headerTooltip = tooltip;
+    if(    toolTipText != null
+        && isToolTipMarkupEnabledFor( this )
+        && !isValidationDisabledFor( this ) )
+    {
+      MarkupValidator.getInstance().validate( toolTipText );
+    }
+    headerTooltip = toolTipText;
   }
 
   /**
@@ -1001,6 +1012,13 @@ public class GridColumn extends Item {
     setWidth( newWidth );
     packed = true;
     parent.redraw();
+  }
+
+  @Override
+  public void setData( String key, Object value ) {
+    if( !RWT.TOOLTIP_MARKUP_ENABLED.equals( key ) || !isToolTipMarkupEnabledFor( this ) ) {
+      super.setData( key, value );
+    }
   }
 
   void repack() {

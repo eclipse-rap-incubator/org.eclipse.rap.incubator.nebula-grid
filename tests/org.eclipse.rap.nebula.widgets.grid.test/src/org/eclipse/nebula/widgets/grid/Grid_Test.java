@@ -2494,7 +2494,7 @@ public class Grid_Test extends TestCase {
 
     grid.setData( RWT.MARKUP_ENABLED, Boolean.FALSE );
 
-    assertTrue( grid.markupEnabled );
+    assertEquals( Boolean.TRUE, grid.getData( RWT.MARKUP_ENABLED ) );
   }
 
   //////////////////

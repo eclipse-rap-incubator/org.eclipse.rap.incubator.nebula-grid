@@ -13,6 +13,7 @@ package org.eclipse.nebula.widgets.grid.internal.gridcolumnkit;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridColumns;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
 import static org.eclipse.rap.rwt.lifecycle.WidgetUtil.getId;
+import static org.eclipse.rap.rwt.testfixture.Fixture.getProtocolMessage;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -45,6 +46,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
+import org.junit.Test;
 
 
 @SuppressWarnings("restriction")
@@ -118,6 +120,27 @@ public class GridColumnLCA_Test extends TestCase {
     Operation operation = message.getOperation( 0 );
     assertTrue( operation instanceof DestroyOperation );
     assertEquals( WidgetUtil.getId( column ), operation.getTarget() );
+  }
+
+  @Test
+  public void testRenderIntialToolTipMarkupEnabled() throws IOException {
+    column.setData( RWT.TOOLTIP_MARKUP_ENABLED, Boolean.TRUE );
+
+    lca.renderChanges( column );
+
+    Message message = getProtocolMessage();
+    assertTrue( "foo", message.findSetProperty( column, "toolTipMarkupEnabled" ).asBoolean() );
+  }
+
+  @Test
+  public void testRenderToolTipMarkupEnabled() throws IOException {
+    column.setData( RWT.TOOLTIP_MARKUP_ENABLED, Boolean.TRUE );
+    Fixture.markInitialized( column );
+
+    lca.renderChanges( column );
+
+    Message message = getProtocolMessage();
+    assertNull( message.findSetOperation( column, "toolTipMarkupEnabled" ) );
   }
 
   public void testRenderInitialToolTip() throws IOException {

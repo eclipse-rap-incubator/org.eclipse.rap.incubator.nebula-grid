@@ -10,6 +10,9 @@
  ******************************************************************************/
 package org.eclipse.nebula.widgets.grid;
 
+import static org.eclipse.swt.internal.widgets.MarkupUtil.isMarkupEnabledFor;
+import static org.eclipse.swt.internal.widgets.MarkupValidator.isValidationDisabledFor;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -829,7 +832,7 @@ public class GridItem extends Item {
     if( text == null ) {
       SWT.error( SWT.ERROR_NULL_ARGUMENT );
     }
-    if( parent.markupEnabled && !parent.markupValidationDisabled ) {
+    if( isMarkupEnabledFor( parent ) && !isValidationDisabledFor( parent ) ) {
       MarkupValidator.getInstance().validate( text );
     }
     Data itemData = getItemData( index );

@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.eclipse.nebula.widgets.grid;
 
+import static org.eclipse.swt.internal.widgets.MarkupUtil.isMarkupEnabledFor;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -36,7 +38,6 @@ import org.eclipse.swt.internal.SerializableCompatibility;
 import org.eclipse.swt.internal.widgets.ICellToolTipAdapter;
 import org.eclipse.swt.internal.widgets.ICellToolTipProvider;
 import org.eclipse.swt.internal.widgets.IItemHolderAdapter;
-import org.eclipse.swt.internal.widgets.MarkupValidator;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
@@ -99,8 +100,6 @@ public class Grid extends Canvas {
   private final IGridAdapter gridAdapter;
   private transient CompositeItemHolder itemHolder;
   boolean hasDifferingHeights;
-  boolean markupEnabled;
-  boolean markupValidationDisabled;
   LayoutCache layoutCache;
 
   /**
@@ -2280,12 +2279,9 @@ public class Grid extends Canvas {
 
   @Override
   public void setData( String key, Object value ) {
-    if( RWT.MARKUP_ENABLED.equals( key ) && !markupEnabled ) {
-      markupEnabled = Boolean.TRUE.equals( value );
-    } else if( MarkupValidator.MARKUP_VALIDATION_DISABLED.equals( key ) ) {
-      markupValidationDisabled = Boolean.TRUE.equals( value );
+    if( !RWT.MARKUP_ENABLED.equals( key ) || !isMarkupEnabledFor( this ) ) {
+      super.setData( key, value );
     }
-    super.setData( key, value );
   }
 
   int newItem( GridItem item, int index, boolean root ) {
