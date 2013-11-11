@@ -14,7 +14,6 @@ import static org.eclipse.rap.rwt.internal.protocol.RemoteObjectFactory.createRe
 import static org.eclipse.rap.rwt.internal.protocol.RemoteObjectFactory.getRemoteObject;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.preserveProperty;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.renderProperty;
-import static org.eclipse.rap.rwt.lifecycle.WidgetUtil.getId;
 
 import java.io.IOException;
 
@@ -22,10 +21,8 @@ import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridItem;
 import org.eclipse.nebula.widgets.grid.internal.IGridAdapter;
 import org.eclipse.nebula.widgets.grid.internal.IGridItemAdapter;
-import org.eclipse.rap.rwt.internal.protocol.ProtocolUtil;
 import org.eclipse.rap.rwt.internal.remote.RemoteObjectImpl;
 import org.eclipse.rap.rwt.lifecycle.AbstractWidgetLCA;
-import org.eclipse.rap.rwt.lifecycle.ProcessActionRunner;
 import org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil;
 import org.eclipse.rap.rwt.lifecycle.WidgetUtil;
 import org.eclipse.rap.rwt.remote.RemoteObject;
@@ -60,15 +57,9 @@ public class GridItemLCA extends AbstractWidgetLCA {
   public void renderInitialization( Widget widget ) throws IOException {
     GridItem item = ( GridItem )widget;
     RemoteObject remoteObject = createRemoteObject( item, TYPE );
+    remoteObject.setHandler( new GridItemOperationHandler( item ) );
     remoteObject.set( "parent", WidgetUtil.getId( getParent( item ) ) );
     remoteObject.set( "index", getItemIndex( item ) );
-  }
-
-  @Override
-  public void readData( Widget widget ) {
-    GridItem item = ( GridItem )widget;
-    readChecked( item );
-    readExpanded( item );
   }
 
   @Override
@@ -140,30 +131,6 @@ public class GridItemLCA extends AbstractWidgetLCA {
       remoteObject.destroy();
     } else {
       ( ( RemoteObjectImpl )remoteObject ).markDestroyed();
-    }
-  }
-
-  ////////////////////////////////////////////
-  // Helping methods to read client-side state
-
-  private static void readChecked( GridItem item ) {
-    boolean[] value = ProtocolUtil.readPropertyValueAsBooleanArray( getId( item ), "cellChecked" );
-    if( value != null ) {
-      for( int i = 0; i < value.length; i++ ) {
-        item.setChecked( i, value[ i ] );
-      }
-    }
-  }
-
-  private static void readExpanded( final GridItem item ) {
-    final String expanded = WidgetLCAUtil.readPropertyValue( item, PROP_EXPANDED );
-    if( expanded != null ) {
-      ProcessActionRunner.add( new Runnable() {
-        public void run() {
-          item.setExpanded( Boolean.valueOf( expanded ).booleanValue() );
-          preserveProperty( item, PROP_EXPANDED, item.isExpanded() );
-        }
-      } );
     }
   }
 

@@ -20,24 +20,18 @@ import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.preserveListener;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.preserveProperty;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.renderListener;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.renderProperty;
-import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.wasEventSent;
 import static org.eclipse.rap.rwt.lifecycle.WidgetUtil.getId;
-import static org.eclipse.swt.internal.events.EventLCAUtil.isListening;
 
 import java.io.IOException;
 
 import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridColumn;
 import org.eclipse.nebula.widgets.grid.GridColumnGroup;
-import org.eclipse.rap.rwt.internal.protocol.ClientMessageConst;
 import org.eclipse.rap.rwt.lifecycle.AbstractWidgetLCA;
-import org.eclipse.rap.rwt.lifecycle.ProcessActionRunner;
 import org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil;
 import org.eclipse.rap.rwt.remote.RemoteObject;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.internal.widgets.ItemLCAUtil;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Widget;
 
 
@@ -62,16 +56,9 @@ public class GridColumnGroupLCA extends AbstractWidgetLCA {
   public void renderInitialization( Widget widget ) throws IOException {
     GridColumnGroup group = ( GridColumnGroup )widget;
     RemoteObject remoteObject = createRemoteObject( group, TYPE );
+    remoteObject.setHandler( new GridColumnGroupOperationHandler( group ) );
     remoteObject.set( "parent", getId( group.getParent() ) );
     remoteObject.set( "style", createJsonArray( getStyles( group, ALLOWED_STYLES ) ) );
-  }
-
-  @Override
-  public void readData( Widget widget ) {
-    GridColumnGroup group = ( GridColumnGroup )widget;
-    readExpanded( group );
-    processTreeEvent( group, SWT.Expand, ClientMessageConst.EVENT_EXPAND );
-    processTreeEvent( group, SWT.Collapse, ClientMessageConst.EVENT_COLLAPSE );
   }
 
   @Override
@@ -102,27 +89,6 @@ public class GridColumnGroupLCA extends AbstractWidgetLCA {
     renderProperty( group, PROP_EXPANDED, group.getExpanded(), true );
     renderListener( group, PROP_EXPAND_LISTENER, hasExpandListener( group ), false );
     renderListener( group, PROP_COLLAPSE_LISTENER, hasCollapseListener( group ), false );
-  }
-
-  ////////////////////////////////////////////
-  // Helping methods to read client-side state
-
-  private static void readExpanded( final GridColumnGroup group ) {
-    final String expanded = WidgetLCAUtil.readPropertyValue( group, PROP_EXPANDED );
-    if( expanded != null ) {
-      ProcessActionRunner.add( new Runnable() {
-        public void run() {
-          group.setExpanded( Boolean.valueOf( expanded ).booleanValue() );
-//          preserveProperty( group, PROP_EXPANDED, group.getExpanded() );
-        }
-      } );
-    }
-  }
-
-  private static void processTreeEvent( GridColumnGroup group, int eventType, String eventName ) {
-    if( wasEventSent( group, eventName ) && isListening( group, eventType ) ) {
-      group.notifyListeners( eventType, new Event() );
-    }
   }
 
   //////////////////////////////////////////////
@@ -179,12 +145,14 @@ public class GridColumnGroupLCA extends AbstractWidgetLCA {
     return result;
   }
 
+  @SuppressWarnings( "unused" )
   private static boolean hasExpandListener( GridColumnGroup group ) {
     // Always render listen for Expand and Collapse, currently required for columns
     // visibility update.
     return true;
   }
 
+  @SuppressWarnings( "unused" )
   private static boolean hasCollapseListener( GridColumnGroup group ) {
     // Always render listen for Expand and Collapse, currently required for columns
     // visibility update.

@@ -8,28 +8,30 @@
  * Contributors:
  *    EclipseSource - initial API and implementation
  ******************************************************************************/
-package org.eclipse.nebula.widgets.grid.internal.gridcolumngroupkip;
+package org.eclipse.nebula.widgets.grid.internal.gridcolumngroupkit;
 
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridColumns;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
 import static org.eclipse.rap.rwt.lifecycle.WidgetUtil.getId;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
-
-import junit.framework.TestCase;
 
 import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridColumnGroup;
 import org.eclipse.nebula.widgets.grid.internal.gridcolumngroupkit.GridColumnGroupLCA;
+import org.eclipse.nebula.widgets.grid.internal.gridcolumngroupkit.GridColumnGroupOperationHandler;
 import org.eclipse.rap.json.JsonArray;
 import org.eclipse.rap.json.JsonObject;
 import org.eclipse.rap.json.JsonValue;
 import org.eclipse.rap.rwt.RWT;
-import org.eclipse.rap.rwt.internal.protocol.ClientMessageConst;
+import org.eclipse.rap.rwt.internal.remote.RemoteObjectRegistry;
 import org.eclipse.rap.rwt.lifecycle.WidgetUtil;
+import org.eclipse.rap.rwt.remote.OperationHandler;
 import org.eclipse.rap.rwt.testfixture.Fixture;
 import org.eclipse.rap.rwt.testfixture.Message;
 import org.eclipse.rap.rwt.testfixture.Message.CreateOperation;
@@ -40,13 +42,14 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.internal.graphics.ImageFactory;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 
 @SuppressWarnings("restriction")
-public class GridColumnGroupLCA_Test extends TestCase {
+public class GridColumnGroupLCA_Test {
 
   private Display display;
   private Shell shell;
@@ -54,8 +57,8 @@ public class GridColumnGroupLCA_Test extends TestCase {
   private GridColumnGroup group;
   private GridColumnGroupLCA lca;
 
-  @Override
-  protected void setUp() throws Exception {
+  @Before
+  public void setUp() {
     Fixture.setUp();
     display = new Display();
     shell = new Shell( display );
@@ -65,11 +68,12 @@ public class GridColumnGroupLCA_Test extends TestCase {
     Fixture.fakeNewRequest();
   }
 
-  @Override
-  protected void tearDown() throws Exception {
+  @After
+  public void tearDown() {
     Fixture.tearDown();
   }
 
+  @Test
   public void testRenderCreate() throws IOException {
     lca.renderInitialization( group );
 
@@ -78,6 +82,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     assertEquals( "rwt.widgets.GridColumnGroup", operation.getType() );
   }
 
+  @Test
   public void testRenderCreateWithAligment() throws IOException {
     group = new GridColumnGroup( grid, SWT.TOGGLE );
 
@@ -89,6 +94,17 @@ public class GridColumnGroupLCA_Test extends TestCase {
     assertTrue( styles.contains( "TOGGLE" ) );
   }
 
+  @Test
+  public void testRenderInitialization_setsOperationHandler() throws IOException {
+    String id = getId( group );
+
+    lca.renderInitialization( group );
+
+    OperationHandler handler = RemoteObjectRegistry.getInstance().get( id ).getHandler();
+    assertTrue( handler instanceof GridColumnGroupOperationHandler );
+  }
+
+  @Test
   public void testRenderParent() throws IOException {
     lca.renderInitialization( group );
 
@@ -97,6 +113,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     assertEquals( WidgetUtil.getId( group.getParent() ), operation.getParent() );
   }
 
+  @Test
   public void testRenderDispose() throws IOException {
     lca.renderDispose( group );
 
@@ -106,6 +123,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     assertEquals( WidgetUtil.getId( group ), operation.getTarget() );
   }
 
+  @Test
   public void testRenderInitialText() throws IOException {
     lca.render( group );
 
@@ -114,6 +132,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     assertTrue( operation.getPropertyNames().indexOf( "text" ) == -1 );
   }
 
+  @Test
   public void testRenderText() throws IOException {
     group.setText( "foo" );
     lca.renderChanges( group );
@@ -122,6 +141,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     assertEquals( "foo", message.findSetProperty( group, "text" ).asString() );
   }
 
+  @Test
   public void testRenderTextUnchanged() throws IOException {
     Fixture.markInitialized( display );
     Fixture.markInitialized( group );
@@ -134,6 +154,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     assertNull( message.findSetOperation( group, "text" ) );
   }
 
+  @Test
   public void testRenderInitialImage() throws IOException {
     lca.renderChanges( group );
 
@@ -141,6 +162,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     assertNull( message.findSetOperation( group, "image" ) );
   }
 
+  @Test
   public void testRenderImage() throws IOException {
     Image image = loadImage( display, Fixture.IMAGE_100x50 );
 
@@ -154,6 +176,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     assertEquals( JsonArray.readFrom( expected ), actual );
   }
 
+  @Test
   public void testRenderImageUnchanged() throws IOException {
     Fixture.markInitialized( display );
     Fixture.markInitialized( group );
@@ -167,6 +190,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     assertNull( message.findSetOperation( group, "image" ) );
   }
 
+  @Test
   public void testRenderImageReset() throws IOException {
     Fixture.markInitialized( display );
     Fixture.markInitialized( group );
@@ -181,6 +205,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     assertEquals( JsonObject.NULL, message.findSetProperty( group, "image" ) );
   }
 
+  @Test
   public void testRenderInitialFont() throws IOException {
     lca.render( group );
 
@@ -189,6 +214,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     assertTrue( operation.getPropertyNames().indexOf( "font" ) == -1 );
   }
 
+  @Test
   public void testRenderFont() throws IOException {
     group.setHeaderFont( new Font( display, "Arial", 20, SWT.BOLD ) );
     lca.renderChanges( group );
@@ -198,6 +224,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     assertEquals( expected, message.findSetProperty( group, "font" ) );
   }
 
+  @Test
   public void testRenderFontUnchanged() throws IOException {
     Fixture.markInitialized( display );
     Fixture.markInitialized( group );
@@ -210,6 +237,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     assertNull( message.findSetOperation( group, "font" ) );
   }
 
+  @Test
   public void testRenderInitialExpanded() throws IOException {
     lca.render( group );
 
@@ -218,6 +246,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     assertTrue( operation.getPropertyNames().indexOf( "expanded" ) == -1 );
   }
 
+  @Test
   public void testRenderExpanded() throws IOException {
     group.setExpanded( false );
     lca.renderChanges( group );
@@ -226,6 +255,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     assertEquals( JsonValue.FALSE, message.findSetProperty( group, "expanded" ) );
   }
 
+  @Test
   public void testRenderExpandedUnchanged() throws IOException {
     Fixture.markInitialized( display );
     Fixture.markInitialized( group );
@@ -238,47 +268,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     assertNull( message.findSetOperation( group, "expanded" ) );
   }
 
-  public void testProcessTreeEvent_Expanded() {
-    List<Event> events = new LinkedList<Event>();
-    group.addListener( SWT.Expand, new LoggingTreeListener( events ) );
-    group.setExpanded( false );
-
-    Fixture.fakeNotifyOperation( getId( group ), ClientMessageConst.EVENT_EXPAND, null );
-    Fixture.readDataAndProcessAction( group );
-
-    assertEquals( 1, events.size() );
-    Event event = events.get( 0 );
-    assertEquals( group, event.widget );
-  }
-
-  public void testProcessTreeEvent_Collapsed() {
-    List<Event> events = new LinkedList<Event>();
-    group.addListener( SWT.Collapse, new LoggingTreeListener( events ) );
-
-    Fixture.fakeNotifyOperation( getId( group ), ClientMessageConst.EVENT_COLLAPSE, null );
-    Fixture.readDataAndProcessAction( group );
-
-    assertEquals( 1, events.size() );
-    Event event = events.get( 0 );
-    assertEquals( group, event.widget );
-  }
-
-  public void testReadExpanded_Expanded() {
-    group.setExpanded( false );
-
-    Fixture.fakeSetProperty( getId( group ), "expanded", true );
-    Fixture.readDataAndProcessAction( group );
-
-    assertTrue( group.getExpanded() );
-  }
-
-  public void testReadExpanded_Collapsed() {
-    Fixture.fakeSetProperty( getId( group ), "expanded", false );
-    Fixture.readDataAndProcessAction( group );
-
-    assertFalse( group.getExpanded() );
-  }
-
+  @Test
   public void testRenderInitialLeft() throws IOException {
     lca.render( group );
 
@@ -287,6 +277,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     assertTrue( operation.getPropertyNames().indexOf( "left" ) == -1 );
   }
 
+  @Test
   public void testRenderLeft() throws IOException {
     createGridColumns( grid, 3, SWT.NONE );
     grid.getColumn( 1 ).setVisible( false );
@@ -299,6 +290,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     assertEquals( 90, message.findSetProperty( group, "left" ).asInt() );
   }
 
+  @Test
   public void testRenderLeftUnchanged() throws IOException {
     createGridColumns( grid, 3, SWT.NONE );
     grid.getColumn( 1 ).setVisible( false );
@@ -314,6 +306,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     assertNull( message.findSetOperation( group, "left" ) );
   }
 
+  @Test
   public void testRenderInitialWidth() throws IOException {
     lca.render( group );
 
@@ -322,6 +315,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     assertTrue( operation.getPropertyNames().indexOf( "width" ) == -1 );
   }
 
+  @Test
   public void testRenderWidth() throws IOException {
     createGridColumns( group, 1, SWT.NONE );
 
@@ -331,6 +325,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     assertEquals( 20, message.findSetProperty( group, "width" ).asInt() );
   }
 
+  @Test
   public void testRenderWidthUnchanged() throws IOException {
     Fixture.markInitialized( display );
     Fixture.markInitialized( group );
@@ -343,6 +338,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     assertNull( message.findSetOperation( group, "width" ) );
   }
 
+  @Test
   public void testRenderInitialHeight() throws IOException {
     lca.render( group );
 
@@ -351,6 +347,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     assertTrue( operation.getPropertyNames().indexOf( "height" ) == -1 );
   }
 
+  @Test
   public void testRenderHeight() throws IOException {
     createGridColumns( group, 1, SWT.NONE );
     grid.setHeaderVisible( true );
@@ -361,6 +358,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     assertEquals( 31, message.findSetProperty( group, "height" ).asInt() );
   }
 
+  @Test
   public void testRenderHeightUnchanged() throws IOException {
     createGridColumns( group, 1, SWT.NONE );
     Fixture.markInitialized( display );
@@ -374,6 +372,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     assertNull( message.findSetOperation( group, "height" ) );
   }
 
+  @Test
   public void testRenderInitialVisible() throws IOException {
     createGridColumns( group, 1, SWT.NONE );
 
@@ -384,6 +383,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     assertTrue( operation.getPropertyNames().indexOf( "visibility" ) == -1 );
   }
 
+  @Test
   public void testRenderVisible() throws IOException {
     createGridColumns( group, 1, SWT.NONE );
 
@@ -394,6 +394,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     assertEquals( JsonValue.FALSE, message.findSetProperty( group, "visibility" ) );
   }
 
+  @Test
   public void testRenderVisibleUnchanged() throws IOException {
     createGridColumns( group, 1, SWT.NONE );
     Fixture.markInitialized( display );
@@ -407,6 +408,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     assertNull( message.findSetOperation( group, "visibility" ) );
   }
 
+  @Test
   public void testRenderInitialCustomVariant() throws IOException {
     lca.render( group );
 
@@ -415,6 +417,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     assertTrue( operation.getPropertyNames().indexOf( "customVariant" ) == -1 );
   }
 
+  @Test
   public void testRenderCustomVariant() throws IOException {
     group.setData( RWT.CUSTOM_VARIANT, "blue" );
     lca.renderChanges( group );
@@ -423,6 +426,7 @@ public class GridColumnGroupLCA_Test extends TestCase {
     assertEquals( "variant_blue", message.findSetProperty( group, "customVariant" ).asString() );
   }
 
+  @Test
   public void testRenderCustomVariantUnchanged() throws IOException {
     Fixture.markInitialized( display );
     Fixture.markInitialized( group );
@@ -433,19 +437,6 @@ public class GridColumnGroupLCA_Test extends TestCase {
 
     Message message = Fixture.getProtocolMessage();
     assertNull( message.findSetOperation( group, "customVariant" ) );
-  }
-
-  //////////////////
-  // Helping classes
-
-  private static class LoggingTreeListener implements Listener {
-    private final List<Event> events;
-    private LoggingTreeListener( List<Event> events ) {
-      this.events = events;
-    }
-    public void handleEvent( Event event ) {
-      events.add( event );
-    }
   }
 
 }

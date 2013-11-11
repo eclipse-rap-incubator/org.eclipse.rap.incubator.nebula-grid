@@ -11,29 +11,20 @@
 package org.eclipse.nebula.widgets.grid.internal.gridcolumnkit;
 
 import static org.eclipse.rap.rwt.internal.protocol.ProtocolUtil.getJsonForFont;
-import static org.eclipse.rap.rwt.internal.protocol.ProtocolUtil.readCallPropertyValueAsString;
 import static org.eclipse.rap.rwt.internal.protocol.RemoteObjectFactory.createRemoteObject;
 import static org.eclipse.rap.rwt.internal.protocol.RemoteObjectFactory.getRemoteObject;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.preserveListener;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.preserveProperty;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.renderListener;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.renderProperty;
-import static org.eclipse.rap.rwt.lifecycle.WidgetUtil.getId;
 import static org.eclipse.swt.internal.events.EventLCAUtil.isListening;
 
 import java.io.IOException;
-import java.util.Arrays;
 
-import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridColumn;
 import org.eclipse.nebula.widgets.grid.GridColumnGroup;
 import org.eclipse.nebula.widgets.grid.internal.IGridAdapter;
-import org.eclipse.rap.rwt.internal.protocol.ProtocolUtil;
-import org.eclipse.rap.rwt.internal.util.NumberFormatUtil;
 import org.eclipse.rap.rwt.lifecycle.AbstractWidgetLCA;
-import org.eclipse.rap.rwt.lifecycle.ControlLCAUtil;
-import org.eclipse.rap.rwt.lifecycle.ProcessActionRunner;
-import org.eclipse.rap.rwt.lifecycle.WidgetAdapter;
 import org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil;
 import org.eclipse.rap.rwt.lifecycle.WidgetUtil;
 import org.eclipse.rap.rwt.remote.RemoteObject;
@@ -69,19 +60,12 @@ public class GridColumnLCA extends AbstractWidgetLCA {
   public void renderInitialization( Widget widget ) throws IOException {
     GridColumn column = ( GridColumn )widget;
     RemoteObject remoteObject = createRemoteObject( column, TYPE );
+    remoteObject.setHandler( new GridColumnOperationHandler( column ) );
     remoteObject.set( "parent", WidgetUtil.getId( column.getParent() ) );
     GridColumnGroup group = column.getColumnGroup();
     if( group != null ) {
       remoteObject.set( "group", WidgetUtil.getId( group ) );
     }
-  }
-
-  @Override
-  public void readData( Widget widget ) {
-    GridColumn column = ( GridColumn )widget;
-    readLeft( column );
-    readWidth( column );
-    ControlLCAUtil.processSelection( column, null, false );
   }
 
   @Override
@@ -126,35 +110,6 @@ public class GridColumnLCA extends AbstractWidgetLCA {
     renderListener( column, PROP_SELECTION_LISTENER, isListening( column, SWT.Selection ), false );
   }
 
-  ////////////////////////////////////////////
-  // Helping methods to read client-side state
-
-  private static void readLeft( final GridColumn column ) {
-    String methodName = "move";
-    if( ProtocolUtil.wasCallReceived( getId( column ), methodName ) ) {
-      String value = readCallPropertyValueAsString( getId( column ), methodName, "left" );
-      final int newLeft = NumberFormatUtil.parseInt( value );
-      ProcessActionRunner.add( new Runnable() {
-        public void run() {
-          moveColumn( column, newLeft );
-        }
-      } );
-    }
-  }
-
-  private static void readWidth( final GridColumn column ) {
-    String methodName = "resize";
-    if( ProtocolUtil.wasCallReceived( getId( column ), methodName ) ) {
-      String value = readCallPropertyValueAsString( getId( column ), methodName, "width" );
-      final int newWidth = NumberFormatUtil.parseInt( value );
-      ProcessActionRunner.add( new Runnable() {
-        public void run() {
-          column.setWidth( newWidth );
-        }
-      } );
-    }
-  }
-
   //////////////////////////////////////////////
   // Helping methods to render widget properties
 
@@ -165,80 +120,11 @@ public class GridColumnLCA extends AbstractWidgetLCA {
     }
   }
 
-  /////////////////////////////////
-  // Helping methods to move column
-
-  static void moveColumn( GridColumn column, int newLeft ) {
-    Grid grid = column.getParent();
-    int index = grid.indexOf( column );
-    int targetColumn = findMoveTarget( grid, newLeft );
-    int[] columnOrder = grid.getColumnOrder();
-    int orderIndex = arrayIndexOf( columnOrder, index );
-    columnOrder = arrayRemove( columnOrder, orderIndex );
-    if( orderIndex < targetColumn ) {
-      targetColumn--;
-    }
-    columnOrder = arrayInsert( columnOrder, targetColumn, index );
-    if( Arrays.equals( columnOrder, grid.getColumnOrder() ) ) {
-      GridColumn[] columns = grid.getColumns();
-      for( int i = 0; i < columns.length; i++ ) {
-        WidgetAdapter adapter = WidgetUtil.getAdapter( columns[ i ] );
-        adapter.preserve( PROP_LEFT, null );
-      }
-    } else {
-      try {
-        grid.setColumnOrder( columnOrder );
-      } catch( IllegalArgumentException exception ) {
-        // move the column in/out of a group is invalid
-      } finally {
-        WidgetAdapter adapter = WidgetUtil.getAdapter( column );
-        adapter.preserve( PROP_LEFT, null );
-      }
-    }
-  }
-
-  private static int findMoveTarget( Grid grid, int newLeft ) {
-    int result = -1;
-    GridColumn[] columns = grid.getColumns();
-    int[] columnOrder = grid.getColumnOrder();
-    if( newLeft < 0 ) {
-      result = 0;
-    } else {
-      for( int i = 0; result == -1 && i < columns.length; i++ ) {
-        GridColumn column = columns[ columnOrder[ i ] ];
-        int left = getLeft( column );
-        int width = getWidth( column );
-        if( newLeft >= left && newLeft <= left + width ) {
-          result = i;
-          if( newLeft >= left + width / 2 && result < columns.length ) {
-            result++;
-          }
-        }
-      }
-    }
-    if( result == -1 ) {
-      result = columns.length;
-    }
-    return result;
-  }
-
   //////////////////
   // Helping methods
 
-  private static int getIndex( GridColumn column ) {
-    return column.getParent().indexOf( column );
-  }
-
   private static int getLeft( GridColumn column ) {
-    Grid grid = column.getParent();
-    IGridAdapter adapter = grid.getAdapter( IGridAdapter.class );
-    return adapter.getCellLeft( grid.indexOf( column ) );
-  }
-
-  private static int getWidth( GridColumn column ) {
-    Grid grid = column.getParent();
-    IGridAdapter adapter = grid.getAdapter( IGridAdapter.class );
-    return adapter.getCellWidth( grid.indexOf( column ) );
+    return getGridAdapter( column ).getCellLeft( getIndex( column ) );
   }
 
   private static String getAlignment( GridColumn column ) {
@@ -252,32 +138,12 @@ public class GridColumnLCA extends AbstractWidgetLCA {
     return result;
   }
 
-  private static int arrayIndexOf( int[] array, int value ) {
-    int result = -1;
-    for( int i = 0; result == -1 && i < array.length; i++ ) {
-      if( array[ i ] == value ) {
-        result = i;
-      }
-    }
-    return result;
+  private static int getIndex( GridColumn column ) {
+    return column.getParent().indexOf( column );
   }
 
-  private static int[] arrayRemove( int[] array, int index ) {
-    int length = array.length;
-    int[] result = new int[ length - 1 ];
-    System.arraycopy( array, 0, result, 0, index );
-    if( index < length - 1 ) {
-      System.arraycopy( array, index + 1, result, index, length - index - 1 );
-    }
-    return result;
+  private static IGridAdapter getGridAdapter( GridColumn column ) {
+    return column.getParent().getAdapter( IGridAdapter.class );
   }
 
-  private static int[] arrayInsert( int[] array, int index, int value ) {
-    int length = array.length;
-    int[] result = new int[ length + 1 ];
-    System.arraycopy( array, 0, result, 0, length );
-    System.arraycopy( result, index, result, index + 1, length - index );
-    result[ index ] = value;
-    return result;
-  }
 }

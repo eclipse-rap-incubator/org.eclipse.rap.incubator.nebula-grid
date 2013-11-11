@@ -13,14 +13,19 @@ package org.eclipse.nebula.widgets.grid.internal.gridkit;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridColumns;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridItems;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
+import static org.eclipse.rap.rwt.internal.protocol.RemoteObjectFactory.getRemoteObject;
 import static org.eclipse.rap.rwt.lifecycle.WidgetUtil.getId;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
-
-import junit.framework.TestCase;
 
 import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridColumn;
@@ -31,7 +36,9 @@ import org.eclipse.rap.json.JsonArray;
 import org.eclipse.rap.json.JsonObject;
 import org.eclipse.rap.json.JsonValue;
 import org.eclipse.rap.rwt.RWT;
+import org.eclipse.rap.rwt.internal.remote.RemoteObjectRegistry;
 import org.eclipse.rap.rwt.lifecycle.WidgetUtil;
+import org.eclipse.rap.rwt.remote.OperationHandler;
 import org.eclipse.rap.rwt.testfixture.Fixture;
 import org.eclipse.rap.rwt.testfixture.Message;
 import org.eclipse.rap.rwt.testfixture.Message.CreateOperation;
@@ -41,22 +48,28 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.internal.widgets.CellToolTipUtil;
+import org.eclipse.swt.internal.widgets.ICellToolTipAdapter;
+import org.eclipse.swt.internal.widgets.ICellToolTipProvider;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Item;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 
-public class GridLCA_Test extends TestCase {
+@SuppressWarnings( "restriction" )
+public class GridLCA_Test {
 
   private Display display;
   private Shell shell;
   private Grid grid;
   private GridLCA lca;
 
-  @Override
-  protected void setUp() throws Exception {
+  @Before
+  public void setUp() {
     Fixture.setUp();
     display = new Display();
     shell = new Shell( display );
@@ -65,11 +78,12 @@ public class GridLCA_Test extends TestCase {
     Fixture.fakeNewRequest();
   }
 
-  @Override
-  protected void tearDown() throws Exception {
+  @After
+  public void tearDown() {
     Fixture.tearDown();
   }
 
+  @Test
   public void testRenderCreate() throws IOException {
     lca.renderInitialization( grid );
 
@@ -83,6 +97,7 @@ public class GridLCA_Test extends TestCase {
     assertTrue( styles.contains( "FULL_SELECTION" ) );
   }
 
+  @Test
   public void testRenderParent() throws IOException {
     lca.renderInitialization( grid );
 
@@ -91,6 +106,7 @@ public class GridLCA_Test extends TestCase {
     assertEquals( getId( grid.getParent() ), operation.getParent() );
   }
 
+  @Test
   public void testRenderCreateWithVirtualMulti() throws IOException {
     grid = new Grid( shell, SWT.VIRTUAL | SWT.MULTI );
 
@@ -104,6 +120,28 @@ public class GridLCA_Test extends TestCase {
     assertEquals( JsonValue.TRUE, message.findListenProperty( grid, "SetData" ) );
   }
 
+  @Test
+  public void testRenderInitialization_setsOperationHandler() throws IOException {
+    String id = getId( grid );
+
+    lca.renderInitialization( grid );
+
+    OperationHandler handler = RemoteObjectRegistry.getInstance().get( id ).getHandler();
+    assertTrue( handler instanceof GridOperationHandler );
+  }
+
+  @Test
+  public void testReadData_usesOperationHandler() {
+    GridOperationHandler handler = spy( new GridOperationHandler( grid ) );
+    getRemoteObject( getId( grid ) ).setHandler( handler );
+
+    Fixture.fakeNotifyOperation( getId( grid ), "Help", new JsonObject() );
+    lca.readData( grid );
+
+    verify( handler ).handleNotifyHelp( grid, new JsonObject() );
+  }
+
+  @Test
   public void testRenderDispose() throws IOException {
     lca.renderDispose( grid );
 
@@ -113,6 +151,7 @@ public class GridLCA_Test extends TestCase {
     assertEquals( getId( grid ), operation.getTarget() );
   }
 
+  @Test
   public void testRenderInitialItemCount() throws IOException {
     lca.render( grid );
 
@@ -121,6 +160,7 @@ public class GridLCA_Test extends TestCase {
     assertTrue( operation.getPropertyNames().indexOf( "itemCount" ) == -1 );
   }
 
+  @Test
   public void testRenderItemCount() throws IOException {
     createGridItems( grid, 10, 3 );
     lca.renderChanges( grid );
@@ -129,6 +169,7 @@ public class GridLCA_Test extends TestCase {
     assertEquals( 10, message.findSetProperty( grid, "itemCount" ).asInt() );
   }
 
+  @Test
   public void testRenderItemCountUnchanged() throws IOException {
     Fixture.markInitialized( display );
     Fixture.markInitialized( grid );
@@ -141,6 +182,7 @@ public class GridLCA_Test extends TestCase {
     assertNull( message.findSetOperation( grid, "itemCount" ) );
   }
 
+  @Test
   public void testRenderInitialItemHeight() throws IOException {
     lca.render( grid );
 
@@ -148,6 +190,7 @@ public class GridLCA_Test extends TestCase {
     assertNotNull( message.findSetOperation( grid, "itemHeight" ) );
   }
 
+  @Test
   public void testRenderItemHeight() throws IOException {
     grid.setItemHeight( 40 );
     lca.renderChanges( grid );
@@ -156,6 +199,7 @@ public class GridLCA_Test extends TestCase {
     assertEquals( 40, message.findSetProperty( grid, "itemHeight" ).asInt() );
   }
 
+  @Test
   public void testRenderItemHeightUnchanged() throws IOException {
     Fixture.markInitialized( display );
     Fixture.markInitialized( grid );
@@ -168,6 +212,7 @@ public class GridLCA_Test extends TestCase {
     assertNull( message.findSetOperation( grid, "itemHeight" ) );
   }
 
+  @Test
   public void testRenderInitialItemMetrics() throws IOException {
     lca.render( grid );
 
@@ -175,6 +220,7 @@ public class GridLCA_Test extends TestCase {
     assertNotNull( message.findSetOperation( grid, "itemMetrics" ) );
   }
 
+  @Test
   public void testRenderItemMetrics() throws IOException {
     GridColumn column = new GridColumn( grid, SWT.NONE );
     column.setWidth( 50 );
@@ -188,6 +234,7 @@ public class GridLCA_Test extends TestCase {
     assertEquals( JsonArray.readFrom( "[0, 0, 50, 0, 0, 0, 44, 0, 0]" ), actual.get( 0 ) );
   }
 
+  @Test
   public void testRenderItemMetrics_WithCheck() throws IOException {
     createGridColumns( grid, 2, SWT.CHECK );
     GridItem[] items = createGridItems( grid, 3, 1 );
@@ -201,6 +248,7 @@ public class GridLCA_Test extends TestCase {
     assertEquals( JsonArray.readFrom( "[1, 20, 40, 49, 0, 49, 5, 26, 21]" ), actual.get( 1 ) );
   }
 
+  @Test
   public void testRenderItemMetricsUnchanged() throws IOException {
     createGridColumns( grid, 3, SWT.NONE );
     GridItem item = new GridItem( grid, SWT.NONE );
@@ -215,6 +263,7 @@ public class GridLCA_Test extends TestCase {
     assertNull( message.findSetOperation( grid, "itemMetrics" ) );
   }
 
+  @Test
   public void testRenderInitialColumnCount() throws IOException {
     lca.render( grid );
 
@@ -223,6 +272,7 @@ public class GridLCA_Test extends TestCase {
     assertTrue( operation.getPropertyNames().indexOf( "columnCount" ) == -1 );
   }
 
+  @Test
   public void testRenderColumnCount() throws IOException {
     new GridColumn( grid, SWT.NONE );
     lca.renderChanges( grid );
@@ -231,6 +281,7 @@ public class GridLCA_Test extends TestCase {
     assertEquals( 1, message.findSetProperty( grid, "columnCount" ).asInt() );
   }
 
+  @Test
   public void testRenderColumnCountUnchanged() throws IOException {
     Fixture.markInitialized( display );
     Fixture.markInitialized( grid );
@@ -243,6 +294,7 @@ public class GridLCA_Test extends TestCase {
     assertNull( message.findSetOperation( grid, "columnCount" ) );
   }
 
+  @Test
   public void testRenderInitialTreeColumn() throws IOException {
     createGridColumns( grid, 2, SWT.NONE );
 
@@ -253,6 +305,7 @@ public class GridLCA_Test extends TestCase {
     assertTrue( operation.getPropertyNames().indexOf( "treeColumn" ) == -1 );
   }
 
+  @Test
   public void testRenderTreeColumn() throws IOException {
     createGridColumns( grid, 2, SWT.NONE );
 
@@ -263,6 +316,7 @@ public class GridLCA_Test extends TestCase {
     assertEquals( 1, message.findSetProperty( grid, "treeColumn" ).asInt() );
   }
 
+  @Test
   public void testRenderTreeColumnUnchanged() throws IOException {
     createGridColumns( grid, 2, SWT.NONE );
     Fixture.markInitialized( display );
@@ -276,6 +330,7 @@ public class GridLCA_Test extends TestCase {
     assertNull( message.findSetOperation( grid, "treeColumn" ) );
   }
 
+  @Test
   public void testRenderInitialHeaderHeight() throws IOException {
     new GridColumn( grid, SWT.NONE );
 
@@ -286,6 +341,7 @@ public class GridLCA_Test extends TestCase {
     assertTrue( operation.getPropertyNames().indexOf( "headerHeight" ) == -1 );
   }
 
+  @Test
   public void testRenderHeaderHeight() throws IOException {
     new GridColumn( grid, SWT.NONE );
     grid.setHeaderVisible( true );
@@ -296,6 +352,7 @@ public class GridLCA_Test extends TestCase {
     assertEquals( 31, message.findSetProperty( grid, "headerHeight" ).asInt() );
   }
 
+  @Test
   public void testRenderHeaderHeightUnchanged() throws IOException {
     new GridColumn( grid, SWT.NONE );
     Fixture.markInitialized( display );
@@ -309,6 +366,7 @@ public class GridLCA_Test extends TestCase {
     assertNull( message.findSetOperation( grid, "headerHeight" ) );
   }
 
+  @Test
   public void testRenderInitialHeaderVisible() throws IOException {
     lca.render( grid );
 
@@ -317,6 +375,7 @@ public class GridLCA_Test extends TestCase {
     assertTrue( operation.getPropertyNames().indexOf( "headerVisible" ) == -1 );
   }
 
+  @Test
   public void testRenderHeaderVisible() throws IOException {
     grid.setHeaderVisible( true );
     lca.renderChanges( grid );
@@ -325,6 +384,7 @@ public class GridLCA_Test extends TestCase {
     assertEquals( JsonValue.TRUE, message.findSetProperty( grid, "headerVisible" ) );
   }
 
+  @Test
   public void testRenderHeaderVisibleUnchanged() throws IOException {
     Fixture.markInitialized( display );
     Fixture.markInitialized( grid );
@@ -337,6 +397,7 @@ public class GridLCA_Test extends TestCase {
     assertNull( message.findSetOperation( grid, "headerVisible" ) );
   }
 
+  @Test
   public void testRenderInitialFooterHeight() throws IOException {
     new GridColumn( grid, SWT.NONE );
 
@@ -347,6 +408,7 @@ public class GridLCA_Test extends TestCase {
     assertTrue( operation.getPropertyNames().indexOf( "footerHeight" ) == -1 );
   }
 
+  @Test
   public void testRenderFooterHeight() throws IOException {
     new GridColumn( grid, SWT.NONE );
     grid.setFooterVisible( true );
@@ -357,6 +419,7 @@ public class GridLCA_Test extends TestCase {
     assertEquals( 31, message.findSetProperty( grid, "footerHeight" ).asInt() );
   }
 
+  @Test
   public void testRenderFooterHeightUnchanged() throws IOException {
     new GridColumn( grid, SWT.NONE );
     Fixture.markInitialized( display );
@@ -370,6 +433,7 @@ public class GridLCA_Test extends TestCase {
     assertNull( message.findSetOperation( grid, "footerHeight" ) );
   }
 
+  @Test
   public void testRenderInitialFooterVisible() throws IOException {
     lca.render( grid );
 
@@ -378,6 +442,7 @@ public class GridLCA_Test extends TestCase {
     assertTrue( operation.getPropertyNames().indexOf( "footerVisible" ) == -1 );
   }
 
+  @Test
   public void testRenderFooterVisible() throws IOException {
     grid.setFooterVisible( true );
     lca.renderChanges( grid );
@@ -386,6 +451,7 @@ public class GridLCA_Test extends TestCase {
     assertEquals( JsonValue.TRUE, message.findSetProperty( grid, "footerVisible" ) );
   }
 
+  @Test
   public void testRenderFooterVisibleUnchanged() throws IOException {
     Fixture.markInitialized( display );
     Fixture.markInitialized( grid );
@@ -398,6 +464,7 @@ public class GridLCA_Test extends TestCase {
     assertNull( message.findSetOperation( grid, "footerVisible" ) );
   }
 
+  @Test
   public void testRenderInitialLinesVisible() throws IOException {
     lca.render( grid );
 
@@ -405,6 +472,7 @@ public class GridLCA_Test extends TestCase {
     assertEquals( JsonValue.TRUE, message.findSetProperty( grid, "linesVisible" ) );
   }
 
+  @Test
   public void testRenderLinesVisible() throws IOException {
     Fixture.markInitialized( grid );
     grid.setLinesVisible( false );
@@ -414,6 +482,7 @@ public class GridLCA_Test extends TestCase {
     assertEquals( JsonValue.FALSE, message.findSetProperty( grid, "linesVisible" ) );
   }
 
+  @Test
   public void testRenderLinesVisibleUnchanged() throws IOException {
     Fixture.markInitialized( display );
     Fixture.markInitialized( grid );
@@ -426,6 +495,7 @@ public class GridLCA_Test extends TestCase {
     assertNull( message.findSetOperation( grid, "linesVisible" ) );
   }
 
+  @Test
   public void testRenderInitialTopItemIndex() throws IOException {
     grid.setSize( 100, 100 );
 
@@ -436,6 +506,7 @@ public class GridLCA_Test extends TestCase {
     assertTrue( operation.getPropertyNames().indexOf( "topItemIndex" ) == -1 );
   }
 
+  @Test
   public void testRenderTopItemIndex() throws IOException {
     grid.setSize( 100, 100 );
     createGridItems( grid, 10, 3 );
@@ -448,6 +519,7 @@ public class GridLCA_Test extends TestCase {
     assertEquals( 2, message.findSetProperty( grid, "topItemIndex" ).asInt() );
   }
 
+  @Test
   public void testRenderTopItemIndexUnchanged() throws IOException {
     grid.setSize( 100, 100 );
     createGridItems( grid, 10, 3 );
@@ -462,6 +534,7 @@ public class GridLCA_Test extends TestCase {
     assertNull( message.findSetOperation( grid, "topItemIndex" ) );
   }
 
+  @Test
   public void testRenderInitialFocusItem() throws IOException {
     lca.render( grid );
 
@@ -470,6 +543,7 @@ public class GridLCA_Test extends TestCase {
     assertTrue( operation.getPropertyNames().indexOf( "focusItem" ) == -1 );
   }
 
+  @Test
   public void testRenderFocusItem() throws IOException {
     GridItem[] items = createGridItems( grid, 3, 0 );
 
@@ -480,6 +554,7 @@ public class GridLCA_Test extends TestCase {
     assertEquals( getId( items[ 1 ] ), message.findSetProperty( grid, "focusItem" ).asString() );
   }
 
+  @Test
   public void testRenderFocusItemUnchanged() throws IOException {
     GridItem[] items = createGridItems( grid, 3, 0 );
     Fixture.markInitialized( display );
@@ -493,6 +568,7 @@ public class GridLCA_Test extends TestCase {
     assertNull( message.findSetOperation( grid, "focusItem" ) );
   }
 
+  @Test
   public void testRenderInitialScrollLeft() throws IOException {
     createGridColumns( grid, 3, SWT.NONE );
     lca.render( grid );
@@ -502,6 +578,7 @@ public class GridLCA_Test extends TestCase {
     assertTrue( operation.getPropertyNames().indexOf( "scrollLeft" ) == -1 );
   }
 
+  @Test
   public void testRenderScrollLeft() throws IOException {
     createGridColumns( grid, 3, SWT.NONE );
     grid.getHorizontalBar().setSelection( 10 );
@@ -511,6 +588,7 @@ public class GridLCA_Test extends TestCase {
     assertEquals( 10, message.findSetProperty( grid, "scrollLeft" ).asInt() );
   }
 
+  @Test
   public void testRenderScrollLeftUnchanged() throws IOException {
     createGridColumns( grid, 3, SWT.NONE );
     Fixture.markInitialized( display );
@@ -524,6 +602,7 @@ public class GridLCA_Test extends TestCase {
     assertNull( message.findSetOperation( grid, "scrollLeft" ) );
   }
 
+  @Test
   public void testRenderInitialSelection() throws IOException {
     lca.render( grid );
 
@@ -532,6 +611,7 @@ public class GridLCA_Test extends TestCase {
     assertTrue( operation.getPropertyNames().indexOf( "selection" ) == -1 );
   }
 
+  @Test
   public void testRenderSelection() throws IOException {
     GridItem[] items = createGridItems( grid, 3, 3 );
 
@@ -545,6 +625,7 @@ public class GridLCA_Test extends TestCase {
     assertEquals( expected, message.findSetProperty( grid, "selection" ) );
   }
 
+  @Test
   public void testRenderSelectionUnchanged() throws IOException {
     createGridItems( grid, 3, 3 );
     Fixture.markInitialized( display );
@@ -558,6 +639,7 @@ public class GridLCA_Test extends TestCase {
     assertNull( message.findSetOperation( grid, "selection" ) );
   }
 
+  @Test
   public void testRenderInitialSortDirection() throws IOException {
     lca.render( grid );
 
@@ -566,6 +648,7 @@ public class GridLCA_Test extends TestCase {
     assertTrue( operation.getPropertyNames().indexOf( "sortDirection" ) == -1 );
   }
 
+  @Test
   public void testRenderSortDirection() throws IOException {
     GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
 
@@ -576,6 +659,7 @@ public class GridLCA_Test extends TestCase {
     assertEquals( "up", message.findSetProperty( grid, "sortDirection" ).asString() );
   }
 
+  @Test
   public void testRenderSortDirectionUnchanged() throws IOException {
     GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
     Fixture.markInitialized( display );
@@ -589,6 +673,7 @@ public class GridLCA_Test extends TestCase {
     assertNull( message.findSetOperation( grid, "sortDirection" ) );
   }
 
+  @Test
   public void testRenderInitialSortColumn() throws IOException {
     lca.render( grid );
 
@@ -597,6 +682,7 @@ public class GridLCA_Test extends TestCase {
     assertTrue( operation.getPropertyNames().indexOf( "sortColumn" ) == -1 );
   }
 
+  @Test
   public void testRenderSortColumn() throws IOException {
     GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
 
@@ -607,6 +693,7 @@ public class GridLCA_Test extends TestCase {
     assertEquals( getId( columns[ 1 ] ), message.findSetProperty( grid, "sortColumn" ).asString() );
   }
 
+  @Test
   public void testRenderSortColumnUnchanged() throws IOException {
     GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
     Fixture.markInitialized( display );
@@ -620,6 +707,7 @@ public class GridLCA_Test extends TestCase {
     assertNull( message.findSetOperation( grid, "sortColumn" ) );
   }
 
+  @Test
   public void testRenderInitialScrollBarsVisible() throws IOException {
     doFakeRedraw();
 
@@ -630,6 +718,7 @@ public class GridLCA_Test extends TestCase {
     assertNull( message.findSetOperation( grid.getVerticalBar(), "visibility" ) );
   }
 
+  @Test
   public void testRenderScrollBarsVisible_Horizontal() throws IOException {
     grid.setSize( 200, 200 );
     GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
@@ -643,6 +732,7 @@ public class GridLCA_Test extends TestCase {
     assertNull( message.findSetOperation( grid.getVerticalBar(), "visibility" ) );
   }
 
+  @Test
   public void testRenderScrollBarsVisible_Vertical() throws IOException {
     grid.setSize( 200, 200 );
     createGridColumns( grid, 3, SWT.NONE );
@@ -656,6 +746,7 @@ public class GridLCA_Test extends TestCase {
     assertEquals( JsonValue.TRUE, message.findSetProperty( grid.getVerticalBar(), "visibility" ) );
   }
 
+  @Test
   public void testRenderScrollBarsVisibleUnchanged() throws IOException {
     grid.setSize( 200, 200 );
     GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
@@ -675,6 +766,7 @@ public class GridLCA_Test extends TestCase {
     assertNull( message.findSetOperation( grid.getVerticalBar(), "visibility" ) );
   }
 
+  @Test
   public void testRenderAddScrollBarsSelectionListener_Horizontal() throws Exception {
     ScrollBar hScroll = grid.getHorizontalBar();
     Fixture.markInitialized( display );
@@ -689,6 +781,7 @@ public class GridLCA_Test extends TestCase {
     assertEquals( JsonValue.TRUE, message.findListenProperty( hScroll, "Selection" ) );
   }
 
+  @Test
   public void testRenderRemoveScrollBarsSelectionListener_Horizontal() throws Exception {
     ScrollBar hScroll = grid.getHorizontalBar();
     SelectionListener listener = new SelectionAdapter() { };
@@ -705,6 +798,7 @@ public class GridLCA_Test extends TestCase {
     assertEquals( JsonValue.FALSE, message.findListenProperty( hScroll, "Selection" ) );
   }
 
+  @Test
   public void testRenderScrollBarsSelectionListenerUnchanged_Horizontal() throws Exception {
     ScrollBar hScroll = grid.getHorizontalBar();
     Fixture.markInitialized( display );
@@ -720,6 +814,7 @@ public class GridLCA_Test extends TestCase {
     assertNull( message.findListenOperation( hScroll, "Selection" ) );
   }
 
+  @Test
   public void testRenderAddScrollBarsSelectionListener_Vertical() throws Exception {
     ScrollBar vScroll = grid.getVerticalBar();
     Fixture.markInitialized( display );
@@ -734,6 +829,7 @@ public class GridLCA_Test extends TestCase {
     assertEquals( JsonValue.TRUE, message.findListenProperty( vScroll, "Selection" ) );
   }
 
+  @Test
   public void testRenderRemoveScrollBarsSelectionListener_Vertical() throws Exception {
     ScrollBar vScroll = grid.getVerticalBar();
     SelectionListener listener = new SelectionAdapter() { };
@@ -750,6 +846,7 @@ public class GridLCA_Test extends TestCase {
     assertEquals( JsonValue.FALSE, message.findListenProperty( vScroll, "Selection" ) );
   }
 
+  @Test
   public void testRenderScrollBarsSelectionListenerUnchanged_Vertical() throws Exception {
     ScrollBar vScroll = grid.getVerticalBar();
     Fixture.markInitialized( display );
@@ -765,6 +862,7 @@ public class GridLCA_Test extends TestCase {
     assertNull( message.findListenOperation( vScroll, "Selection" ) );
   }
 
+  @Test
   public void testRenderAddSelectionListener() throws Exception {
     Fixture.markInitialized( display );
     Fixture.markInitialized( grid );
@@ -778,6 +876,7 @@ public class GridLCA_Test extends TestCase {
     assertEquals( JsonValue.TRUE, message.findListenProperty( grid, "DefaultSelection" ) );
   }
 
+  @Test
   public void testRenderRemoveSelectionListener() throws Exception {
     SelectionListener listener = new SelectionAdapter() { };
     grid.addSelectionListener( listener );
@@ -793,6 +892,7 @@ public class GridLCA_Test extends TestCase {
     assertEquals( JsonValue.FALSE, message.findListenProperty( grid, "DefaultSelection" ) );
   }
 
+  @Test
   public void testRenderSelectionListenerUnchanged() throws Exception {
     Fixture.markInitialized( display );
     Fixture.markInitialized( grid );
@@ -807,6 +907,7 @@ public class GridLCA_Test extends TestCase {
     assertNull( message.findListenOperation( grid, "DefaultSelection" ) );
   }
 
+  @Test
   public void testRenderInitialEnableCellToolTip() throws IOException {
     lca.render( grid );
 
@@ -815,6 +916,7 @@ public class GridLCA_Test extends TestCase {
     assertTrue( operation.getPropertyNames().indexOf( "enableCellToolTip" ) == -1 );
   }
 
+  @Test
   public void testRenderEnableCellToolTip() throws IOException {
     createGridColumns( grid, 3, SWT.NONE );
     GridItem item = new GridItem( grid, SWT.NONE );
@@ -826,6 +928,7 @@ public class GridLCA_Test extends TestCase {
     assertEquals( JsonValue.TRUE, message.findSetProperty( grid, "enableCellToolTip" ) );
   }
 
+  @Test
   public void testRenderEnableCellToolTipUnchanged() throws IOException {
     createGridColumns( grid, 3, SWT.NONE );
     GridItem item = new GridItem( grid, SWT.NONE );
@@ -840,7 +943,9 @@ public class GridLCA_Test extends TestCase {
     assertNull( message.findSetOperation( grid, "enableCellToolTip" ) );
   }
 
+  @Test
   public void testRenderCellToolTipText() {
+    getRemoteObject( grid ).setHandler( new GridOperationHandler( grid ) );
     createGridColumns( grid, 3, SWT.NONE );
     GridItem item = new GridItem( grid, SWT.NONE );
     item.setToolTipText( 1, "foo" );
@@ -854,119 +959,37 @@ public class GridLCA_Test extends TestCase {
     assertEquals( "foo", message.findSetProperty( grid, "cellToolTipText" ).asString() );
   }
 
-  public void testReadSelection() {
-    GridItem[] items = createGridItems( grid, 3, 0 );
-    Fixture.fakeNewRequest();
-    Fixture.fakeSetProperty( getId( grid ),
-                              "selection",
-                              createArray( getId( items[ 0 ] ), getId( items[ 2 ] ) ) );
-    Fixture.readDataAndProcessAction( grid );
+  @Test
+  public void testRenderCellToolTipText_resetsText() throws IOException {
+    ICellToolTipAdapter adapter = CellToolTipUtil.getAdapter( grid );
+    adapter.setCellToolTipText( "foo" );
 
-    GridItem[] selectedItems = grid.getSelection();
-    assertEquals( 2, selectedItems.length );
-    assertSame( items[ 0 ], selectedItems[ 0 ] );
-    assertSame( items[ 2 ], selectedItems[ 1 ] );
+    lca.renderChanges( grid );
+
+    assertNull( adapter.getCellToolTipText() );
   }
 
-  public void testReadSelectionDisposedItem() {
-    GridItem[] items = createGridItems( grid, 3, 0 );
-    items[ 0 ].dispose();
+  @Test
+  public void testRenderCellToolTipTextNull() {
+    getRemoteObject( grid ).setHandler( new GridOperationHandler( grid ) );
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( grid );
+    createGridItems( grid, 5, 5 );
+    final ICellToolTipAdapter adapter = CellToolTipUtil.getAdapter( grid );
+    adapter.setCellToolTipProvider( new ICellToolTipProvider() {
+      public void getToolTipText( Item item, int columnIndex ) {
+        adapter.setCellToolTipText( null );
+      }
+    } );
 
-    Fixture.fakeNewRequest();
-    Fixture.fakeSetProperty( getId( grid ),
-                              "selection",
-                              createArray( getId( items[ 0 ] ), getId( items[ 2 ] ) ) );
-    Fixture.readDataAndProcessAction( grid );
+    String itemId = WidgetUtil.getId( grid.getItem( 2 ) );
+    processCellToolTipRequest( grid, itemId, 0 );
 
-    GridItem[] selectedItems = grid.getSelection();
-    assertEquals( 1, selectedItems.length );
-    assertSame( items[ 2 ], selectedItems[ 0 ] );
+    Message message = Fixture.getProtocolMessage();
+    assertNull( message.findSetOperation( grid, "cellToolTipText" ) );
   }
 
-  public void testReadScrollLeft() {
-    grid.setSize( 100, 100 );
-    createGridColumns( grid, 5, SWT.NONE );
-    createGridItems( grid, 10, 0 );
-
-    Fixture.fakeNewRequest();
-    Fixture.fakeSetProperty( getId( grid ), "scrollLeft", 30 );
-    Fixture.readDataAndProcessAction( grid );
-
-    assertEquals( 30, grid.getHorizontalBar().getSelection() );
-  }
-
-  public void testReadTopIndex() {
-    grid.setSize( 100, 100 );
-    createGridColumns( grid, 5, SWT.NONE );
-    GridItem[] items = createGridItems( grid, 10, 3 );
-    items[ 4 ].setExpanded( true );
-
-    Fixture.fakeNewRequest();
-    Fixture.fakeSetProperty( getId( grid ), "topItemIndex", 3 );
-    Fixture.readDataAndProcessAction( grid );
-
-    assertEquals( 3, grid.getVerticalBar().getSelection() );
-    assertEquals( 6, grid.getTopIndex() );
-  }
-
-  public void testProcessSelectionEvent() {
-    List<Event> events = new LinkedList<Event>();
-    GridItem item = new GridItem( grid, SWT.NONE );
-    grid.addListener( SWT.Selection, new LoggingListener( events ) );
-
-    Fixture.fakeNewRequest();
-    JsonObject parameters = new JsonObject().add( "item", getId( item ) );
-    Fixture.fakeNotifyOperation( getId( grid ), "Selection", parameters );
-    Fixture.readDataAndProcessAction( display );
-
-    assertEquals( 1, events.size() );
-    Event event = events.get( 0 );
-    assertEquals( SWT.Selection, event.type );
-    assertEquals( grid, event.widget );
-    assertEquals( item, event.item );
-    assertEquals( SWT.NONE, event.detail );
-  }
-
-  public void testProcessSelectionEvent_Check() {
-    List<Event> events = new LinkedList<Event>();
-    GridItem item = new GridItem( grid, SWT.NONE );
-    grid.addListener( SWT.Selection, new LoggingListener( events ) );
-
-    Fixture.fakeNewRequest();
-    JsonObject parameters = new JsonObject()
-      .add( "item", getId( item ) )
-      .add( "detail", "check" )
-      .add( "index", 3 );
-    Fixture.fakeNotifyOperation( getId( grid ), "Selection", parameters );
-    Fixture.readDataAndProcessAction( display );
-
-    assertEquals( 1, events.size() );
-    Event event = events.get( 0 );
-    assertEquals( SWT.Selection, event.type );
-    assertEquals( grid, event.widget );
-    assertEquals( item, event.item );
-    assertEquals( SWT.CHECK, event.detail );
-    assertEquals( 3, event.index );
-  }
-
-  public void testProcessDefaultSelectionEvent() {
-    List<Event> events = new LinkedList<Event>();
-    GridItem item = new GridItem( grid, SWT.NONE );
-    grid.addListener( SWT.DefaultSelection, new LoggingListener( events ) );
-
-    Fixture.fakeNewRequest();
-    JsonObject parameters = new JsonObject().add( "item", getId( item ) );
-    Fixture.fakeNotifyOperation( getId( grid ), "DefaultSelection", parameters );
-    Fixture.readDataAndProcessAction( display );
-
-    assertEquals( 1, events.size() );
-    Event event = events.get( 0 );
-    assertEquals( SWT.DefaultSelection, event.type );
-    assertEquals( grid, event.widget );
-    assertEquals( item, event.item );
-    assertEquals( SWT.NONE, event.detail );
-  }
-
+  @Test
   public void testGetItemMetrics_CellLeft() {
     GridColumn[] columns = createGridColumns( grid, 2, SWT.NONE );
     columns[ 0 ].setWidth( 100 );
@@ -978,6 +1001,7 @@ public class GridLCA_Test extends TestCase {
     assertEquals( 100, metrics[ 1 ].left );
   }
 
+  @Test
   public void testGetItemMetrics_CellWidth() {
     GridColumn[] columns = createGridColumns( grid, 2, SWT.NONE );
     columns[ 0 ].setWidth( 100 );
@@ -989,6 +1013,7 @@ public class GridLCA_Test extends TestCase {
     assertEquals( 150, metrics[ 1 ].width );
   }
 
+  @Test
   public void testGetItemMetrics_ImageLeft() {
     Image image1 = loadImage( display, Fixture.IMAGE_100x50 );
     Image image2 = loadImage( display, Fixture.IMAGE_50x100 );
@@ -1009,6 +1034,7 @@ public class GridLCA_Test extends TestCase {
     assertEquals( 106, metrics[ 1 ].imageLeft );
   }
 
+  @Test
   public void testGetItemMetrics_ImageWidth() {
     Image image1 = loadImage( display, Fixture.IMAGE_100x50 );
     Image image2 = loadImage( display, Fixture.IMAGE_50x100 );
@@ -1033,6 +1059,7 @@ public class GridLCA_Test extends TestCase {
     assertEquals( 0, metrics[ 0 ].imageWidth );
   }
 
+  @Test
   public void testGetItemMetrics_TextLeftWithImage() {
     Image image = loadImage( display, Fixture.IMAGE_100x50 );
     GridColumn[] columns = createGridColumns( grid, 2, SWT.NONE );
@@ -1049,6 +1076,7 @@ public class GridLCA_Test extends TestCase {
     assertEquals( 206, metrics[ 1 ].textLeft );
   }
 
+  @Test
   public void testGetItemMetrics_TextLeftWithCheckbox() {
     Image image = loadImage( display, Fixture.IMAGE_100x50 );
     grid = new Grid( shell, SWT.CHECK );
@@ -1063,6 +1091,7 @@ public class GridLCA_Test extends TestCase {
     assertEquals( 123, metrics[ 0 ].textLeft );
   }
 
+  @Test
   public void testGetItemMetrics_TextWidthWithCheckbox() {
     Image image = loadImage( display, Fixture.IMAGE_100x50 );
     grid = new Grid( shell, SWT.CHECK );
@@ -1077,6 +1106,7 @@ public class GridLCA_Test extends TestCase {
     assertEquals( 71, metrics[ 0 ].textWidth );
   }
 
+  @Test
   public void testRenderMarkupEnabled() throws IOException {
     grid.setData( RWT.MARKUP_ENABLED, Boolean.TRUE );
 
@@ -1086,6 +1116,7 @@ public class GridLCA_Test extends TestCase {
     assertEquals( JsonValue.TRUE, message.findCreateProperty( grid, "markupEnabled" ) );
   }
 
+  @Test
   public void testRenderAddExpandListener() throws Exception {
     lca.renderChanges( grid );
 
@@ -1093,6 +1124,7 @@ public class GridLCA_Test extends TestCase {
     assertEquals( JsonValue.TRUE, message.findListenProperty( grid, "Expand" ) );
   }
 
+  @Test
   public void testRenderAddCollapseListener() throws Exception {
     lca.renderChanges( grid );
 
@@ -1100,6 +1132,7 @@ public class GridLCA_Test extends TestCase {
     assertEquals( JsonValue.TRUE, message.findListenProperty( grid, "Collapse" ) );
   }
 
+  @Test
   public void testDontRenderSetDataListenerTwice() throws Exception {
     grid = new Grid( shell, SWT.VIRTUAL | SWT.MULTI );
     Fixture.markInitialized( display );
@@ -1112,6 +1145,7 @@ public class GridLCA_Test extends TestCase {
     assertNull( message.findListenOperation( grid, "SetData" ) );
   }
 
+  @Test
   public void testDontRenderSetDataWithoutVirtual() throws Exception {
     Fixture.markInitialized( display );
     Fixture.markInitialized( grid );
@@ -1121,23 +1155,6 @@ public class GridLCA_Test extends TestCase {
 
     Message message = Fixture.getProtocolMessage();
     assertNull( message.findListenOperation( grid, "SetData" ) );
-  }
-
-  public void testReadFocusItem() {
-    GridItem[] items = createGridItems( grid, 3, 1 );
-
-    Fixture.fakeSetProperty( getId( grid ), "focusItem", getId( items[ 2 ] ) );
-    lca.readData( grid );
-
-    assertSame( items[ 2 ], grid.getFocusItem() );
-  }
-
-  private static JsonValue createArray( String... values ) {
-    JsonArray array = new JsonArray();
-    for( int i = 0; i < values.length; i++ ) {
-      array.add( values[ i ] );
-    }
-    return array;
   }
 
   //////////////////
@@ -1154,19 +1171,6 @@ public class GridLCA_Test extends TestCase {
 
   private void doFakeRedraw() {
     grid.getAdapter( IGridAdapter.class ).doRedraw();
-  }
-
-  //////////////////
-  // Helping classes
-
-  private static class LoggingListener implements Listener {
-    private final List<Event> events;
-    private LoggingListener( List<Event> events ) {
-      this.events = events;
-    }
-    public void handleEvent( Event event ) {
-      events.add( event );
-    }
   }
 
 }

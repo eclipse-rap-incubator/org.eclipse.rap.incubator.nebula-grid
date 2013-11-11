@@ -10,23 +10,14 @@
  ******************************************************************************/
 package org.eclipse.nebula.widgets.grid.internal.gridkit;
 
-import static org.eclipse.rap.rwt.internal.protocol.ClientMessageConst.EVENT_PARAM_DETAIL;
-import static org.eclipse.rap.rwt.internal.protocol.ClientMessageConst.EVENT_PARAM_INDEX;
-import static org.eclipse.rap.rwt.internal.protocol.ClientMessageConst.EVENT_PARAM_ITEM;
 import static org.eclipse.rap.rwt.internal.protocol.JsonUtil.createJsonArray;
-import static org.eclipse.rap.rwt.internal.protocol.ProtocolUtil.readCallPropertyValueAsString;
-import static org.eclipse.rap.rwt.internal.protocol.ProtocolUtil.readPropertyValueAsStringArray;
-import static org.eclipse.rap.rwt.internal.protocol.ProtocolUtil.wasCallReceived;
 import static org.eclipse.rap.rwt.internal.protocol.RemoteObjectFactory.createRemoteObject;
 import static org.eclipse.rap.rwt.internal.protocol.RemoteObjectFactory.getRemoteObject;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.getStyles;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.preserveListener;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.preserveProperty;
-import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.readEventPropertyValue;
-import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.readPropertyValue;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.renderListener;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.renderProperty;
-import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.wasEventSent;
 import static org.eclipse.rap.rwt.lifecycle.WidgetUtil.getId;
 import static org.eclipse.swt.internal.events.EventLCAUtil.isListening;
 import static org.eclipse.swt.internal.widgets.MarkupUtil.isMarkupEnabledFor;
@@ -38,20 +29,15 @@ import org.eclipse.nebula.widgets.grid.GridColumn;
 import org.eclipse.nebula.widgets.grid.GridItem;
 import org.eclipse.nebula.widgets.grid.internal.IGridAdapter;
 import org.eclipse.rap.json.JsonArray;
-import org.eclipse.rap.rwt.internal.protocol.ClientMessageConst;
-import org.eclipse.rap.rwt.internal.util.NumberFormatUtil;
 import org.eclipse.rap.rwt.lifecycle.AbstractWidgetLCA;
 import org.eclipse.rap.rwt.lifecycle.ControlLCAUtil;
 import org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil;
-import org.eclipse.rap.rwt.lifecycle.WidgetUtil;
 import org.eclipse.rap.rwt.remote.RemoteObject;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.internal.widgets.CellToolTipUtil;
 import org.eclipse.swt.internal.widgets.ICellToolTipAdapter;
-import org.eclipse.swt.internal.widgets.ICellToolTipProvider;
 import org.eclipse.swt.internal.widgets.ScrollBarLCAUtil;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Widget;
 
@@ -105,6 +91,7 @@ public class GridLCA extends AbstractWidgetLCA {
   public void renderInitialization( Widget widget ) throws IOException {
     Grid grid = ( Grid )widget;
     RemoteObject remoteObject = createRemoteObject( grid, TYPE );
+    remoteObject.setHandler( new GridOperationHandler( grid ) );
     remoteObject.set( "parent", getId( grid.getParent() ) );
     remoteObject.set( "style", createJsonArray( getStyles( grid, ALLOWED_STYLES ) ) );
     remoteObject.set( "appearance", "tree" );
@@ -116,21 +103,8 @@ public class GridLCA extends AbstractWidgetLCA {
 
   @Override
   public void readData( Widget widget ) {
-    Grid grid = ( Grid )widget;
-    readSelection( grid );
-    readScrollLeft( grid );
-    readTopItemIndex( grid );
-    readFocusItem( grid );
-    readCellToolTipTextRequested( grid );
-    processSelectionEvent( grid, ClientMessageConst.EVENT_SELECTION );
-    processSelectionEvent( grid, ClientMessageConst.EVENT_DEFAULT_SELECTION );
-    processTreeEvent( grid, SWT.Expand, ClientMessageConst.EVENT_EXPAND );
-    processTreeEvent( grid, SWT.Collapse, ClientMessageConst.EVENT_COLLAPSE );
-    ControlLCAUtil.processEvents( grid );
-    ControlLCAUtil.processKeyEvents( grid );
-    ControlLCAUtil.processMenuDetect( grid );
-    WidgetLCAUtil.processHelp( grid );
-    ScrollBarLCAUtil.processSelectionEvent( grid );
+    super.readData( widget );
+    ScrollBarLCAUtil.processSelectionEvent( ( Grid )widget );
   }
 
   @Override
@@ -196,7 +170,7 @@ public class GridLCA extends AbstractWidgetLCA {
     renderListener( grid, PROP_EXPAND_LISTENER, hasExpandListener( grid ), false );
     renderListener( grid, PROP_COLLAPSE_LISTENER, hasCollapseListener( grid ), false );
     renderProperty( grid, PROP_ENABLE_CELL_TOOLTIP, CellToolTipUtil.isEnabledFor( grid ), false );
-    renderProperty( grid, PROP_CELL_TOOLTIP_TEXT, getCellToolTipText( grid ), null );
+    renderProperty( grid, PROP_CELL_TOOLTIP_TEXT, getAndResetCellToolTipText( grid ), null );
     ScrollBarLCAUtil.renderChanges( grid );
   }
 
@@ -205,79 +179,15 @@ public class GridLCA extends AbstractWidgetLCA {
     getGridAdapter( ( Grid )control ).doRedraw();
   }
 
-  ////////////////////////////////////////////
-  // Helping methods to read client-side state
-
-  private static void readSelection( Grid grid ) {
-    String[] values = readPropertyValueAsStringArray( getId( grid ), "selection" );
-    if( values != null ) {
-      GridItem[] selectedItems = new GridItem[ values.length ];
-      boolean validItemFound = false;
-      for( int i = 0; i < values.length; i++ ) {
-        selectedItems[ i ] = getItem( grid, values[ i ] );
-        if( selectedItems[ i ] != null ) {
-          validItemFound = true;
-        }
-      }
-      if( !validItemFound ) {
-        selectedItems = new GridItem[ 0 ];
-      }
-      grid.setSelection( selectedItems );
-    }
-  }
-
-  private static void readScrollLeft( Grid grid ) {
-    String left = readPropertyValue( grid, "scrollLeft" );
-    if( left != null ) {
-      int leftOffset = NumberFormatUtil.parseInt( left );
-      processScrollBarSelection( grid.getHorizontalBar(), leftOffset );
-    }
-  }
-
-  private static void readTopItemIndex( Grid grid ) {
-    String topItemIndex = readPropertyValue( grid, "topItemIndex" );
-    if( topItemIndex != null ) {
-      int topOffset = NumberFormatUtil.parseInt( topItemIndex );
-      getGridAdapter( grid ).invalidateTopIndex();
-      processScrollBarSelection( grid.getVerticalBar(), topOffset );
-    }
-  }
-
-  private static void readFocusItem( Grid grid ) {
-    String value = readPropertyValue( grid, "focusItem" );
-    if( value != null ) {
-      GridItem item = getItem( grid, value );
-      if( item != null ) {
-        grid.setFocusItem( item );
-      }
-    }
-  }
-
-  ////////////////
-  // Cell tooltips
-
-  private static void readCellToolTipTextRequested( Grid grid ) {
-    ICellToolTipAdapter adapter = CellToolTipUtil.getAdapter( grid );
-    adapter.setCellToolTipText( null );
-    ICellToolTipProvider provider = adapter.getCellToolTipProvider();
-    String methodName = "renderToolTipText";
-    if( provider != null && wasCallReceived( getId( grid ), methodName ) ) {
-      String itemId = readCallPropertyValueAsString( getId( grid ), methodName, "item" );
-      String column = readCallPropertyValueAsString( getId( grid ), methodName, "column" );
-      int columnIndex = NumberFormatUtil.parseInt( column );
-      GridItem item = getItem( grid, itemId );
-      if( item != null && ( columnIndex == 0 || columnIndex < grid.getColumnCount() ) ) {
-        provider.getToolTipText( item, columnIndex );
-      }
-    }
-  }
-
-  private static String getCellToolTipText( Grid grid ) {
-    return CellToolTipUtil.getAdapter( grid ).getCellToolTipText();
-  }
-
   //////////////////
   // Helping methods
+
+  private static String getAndResetCellToolTipText( Grid grid ) {
+    ICellToolTipAdapter adapter = CellToolTipUtil.getAdapter( grid );
+    String toolTipText = adapter.getCellToolTipText();
+    adapter.setCellToolTipText( null );
+    return toolTipText;
+  }
 
   private static boolean listensToSetData( Grid grid ) {
     return ( grid.getStyle() & SWT.VIRTUAL ) != 0;
@@ -339,57 +249,18 @@ public class GridLCA extends AbstractWidgetLCA {
     return result;
   }
 
-  private static GridItem getItem( Grid grid, String itemId ) {
-    return ( GridItem )WidgetUtil.find( grid, itemId );
-  }
-
-  private static void processScrollBarSelection( ScrollBar scrollBar, int selection ) {
-    if( scrollBar != null ) {
-      scrollBar.setSelection( selection );
-    }
-  }
-
-  private static void processSelectionEvent( Grid grid, String eventName ) {
-    if( wasEventSent( grid, eventName ) ) {
-      GridItem item = getItem( grid, readEventPropertyValue( grid, eventName, EVENT_PARAM_ITEM ) );
-      if( item != null ) {
-        if( eventName.equals( ClientMessageConst.EVENT_SELECTION ) ) {
-          String detail = readEventPropertyValue( grid, eventName, EVENT_PARAM_DETAIL );
-          if( "check".equals( detail ) ) {
-            String index = readEventPropertyValue( grid, eventName, EVENT_PARAM_INDEX );
-            item.fireCheckEvent( Integer.valueOf( index ).intValue() );
-          } else {
-            item.fireEvent( SWT.Selection );
-          }
-        } else {
-          item.fireEvent( SWT.DefaultSelection );
-        }
-      }
-    }
-  }
-
+  @SuppressWarnings( "unused" )
   private static boolean hasExpandListener( Grid grid ) {
     // Always render listen for Expand and Collapse, currently required for scrollbar
     // visibility update and setData events.
     return true;
   }
 
+  @SuppressWarnings( "unused" )
   private static boolean hasCollapseListener( Grid grid ) {
     // Always render listen for Expand and Collapse, currently required for scrollbar
     // visibility update and setData events.
     return true;
-  }
-
-  /////////////////////////////////
-  // Process expand/collapse events
-
-  private static void processTreeEvent( Grid grid, int eventType, String eventName ) {
-    if( wasEventSent( grid, eventName ) ) {
-      String value = readEventPropertyValue( grid, eventName, ClientMessageConst.EVENT_PARAM_ITEM );
-      Event event = new Event();
-      event.item = getItem( grid, value );
-      grid.notifyListeners( eventType, event );
-    }
   }
 
   ///////////////
