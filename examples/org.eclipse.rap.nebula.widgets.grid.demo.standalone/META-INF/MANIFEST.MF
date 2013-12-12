@@ -4,8 +4,8 @@ Bundle-Name: %Bundle-Name
 Bundle-Vendor: %Bundle-Vendor
 Bundle-SymbolicName: org.eclipse.rap.nebula.widgets.grid.demo.standalone
 Bundle-Version: 0.1.0.qualifier
-Require-Bundle: org.eclipse.rap.rwt;bundle-version="[2.3.0,3.0.0)",
- org.eclipse.rap.jface;bundle-version="[2.3.0,3.0.0)",
+Require-Bundle: org.eclipse.rap.rwt;bundle-version="[2.2.0,3.0.0)",
+ org.eclipse.rap.jface;bundle-version="[2.2.0,3.0.0)",
  org.eclipse.rap.nebula.widgets.grid;bundle-version="0.1.0",
  org.eclipse.rap.nebula.jface.gridviewer;bundle-version="0.1.0"
 Bundle-Localization: plugin
