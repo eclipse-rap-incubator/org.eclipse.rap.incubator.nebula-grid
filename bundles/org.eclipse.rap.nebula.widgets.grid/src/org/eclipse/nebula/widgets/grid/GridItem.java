@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 EclipseSource and others.
+ * Copyright (c) 2012, 2014 EclipseSource and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.eclipse.nebula.widgets.grid;
 
+import static org.eclipse.rap.rwt.internal.textsize.TextSizeUtil.markupExtent;
+import static org.eclipse.rap.rwt.internal.textsize.TextSizeUtil.stringExtent;
 import static org.eclipse.swt.internal.widgets.MarkupUtil.isMarkupEnabledFor;
 import static org.eclipse.swt.internal.widgets.MarkupValidator.isValidationDisabledFor;
 
@@ -17,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.eclipse.nebula.widgets.grid.internal.IGridItemAdapter;
-import org.eclipse.rap.rwt.internal.textsize.TextSizeUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
@@ -1420,7 +1421,12 @@ public class GridItem extends Item {
     int result = 0;
     String text = getItemData( index ).text;
     if( text.length() > 0 ) {
-      result += TextSizeUtil.stringExtent( internalGetFont( index ), text ).x;
+      Font font = internalGetFont( index );
+      if( isMarkupEnabledFor( parent ) ) {
+        result = markupExtent( font, text, SWT.DEFAULT ).x;
+      } else {
+        result = stringExtent( font, text ).x;
+      }
     }
     return result;
   }
