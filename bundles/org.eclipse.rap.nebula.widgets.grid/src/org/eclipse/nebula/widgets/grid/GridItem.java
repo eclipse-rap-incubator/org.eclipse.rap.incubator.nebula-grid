@@ -10,7 +10,6 @@
  ******************************************************************************/
 package org.eclipse.nebula.widgets.grid;
 
-import static org.eclipse.rap.rwt.internal.textsize.TextSizeUtil.markupExtent;
 import static org.eclipse.rap.rwt.internal.textsize.TextSizeUtil.stringExtent;
 import static org.eclipse.swt.internal.widgets.MarkupUtil.isMarkupEnabledFor;
 import static org.eclipse.swt.internal.widgets.MarkupValidator.isValidationDisabledFor;
@@ -1418,17 +1417,11 @@ public class GridItem extends Item {
   }
 
   private int getTextWidth( int index ) {
-    int result = 0;
     String text = getItemData( index ).text;
     if( text.length() > 0 ) {
-      Font font = internalGetFont( index );
-      if( isMarkupEnabledFor( parent ) ) {
-        result = markupExtent( font, text, SWT.DEFAULT ).x;
-      } else {
-        result = stringExtent( font, text ).x;
-      }
+      return stringExtent( internalGetFont( index ), text, isMarkupEnabledFor( parent ) ).x;
     }
-    return result;
+    return 0;
   }
 
   int getTextOffset( int index ) {
