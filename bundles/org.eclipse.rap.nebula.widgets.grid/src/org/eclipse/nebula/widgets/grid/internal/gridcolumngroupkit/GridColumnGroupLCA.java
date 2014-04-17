@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 EclipseSource and others.
+ * Copyright (c) 2012, 2014 EclipseSource and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,6 @@
 package org.eclipse.nebula.widgets.grid.internal.gridcolumngroupkit;
 
 import static org.eclipse.rap.rwt.internal.protocol.JsonUtil.createJsonArray;
-import static org.eclipse.rap.rwt.internal.protocol.ProtocolUtil.getJsonForFont;
 import static org.eclipse.rap.rwt.internal.protocol.RemoteObjectFactory.createRemoteObject;
 import static org.eclipse.rap.rwt.internal.protocol.RemoteObjectFactory.getRemoteObject;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.getStyles;
@@ -21,6 +20,7 @@ import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.preserveProperty;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.renderListener;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.renderProperty;
 import static org.eclipse.rap.rwt.lifecycle.WidgetUtil.getId;
+import static org.eclipse.rap.rwt.remote.JsonMapping.toJson;
 
 import java.io.IOException;
 
@@ -35,7 +35,9 @@ import org.eclipse.swt.internal.widgets.ItemLCAUtil;
 import org.eclipse.swt.widgets.Widget;
 
 
-@SuppressWarnings("restriction")
+@SuppressWarnings({
+  "restriction", "deprecation"
+})
 public class GridColumnGroupLCA extends AbstractWidgetLCA {
 
   private static final String TYPE = "rwt.widgets.GridColumnGroup";
@@ -96,7 +98,7 @@ public class GridColumnGroupLCA extends AbstractWidgetLCA {
 
   private static void renderFont( GridColumnGroup group, String property, Font newValue ) {
     if( hasChanged( group, property, newValue, group.getParent().getFont() ) ) {
-      getRemoteObject( group ).set( property, getJsonForFont( newValue ) );
+      getRemoteObject( group ).set( property, toJson( newValue ) );
     }
   }
 

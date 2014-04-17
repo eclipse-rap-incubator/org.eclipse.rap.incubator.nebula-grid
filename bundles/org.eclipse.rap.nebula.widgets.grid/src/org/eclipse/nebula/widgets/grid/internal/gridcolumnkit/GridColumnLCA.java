@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 EclipseSource and others.
+ * Copyright (c) 2012, 2014 EclipseSource and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,13 +10,13 @@
  ******************************************************************************/
 package org.eclipse.nebula.widgets.grid.internal.gridcolumnkit;
 
-import static org.eclipse.rap.rwt.internal.protocol.ProtocolUtil.getJsonForFont;
 import static org.eclipse.rap.rwt.internal.protocol.RemoteObjectFactory.createRemoteObject;
 import static org.eclipse.rap.rwt.internal.protocol.RemoteObjectFactory.getRemoteObject;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.preserveListener;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.preserveProperty;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.renderListener;
 import static org.eclipse.rap.rwt.lifecycle.WidgetLCAUtil.renderProperty;
+import static org.eclipse.rap.rwt.remote.JsonMapping.toJson;
 import static org.eclipse.swt.internal.events.EventLCAUtil.isListening;
 
 import java.io.IOException;
@@ -34,7 +34,9 @@ import org.eclipse.swt.internal.widgets.ItemLCAUtil;
 import org.eclipse.swt.widgets.Widget;
 
 
-@SuppressWarnings("restriction")
+@SuppressWarnings({
+  "restriction", "deprecation"
+})
 public class GridColumnLCA extends AbstractWidgetLCA {
 
   private static final String TYPE = "rwt.widgets.GridColumn";
@@ -116,7 +118,7 @@ public class GridColumnLCA extends AbstractWidgetLCA {
   private static void renderFont( GridColumn column, String property, Font newValue ) {
     if( WidgetLCAUtil.hasChanged( column, property, newValue, column.getParent().getFont() ) ) {
       RemoteObject remoteObject = getRemoteObject( column );
-      remoteObject.set( property, getJsonForFont( newValue ) );
+      remoteObject.set( property, toJson( newValue ) );
     }
   }
 
