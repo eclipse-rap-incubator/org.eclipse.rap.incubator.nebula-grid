@@ -33,10 +33,10 @@ import org.eclipse.rap.rwt.internal.remote.RemoteObjectRegistry;
 import org.eclipse.rap.rwt.internal.lifecycle.WidgetUtil;
 import org.eclipse.rap.rwt.remote.OperationHandler;
 import org.eclipse.rap.rwt.testfixture.Fixture;
-import org.eclipse.rap.rwt.testfixture.Message;
-import org.eclipse.rap.rwt.testfixture.Message.CreateOperation;
-import org.eclipse.rap.rwt.testfixture.Message.DestroyOperation;
-import org.eclipse.rap.rwt.testfixture.Message.Operation;
+import org.eclipse.rap.rwt.testfixture.TestMessage;
+import org.eclipse.rap.rwt.testfixture.TestMessage.CreateOperation;
+import org.eclipse.rap.rwt.testfixture.TestMessage.DestroyOperation;
+import org.eclipse.rap.rwt.testfixture.TestMessage.Operation;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
@@ -77,7 +77,7 @@ public class GridColumnGroupLCA_Test {
   public void testRenderCreate() throws IOException {
     lca.renderInitialization( group );
 
-    Message message = Fixture.getProtocolMessage();
+    TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( group );
     assertEquals( "rwt.widgets.GridColumnGroup", operation.getType() );
   }
@@ -88,7 +88,7 @@ public class GridColumnGroupLCA_Test {
 
     lca.render( group );
 
-    Message message = Fixture.getProtocolMessage();
+    TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( group );
     List<Object> styles = Arrays.asList( operation.getStyles() );
     assertTrue( styles.contains( "TOGGLE" ) );
@@ -108,7 +108,7 @@ public class GridColumnGroupLCA_Test {
   public void testRenderParent() throws IOException {
     lca.renderInitialization( group );
 
-    Message message = Fixture.getProtocolMessage();
+    TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( group );
     assertEquals( WidgetUtil.getId( group.getParent() ), operation.getParent() );
   }
@@ -117,7 +117,7 @@ public class GridColumnGroupLCA_Test {
   public void testRenderDispose() throws IOException {
     lca.renderDispose( group );
 
-    Message message = Fixture.getProtocolMessage();
+    TestMessage message = Fixture.getProtocolMessage();
     Operation operation = message.getOperation( 0 );
     assertTrue( operation instanceof DestroyOperation );
     assertEquals( WidgetUtil.getId( group ), operation.getTarget() );
@@ -127,7 +127,7 @@ public class GridColumnGroupLCA_Test {
   public void testRenderInitialText() throws IOException {
     lca.render( group );
 
-    Message message = Fixture.getProtocolMessage();
+    TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( group );
     assertTrue( operation.getPropertyNames().indexOf( "text" ) == -1 );
   }
@@ -137,7 +137,7 @@ public class GridColumnGroupLCA_Test {
     group.setText( "foo" );
     lca.renderChanges( group );
 
-    Message message = Fixture.getProtocolMessage();
+    TestMessage message = Fixture.getProtocolMessage();
     assertEquals( "foo", message.findSetProperty( group, "text" ).asString() );
   }
 
@@ -150,7 +150,7 @@ public class GridColumnGroupLCA_Test {
     Fixture.preserveWidgets();
     lca.renderChanges( group );
 
-    Message message = Fixture.getProtocolMessage();
+    TestMessage message = Fixture.getProtocolMessage();
     assertNull( message.findSetOperation( group, "text" ) );
   }
 
@@ -158,7 +158,7 @@ public class GridColumnGroupLCA_Test {
   public void testRenderInitialImage() throws IOException {
     lca.renderChanges( group );
 
-    Message message = Fixture.getProtocolMessage();
+    TestMessage message = Fixture.getProtocolMessage();
     assertNull( message.findSetOperation( group, "image" ) );
   }
 
@@ -169,7 +169,7 @@ public class GridColumnGroupLCA_Test {
     group.setImage( image );
     lca.renderChanges( group );
 
-    Message message = Fixture.getProtocolMessage();
+    TestMessage message = Fixture.getProtocolMessage();
     String imageLocation = ImageFactory.getImagePath( image );
     String expected = "[\"" + imageLocation + "\", 100, 50 ]";
     JsonArray actual = message.findSetProperty( group, "image" ).asArray();
@@ -186,7 +186,7 @@ public class GridColumnGroupLCA_Test {
     Fixture.preserveWidgets();
     lca.renderChanges( group );
 
-    Message message = Fixture.getProtocolMessage();
+    TestMessage message = Fixture.getProtocolMessage();
     assertNull( message.findSetOperation( group, "image" ) );
   }
 
@@ -201,7 +201,7 @@ public class GridColumnGroupLCA_Test {
     group.setImage( null );
     lca.renderChanges( group );
 
-    Message message = Fixture.getProtocolMessage();
+    TestMessage message = Fixture.getProtocolMessage();
     assertEquals( JsonObject.NULL, message.findSetProperty( group, "image" ) );
   }
 
@@ -209,7 +209,7 @@ public class GridColumnGroupLCA_Test {
   public void testRenderInitialFont() throws IOException {
     lca.render( group );
 
-    Message message = Fixture.getProtocolMessage();
+    TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( group );
     assertTrue( operation.getPropertyNames().indexOf( "font" ) == -1 );
   }
@@ -219,7 +219,7 @@ public class GridColumnGroupLCA_Test {
     group.setHeaderFont( new Font( display, "Arial", 20, SWT.BOLD ) );
     lca.renderChanges( group );
 
-    Message message = Fixture.getProtocolMessage();
+    TestMessage message = Fixture.getProtocolMessage();
     JsonArray expected = JsonArray.readFrom( "[[\"Arial\"], 20, true, false]" );
     assertEquals( expected, message.findSetProperty( group, "font" ) );
   }
@@ -233,7 +233,7 @@ public class GridColumnGroupLCA_Test {
     Fixture.preserveWidgets();
     lca.renderChanges( group );
 
-    Message message = Fixture.getProtocolMessage();
+    TestMessage message = Fixture.getProtocolMessage();
     assertNull( message.findSetOperation( group, "font" ) );
   }
 
@@ -241,7 +241,7 @@ public class GridColumnGroupLCA_Test {
   public void testRenderInitialExpanded() throws IOException {
     lca.render( group );
 
-    Message message = Fixture.getProtocolMessage();
+    TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( group );
     assertTrue( operation.getPropertyNames().indexOf( "expanded" ) == -1 );
   }
@@ -251,7 +251,7 @@ public class GridColumnGroupLCA_Test {
     group.setExpanded( false );
     lca.renderChanges( group );
 
-    Message message = Fixture.getProtocolMessage();
+    TestMessage message = Fixture.getProtocolMessage();
     assertEquals( JsonValue.FALSE, message.findSetProperty( group, "expanded" ) );
   }
 
@@ -264,7 +264,7 @@ public class GridColumnGroupLCA_Test {
     Fixture.preserveWidgets();
     lca.renderChanges( group );
 
-    Message message = Fixture.getProtocolMessage();
+    TestMessage message = Fixture.getProtocolMessage();
     assertNull( message.findSetOperation( group, "expanded" ) );
   }
 
@@ -272,7 +272,7 @@ public class GridColumnGroupLCA_Test {
   public void testRenderInitialLeft() throws IOException {
     lca.render( group );
 
-    Message message = Fixture.getProtocolMessage();
+    TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( group );
     assertTrue( operation.getPropertyNames().indexOf( "left" ) == -1 );
   }
@@ -286,7 +286,7 @@ public class GridColumnGroupLCA_Test {
     grid.getColumn( 0 ).setWidth( 30 );
     lca.renderChanges( group );
 
-    Message message = Fixture.getProtocolMessage();
+    TestMessage message = Fixture.getProtocolMessage();
     assertEquals( 90, message.findSetProperty( group, "left" ).asInt() );
   }
 
@@ -302,7 +302,7 @@ public class GridColumnGroupLCA_Test {
     Fixture.preserveWidgets();
     lca.renderChanges( group );
 
-    Message message = Fixture.getProtocolMessage();
+    TestMessage message = Fixture.getProtocolMessage();
     assertNull( message.findSetOperation( group, "left" ) );
   }
 
@@ -310,7 +310,7 @@ public class GridColumnGroupLCA_Test {
   public void testRenderInitialWidth() throws IOException {
     lca.render( group );
 
-    Message message = Fixture.getProtocolMessage();
+    TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( group );
     assertTrue( operation.getPropertyNames().indexOf( "width" ) == -1 );
   }
@@ -321,7 +321,7 @@ public class GridColumnGroupLCA_Test {
 
     lca.renderChanges( group );
 
-    Message message = Fixture.getProtocolMessage();
+    TestMessage message = Fixture.getProtocolMessage();
     assertEquals( 20, message.findSetProperty( group, "width" ).asInt() );
   }
 
@@ -334,7 +334,7 @@ public class GridColumnGroupLCA_Test {
     Fixture.preserveWidgets();
     lca.renderChanges( group );
 
-    Message message = Fixture.getProtocolMessage();
+    TestMessage message = Fixture.getProtocolMessage();
     assertNull( message.findSetOperation( group, "width" ) );
   }
 
@@ -342,7 +342,7 @@ public class GridColumnGroupLCA_Test {
   public void testRenderInitialHeight() throws IOException {
     lca.render( group );
 
-    Message message = Fixture.getProtocolMessage();
+    TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( group );
     assertTrue( operation.getPropertyNames().indexOf( "height" ) == -1 );
   }
@@ -354,7 +354,7 @@ public class GridColumnGroupLCA_Test {
 
     lca.renderChanges( group );
 
-    Message message = Fixture.getProtocolMessage();
+    TestMessage message = Fixture.getProtocolMessage();
     assertEquals( 31, message.findSetProperty( group, "height" ).asInt() );
   }
 
@@ -368,7 +368,7 @@ public class GridColumnGroupLCA_Test {
     Fixture.preserveWidgets();
     lca.renderChanges( group );
 
-    Message message = Fixture.getProtocolMessage();
+    TestMessage message = Fixture.getProtocolMessage();
     assertNull( message.findSetOperation( group, "height" ) );
   }
 
@@ -378,7 +378,7 @@ public class GridColumnGroupLCA_Test {
 
     lca.render( group );
 
-    Message message = Fixture.getProtocolMessage();
+    TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( group );
     assertTrue( operation.getPropertyNames().indexOf( "visibility" ) == -1 );
   }
@@ -390,7 +390,7 @@ public class GridColumnGroupLCA_Test {
     grid.getColumn( 0 ).setVisible( false );
     lca.renderChanges( group );
 
-    Message message = Fixture.getProtocolMessage();
+    TestMessage message = Fixture.getProtocolMessage();
     assertEquals( JsonValue.FALSE, message.findSetProperty( group, "visibility" ) );
   }
 
@@ -404,7 +404,7 @@ public class GridColumnGroupLCA_Test {
     Fixture.preserveWidgets();
     lca.renderChanges( group );
 
-    Message message = Fixture.getProtocolMessage();
+    TestMessage message = Fixture.getProtocolMessage();
     assertNull( message.findSetOperation( group, "visibility" ) );
   }
 
@@ -412,7 +412,7 @@ public class GridColumnGroupLCA_Test {
   public void testRenderInitialCustomVariant() throws IOException {
     lca.render( group );
 
-    Message message = Fixture.getProtocolMessage();
+    TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( group );
     assertTrue( operation.getPropertyNames().indexOf( "customVariant" ) == -1 );
   }
@@ -422,7 +422,7 @@ public class GridColumnGroupLCA_Test {
     group.setData( RWT.CUSTOM_VARIANT, "blue" );
     lca.renderChanges( group );
 
-    Message message = Fixture.getProtocolMessage();
+    TestMessage message = Fixture.getProtocolMessage();
     assertEquals( "variant_blue", message.findSetProperty( group, "customVariant" ).asString() );
   }
 
@@ -435,7 +435,7 @@ public class GridColumnGroupLCA_Test {
     Fixture.preserveWidgets();
     lca.renderChanges( group );
 
-    Message message = Fixture.getProtocolMessage();
+    TestMessage message = Fixture.getProtocolMessage();
     assertNull( message.findSetOperation( group, "customVariant" ) );
   }
 
