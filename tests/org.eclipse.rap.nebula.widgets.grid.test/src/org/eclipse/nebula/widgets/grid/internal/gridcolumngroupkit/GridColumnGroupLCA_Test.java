@@ -13,30 +13,28 @@ package org.eclipse.nebula.widgets.grid.internal.gridcolumngroupkit;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridColumns;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
 import static org.eclipse.rap.rwt.internal.lifecycle.WidgetUtil.getId;
+import static org.eclipse.rap.rwt.testfixture.TestMessage.getParent;
+import static org.eclipse.rap.rwt.testfixture.TestMessage.getStyles;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 import org.eclipse.nebula.widgets.grid.Grid;
 import org.eclipse.nebula.widgets.grid.GridColumnGroup;
-import org.eclipse.nebula.widgets.grid.internal.gridcolumngroupkit.GridColumnGroupLCA;
-import org.eclipse.nebula.widgets.grid.internal.gridcolumngroupkit.GridColumnGroupOperationHandler;
 import org.eclipse.rap.json.JsonArray;
 import org.eclipse.rap.json.JsonObject;
 import org.eclipse.rap.json.JsonValue;
 import org.eclipse.rap.rwt.RWT;
-import org.eclipse.rap.rwt.internal.remote.RemoteObjectRegistry;
 import org.eclipse.rap.rwt.internal.lifecycle.WidgetUtil;
+import org.eclipse.rap.rwt.internal.protocol.Operation;
+import org.eclipse.rap.rwt.internal.protocol.Operation.CreateOperation;
+import org.eclipse.rap.rwt.internal.protocol.Operation.DestroyOperation;
+import org.eclipse.rap.rwt.internal.remote.RemoteObjectRegistry;
 import org.eclipse.rap.rwt.remote.OperationHandler;
 import org.eclipse.rap.rwt.testfixture.Fixture;
 import org.eclipse.rap.rwt.testfixture.TestMessage;
-import org.eclipse.rap.rwt.testfixture.TestMessage.CreateOperation;
-import org.eclipse.rap.rwt.testfixture.TestMessage.DestroyOperation;
-import org.eclipse.rap.rwt.testfixture.TestMessage.Operation;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
@@ -90,8 +88,7 @@ public class GridColumnGroupLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( group );
-    List<Object> styles = Arrays.asList( operation.getStyles() );
-    assertTrue( styles.contains( "TOGGLE" ) );
+    assertTrue( getStyles( operation ).contains( "TOGGLE" ) );
   }
 
   @Test
@@ -110,7 +107,7 @@ public class GridColumnGroupLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( group );
-    assertEquals( WidgetUtil.getId( group.getParent() ), operation.getParent() );
+    assertEquals( WidgetUtil.getId( group.getParent() ), getParent( operation ) );
   }
 
   @Test
@@ -129,7 +126,7 @@ public class GridColumnGroupLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( group );
-    assertTrue( operation.getPropertyNames().indexOf( "text" ) == -1 );
+    assertTrue( operation.getProperties().names().indexOf( "text" ) == -1 );
   }
 
   @Test
@@ -211,7 +208,7 @@ public class GridColumnGroupLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( group );
-    assertTrue( operation.getPropertyNames().indexOf( "font" ) == -1 );
+    assertTrue( operation.getProperties().names().indexOf( "font" ) == -1 );
   }
 
   @Test
@@ -243,7 +240,7 @@ public class GridColumnGroupLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( group );
-    assertTrue( operation.getPropertyNames().indexOf( "expanded" ) == -1 );
+    assertTrue( operation.getProperties().names().indexOf( "expanded" ) == -1 );
   }
 
   @Test
@@ -274,7 +271,7 @@ public class GridColumnGroupLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( group );
-    assertTrue( operation.getPropertyNames().indexOf( "left" ) == -1 );
+    assertTrue( operation.getProperties().names().indexOf( "left" ) == -1 );
   }
 
   @Test
@@ -312,7 +309,7 @@ public class GridColumnGroupLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( group );
-    assertTrue( operation.getPropertyNames().indexOf( "width" ) == -1 );
+    assertTrue( operation.getProperties().names().indexOf( "width" ) == -1 );
   }
 
   @Test
@@ -344,7 +341,7 @@ public class GridColumnGroupLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( group );
-    assertTrue( operation.getPropertyNames().indexOf( "height" ) == -1 );
+    assertTrue( operation.getProperties().names().indexOf( "height" ) == -1 );
   }
 
   @Test
@@ -380,7 +377,7 @@ public class GridColumnGroupLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( group );
-    assertTrue( operation.getPropertyNames().indexOf( "visibility" ) == -1 );
+    assertTrue( operation.getProperties().names().indexOf( "visibility" ) == -1 );
   }
 
   @Test
@@ -414,7 +411,7 @@ public class GridColumnGroupLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( group );
-    assertTrue( operation.getPropertyNames().indexOf( "customVariant" ) == -1 );
+    assertTrue( operation.getProperties().names().indexOf( "customVariant" ) == -1 );
   }
 
   @Test

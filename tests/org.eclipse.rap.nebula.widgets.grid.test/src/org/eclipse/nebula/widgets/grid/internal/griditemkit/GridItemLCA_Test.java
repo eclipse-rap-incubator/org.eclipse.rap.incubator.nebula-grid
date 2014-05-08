@@ -13,8 +13,9 @@ package org.eclipse.nebula.widgets.grid.internal.griditemkit;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridColumns;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridItems;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
-import static org.eclipse.rap.rwt.internal.protocol.RemoteObjectFactory.getRemoteObject;
 import static org.eclipse.rap.rwt.internal.lifecycle.WidgetUtil.getId;
+import static org.eclipse.rap.rwt.internal.protocol.RemoteObjectFactory.getRemoteObject;
+import static org.eclipse.rap.rwt.testfixture.TestMessage.getParent;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -28,14 +29,14 @@ import org.eclipse.rap.json.JsonArray;
 import org.eclipse.rap.json.JsonObject;
 import org.eclipse.rap.json.JsonValue;
 import org.eclipse.rap.rwt.RWT;
+import org.eclipse.rap.rwt.internal.lifecycle.WidgetUtil;
+import org.eclipse.rap.rwt.internal.protocol.Operation.CreateOperation;
+import org.eclipse.rap.rwt.internal.protocol.Operation.DestroyOperation;
 import org.eclipse.rap.rwt.internal.remote.RemoteObjectImpl;
 import org.eclipse.rap.rwt.internal.remote.RemoteObjectRegistry;
-import org.eclipse.rap.rwt.internal.lifecycle.WidgetUtil;
 import org.eclipse.rap.rwt.remote.OperationHandler;
 import org.eclipse.rap.rwt.testfixture.Fixture;
 import org.eclipse.rap.rwt.testfixture.TestMessage;
-import org.eclipse.rap.rwt.testfixture.TestMessage.CreateOperation;
-import org.eclipse.rap.rwt.testfixture.TestMessage.DestroyOperation;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
@@ -80,7 +81,7 @@ public class GridItemLCA_Test {
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( items[ 8 ] );
     assertEquals( "rwt.widgets.GridItem", operation.getType() );
-    assertEquals( 3, operation.getProperty( "index" ).asInt() );
+    assertEquals( 3, operation.getProperties().get( "index" ).asInt() );
   }
 
   @Test
@@ -92,7 +93,7 @@ public class GridItemLCA_Test {
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( items[ 10 ] );
     assertEquals( "rwt.widgets.GridItem", operation.getType() );
-    assertEquals( 1, operation.getProperty( "index" ).asInt() );
+    assertEquals( 1, operation.getProperties().get( "index" ).asInt() );
   }
 
   @Test
@@ -111,7 +112,7 @@ public class GridItemLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( item );
-    assertEquals( WidgetUtil.getId( item.getParent() ), operation.getParent() );
+    assertEquals( WidgetUtil.getId( item.getParent() ), getParent( operation ) );
   }
 
   @Test
@@ -122,7 +123,7 @@ public class GridItemLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( subitem );
-    assertEquals( WidgetUtil.getId( item ), operation.getParent() );
+    assertEquals( WidgetUtil.getId( item ), getParent( operation ) );
   }
 
   @Test
@@ -172,7 +173,7 @@ public class GridItemLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( item );
-    assertTrue( operation.getPropertyNames().indexOf( "customVariant" ) == -1 );
+    assertTrue( operation.getProperties().names().indexOf( "customVariant" ) == -1 );
   }
 
   @Test
@@ -203,7 +204,7 @@ public class GridItemLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( item );
-    assertTrue( operation.getPropertyNames().indexOf( "itemCount" ) == -1 );
+    assertTrue( operation.getProperties().names().indexOf( "itemCount" ) == -1 );
   }
 
   @Test
@@ -234,7 +235,7 @@ public class GridItemLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( item );
-    assertTrue( operation.getPropertyNames().indexOf( "height" ) == -1 );
+    assertTrue( operation.getProperties().names().indexOf( "height" ) == -1 );
   }
 
   @Test
@@ -268,7 +269,7 @@ public class GridItemLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( item );
-    assertTrue( operation.getPropertyNames().indexOf( "texts" ) == -1 );
+    assertTrue( operation.getProperties().names().indexOf( "texts" ) == -1 );
   }
 
   @Test
@@ -307,7 +308,7 @@ public class GridItemLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( item );
-    assertTrue( operation.getPropertyNames().indexOf( "images" ) == -1 );
+    assertTrue( operation.getProperties().names().indexOf( "images" ) == -1 );
   }
 
   @Test
@@ -345,7 +346,7 @@ public class GridItemLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( item );
-    assertTrue( operation.getPropertyNames().indexOf( "background" ) == -1 );
+    assertTrue( operation.getProperties().names().indexOf( "background" ) == -1 );
   }
 
   @Test
@@ -377,7 +378,7 @@ public class GridItemLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( item );
-    assertTrue( operation.getPropertyNames().indexOf( "foreground" ) == -1 );
+    assertTrue( operation.getProperties().names().indexOf( "foreground" ) == -1 );
   }
 
   @Test
@@ -409,7 +410,7 @@ public class GridItemLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( item );
-    assertTrue( operation.getPropertyNames().indexOf( "font" ) == -1 );
+    assertTrue( operation.getProperties().names().indexOf( "font" ) == -1 );
   }
 
   @Test
@@ -443,7 +444,7 @@ public class GridItemLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( item );
-    assertTrue( operation.getPropertyNames().indexOf( "cellBackgrounds" ) == -1 );
+    assertTrue( operation.getProperties().names().indexOf( "cellBackgrounds" ) == -1 );
   }
 
   @Test
@@ -480,7 +481,7 @@ public class GridItemLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( item );
-    assertTrue( operation.getPropertyNames().indexOf( "cellForegrounds" ) == -1 );
+    assertTrue( operation.getProperties().names().indexOf( "cellForegrounds" ) == -1 );
   }
 
   @Test
@@ -517,7 +518,7 @@ public class GridItemLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( item );
-    assertTrue( operation.getPropertyNames().indexOf( "cellFonts" ) == -1 );
+    assertTrue( operation.getProperties().names().indexOf( "cellFonts" ) == -1 );
   }
 
   @Test
@@ -552,7 +553,7 @@ public class GridItemLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( item );
-    assertTrue( operation.getPropertyNames().indexOf( "expanded" ) == -1 );
+    assertTrue( operation.getProperties().names().indexOf( "expanded" ) == -1 );
   }
 
   @Test
@@ -590,7 +591,7 @@ public class GridItemLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( item );
-    assertTrue( operation.getPropertyNames().indexOf( "cellChecked" ) == -1 );
+    assertTrue( operation.getProperties().names().indexOf( "cellChecked" ) == -1 );
   }
 
   @Test
@@ -633,7 +634,7 @@ public class GridItemLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( item );
-    assertTrue( operation.getPropertyNames().indexOf( "cellGrayed" ) == -1 );
+    assertTrue( operation.getProperties().names().indexOf( "cellGrayed" ) == -1 );
   }
 
   @Test
@@ -676,7 +677,7 @@ public class GridItemLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( item );
-    assertTrue( operation.getPropertyNames().indexOf( "cellCheckable" ) == -1 );
+    assertTrue( operation.getProperties().names().indexOf( "cellCheckable" ) == -1 );
   }
 
   @Test

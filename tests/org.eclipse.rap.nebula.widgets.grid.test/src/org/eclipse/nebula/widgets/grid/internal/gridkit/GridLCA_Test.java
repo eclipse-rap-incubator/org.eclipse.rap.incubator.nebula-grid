@@ -13,8 +13,10 @@ package org.eclipse.nebula.widgets.grid.internal.gridkit;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridColumns;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridItems;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
-import static org.eclipse.rap.rwt.internal.protocol.RemoteObjectFactory.getRemoteObject;
 import static org.eclipse.rap.rwt.internal.lifecycle.WidgetUtil.getId;
+import static org.eclipse.rap.rwt.internal.protocol.RemoteObjectFactory.getRemoteObject;
+import static org.eclipse.rap.rwt.testfixture.TestMessage.getParent;
+import static org.eclipse.rap.rwt.testfixture.TestMessage.getStyles;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -24,7 +26,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.nebula.widgets.grid.Grid;
@@ -36,14 +37,14 @@ import org.eclipse.rap.json.JsonArray;
 import org.eclipse.rap.json.JsonObject;
 import org.eclipse.rap.json.JsonValue;
 import org.eclipse.rap.rwt.RWT;
-import org.eclipse.rap.rwt.internal.remote.RemoteObjectRegistry;
 import org.eclipse.rap.rwt.internal.lifecycle.WidgetUtil;
+import org.eclipse.rap.rwt.internal.protocol.Operation;
+import org.eclipse.rap.rwt.internal.protocol.Operation.CreateOperation;
+import org.eclipse.rap.rwt.internal.protocol.Operation.DestroyOperation;
+import org.eclipse.rap.rwt.internal.remote.RemoteObjectRegistry;
 import org.eclipse.rap.rwt.remote.OperationHandler;
 import org.eclipse.rap.rwt.testfixture.Fixture;
 import org.eclipse.rap.rwt.testfixture.TestMessage;
-import org.eclipse.rap.rwt.testfixture.TestMessage.CreateOperation;
-import org.eclipse.rap.rwt.testfixture.TestMessage.DestroyOperation;
-import org.eclipse.rap.rwt.testfixture.TestMessage.Operation;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionListener;
@@ -89,12 +90,11 @@ public class GridLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( grid );
-    List<Object> styles = Arrays.asList( operation.getStyles() );
     assertEquals( "rwt.widgets.Grid", operation.getType() );
-    assertEquals( "tree", operation.getProperty( "appearance" ).asString() );
-    assertEquals( 16, operation.getProperty( "indentionWidth" ).asInt() );
-    assertFalse( operation.getPropertyNames().contains( "checkBoxMetrics" ) );
-    assertTrue( styles.contains( "FULL_SELECTION" ) );
+    assertEquals( "tree", operation.getProperties().get( "appearance" ).asString() );
+    assertEquals( 16, operation.getProperties().get( "indentionWidth" ).asInt() );
+    assertFalse( operation.getProperties().names().contains( "checkBoxMetrics" ) );
+    assertTrue( getStyles( operation ).contains( "FULL_SELECTION" ) );
   }
 
   @Test
@@ -103,7 +103,7 @@ public class GridLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( grid );
-    assertEquals( getId( grid.getParent() ), operation.getParent() );
+    assertEquals( getId( grid.getParent() ), getParent( operation ) );
   }
 
   @Test
@@ -114,7 +114,7 @@ public class GridLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( grid );
-    List<Object> styles = Arrays.asList( operation.getStyles() );
+    List<String> styles = getStyles( operation );
     assertTrue( styles.contains( "VIRTUAL" ) );
     assertTrue( styles.contains( "MULTI" ) );
     assertEquals( JsonValue.TRUE, message.findListenProperty( grid, "SetData" ) );
@@ -157,7 +157,7 @@ public class GridLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( grid );
-    assertTrue( operation.getPropertyNames().indexOf( "itemCount" ) == -1 );
+    assertTrue( operation.getProperties().names().indexOf( "itemCount" ) == -1 );
   }
 
   @Test
@@ -269,7 +269,7 @@ public class GridLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( grid );
-    assertTrue( operation.getPropertyNames().indexOf( "columnCount" ) == -1 );
+    assertTrue( operation.getProperties().names().indexOf( "columnCount" ) == -1 );
   }
 
   @Test
@@ -302,7 +302,7 @@ public class GridLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( grid );
-    assertTrue( operation.getPropertyNames().indexOf( "treeColumn" ) == -1 );
+    assertTrue( operation.getProperties().names().indexOf( "treeColumn" ) == -1 );
   }
 
   @Test
@@ -338,7 +338,7 @@ public class GridLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( grid );
-    assertTrue( operation.getPropertyNames().indexOf( "headerHeight" ) == -1 );
+    assertTrue( operation.getProperties().names().indexOf( "headerHeight" ) == -1 );
   }
 
   @Test
@@ -372,7 +372,7 @@ public class GridLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( grid );
-    assertTrue( operation.getPropertyNames().indexOf( "headerVisible" ) == -1 );
+    assertTrue( operation.getProperties().names().indexOf( "headerVisible" ) == -1 );
   }
 
   @Test
@@ -405,7 +405,7 @@ public class GridLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( grid );
-    assertTrue( operation.getPropertyNames().indexOf( "footerHeight" ) == -1 );
+    assertTrue( operation.getProperties().names().indexOf( "footerHeight" ) == -1 );
   }
 
   @Test
@@ -439,7 +439,7 @@ public class GridLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( grid );
-    assertTrue( operation.getPropertyNames().indexOf( "footerVisible" ) == -1 );
+    assertTrue( operation.getProperties().names().indexOf( "footerVisible" ) == -1 );
   }
 
   @Test
@@ -503,7 +503,7 @@ public class GridLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( grid );
-    assertTrue( operation.getPropertyNames().indexOf( "topItemIndex" ) == -1 );
+    assertTrue( operation.getProperties().names().indexOf( "topItemIndex" ) == -1 );
   }
 
   @Test
@@ -540,7 +540,7 @@ public class GridLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( grid );
-    assertTrue( operation.getPropertyNames().indexOf( "focusItem" ) == -1 );
+    assertTrue( operation.getProperties().names().indexOf( "focusItem" ) == -1 );
   }
 
   @Test
@@ -575,7 +575,7 @@ public class GridLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( grid );
-    assertTrue( operation.getPropertyNames().indexOf( "scrollLeft" ) == -1 );
+    assertTrue( operation.getProperties().names().indexOf( "scrollLeft" ) == -1 );
   }
 
   @Test
@@ -608,7 +608,7 @@ public class GridLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( grid );
-    assertTrue( operation.getPropertyNames().indexOf( "selection" ) == -1 );
+    assertTrue( operation.getProperties().names().indexOf( "selection" ) == -1 );
   }
 
   @Test
@@ -645,7 +645,7 @@ public class GridLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( grid );
-    assertTrue( operation.getPropertyNames().indexOf( "sortDirection" ) == -1 );
+    assertTrue( operation.getProperties().names().indexOf( "sortDirection" ) == -1 );
   }
 
   @Test
@@ -679,7 +679,7 @@ public class GridLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( grid );
-    assertTrue( operation.getPropertyNames().indexOf( "sortColumn" ) == -1 );
+    assertTrue( operation.getProperties().names().indexOf( "sortColumn" ) == -1 );
   }
 
   @Test
@@ -913,7 +913,7 @@ public class GridLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( grid );
-    assertTrue( operation.getPropertyNames().indexOf( "enableCellToolTip" ) == -1 );
+    assertTrue( operation.getProperties().names().indexOf( "enableCellToolTip" ) == -1 );
   }
 
   @Test
