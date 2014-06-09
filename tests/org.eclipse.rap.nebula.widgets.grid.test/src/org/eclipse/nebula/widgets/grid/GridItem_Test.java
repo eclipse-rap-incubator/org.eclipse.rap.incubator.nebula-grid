@@ -52,7 +52,7 @@ public class GridItem_Test {
   private List<Event> eventLog;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     Fixture.setUp();
     Fixture.fakePhase( PhaseId.PROCESS_ACTION );
     display = new Display();
@@ -120,6 +120,16 @@ public class GridItem_Test {
     assertEquals( 31, grid.getItemCount() );
     assertEquals( 5, grid.getRootItemCount() );
     assertEquals( 6, parentItem.getItemCount() );
+  }
+
+  @Test
+  public void testGridItemCreation_onVirtual_doesNotResolveItem() {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    grid.setItemCount( 1 );
+
+    GridItem item = grid.getItem( 0 );
+
+    assertFalse( item.isResolved() );
   }
 
   @Test
@@ -431,9 +441,20 @@ public class GridItem_Test {
   }
 
   @Test
+  public void testSetText_marksItemCached() {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    item.setText( "foo" );
+
+    assertTrue( item.isCached() );
+  }
+
+  @Test
   public void testHandleVirtual_RootItem() {
     grid = new Grid( shell, SWT.VIRTUAL );
     GridItem[] items = createGridItems( grid, 3, 3 );
+    grid.clearAll( true );
     grid.addListener( SWT.SetData, new LoggingListener() );
 
     items[ 4 ].getText();
@@ -442,13 +463,14 @@ public class GridItem_Test {
     Event event = eventLog.get( 0 );
     assertSame( grid, event.widget );
     assertSame( items[ 4 ], event.item );
-    assertEquals( 4, event.index );
+    assertEquals( 1, event.index );
   }
 
   @Test
   public void testHandleVirtual_SubItem() {
     grid = new Grid( shell, SWT.VIRTUAL );
     GridItem[] items = createGridItems( grid, 3, 3 );
+    grid.clearAll( true );
     grid.addListener( SWT.SetData, new LoggingListener() );
 
     items[ 2 ].getText();
@@ -464,6 +486,7 @@ public class GridItem_Test {
   public void testHandleVirtual_Twice() {
     grid = new Grid( shell, SWT.VIRTUAL );
     GridItem[] items = createGridItems( grid, 3, 3 );
+    grid.clearAll( true );
     grid.addListener( SWT.SetData, new LoggingListener() );
 
     items[ 2 ].getText();
@@ -499,6 +522,16 @@ public class GridItem_Test {
   }
 
   @Test
+  public void testSetFont_marksItemCached() {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    item.setFont( new Font( display, "Arial", 20, SWT.BOLD ) );
+
+    assertTrue( item.isCached() );
+  }
+
+  @Test
   public void testGetFontByIndex() {
     createGridColumns( grid, 3, SWT.NONE );
     GridItem item = new GridItem( grid, SWT.NONE );
@@ -530,6 +563,16 @@ public class GridItem_Test {
   }
 
   @Test
+  public void testSetFontByIndex_marksItemCached() {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    item.setFont( 0, new Font( display, "Arial", 20, SWT.BOLD ) );
+
+    assertTrue( item.isCached() );
+  }
+
+  @Test
   public void testGetBackground_Initial() {
     GridItem item = new GridItem( grid, SWT.NONE );
 
@@ -553,6 +596,16 @@ public class GridItem_Test {
     background.dispose();
 
     item.setBackground( background );
+  }
+
+  @Test
+  public void testSetBackground_marksItemCached() {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    item.setBackground( new Color( display, 0, 0, 255 ) );
+
+    assertTrue( item.isCached() );
   }
 
   @Test
@@ -587,6 +640,16 @@ public class GridItem_Test {
   }
 
   @Test
+  public void testSetBackgroundByIndex_marksItemCached() {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    item.setBackground( 0, new Color( display, 0, 0, 255 ) );
+
+    assertTrue( item.isCached() );
+  }
+
+  @Test
   public void testGetForeground_Initial() {
     GridItem item = new GridItem( grid, SWT.NONE );
 
@@ -610,6 +673,16 @@ public class GridItem_Test {
     foreground.dispose();
 
     item.setForeground( foreground );
+  }
+
+  @Test
+  public void testSetForeground_marksItemCached() {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    item.setForeground( new Color( display, 0, 0, 255 ) );
+
+    assertTrue( item.isCached() );
   }
 
   @Test
@@ -641,6 +714,16 @@ public class GridItem_Test {
     foreground.dispose();
 
     item.setForeground( 1, foreground );
+  }
+
+  @Test
+  public void testSetForegroundByIndex_marksItemCached() {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    item.setForeground( 0, new Color( display, 0, 0, 255 ) );
+
+    assertTrue( item.isCached() );
   }
 
   @Test
@@ -708,6 +791,16 @@ public class GridItem_Test {
   }
 
   @Test
+  public void testSetImage_marksItemCached() {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    item.setImage( loadImage( display, Fixture.IMAGE1 ) );
+
+    assertTrue( item.isCached() );
+  }
+
+  @Test
   public void testGetImageByIndex() {
     createGridColumns( grid, 3, SWT.NONE );
     GridItem item = new GridItem( grid, SWT.NONE );
@@ -755,6 +848,16 @@ public class GridItem_Test {
   }
 
   @Test
+  public void testSetChecked_marksItemCached() {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    item.setChecked( true );
+
+    assertTrue( item.isCached() );
+  }
+
+  @Test
   public void testGetCheckedByIndex() {
     createGridColumns( grid, 3, SWT.NONE );
     GridItem item = new GridItem( grid, SWT.NONE );
@@ -788,6 +891,16 @@ public class GridItem_Test {
     item.setGrayed( true );
 
     assertTrue( item.getGrayed() );
+  }
+
+  @Test
+  public void testSetGrayed_marksItemCached() {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    item.setGrayed( true );
+
+    assertTrue( item.isCached() );
   }
 
   @Test
@@ -826,6 +939,16 @@ public class GridItem_Test {
     item.setCheckable( 1, false );
 
     assertFalse( item.getCheckable( 1 ) );
+  }
+
+  @Test
+  public void testSetCheckable_marksItemCached() {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    GridItem item = new GridItem( grid, SWT.NONE );
+
+    item.setCheckable( 0, false );
+
+    assertTrue( item.isCached() );
   }
 
   @Test( expected = IndexOutOfBoundsException.class )
@@ -1073,6 +1196,306 @@ public class GridItem_Test {
     items[ 0 ].dispose();
 
     assertEquals( 1, columns[ 1 ].imageCount );
+  }
+
+  @Test
+  public void testGetText_onVirtual_resolvesItem() {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    grid.setItemCount( 1 );
+
+    GridItem item = grid.getItem( 0 );
+    item.getText();
+
+    assertTrue( item.isResolved() );
+  }
+
+  @Test
+  public void testSetText_onVirtual_resolvesItem() {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    grid.setItemCount( 1 );
+
+    GridItem item = grid.getItem( 0 );
+    item.setText( "foo" );
+
+    assertTrue( item.isResolved() );
+  }
+
+  @Test
+  public void testGetToolTipText_onVirtual_resolvesItem() {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    grid.setItemCount( 1 );
+
+    GridItem item = grid.getItem( 0 );
+    item.getToolTipText( 0 );
+
+    assertTrue( item.isResolved() );
+  }
+
+  @Test
+  public void testSetToolTipText_onVirtual_resolvesItem() {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    grid.setItemCount( 1 );
+
+    GridItem item = grid.getItem( 0 );
+    item.setToolTipText( 0, "foo" );
+
+    assertTrue( item.isResolved() );
+  }
+
+  @Test
+  public void testGetImage_onVirtual_resolvesItem() {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    grid.setItemCount( 1 );
+
+    GridItem item = grid.getItem( 0 );
+    item.getImage();
+
+    assertTrue( item.isResolved() );
+  }
+
+  @Test
+  public void testSetImage_onVirtual_resolvesItem() {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    grid.setItemCount( 1 );
+
+    GridItem item = grid.getItem( 0 );
+    item.setImage( loadImage( display, Fixture.IMAGE1 ) );
+
+    assertTrue( item.isResolved() );
+  }
+
+  @Test
+  public void testGetChecked_onVirtual_resolvesItem() {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    grid.setItemCount( 1 );
+
+    GridItem item = grid.getItem( 0 );
+    item.getChecked();
+
+    assertTrue( item.isResolved() );
+  }
+
+  @Test
+  public void testSetChecked_onVirtual_resolvesItem() {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    grid.setItemCount( 1 );
+
+    GridItem item = grid.getItem( 0 );
+    item.setChecked( true );
+
+    assertTrue( item.isResolved() );
+  }
+
+  @Test
+  public void testGetGrayed_onVirtual_resolvesItem() {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    grid.setItemCount( 1 );
+
+    GridItem item = grid.getItem( 0 );
+    item.getGrayed();
+
+    assertTrue( item.isResolved() );
+  }
+
+  @Test
+  public void testSetGrayed_onVirtual_resolvesItem() {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    grid.setItemCount( 1 );
+
+    GridItem item = grid.getItem( 0 );
+    item.setGrayed( true );
+
+    assertTrue( item.isResolved() );
+  }
+
+  @Test
+  public void testGetCheckable_onVirtual_resolvesItem() {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    grid.setItemCount( 1 );
+
+    GridItem item = grid.getItem( 0 );
+    item.getCheckable( 0 );
+
+    assertTrue( item.isResolved() );
+  }
+
+  @Test
+  public void testSetCheckable_onVirtual_resolvesItem() {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    grid.setItemCount( 1 );
+
+    GridItem item = grid.getItem( 0 );
+    item.setCheckable( 0, true );
+
+    assertTrue( item.isResolved() );
+  }
+
+  @Test
+  public void testGetFont_onVirtual_resolvesItem() {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    grid.setItemCount( 1 );
+
+    GridItem item = grid.getItem( 0 );
+    item.getFont();
+
+    assertTrue( item.isResolved() );
+  }
+
+  @Test
+  public void testSetFont_onVirtual_resolvesItem() {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    grid.setItemCount( 1 );
+
+    GridItem item = grid.getItem( 0 );
+    item.setFont( new Font( display, "Arial", 20, SWT.BOLD ) );
+
+    assertTrue( item.isResolved() );
+  }
+
+  @Test
+  public void testGetBackground_onVirtual_resolvesItem() {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    grid.setItemCount( 1 );
+
+    GridItem item = grid.getItem( 0 );
+    item.getBackground();
+
+    assertTrue( item.isResolved() );
+  }
+
+  @Test
+  public void testSetBackground_onVirtual_resolvesItem() {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    grid.setItemCount( 1 );
+
+    GridItem item = grid.getItem( 0 );
+    item.setBackground( new Color( display, 0, 0, 255 ) );
+
+    assertTrue( item.isResolved() );
+  }
+
+  @Test
+  public void testGetForeground_onVirtual_resolvesItem() {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    grid.setItemCount( 1 );
+
+    GridItem item = grid.getItem( 0 );
+    item.getForeground();
+
+    assertTrue( item.isResolved() );
+  }
+
+  @Test
+  public void testSetForeground_onVirtual_resolvesItem() {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    grid.setItemCount( 1 );
+
+    GridItem item = grid.getItem( 0 );
+    item.setForeground( new Color( display, 0, 0, 255 ) );
+
+    assertTrue( item.isResolved() );
+  }
+
+  @Test
+  public void testIsExpanded_onVirtual_doesNotResolveItem() {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    grid.setItemCount( 1 );
+
+    GridItem item = grid.getItem( 0 );
+    item.isExpanded();
+
+    assertFalse( item.isResolved() );
+  }
+
+  @Test
+  public void testSetExpanded_onVirtual_resolvesItem() {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    grid.setItemCount( 1 );
+
+    GridItem item = grid.getItem( 0 );
+    item.setExpanded( true );
+
+    assertTrue( item.isResolved() );
+  }
+
+  @Test
+  public void testGetHeight_onVirtual_resolvesItem() {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    grid.setItemCount( 1 );
+
+    GridItem item = grid.getItem( 0 );
+    item.getHeight();
+
+    assertTrue( item.isResolved() );
+  }
+
+  @Test
+  public void testSetHeight_onVirtual_resolvesItem() {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    grid.setItemCount( 1 );
+
+    GridItem item = grid.getItem( 0 );
+    item.setHeight( 30 );
+
+    assertTrue( item.isResolved() );
+  }
+
+  @Test
+  public void testItemIndex() {
+    createGridItems( grid, 3, 0 );
+
+    GridItem item = new GridItem( grid, SWT.NONE, 1 );
+
+    assertEquals( 1, item.index );
+  }
+
+  @Test
+  public void testItemIndex_isIncreasedAfterItemIsAdded() {
+    createGridItems( grid, 3, 0 );
+
+    new GridItem( grid, SWT.NONE, 1 );
+
+    assertEquals( 0, grid.getItem( 0 ).index );
+    assertEquals( 3, grid.getItem( 3 ).index );
+  }
+
+  @Test
+  public void testItemIndex_isDecreasedAfterItemIsRemoved() {
+    createGridItems( grid, 3, 0 );
+
+    grid.getItem( 1 ).dispose();
+
+    assertEquals( 0, grid.getItem( 0 ).index );
+    assertEquals( 1, grid.getItem( 1 ).index );
+  }
+
+  @Test
+  public void testItemIndex_ofSubItem() {
+    createGridItems( grid, 3, 3 );
+
+    GridItem item = new GridItem( grid.getItem( 0 ), SWT.NONE, 1 );
+
+    assertEquals( 1, item.index );
+  }
+
+  @Test
+  public void testItemIndex_ofSubItem_isIncreasedAfterItemIsAdded() {
+    createGridItems( grid, 3, 3 );
+
+    new GridItem( grid.getItem( 0 ), SWT.NONE, 1 );
+
+    assertEquals( 0, grid.getItem( 1 ).index );
+    assertEquals( 3, grid.getItem( 4 ).index );
+  }
+
+  @Test
+  public void testItemIndex_ofSubItem_isDecreasedAfterItemIsRemoved() {
+    createGridItems( grid, 3, 3 );
+
+    grid.getItem( 2 ).dispose();
+
+    assertEquals( 0, grid.getItem( 1 ).index );
+    assertEquals( 1, grid.getItem( 2 ).index );
   }
 
   //////////////////

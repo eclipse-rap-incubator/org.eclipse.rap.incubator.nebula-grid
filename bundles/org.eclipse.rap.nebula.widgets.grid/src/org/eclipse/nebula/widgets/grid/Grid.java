@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 EclipseSource and others.
+ * Copyright (c) 2012, 2014 EclipseSource and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,9 +25,6 @@ import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.internal.textsize.TextSizeUtil;
 import org.eclipse.rap.rwt.internal.theme.IThemeAdapter;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ControlAdapter;
-import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TreeListener;
 import org.eclipse.swt.graphics.Font;
@@ -38,10 +35,10 @@ import org.eclipse.swt.internal.SerializableCompatibility;
 import org.eclipse.swt.internal.widgets.ICellToolTipAdapter;
 import org.eclipse.swt.internal.widgets.ICellToolTipProvider;
 import org.eclipse.swt.internal.widgets.IItemHolderAdapter;
-import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Item;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.TypedListener;
 
 
@@ -64,7 +61,7 @@ import org.eclipse.swt.widgets.TypedListener;
  * </dl>
  */
 @SuppressWarnings("restriction")
-public class Grid extends Canvas {
+public class Grid extends Composite {
 
   private static final int MIN_ITEM_HEIGHT = 16;
   private static final int GRID_WIDTH = 1;
@@ -89,7 +86,8 @@ public class Grid extends Canvas {
   private int customItemHeight = -1;
   private int groupHeaderHeight;
   private Point itemImageSize;
-  private ControlListener resizeListener;
+  private Listener resizeListener;
+  private Listener disposeListener;
   private boolean isTemporaryResize;
   private IScrollBarProxy vScroll;
   private IScrollBarProxy hScroll;
@@ -141,27 +139,7 @@ public class Grid extends Canvas {
     }
     gridAdapter = new GridAdapter();
     layoutCache = new LayoutCache();
-    setScrollValuesObsolete();
     initListeners();
-  }
-
-  @Override
-  public void dispose() {
-    disposing = true;
-    removeControlListener( resizeListener );
-    super.dispose();
-    for( Iterator<GridItem> iterator = items.iterator(); iterator.hasNext(); ) {
-      GridItem item = iterator.next();
-      item.dispose();
-    }
-    for( Iterator<GridColumn> iterator = columns.iterator(); iterator.hasNext(); ) {
-      GridColumn column = iterator.next();
-      column.dispose();
-    }
-    for( Iterator<GridColumnGroup> iterator = columnGroups.iterator(); iterator.hasNext(); ) {
-      GridColumnGroup group = iterator.next();
-      group.dispose();
-    }
   }
 
   /**
@@ -319,11 +297,13 @@ public class Grid extends Canvas {
     checkWidget();
     int itemCount = Math.max( 0, count );
     while( itemCount < items.size() ) {
-      items.get( items.size() - 1 ).dispose();
+      int flatIndex = items.size() - 1;
+      items.get( flatIndex ).dispose( flatIndex );
     }
     while( itemCount > items.size() ) {
-      new GridItem( this, SWT.NONE );
+      new GridItem( this, null, SWT.NONE, -1 );
     }
+    redraw();
   }
 
   /**
@@ -459,11 +439,7 @@ public class Grid extends Canvas {
     if( item == null ) {
       SWT.error( SWT.ERROR_NULL_ARGUMENT );
     }
-    int result = -1;
-    if( item.getParent() == this ) {
-      result = items.indexOf( item );
-    }
-    return result;
+    return item.getParent() == this ? items.indexOf( item ) : -1;
   }
 
   /**
@@ -679,11 +655,7 @@ public class Grid extends Canvas {
     if( column == null ) {
       SWT.error( SWT.ERROR_NULL_ARGUMENT );
     }
-    int result = -1;
-    if( column.getParent() == this ) {
-      result = columns.indexOf( column );
-    }
-    return result;
+    return column.getParent() == this ? columns.indexOf( column ): -1;
   }
 
   /**
@@ -1070,7 +1042,6 @@ public class Grid extends Canvas {
     checkWidget();
     if( !selectionEnabled ) {
       selectedItems.clear();
-      redraw();
     }
     this.selectionEnabled = selectionEnabled;
   }
@@ -1114,7 +1085,6 @@ public class Grid extends Canvas {
         selectedItems.clear();
       }
       internalSelect( index );
-      redraw();
     }
   }
 
@@ -1150,7 +1120,6 @@ public class Grid extends Canvas {
       for( int index = Math.max( 0, start ); index <= Math.min( items.size() - 1, end ); index++ ) {
         internalSelect( index );
       }
-      redraw();
     }
   }
 
@@ -1192,7 +1161,6 @@ public class Grid extends Canvas {
       for( int i = 0; i < indices.length; i++ ) {
         internalSelect( indices[ i ] );
       }
-      redraw();
     }
   }
 
@@ -1218,7 +1186,6 @@ public class Grid extends Canvas {
       } else {
         selectedItems.clear();
         selectedItems.addAll( items );
-        redraw();
       }
     }
   }
@@ -1242,7 +1209,6 @@ public class Grid extends Canvas {
     checkWidget();
     if( isValidItemIndex( index ) ) {
       internalDeselect( index );
-      redraw();
     }
   }
 
@@ -1269,7 +1235,6 @@ public class Grid extends Canvas {
     for( int index = Math.max( 0, start ); index <= Math.min( items.size() - 1, end ); index++ ) {
       internalDeselect( index );
     }
-    redraw();
   }
 
   /**
@@ -1301,7 +1266,6 @@ public class Grid extends Canvas {
     for( int i = 0; i < indices.length; i++ ) {
       internalDeselect( indices[ i ] );
     }
-    redraw();
   }
 
   /**
@@ -1318,7 +1282,6 @@ public class Grid extends Canvas {
   public void deselectAll() {
     checkWidget();
     internalDeselectAll();
-    redraw();
   }
 
   /**
@@ -1341,7 +1304,6 @@ public class Grid extends Canvas {
     if( selectionEnabled && isValidItemIndex( index ) ) {
       internalDeselectAll();
       internalSelect( index );
-      redraw();
     }
   }
 
@@ -1374,7 +1336,6 @@ public class Grid extends Canvas {
       for( int index = Math.max( 0, start ); index <= Math.min( items.size() - 1, end ); index++ ) {
         internalSelect( index );
       }
-      redraw();
     }
   }
 
@@ -1412,7 +1373,6 @@ public class Grid extends Canvas {
       for( int i = 0; i < indices.length; i++ ) {
         internalSelect( indices[ i ] );
       }
-      redraw();
     }
   }
 
@@ -1448,16 +1408,14 @@ public class Grid extends Canvas {
     }
     if( selectionEnabled && !( selectionType == SWT.SINGLE && items.length > 1 ) ) {
       internalDeselectAll();
-      for( int i = 0; i < items.length; i++ ) {
-        GridItem item = items[ i ];
+      for( GridItem item : items ) {
         if( item != null ) {
           if( item.isDisposed() ) {
             SWT.error( SWT.ERROR_INVALID_ARGUMENT );
           }
-          internalSelect( indexOf( item ) );
+          internalSelect( this.items.indexOf( item ) );
         }
       }
-      redraw();
     }
   }
 
@@ -1587,8 +1545,7 @@ public class Grid extends Canvas {
     int[] result = new int[ 0 ];
     if( cellSelectionEnabled ) {
       List<GridItem> selectedRows = new ArrayList<GridItem>();
-      for( Iterator<Point> iterator = selectedCells.iterator(); iterator.hasNext(); ) {
-        Point cell = iterator.next();
+      for( Point cell : selectedCells ) {
         GridItem item = getItem( cell.y );
         if( !selectedRows.contains( item ) ) {
           selectedRows.add( item );
@@ -1629,8 +1586,7 @@ public class Grid extends Canvas {
     boolean result = false;
     if( isValidItemIndex( index ) ) {
       if( cellSelectionEnabled ) {
-        for( Iterator<Point> iterator = selectedCells.iterator(); iterator.hasNext(); ) {
-          Point cell = iterator.next();
+        for( Point cell : selectedCells ) {
           if( cell.y == index ) {
             result = true;
           }
@@ -1666,10 +1622,9 @@ public class Grid extends Canvas {
     }
     boolean result = false;
     if( cellSelectionEnabled ) {
-      int index = indexOf( item );
+      int index = items.indexOf( item );
       if( index != -1 ) {
-        for( Iterator<Point> iterator = selectedCells.iterator(); iterator.hasNext(); ) {
-          Point cell = iterator.next();
+        for( Point cell : selectedCells ) {
           if( cell.y == index ) {
             result = true;
           }
@@ -1702,8 +1657,7 @@ public class Grid extends Canvas {
     if( index < 0 || index > items.size() - 1 ) {
       SWT.error( SWT.ERROR_INVALID_RANGE );
     }
-    items.get( index ).dispose();
-    redraw();
+    items.get( index ).dispose( index );
   }
 
   /**
@@ -1730,9 +1684,8 @@ public class Grid extends Canvas {
       if( i < 0 || i > items.size() - 1 ) {
         SWT.error( SWT.ERROR_INVALID_RANGE );
       }
-      items.get( i ).dispose();
+      items.get( i ).dispose( i );
     }
-    redraw();
   }
 
   /**
@@ -1770,7 +1723,6 @@ public class Grid extends Canvas {
     for( int i = 0; i < removeThese.length; i++ ) {
       removeThese[ i ].dispose();
     }
-    redraw();
   }
 
   /**
@@ -1786,9 +1738,9 @@ public class Grid extends Canvas {
   public void removeAll() {
     checkWidget();
     while( items.size() > 0 ) {
-      items.get( 0 ).dispose();
+      int flatIndex = items.size() - 1;
+      items.get( flatIndex ).dispose( flatIndex );
     }
-    redraw();
   }
 
   /**
@@ -1808,8 +1760,7 @@ public class Grid extends Canvas {
     if( columnHeadersVisible != show ) {
       columnHeadersVisible = show;
       layoutCache.invalidateHeaderHeight();
-      invalidateTopBottomIndex();
-      setScrollValuesObsolete();
+      scheduleRedraw();
     }
   }
 
@@ -1867,8 +1818,7 @@ public class Grid extends Canvas {
     if( columnFootersVisible != show ) {
       columnFootersVisible = show;
       layoutCache.invalidateFooterHeight();
-      invalidateTopBottomIndex();
-      setScrollValuesObsolete();
+      scheduleRedraw();
     }
   }
 
@@ -1939,7 +1889,6 @@ public class Grid extends Canvas {
   public void setLinesVisible( boolean linesVisible ) {
     checkWidget();
     this.linesVisible = linesVisible;
-    redraw();
   }
 
   /**
@@ -2028,12 +1977,8 @@ public class Grid extends Canvas {
     }
     if( customItemHeight != height ) {
       customItemHeight = height;
-      for( int i = 0; i < items.size(); i++ ) {
-        items.get( i ).setHeight( height );
-      }
       hasDifferingHeights = false;
-      invalidateTopBottomIndex();
-      setScrollValuesObsolete();
+      scheduleRedraw();
     }
   }
 
@@ -2053,21 +1998,20 @@ public class Grid extends Canvas {
    */
   public int getItemHeight() {
     checkWidget();
-    int result = customItemHeight;
-    if( result == -1 ) {
+    if( customItemHeight == -1 ) {
       if( !layoutCache.hasItemHeight() ) {
         layoutCache.itemHeight = computeItemHeight();
       }
-      result = layoutCache.itemHeight;
+      return layoutCache.itemHeight;
     }
-    return result;
+    return customItemHeight;
   }
 
   @Override
   public void setFont( Font font ) {
     super.setFont( font );
     layoutCache.invalidateItemHeight();
-    setScrollValuesObsolete();
+    scheduleRedraw();
   }
 
   /**
@@ -2097,6 +2041,7 @@ public class Grid extends Canvas {
         }
         vScroll.setSelection( vScrollAmount );
         invalidateTopBottomIndex();
+        redraw();
       }
     }
   }
@@ -2300,15 +2245,15 @@ public class Grid extends Canvas {
         flatIndex = items.indexOf( rootItems.get( index ) );
       }
     } else if( !root ) {
-      if( index >= parentItem.getItems().length || index == -1 ) {
+      if( index >= parentItem.getItemCount() || index == -1 ) {
         GridItem rightMostDescendent = parentItem;
-        while( rightMostDescendent.getItems().length > 0 ) {
-          GridItem[] rightMostDescendentItems = rightMostDescendent.getItems();
-          rightMostDescendent = rightMostDescendentItems[ rightMostDescendentItems.length - 1 ];
+        while( rightMostDescendent.hasChildren() ) {
+          int lastChildIndex = rightMostDescendent.getItemCount() - 1;
+          rightMostDescendent = rightMostDescendent.getItem( lastChildIndex );
         }
-        flatIndex = indexOf( rightMostDescendent ) + 1;
+        flatIndex = items.indexOf( rightMostDescendent ) + 1;
       } else {
-        flatIndex = indexOf( parentItem.getItems()[ index ] );
+        flatIndex = items.indexOf( parentItem.getItem( index ) );
       }
     }
     if( flatIndex == -1 ) {
@@ -2318,13 +2263,13 @@ public class Grid extends Canvas {
       items.add( flatIndex, item );
       row = flatIndex;
     }
-    invalidateTopBottomIndex();
     updateVisibleItems( 1 );
+    scheduleRedraw();
     return row;
   }
 
-  void removeItem( GridItem item ) {
-    items.remove( item );
+  void removeItem( int index ) {
+    GridItem item = items.remove( index );
     if( !disposing ) {
       selectedItems.remove (item );
 // TODO: [if] Implement cell selection
@@ -2335,24 +2280,33 @@ public class Grid extends Canvas {
       if( focusItem == item ) {
         focusItem = null;
       }
-      invalidateTopBottomIndex();
       if( item.isVisible() ) {
         updateVisibleItems( -1 );
       }
-      setScrollValuesObsolete();
+      scheduleRedraw();
     }
   }
 
   void newRootItem( GridItem item, int index ) {
     if( index == -1 || index >= rootItems.size() ) {
       rootItems.add( item );
+      item.index = rootItems.size() - 1;
     } else {
       rootItems.add( index, item );
+      item.index = index;
     }
+    adjustItemIndices( item.index + 1 );
   }
 
-  void removeRootItem( GridItem item ) {
-    rootItems.remove( item );
+  void removeRootItem( int index ) {
+    rootItems.remove( index );
+    adjustItemIndices( index );
+  }
+
+  private void adjustItemIndices( int start ) {
+    for( int i = start; i < rootItems.size(); i++ ) {
+      rootItems.get( i ).index = i;
+    }
   }
 
   int newColumn( GridColumn column, int index ) {
@@ -2364,8 +2318,7 @@ public class Grid extends Canvas {
       displayOrderedColumns.add( index, column );
     }
     updatePrimaryCheckColumn();
-    for( Iterator<GridItem> iterator = items.iterator(); iterator.hasNext(); ) {
-      GridItem item = iterator.next();
+    for( GridItem item : items ) {
       item.columnAdded( index );
     }
     if( column.isCheck() ) {
@@ -2373,18 +2326,16 @@ public class Grid extends Canvas {
     }
     layoutCache.invalidateHeaderHeight();
     layoutCache.invalidateFooterHeight();
-    invalidateTopBottomIndex();
-    setScrollValuesObsolete();
+    scheduleRedraw();
     return columns.size() - 1;
   }
 
   void removeColumn( GridColumn column ) {
-    int index = indexOf( column );
-    columns.remove( column );
+    int index = columns.indexOf( column );
+    columns.remove( index );
     displayOrderedColumns.remove( column );
     updatePrimaryCheckColumn();
-    for( Iterator<GridItem> iterator = items.iterator(); iterator.hasNext(); ) {
-      GridItem item = iterator.next();
+    for( GridItem item : items ) {
       item.columnRemoved( index );
     }
     if( column.isCheck() ) {
@@ -2392,8 +2343,7 @@ public class Grid extends Canvas {
     }
     layoutCache.invalidateHeaderHeight();
     layoutCache.invalidateFooterHeight();
-    invalidateTopBottomIndex();
-    setScrollValuesObsolete();
+    scheduleRedraw();
   }
 
   void newColumnGroup( GridColumnGroup group ) {
@@ -2401,8 +2351,7 @@ public class Grid extends Canvas {
     if( columnGroups.size() == 1 ) {
       layoutCache.invalidateHeaderHeight();
     }
-    invalidateTopBottomIndex();
-    setScrollValuesObsolete();
+    scheduleRedraw();
   }
 
   void removeColumnGroup( GridColumnGroup group ) {
@@ -2410,8 +2359,7 @@ public class Grid extends Canvas {
     if( columnGroups.size() == 0 ) {
       layoutCache.invalidateHeaderHeight();
     }
-    invalidateTopBottomIndex();
-    setScrollValuesObsolete();
+    scheduleRedraw();
   }
 
   boolean isDisposing() {
@@ -2433,12 +2381,13 @@ public class Grid extends Canvas {
       Rectangle imageBounds = image.getBounds();
       itemImageSize = new Point( imageBounds.width, imageBounds.height );
       layoutCache.invalidateItemHeight();
-      setScrollValuesObsolete();
+      scheduleRedraw();
     }
   }
 
   int getMaxContentWidth( GridColumn column ) {
-    return getMaxInnerWidth( getRootItems(), indexOf( column ) );
+    doRedraw();
+    return getMaxInnerWidth( getRootItems(), columns.indexOf( column ) );
   }
 
   int getBottomIndex() {
@@ -2457,11 +2406,6 @@ public class Grid extends Canvas {
       }
     }
     return bottomIndex;
-  }
-
-  void invalidateTopBottomIndex() {
-    topIndex = -1;
-    bottomIndex = -1;
   }
 
   Point getOrigin( GridColumn column, GridItem item ) {
@@ -2512,12 +2456,33 @@ public class Grid extends Canvas {
   }
 
   private void doRedraw() {
+    if( isVirtual() ) {
+      for( int index = getTopIndex(); index <= getBottomIndex(); index++ ) {
+        GridItem item = items.get( index );
+        if( item.isVisible() ) {
+          item.ensureItemData();
+          item.handleVirtual();
+        }
+      }
+    }
     updateScrollBars();
   }
 
-  void setScrollValuesObsolete() {
-    scrollValuesObsolete = true;
-    redraw();
+  private GridItem[] getResolvedItems() {
+    if( isVirtual() ) {
+      List<GridItem> resolvedItems = new ArrayList<GridItem>();
+      for( GridItem item : items ) {
+        if( item.isResolved() ) {
+          resolvedItems.add( item );
+        }
+      }
+      return resolvedItems.toArray( new GridItem[ 0 ] );
+    }
+    return getItems();
+  }
+
+  boolean isVirtual() {
+    return ( getStyle() & SWT.VIRTUAL ) != 0;
   }
 
   void updateScrollBars() {
@@ -2572,8 +2537,52 @@ public class Grid extends Canvas {
   }
 
   private void initListeners() {
-    resizeListener = new ResizeListener();
-    addControlListener( resizeListener );
+    resizeListener = new Listener() {
+      public void handleEvent( Event event ) {
+        onResize();
+      }
+    };
+    addListener( SWT.Resize, resizeListener );
+    disposeListener = new Listener() {
+      public void handleEvent( Event event ) {
+        onDispose( event );
+      }
+    };
+    addListener( SWT.Dispose, disposeListener );
+  }
+
+  private void onResize() {
+    if( TextSizeUtil.isTemporaryResize() ) {
+      isTemporaryResize = true;
+      layoutCache.invalidateHeaderHeight();
+      layoutCache.invalidateFooterHeight();
+      layoutCache.invalidateItemHeight();
+    } else {
+      if( isTemporaryResize) {
+        isTemporaryResize = false;
+        repackColumns();
+      }
+      scheduleRedraw();
+    }
+  }
+
+  private void onDispose( Event event ) {
+    // We only want to dispose of our items and such *after* anybody else who may have been
+    // listening to the dispose has had a chance to do whatever.
+    removeListener( SWT.Resize, resizeListener );
+    removeListener( SWT.Dispose, disposeListener );
+    notifyListeners( SWT.Dispose, event );
+    event.type = SWT.None;
+    disposing = true;
+    for( GridItem item : items ) {
+      item.dispose();
+    }
+    for( GridColumn column : columns ) {
+      column.dispose();
+    }
+    for( GridColumnGroup group : columnGroups ) {
+      group.dispose();
+    }
   }
 
   void setCellToolTipsEnabled( boolean enabled ) {
@@ -2590,8 +2599,7 @@ public class Grid extends Canvas {
       height += getFooterHeight();
     }
     height += getGridHeight();
-    for( Iterator<GridColumn> iterator = columns.iterator(); iterator.hasNext(); ) {
-      GridColumn column = iterator.next();
+    for( GridColumn column : columns ) {
       if( column.isVisible() ) {
         width += column.getWidth();
       }
@@ -2602,8 +2610,7 @@ public class Grid extends Canvas {
   private int getGridHeight() {
     int result = 0;
     if( hasDifferingHeights ) {
-      for( int i = 0; i < items.size(); i++ ) {
-        GridItem item = items.get( i );
+      for( GridItem item : items ) {
         if( item.isVisible() ) {
           result += item.getHeight();
         }
@@ -2622,12 +2629,13 @@ public class Grid extends Canvas {
 
   private static int getMaxInnerWidth( GridItem[] items, int index ) {
     int maxInnerWidth = 0;
-    for( int i = 0; i < items.length; i++ ) {
-      GridItem item = items[ i ];
-      maxInnerWidth = Math.max( maxInnerWidth, item.getPreferredWidth( index ) );
-      if( item.isExpanded() ) {
-        int innerWidth = getMaxInnerWidth( item.getItems(), index );
-        maxInnerWidth = Math.max( maxInnerWidth, innerWidth );
+    for( GridItem item : items ) {
+      if( item.isResolved() ) {
+        maxInnerWidth = Math.max( maxInnerWidth, item.getPreferredWidth( index ) );
+        if( item.isExpanded() ) {
+          int innerWidth = getMaxInnerWidth( item.getItems(), index );
+          maxInnerWidth = Math.max( maxInnerWidth, innerWidth );
+        }
       }
     }
     return maxInnerWidth;
@@ -2668,9 +2676,8 @@ public class Grid extends Canvas {
   private void updatePrimaryCheckColumn() {
     if( ( getStyle() & SWT.CHECK ) == SWT.CHECK ) {
       boolean firstCol = true;
-      for( Iterator<GridColumn> iter = displayOrderedColumns.iterator(); iter.hasNext(); ) {
-        GridColumn col = iter.next();
-        col.setTableCheck( firstCol );
+      for( GridColumn column : displayOrderedColumns ) {
+        column.setTableCheck( firstCol );
         firstCol = false;
       }
     }
@@ -2751,17 +2758,6 @@ public class Grid extends Canvas {
     for( int i = 0; i < getColumnCount(); i++ ) {
       columns.get( i ).repack();
     }
-  }
-
-  private int getItemIndex( GridItem item ) {
-    int result = -1;
-    GridItem parentItem = item.getParentItem();
-    if( parentItem == null ) {
-      result = rootItems.indexOf( item );
-    } else {
-      result = parentItem.indexOf( item );
-    }
-    return result;
   }
 
   private int getColumnHeaderXPosition( GridColumn column ) {
@@ -3037,6 +3033,25 @@ public class Grid extends Canvas {
     return index >= 0 && index < items.size();
   }
 
+  int internalIndexOf( GridItem item ) {
+    return items.indexOf( item );
+  }
+
+  void scheduleRedraw() {
+    invalidateScrollBars();
+    invalidateTopBottomIndex();
+    redraw();
+  }
+
+  void invalidateTopBottomIndex() {
+    topIndex = -1;
+    bottomIndex = -1;
+  }
+
+  void invalidateScrollBars() {
+    scrollValuesObsolete = true;
+  }
+
   ////////////////
   // Inner classes
 
@@ -3061,7 +3076,7 @@ public class Grid extends Canvas {
     }
 
     public Item[] getItems() {
-      GridItem[] items = Grid.this.getItems();
+      GridItem[] items = getResolvedItems();
       GridColumn[] columns = getColumns();
       GridColumnGroup[] groups = getColumnGroups();
       Item[] result = new Item[ columns.length + items.length + groups.length ];
@@ -3069,25 +3084,6 @@ public class Grid extends Canvas {
       System.arraycopy( columns, 0, result, groups.length, columns.length );
       System.arraycopy( items, 0, result, groups.length + columns.length, items.length );
       return result;
-    }
-  }
-
-  private final class ResizeListener extends ControlAdapter {
-    @Override
-    public void controlResized( ControlEvent event ) {
-      if( TextSizeUtil.isTemporaryResize() ) {
-        isTemporaryResize = true;
-        layoutCache.invalidateHeaderHeight();
-        layoutCache.invalidateFooterHeight();
-        layoutCache.invalidateItemHeight();
-      } else {
-        if( isTemporaryResize) {
-          isTemporaryResize = false;
-          repackColumns();
-        }
-        invalidateTopBottomIndex();
-        setScrollValuesObsolete();
-      }
     }
   }
 
@@ -3102,7 +3098,8 @@ public class Grid extends Canvas {
     }
 
     public void invalidateTopIndex() {
-      Grid.this.invalidateTopBottomIndex();
+      invalidateTopBottomIndex();
+      redraw();
     }
 
     public int getIndentationWidth() {
@@ -3142,7 +3139,7 @@ public class Grid extends Canvas {
     }
 
     public int getItemIndex( GridItem item ) {
-      return Grid.this.getItemIndex( item );
+      return item.index;
     }
 
     public ICellToolTipProvider getCellToolTipProvider() {

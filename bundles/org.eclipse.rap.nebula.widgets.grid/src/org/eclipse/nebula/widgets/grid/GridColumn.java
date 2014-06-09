@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 EclipseSource and others.
+ * Copyright (c) 2012, 2014 EclipseSource and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -378,12 +378,14 @@ public class GridColumn extends Item {
   public void setText( String text ) {
     super.setText( text );
     parent.layoutCache.invalidateHeaderHeight();
+    parent.scheduleRedraw();
   }
 
   @Override
   public void setImage( Image image ) {
     super.setImage( image );
     parent.layoutCache.invalidateHeaderHeight();
+    parent.scheduleRedraw();
   }
 
   /**
@@ -794,8 +796,9 @@ public class GridColumn extends Item {
     if( font != null && font.isDisposed() ) {
       SWT.error( SWT.ERROR_INVALID_ARGUMENT );
     }
-    parent.layoutCache.invalidateHeaderHeight();
     headerFont = font;
+    parent.layoutCache.invalidateHeaderHeight();
+    parent.scheduleRedraw();
   }
 
   /**
@@ -975,6 +978,7 @@ public class GridColumn extends Item {
     }
     footerFont = font;
     parent.layoutCache.invalidateFooterHeight();
+    parent.scheduleRedraw();
   }
 
   /**
@@ -1081,7 +1085,8 @@ public class GridColumn extends Item {
       this.width = newWidth;
       packed = false;
       processControlEvents();
-      parent.setScrollValuesObsolete();
+      parent.invalidateScrollBars();
+      parent.redraw();
     }
   }
 

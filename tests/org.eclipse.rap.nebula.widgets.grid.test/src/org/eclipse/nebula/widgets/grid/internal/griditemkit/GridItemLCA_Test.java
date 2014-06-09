@@ -29,6 +29,7 @@ import org.eclipse.rap.json.JsonArray;
 import org.eclipse.rap.json.JsonObject;
 import org.eclipse.rap.json.JsonValue;
 import org.eclipse.rap.rwt.RWT;
+import org.eclipse.rap.rwt.internal.lifecycle.WidgetAdapter;
 import org.eclipse.rap.rwt.internal.lifecycle.WidgetUtil;
 import org.eclipse.rap.rwt.internal.protocol.Operation.CreateOperation;
 import org.eclipse.rap.rwt.internal.protocol.Operation.DestroyOperation;
@@ -81,19 +82,6 @@ public class GridItemLCA_Test {
     TestMessage message = Fixture.getProtocolMessage();
     CreateOperation operation = message.findCreateOperation( items[ 8 ] );
     assertEquals( "rwt.widgets.GridItem", operation.getType() );
-    assertEquals( 3, operation.getProperties().get( "index" ).asInt() );
-  }
-
-  @Test
-  public void testRenderCreate_WithParentItem() throws IOException {
-    GridItem[] items = createGridItems( grid, 3, 3 );
-
-    lca.renderInitialization( items[ 10 ] );
-
-    TestMessage message = Fixture.getProtocolMessage();
-    CreateOperation operation = message.findCreateOperation( items[ 10 ] );
-    assertEquals( "rwt.widgets.GridItem", operation.getType() );
-    assertEquals( 1, operation.getProperties().get( "index" ).asInt() );
   }
 
   @Test
@@ -165,6 +153,68 @@ public class GridItemLCA_Test {
     lca.renderDispose( item );
 
     assertTrue( remoteObject.isDestroyed() );
+  }
+
+  @Test
+  public void testRenderInitialIndex() throws IOException {
+    GridItem gridItem = new GridItem( grid, SWT.NONE );
+
+    lca.render( gridItem );
+
+    TestMessage message = Fixture.getProtocolMessage();
+    CreateOperation operation = message.findCreateOperation( gridItem );
+    assertEquals( 1, operation.getProperties().get( "index" ).asInt() );
+  }
+
+  @Test
+  public void testRenderIndex() throws IOException {
+    new GridItem( grid, SWT.NONE, 0 );
+    lca.renderChanges( item );
+
+    TestMessage message = Fixture.getProtocolMessage();
+    assertEquals( 1, message.findSetProperty( item, "index" ).asInt() );
+  }
+
+  @Test
+  public void testRenderIndex_VirtualAfterClear() throws IOException {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    item = new GridItem( grid, SWT.NONE );
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( item );
+    Fixture.preserveWidgets();
+
+    new GridItem( grid, SWT.NONE, 0 );
+    grid.clear( 1, false );
+    lca.renderChanges( item );
+
+    TestMessage message = Fixture.getProtocolMessage();
+    assertEquals( 1, message.findSetProperty( item, "index" ).asInt() );
+  }
+
+  @Test
+  public void testRenderIndexWithParentItem() throws IOException {
+    GridItem rootItem = new GridItem( grid, SWT.NONE );
+    new GridItem( rootItem, SWT.NONE );
+    GridItem item = new GridItem( rootItem, SWT.NONE );
+
+    new GridItem( rootItem, SWT.NONE, 0 );
+    lca.renderChanges( item );
+
+    TestMessage message = Fixture.getProtocolMessage();
+    assertEquals( 2, message.findSetProperty( item, "index" ).asInt() );
+  }
+
+  @Test
+  public void testRenderIndexUnchanged() throws IOException {
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( item );
+
+    new GridItem( grid, SWT.NONE, 0 );
+    Fixture.preserveWidgets();
+    lca.renderChanges( item );
+
+    TestMessage message = Fixture.getProtocolMessage();
+    assertNull( message.findSetOperation( item, "index" ) );
   }
 
   @Test
@@ -752,6 +802,103 @@ public class GridItemLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     assertEquals( 0, message.getOperationCount() );
+  }
+
+  @Test
+  public void testRender_onVirtual() throws IOException {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    grid.setItemCount( 1 );
+    // Ensure that nothing is written for an item that is virtual and whose
+    // cached was false and remains unchanged while processing the life cycle
+    GridItem item = grid.getItem( 0 );
+    grid.clear( 0, false );
+    Fixture.markInitialized( item );
+    // Ensure that nothing else than the 'index' and 'cached' property gets preserved
+    lca.preserveValues( item );
+    WidgetAdapter adapter = WidgetUtil.getAdapter( item );
+
+    assertEquals( Boolean.FALSE, adapter.getPreserved( "cached" ) );
+    assertEquals( Integer.valueOf( 0 ), adapter.getPreserved( "index" ) );
+    assertNull( adapter.getPreserved( "itemCount" ) );
+    assertNull( adapter.getPreserved( "texts" ) );
+    assertNull( adapter.getPreserved( "images" ) );
+    assertNull( adapter.getPreserved( "cellChecked" ) );
+
+    // ... and no operations are generated for a uncached item that was already
+    // uncached when entering the life cycle
+    lca.renderChanges( item );
+
+    assertEquals( 0, Fixture.getProtocolMessage().getOperationCount() );
+  }
+
+  @Test
+  public void testRender_onVirtual_rendersOnlyChangedProperties() throws IOException {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    grid.setItemCount( 1 );
+    GridItem item = grid.getItem( 0 );
+    Fixture.markInitialized( item );
+    lca.preserveValues( item );
+    item.setText( "foo" );
+
+    lca.renderChanges( item );
+
+    TestMessage message = Fixture.getProtocolMessage();
+    assertNotNull( message.findSetOperation( item, "texts" ) );
+    assertNull( message.findSetOperation( item, "itemCount" ) );
+    assertNull( message.findSetOperation( item, "height" ) );
+    assertNull( message.findSetOperation( item, "images" ) );
+    assertNull( message.findSetOperation( item, "cellChecked" ) );
+    assertNull( message.findSetOperation( item, "cellGrayed" ) );
+    assertNull( message.findSetOperation( item, "cellCheckable" ) );
+    assertNull( message.findSetOperation( item, "font" ) );
+    assertNull( message.findSetOperation( item, "foreground" ) );
+    assertNull( message.findSetOperation( item, "background" ) );
+    assertNull( message.findSetOperation( item, "cellFonts" ) );
+    assertNull( message.findSetOperation( item, "cellBackgrounds" ) );
+    assertNull( message.findSetOperation( item, "cellForegrounds" ) );
+  }
+
+  @Test
+  public void testRender_onVirtual_preservesInitializedFlag() throws IOException {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    grid.setItemCount( 1 );
+    GridItem item = grid.getItem( 0 );
+    Fixture.markInitialized( item );
+    lca.preserveValues( item );
+    item.setText( "foo" );
+
+    lca.renderChanges( item );
+
+    assertTrue( WidgetUtil.getAdapter( item ).isInitialized() );
+  }
+
+  @Test
+  public void testRenderClear_onNonInitializedItem() throws IOException {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    grid.setItemCount( 1 );
+    GridItem item = grid.getItem( 0 );
+    item.getText();
+
+    lca.renderChanges( item );
+
+    TestMessage message = Fixture.getProtocolMessage();
+    assertNull( message.findCallOperation( item, "clear" ) );
+  }
+
+  @Test
+  public void testRenderClear_onInitializedItem() throws IOException {
+    grid = new Grid( shell, SWT.VIRTUAL );
+    grid.setItemCount( 1 );
+    GridItem item = grid.getItem( 0 );
+    item.getText();
+    Fixture.markInitialized( item );
+
+    lca.preserveValues( item );
+    grid.clear( 0, false );
+    lca.renderChanges( item );
+
+    TestMessage message = Fixture.getProtocolMessage();
+    assertNotNull( message.findCallOperation( item, "clear" ) );
   }
 
 }
