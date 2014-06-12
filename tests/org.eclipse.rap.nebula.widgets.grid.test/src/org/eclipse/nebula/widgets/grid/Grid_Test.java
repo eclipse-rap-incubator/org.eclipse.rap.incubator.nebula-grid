@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 EclipseSource and others.
+ * Copyright (c) 2012, 2014 EclipseSource and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,7 +27,7 @@ import org.eclipse.nebula.widgets.grid.internal.IGridAdapter;
 import org.eclipse.nebula.widgets.grid.internal.NullScrollBarProxy;
 import org.eclipse.nebula.widgets.grid.internal.ScrollBarProxyAdapter;
 import org.eclipse.rap.rwt.RWT;
-import org.eclipse.rap.rwt.lifecycle.PhaseId;
+import org.eclipse.rap.rwt.internal.lifecycle.PhaseId;
 import org.eclipse.rap.rwt.testfixture.Fixture;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
@@ -49,7 +49,9 @@ import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
 
 
-@SuppressWarnings("restriction")
+@SuppressWarnings({
+  "restriction", "deprecation"
+})
 public class Grid_Test extends TestCase {
 
   private Display display;

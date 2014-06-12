@@ -24,7 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.rap.rwt.RWT;
-import org.eclipse.rap.rwt.lifecycle.PhaseId;
+import org.eclipse.rap.rwt.internal.lifecycle.PhaseId;
 import org.eclipse.rap.rwt.testfixture.Fixture;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
@@ -41,7 +41,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 
-@SuppressWarnings( "deprecation" )
+@SuppressWarnings( {
+  "deprecation", "restriction"
+} )
 public class GridItem_Test {
 
   private Display display;
