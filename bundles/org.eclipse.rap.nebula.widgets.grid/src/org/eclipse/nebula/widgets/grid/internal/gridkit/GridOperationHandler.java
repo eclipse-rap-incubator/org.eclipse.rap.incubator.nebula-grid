@@ -24,8 +24,8 @@ import org.eclipse.nebula.widgets.grid.internal.IGridAdapter;
 import org.eclipse.rap.json.JsonArray;
 import org.eclipse.rap.json.JsonObject;
 import org.eclipse.rap.json.JsonValue;
-import org.eclipse.rap.rwt.internal.protocol.ControlOperationHandler;
 import org.eclipse.rap.rwt.internal.lifecycle.WidgetUtil;
+import org.eclipse.rap.rwt.internal.protocol.ControlOperationHandler;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.internal.widgets.CellToolTipUtil;
 import org.eclipse.swt.internal.widgets.ICellToolTipAdapter;
@@ -196,7 +196,7 @@ public class GridOperationHandler extends ControlOperationHandler<Grid> {
   public void handleNotifyDefaultSelection( Grid grid, JsonObject properties ) {
     GridItem item = getItem( grid, properties.get( EVENT_PARAM_ITEM ).asString() );
     if( item != null ) {
-      Event event = createSelectionEvent( SWT.Selection, properties );
+      Event event = createSelectionEvent( SWT.DefaultSelection, properties );
       event.item = item;
       grid.notifyListeners( SWT.DefaultSelection, event );
     }
@@ -208,9 +208,12 @@ public class GridOperationHandler extends ControlOperationHandler<Grid> {
    * @param item (string) id of expanded item
    */
   public void handleNotifyExpand( Grid grid, JsonObject properties ) {
-    Event event = new Event();
-    event.item = getItem( grid, properties.get( EVENT_PARAM_ITEM ).asString() );
-    grid.notifyListeners( SWT.Expand, event );
+    GridItem item = getItem( grid, properties.get( EVENT_PARAM_ITEM ).asString() );
+    if( item != null ) {
+      Event event = new Event();
+      event.item = item;
+      grid.notifyListeners( SWT.Expand, event );
+    }
   }
 
   /*
@@ -219,9 +222,12 @@ public class GridOperationHandler extends ControlOperationHandler<Grid> {
    * @param item (string) id of collapsed item
    */
   public void handleNotifyCollapse( Grid grid, JsonObject properties ) {
-    Event event = new Event();
-    event.item = getItem( grid, properties.get( EVENT_PARAM_ITEM ).asString() );
-    grid.notifyListeners( SWT.Collapse, event );
+    GridItem item = getItem( grid, properties.get( EVENT_PARAM_ITEM ).asString() );
+    if( item != null ) {
+      Event event = new Event();
+      event.item = item;
+      grid.notifyListeners( SWT.Collapse, event );
+    }
   }
 
   /*

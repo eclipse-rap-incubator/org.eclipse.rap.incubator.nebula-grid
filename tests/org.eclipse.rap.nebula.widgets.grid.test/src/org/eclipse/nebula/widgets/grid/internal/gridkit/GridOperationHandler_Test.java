@@ -11,12 +11,12 @@
 package org.eclipse.nebula.widgets.grid.internal.gridkit;
 
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridItems;
+import static org.eclipse.rap.rwt.internal.lifecycle.WidgetUtil.getId;
 import static org.eclipse.rap.rwt.internal.protocol.ClientMessageConst.EVENT_COLLAPSE;
 import static org.eclipse.rap.rwt.internal.protocol.ClientMessageConst.EVENT_DEFAULT_SELECTION;
 import static org.eclipse.rap.rwt.internal.protocol.ClientMessageConst.EVENT_EXPAND;
 import static org.eclipse.rap.rwt.internal.protocol.ClientMessageConst.EVENT_SELECTION;
 import static org.eclipse.rap.rwt.internal.protocol.ClientMessageConst.EVENT_SET_DATA;
-import static org.eclipse.rap.rwt.internal.lifecycle.WidgetUtil.getId;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.mockito.Matchers.any;
@@ -255,6 +255,19 @@ public class GridOperationHandler_Test {
   }
 
   @Test
+  public void testHandleNotifyExpand_withDisposedItem() {
+    Grid spyGrid = spy( grid );
+    handler = new GridOperationHandler( spyGrid );
+    GridItem item = new GridItem( spyGrid, SWT.NONE );
+    item.dispose();
+
+    JsonObject properties = new JsonObject().add( "item", getId( item ) );
+    handler.handleNotify( EVENT_EXPAND, properties );
+
+    verify( spyGrid, never() ).notifyListeners( eq( SWT.Expand ), any( Event.class ) );
+  }
+
+  @Test
   public void testHandleNotifyCollapse() {
     Grid spyGrid = spy( grid );
     handler = new GridOperationHandler( spyGrid );
@@ -266,6 +279,19 @@ public class GridOperationHandler_Test {
     ArgumentCaptor<Event> captor = ArgumentCaptor.forClass( Event.class );
     verify( spyGrid ).notifyListeners( eq( SWT.Collapse ), captor.capture() );
     assertEquals( item, captor.getValue().item );
+  }
+
+  @Test
+  public void testHandleNotifyCollapse_withDisposedItem() {
+    Grid spyGrid = spy( grid );
+    handler = new GridOperationHandler( spyGrid );
+    GridItem item = new GridItem( spyGrid, SWT.NONE );
+    item.dispose();
+
+    JsonObject properties = new JsonObject().add( "item", getId( item ) );
+    handler.handleNotify( EVENT_COLLAPSE, properties );
+
+    verify( spyGrid, never() ).notifyListeners( eq( SWT.Collapse ), any( Event.class ) );
   }
 
   @Test
