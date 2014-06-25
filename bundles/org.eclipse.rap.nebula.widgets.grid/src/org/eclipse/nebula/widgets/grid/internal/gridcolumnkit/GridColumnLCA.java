@@ -51,6 +51,8 @@ public class GridColumnLCA extends AbstractWidgetLCA {
   private static final String PROP_FOOTER_FONT = "footerFont";
   private static final String PROP_FOOTER_TEXT = "footerText";
   private static final String PROP_FOOTER_IMAGE = "footerImage";
+  private static final String PROP_WORD_WRAP = "wordWrap";
+  private static final String PROP_HEADER_WORD_WRAP = "headerWordWrap";
   private static final String PROP_SELECTION_LISTENER = "Selection";
 
   private static final int ZERO = 0;
@@ -86,6 +88,8 @@ public class GridColumnLCA extends AbstractWidgetLCA {
     preserveProperty( column, PROP_FOOTER_FONT, column.getFooterFont() );
     preserveProperty( column, PROP_FOOTER_TEXT, column.getFooterText() );
     preserveProperty( column, PROP_FOOTER_IMAGE, column.getFooterImage() );
+    preserveProperty( column, PROP_WORD_WRAP, column.getWordWrap() );
+    preserveProperty( column, PROP_HEADER_WORD_WRAP, column.getHeaderWordWrap() );
     preserveListener( column, PROP_SELECTION_LISTENER, isListening( column, SWT.Selection ) );
   }
 
@@ -107,6 +111,8 @@ public class GridColumnLCA extends AbstractWidgetLCA {
     renderFont( column, PROP_FOOTER_FONT, column.getFooterFont() );
     renderProperty( column, PROP_FOOTER_TEXT, column.getFooterText(), "" );
     renderProperty( column, PROP_FOOTER_IMAGE, column.getFooterImage(), null );
+    renderProperty( column, PROP_WORD_WRAP, column.getWordWrap(), false );
+    renderProperty( column, PROP_HEADER_WORD_WRAP, column.getHeaderWordWrap(), false );
     renderListener( column, PROP_SELECTION_LISTENER, isListening( column, SWT.Selection ), false );
   }
 

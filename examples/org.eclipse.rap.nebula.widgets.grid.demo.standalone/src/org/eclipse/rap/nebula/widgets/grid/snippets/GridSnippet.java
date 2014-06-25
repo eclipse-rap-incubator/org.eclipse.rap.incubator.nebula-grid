@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 EclipseSource and others.
+ * Copyright (c) 2012, 2014 EclipseSource and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -58,6 +58,8 @@ public class GridSnippet extends GridSnippetBase {
     createShowColumnGroup( parent );
     createShowHeaderButton( parent );
     createShowFooterButton( parent );
+    createWordWrapButton( parent );
+    createHeaderWordWrapButton( parent );
     createQueryFocusItem( parent );
   }
 
@@ -348,6 +350,34 @@ public class GridSnippet extends GridSnippetBase {
       @Override
       public void widgetSelected( SelectionEvent event ) {
         grid.setFooterVisible( button.getSelection() );
+      }
+    } );
+  }
+
+  private void createWordWrapButton( Composite parent ) {
+    final Button button = new Button( parent, SWT.CHECK );
+    button.setText( "Word wrap cells text" );
+    button.setSelection( false );
+    button.addSelectionListener( new SelectionAdapter() {
+      @Override
+      public void widgetSelected( SelectionEvent event ) {
+        for( GridColumn column : grid.getColumns() ) {
+          column.setWordWrap( button.getSelection() );
+        }
+      }
+    } );
+  }
+
+  private void createHeaderWordWrapButton( Composite parent ) {
+    final Button button = new Button( parent, SWT.CHECK );
+    button.setText( "Word wrap headers text" );
+    button.setSelection( false );
+    button.addSelectionListener( new SelectionAdapter() {
+      @Override
+      public void widgetSelected( SelectionEvent event ) {
+        for( GridColumn column : grid.getColumns() ) {
+          column.setHeaderWordWrap( button.getSelection() );
+        }
       }
     } );
   }

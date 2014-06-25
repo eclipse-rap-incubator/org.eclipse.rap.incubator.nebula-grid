@@ -20,6 +20,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -41,8 +42,6 @@ import org.eclipse.rap.rwt.remote.OperationHandler;
 import org.eclipse.rap.rwt.testfixture.Fixture;
 import org.eclipse.rap.rwt.testfixture.TestMessage;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.internal.graphics.ImageFactory;
@@ -563,7 +562,7 @@ public class GridColumnLCA_Test {
     Fixture.markInitialized( column );
     Fixture.preserveWidgets();
 
-    column.addSelectionListener( new SelectionAdapter() { } );
+    column.addListener( SWT.Selection, mock( Listener.class ) );
     lca.renderChanges( column );
 
     TestMessage message = Fixture.getProtocolMessage();
@@ -572,13 +571,13 @@ public class GridColumnLCA_Test {
 
   @Test
   public void testRenderRemoveSelectionListener() throws Exception {
-    SelectionListener listener = new SelectionAdapter() { };
-    column.addSelectionListener( listener );
+    Listener listener = mock( Listener.class );
+    column.addListener( SWT.Selection, listener );
     Fixture.markInitialized( display );
     Fixture.markInitialized( column );
     Fixture.preserveWidgets();
 
-    column.removeSelectionListener( listener );
+    column.removeListener( SWT.Selection, listener );
     lca.renderChanges( column );
 
     TestMessage message = Fixture.getProtocolMessage();
@@ -591,7 +590,7 @@ public class GridColumnLCA_Test {
     Fixture.markInitialized( column );
     Fixture.preserveWidgets();
 
-    column.addSelectionListener( new SelectionAdapter() { } );
+    column.addListener( SWT.Selection, mock( Listener.class ) );
     Fixture.preserveWidgets();
     lca.renderChanges( column );
 
@@ -799,6 +798,68 @@ public class GridColumnLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     assertEquals( JsonObject.NULL, message.findSetProperty( column, "footerImage" ) );
+  }
+
+  @Test
+  public void testRenderInitialWordWrap() throws IOException {
+    lca.render( column );
+
+    TestMessage message = Fixture.getProtocolMessage();
+    CreateOperation operation = message.findCreateOperation( column );
+    assertTrue( operation.getProperties().names().indexOf( "wordWrap" ) == -1 );
+  }
+
+  @Test
+  public void testRenderWordWrap() throws IOException {
+    column.setWordWrap( true );
+    lca.renderChanges( column );
+
+    TestMessage message = Fixture.getProtocolMessage();
+    assertEquals( JsonValue.TRUE, message.findSetProperty( column, "wordWrap" ) );
+  }
+
+  @Test
+  public void testRenderWordWrapUnchanged() throws IOException {
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( column );
+
+    column.setWordWrap( true );
+    Fixture.preserveWidgets();
+    lca.renderChanges( column );
+
+    TestMessage message = Fixture.getProtocolMessage();
+    assertNull( message.findSetOperation( column, "wordWrap" ) );
+  }
+
+  @Test
+  public void testRenderInitialHeaderWordWrap() throws IOException {
+    lca.render( column );
+
+    TestMessage message = Fixture.getProtocolMessage();
+    CreateOperation operation = message.findCreateOperation( column );
+    assertTrue( operation.getProperties().names().indexOf( "headerWordWrap" ) == -1 );
+  }
+
+  @Test
+  public void testRenderHeaderWordWrap() throws IOException {
+    column.setHeaderWordWrap( true );
+    lca.renderChanges( column );
+
+    TestMessage message = Fixture.getProtocolMessage();
+    assertEquals( JsonValue.TRUE, message.findSetProperty( column, "headerWordWrap" ) );
+  }
+
+  @Test
+  public void testRenderHeaderWordWrapUnchanged() throws IOException {
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( column );
+
+    column.setHeaderWordWrap( true );
+    Fixture.preserveWidgets();
+    lca.renderChanges( column );
+
+    TestMessage message = Fixture.getProtocolMessage();
+    assertNull( message.findSetOperation( column, "headerWordWrap" ) );
   }
 
   //////////////////

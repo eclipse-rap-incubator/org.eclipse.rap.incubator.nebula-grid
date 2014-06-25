@@ -13,11 +13,15 @@ package org.eclipse.nebula.widgets.grid;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridColumns;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridItems;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import junit.framework.TestCase;
 
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.internal.lifecycle.PhaseId;
@@ -38,21 +42,23 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 
 @SuppressWarnings({
   "restriction", "deprecation"
 })
-public class GridColumn_Test extends TestCase {
+public class GridColumn_Test {
 
   private Display display;
   private Shell shell;
   private Grid grid;
   private List<Event> eventLog;
 
-  @Override
-  protected void setUp() throws Exception {
+  @Before
+  public void setUp() {
     Fixture.setUp();
     Fixture.fakePhase( PhaseId.PROCESS_ACTION );
     display = new Display();
@@ -61,12 +67,13 @@ public class GridColumn_Test extends TestCase {
     eventLog = new ArrayList<Event>();
   }
 
-  @Override
-  protected void tearDown() throws Exception {
+  @After
+  public void tearDown() {
     Fixture.tearDown();
   }
 
-  public void testGridColumnCreation_GridParent() {
+  @Test
+  public void testGridColumnCreation_withGridParent() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
     assertSame( grid, column.getParent() );
@@ -75,7 +82,8 @@ public class GridColumn_Test extends TestCase {
     assertEquals( 1, grid.getColumnCount() );
   }
 
-  public void testGridColumnCreation_GroupParent() {
+  @Test
+  public void testGridColumnCreation_withGroupParent() {
     GridColumnGroup group = new GridColumnGroup( grid, SWT.NONE );
     GridColumn column = new GridColumn( group, SWT.NONE );
 
@@ -85,6 +93,7 @@ public class GridColumn_Test extends TestCase {
     assertEquals( 1, grid.getColumnCount() );
   }
 
+  @Test
   public void testGridColumnCreation_AtIndexWithGridParent() {
     createGridColumns( grid, 5, SWT.NONE );
 
@@ -95,6 +104,7 @@ public class GridColumn_Test extends TestCase {
     assertEquals( 6, grid.getColumnCount() );
   }
 
+  @Test
   public void testGridColumnCreation_AtIndexWithGroupParent() {
     createGridColumns( grid, 2, SWT.NONE );
     GridColumnGroup group = new GridColumnGroup( grid, SWT.NONE );
@@ -107,6 +117,7 @@ public class GridColumn_Test extends TestCase {
     assertSame( column, group.getColumns()[ 1 ] );
   }
 
+  @Test
   public void testDispose() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
@@ -116,6 +127,7 @@ public class GridColumn_Test extends TestCase {
     assertEquals( 0, grid.getColumnCount() );
   }
 
+  @Test
   public void testDispose_WithGroup() {
     GridColumnGroup group = new GridColumnGroup( grid, SWT.NONE );
     GridColumn column1 = new GridColumn( group, SWT.NONE );
@@ -127,6 +139,7 @@ public class GridColumn_Test extends TestCase {
     assertSame( column2, group.getColumns()[ 0 ] );
   }
 
+  @Test
   public void testSendDisposeEvent() {
     final List<DisposeEvent> log = new ArrayList<DisposeEvent>();
     GridColumn column = new GridColumn( grid, SWT.NONE );
@@ -142,6 +155,7 @@ public class GridColumn_Test extends TestCase {
     assertSame( column, log.get( 0 ).widget );
   }
 
+  @Test
   public void testSendDisposeEventOnGridDispose() {
     final List<DisposeEvent> log = new ArrayList<DisposeEvent>();
     GridColumn column = new GridColumn( grid, SWT.NONE );
@@ -157,6 +171,7 @@ public class GridColumn_Test extends TestCase {
     assertSame( column, log.get( 0 ).widget );
   }
 
+  @Test
   public void testIsCheck() {
     GridColumn column1 = new GridColumn( grid, SWT.NONE );
     GridColumn column2 = new GridColumn( grid, SWT.CHECK );
@@ -167,6 +182,7 @@ public class GridColumn_Test extends TestCase {
     assertFalse( column3.isCheck() );
   }
 
+  @Test
   public void testIsCheck_TableCheck() {
     grid = new Grid( shell, SWT.CHECK );
     GridColumn column1 = new GridColumn( grid, SWT.NONE );
@@ -181,6 +197,7 @@ public class GridColumn_Test extends TestCase {
     assertFalse( column3.isCheck() );
   }
 
+  @Test
   public void testIsCheck_OnColumnAddRemove() {
     grid = new Grid( shell, SWT.CHECK );
     GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
@@ -193,12 +210,14 @@ public class GridColumn_Test extends TestCase {
     assertTrue( columns[ 0 ].isCheck() );
   }
 
+  @Test
   public void testGetWidth_Initial() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
     assertEquals( 10, column.getWidth() );
   }
 
+  @Test
   public void testGetWidth() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
@@ -207,6 +226,7 @@ public class GridColumn_Test extends TestCase {
     assertEquals( 100, column.getWidth() );
   }
 
+  @Test
   public void testSetWidth_BelowMinimumWidth() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
@@ -216,12 +236,14 @@ public class GridColumn_Test extends TestCase {
     assertEquals( 20, column.getWidth() );
   }
 
+  @Test
   public void testGetMinimumWidth_Initial() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
     assertEquals( 0, column.getMinimumWidth() );
   }
 
+  @Test
   public void testGetMinimumWidth() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
@@ -230,6 +252,7 @@ public class GridColumn_Test extends TestCase {
     assertEquals( 10, column.getMinimumWidth() );
   }
 
+  @Test
   public void testSetMinimumWidth_AdjustWidth() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
     column.setWidth( 10 );
@@ -239,12 +262,14 @@ public class GridColumn_Test extends TestCase {
     assertEquals( 20, column.getWidth() );
   }
 
+  @Test
   public void testGetSort_Initial() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
     assertEquals( SWT.NONE, column.getSort() );
   }
 
+  @Test
   public void testGetSort() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
@@ -253,6 +278,7 @@ public class GridColumn_Test extends TestCase {
     assertEquals( SWT.DOWN, column.getSort() );
   }
 
+  @Test
   public void testSetSort_OnlyOneSortColumn() {
     GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
     columns[ 0 ].setSort( SWT.UP );
@@ -262,6 +288,7 @@ public class GridColumn_Test extends TestCase {
     assertEquals( SWT.NONE, columns[ 0 ].getSort() );
   }
 
+  @Test
   public void testGetVisible_Initial() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
@@ -269,6 +296,7 @@ public class GridColumn_Test extends TestCase {
     assertTrue( column.isVisible() );
   }
 
+  @Test
   public void testGetVisible() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
@@ -277,6 +305,7 @@ public class GridColumn_Test extends TestCase {
     assertFalse( column.getVisible() );
   }
 
+  @Test
   public void testSetVisible_FireHideEvent() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
     column.addListener( SWT.Hide, new LoggingListener() );
@@ -289,6 +318,7 @@ public class GridColumn_Test extends TestCase {
     assertSame( column, event.widget );
   }
 
+  @Test
   public void testSetVisible_FireShowEvent() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
     column.setVisible( false );
@@ -302,6 +332,7 @@ public class GridColumn_Test extends TestCase {
     assertSame( column, event.widget );
   }
 
+  @Test
   public void testSetVisible_FireMoveEventOnNextColumns() {
     GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
     columns[ 0 ].addListener( SWT.Move, new LoggingListener() );
@@ -315,6 +346,7 @@ public class GridColumn_Test extends TestCase {
     assertSame( columns[ 2 ], event.widget );
   }
 
+  @Test
   public void testSetVisible_FireEventOnlyOnce() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
     column.addListener( SWT.Hide, new LoggingListener() );
@@ -325,6 +357,7 @@ public class GridColumn_Test extends TestCase {
     assertEquals( 1, eventLog.size() );
   }
 
+  @Test
   public void testIsTree_WithoutSubItems() {
     GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
     createGridItems( grid, 3, 0 );
@@ -334,6 +367,7 @@ public class GridColumn_Test extends TestCase {
     assertFalse( columns[ 2 ].isTree() );
   }
 
+  @Test
   public void testIsTree_WithSubItems() {
     GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
     createGridItems( grid, 3, 1 );
@@ -343,6 +377,7 @@ public class GridColumn_Test extends TestCase {
     assertFalse( columns[ 2 ].isTree() );
   }
 
+  @Test
   public void testIsTree_AddColumn() {
     GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
     createGridItems( grid, 3, 1 );
@@ -355,6 +390,7 @@ public class GridColumn_Test extends TestCase {
     assertFalse( columns[ 2 ].isTree() );
   }
 
+  @Test
   public void testIsTree_RemoveColumn() {
     GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
     createGridItems( grid, 3, 1 );
@@ -365,18 +401,21 @@ public class GridColumn_Test extends TestCase {
     assertFalse( columns[ 2 ].isTree() );
   }
 
+  @Test
   public void testGetAlignment_Initial() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
     assertEquals( SWT.LEFT, column.getAlignment() );
   }
 
+  @Test
   public void testGetAlignment_WithStyleFlag() {
     GridColumn column = new GridColumn( grid, SWT.RIGHT );
 
     assertEquals( SWT.RIGHT, column.getAlignment() );
   }
 
+  @Test
   public void testSetAlignment() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
@@ -385,6 +424,7 @@ public class GridColumn_Test extends TestCase {
     assertEquals( SWT.CENTER, column.getAlignment() );
   }
 
+  @Test
   public void testSetAlignment_InvalidValue() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
@@ -393,12 +433,14 @@ public class GridColumn_Test extends TestCase {
     assertEquals( SWT.LEFT, column.getAlignment() );
   }
 
+  @Test
   public void testGetMoveable_Initial() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
     assertFalse( column.getMoveable() );
   }
 
+  @Test
   public void testGetMoveable() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
@@ -407,12 +449,14 @@ public class GridColumn_Test extends TestCase {
     assertTrue( column.getMoveable() );
   }
 
+  @Test
   public void testGetResizeable_Initial() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
     assertTrue( column.getResizeable() );
   }
 
+  @Test
   public void testGetResizeable() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
@@ -421,12 +465,14 @@ public class GridColumn_Test extends TestCase {
     assertFalse( column.getResizeable() );
   }
 
+  @Test
   public void testGetCheckable_Initial() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
     assertTrue( column.getCheckable() );
   }
 
+  @Test
   public void testGetCheckable() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
@@ -435,12 +481,14 @@ public class GridColumn_Test extends TestCase {
     assertFalse( column.getCheckable() );
   }
 
+  @Test
   public void testIsDetail_Initial() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
     assertTrue( column.isDetail() );
   }
 
+  @Test
   public void testIsDetail() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
@@ -449,12 +497,14 @@ public class GridColumn_Test extends TestCase {
     assertFalse( column.isDetail() );
   }
 
+  @Test
   public void testIsSummary_Initial() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
     assertTrue( column.isSummary() );
   }
 
+  @Test
   public void testIsSummary() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
@@ -463,6 +513,7 @@ public class GridColumn_Test extends TestCase {
     assertFalse( column.isSummary() );
   }
 
+  @Test
   public void testAddRemoveSelectionListener() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
     SelectionListener listener = new SelectionAdapter() { };
@@ -475,26 +526,21 @@ public class GridColumn_Test extends TestCase {
     assertFalse( column.isListening( SWT.Selection ) );
   }
 
+  @Test( expected = IllegalArgumentException.class )
   public void testAddSelectionListener_NullArgument() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
-    try {
-      column.addSelectionListener( null );
-      fail();
-    } catch( IllegalArgumentException expected ) {
-    }
+    column.addSelectionListener( null );
   }
 
+  @Test( expected = IllegalArgumentException.class )
   public void testRemoveSelectionListener_NullArgument() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
-    try {
-      column.removeSelectionListener( null );
-      fail();
-    } catch( IllegalArgumentException expected ) {
-    }
+    column.removeSelectionListener( null );
   }
 
+  @Test
   public void testAddRemoveControlListener() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
     ControlListener listener = new ControlAdapter() { };
@@ -510,32 +556,28 @@ public class GridColumn_Test extends TestCase {
     assertFalse( column.isListening( SWT.Resize ) );
   }
 
+  @Test( expected = IllegalArgumentException.class )
   public void testAddControlListener_NullArgument() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
-    try {
-      column.addControlListener( null );
-      fail();
-    } catch( IllegalArgumentException expected ) {
-    }
+    column.addControlListener( null );
   }
 
+  @Test( expected = IllegalArgumentException.class )
   public void testRemoveControlListener_NullArgument() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
-    try {
-      column.removeControlListener( null );
-      fail();
-    } catch( IllegalArgumentException expected ) {
-    }
+    column.removeControlListener( null );
   }
 
+  @Test
   public void testGetHeaderText_Initial() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
     assertEquals( "", column.getText() );
   }
 
+  @Test
   public void testGetHeaderText() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
@@ -544,22 +586,21 @@ public class GridColumn_Test extends TestCase {
     assertEquals( "foo", column.getText() );
   }
 
+  @Test( expected = IllegalArgumentException.class )
   public void testSetHeaderText_NullArgument() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
-    try {
-      column.setText( null );
-      fail();
-    } catch( IllegalArgumentException expected ) {
-    }
+    column.setText( null );
   }
 
+  @Test
   public void testGetHeaderImage_Initial() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
     assertNull( column.getImage() );
   }
 
+  @Test
   public void testGetHeaderImage() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
     Image image = loadImage( display, Fixture.IMAGE1 );
@@ -569,24 +610,23 @@ public class GridColumn_Test extends TestCase {
     assertSame( image, column.getImage() );
   }
 
+  @Test( expected = IllegalArgumentException.class )
   public void testSetHeaderImage_DisposedImage() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
     Image image = loadImage( display, Fixture.IMAGE1 );
     image.dispose();
 
-    try {
-      column.setImage( image );
-      fail();
-    } catch( IllegalArgumentException expected ) {
-    }
+    column.setImage( image );
   }
 
+  @Test
   public void testGetHeaderFont_Initial() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
     assertSame( grid.getFont(), column.getHeaderFont() );
   }
 
+  @Test
   public void testGetHeaderFont() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
     Font font = new Font( display, "Arial", 20, SWT.BOLD );
@@ -596,24 +636,23 @@ public class GridColumn_Test extends TestCase {
     assertSame( font, column.getHeaderFont() );
   }
 
+  @Test( expected = IllegalArgumentException.class )
   public void testSetHeaderFont_DisposedFont() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
     Font font = new Font( display, "Arial", 20, SWT.BOLD );
     font.dispose();
 
-    try {
-      column.setHeaderFont( font );
-      fail();
-    } catch( IllegalArgumentException expected ) {
-    }
+    column.setHeaderFont( font );
   }
 
+  @Test
   public void testGetFooterText_Initial() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
     assertEquals( "", column.getFooterText() );
   }
 
+  @Test
   public void testGetFooterText() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
@@ -622,22 +661,21 @@ public class GridColumn_Test extends TestCase {
     assertEquals( "foo", column.getFooterText() );
   }
 
+  @Test( expected = IllegalArgumentException.class )
   public void testSetFooterText_NullArgument() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
-    try {
-      column.setFooterText( null );
-      fail();
-    } catch( IllegalArgumentException expected ) {
-    }
+    column.setFooterText( null );
   }
 
+  @Test
   public void testGetFooterImage_Initial() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
     assertNull( column.getFooterImage() );
   }
 
+  @Test
   public void testGetFooterImage() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
     Image image = loadImage( display, Fixture.IMAGE1 );
@@ -647,24 +685,23 @@ public class GridColumn_Test extends TestCase {
     assertSame( image, column.getFooterImage() );
   }
 
+  @Test( expected = IllegalArgumentException.class )
   public void testSetFooterImage_DisposedImage() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
     Image image = loadImage( display, Fixture.IMAGE1 );
     image.dispose();
 
-    try {
-      column.setFooterImage( image );
-      fail();
-    } catch( IllegalArgumentException expected ) {
-    }
+    column.setFooterImage( image );
   }
 
+  @Test
   public void testGetFooterFont_Initial() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
     assertSame( grid.getFont(), column.getFooterFont() );
   }
 
+  @Test
   public void testGetFooterFont() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
     Font font = new Font( display, "Arial", 20, SWT.BOLD );
@@ -674,18 +711,16 @@ public class GridColumn_Test extends TestCase {
     assertSame( font, column.getFooterFont() );
   }
 
+  @Test( expected = IllegalArgumentException.class )
   public void testSetFooterFont_DisposedFont() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
     Font font = new Font( display, "Arial", 20, SWT.BOLD );
     font.dispose();
 
-    try {
-      column.setFooterFont( font );
-      fail();
-    } catch( IllegalArgumentException expected ) {
-    }
+    column.setFooterFont( font );
   }
 
+  @Test
   public void testPack_TreeColumnEmpty() {
     GridColumn[] columns = createGridColumns( grid, 2, SWT.NONE );
     GridItem item = new GridItem( grid, SWT.NONE );
@@ -698,6 +733,7 @@ public class GridColumn_Test extends TestCase {
     assertEquals( 38, columns[ 0 ].getWidth() );
   }
 
+  @Test
   public void testPack_NonTreeColumnEmpty() {
     GridColumn[] columns = createGridColumns( grid, 2, SWT.NONE );
     GridItem item = new GridItem( grid, SWT.NONE );
@@ -710,6 +746,7 @@ public class GridColumn_Test extends TestCase {
     assertEquals( 16, columns[ 1 ].getWidth() );
   }
 
+  @Test
   public void testPack_TreeColumn() {
     grid = new Grid( shell, SWT.CHECK );
     GridColumn[] columns = createGridColumns( grid, 2, SWT.NONE );
@@ -727,6 +764,7 @@ public class GridColumn_Test extends TestCase {
     assertEquals( 139, columns[ 0 ].getWidth() );
   }
 
+  @Test
   public void testPack_NonTreeColumn() {
     grid = new Grid( shell, SWT.CHECK );
     GridColumn[] columns = createGridColumns( grid, 2, SWT.NONE );
@@ -744,6 +782,7 @@ public class GridColumn_Test extends TestCase {
     assertEquals( 90, columns[ 1 ].getWidth() );
   }
 
+  @Test
   public void testPack_WithHeaderVisible() {
     grid.setHeaderVisible( true );
     GridColumn[] columns = createGridColumns( grid, 2, SWT.CHECK );
@@ -763,6 +802,7 @@ public class GridColumn_Test extends TestCase {
     assertEquals( 353, columns[ 0 ].getWidth() );
   }
 
+  @Test
   public void testPack_WithFooterVisible() {
     grid.setFooterVisible( true );
     GridColumn[] columns = createGridColumns( grid, 2, SWT.CHECK );
@@ -782,6 +822,7 @@ public class GridColumn_Test extends TestCase {
     assertEquals( 353, columns[ 0 ].getWidth() );
   }
 
+  @Test
   public void testRepackAfterTextSizeDetermination() {
     grid.setHeaderVisible( true );
     GridColumn column = new GridColumn( grid, SWT.NONE );
@@ -801,12 +842,14 @@ public class GridColumn_Test extends TestCase {
     assertTrue( repackedWidth > packedWidth );
   }
 
+  @Test
   public void testGetHeaderTooltip_Initial() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
     assertNull( column.getHeaderTooltip() );
   }
 
+  @Test
   public void testGetHeaderTooltip() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
 
@@ -815,6 +858,39 @@ public class GridColumn_Test extends TestCase {
     assertEquals( "foo", column.getHeaderTooltip() );
   }
 
+  @Test
+  public void testGetHeaderWordWrap_Initial() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    assertFalse( column.getHeaderWordWrap() );
+  }
+
+  @Test
+  public void testGetHeaderWordWrap() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    column.setHeaderWordWrap( true );
+
+    assertTrue( column.getHeaderWordWrap() );
+  }
+
+  @Test
+  public void testGetWordWrap_Initial() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    assertFalse( column.getWordWrap() );
+  }
+
+  @Test
+  public void testGetWordWrap() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    column.setWordWrap( true );
+
+    assertTrue( column.getWordWrap() );
+  }
+
+  @Test
   public void testIsVisible_Initial() {
     GridColumnGroup group = new GridColumnGroup( grid, SWT.NONE );
     GridColumn column = new GridColumn( group, SWT.NONE );
@@ -822,6 +898,7 @@ public class GridColumn_Test extends TestCase {
     assertTrue( column.isVisible() );
   }
 
+  @Test
   public void testIsVisible_ExpandedGroup() {
     GridColumnGroup group = new GridColumnGroup( grid, SWT.NONE );
     group.setExpanded( true );
@@ -831,6 +908,7 @@ public class GridColumn_Test extends TestCase {
     assertFalse( column.isVisible() );
   }
 
+  @Test
   public void testIsVisible_CollapsedGroup() {
     GridColumnGroup group = new GridColumnGroup( grid, SWT.NONE );
     group.setExpanded( false );
@@ -852,16 +930,12 @@ public class GridColumn_Test extends TestCase {
     }
   }
 
-  @Test
+  @Test( expected = IllegalArgumentException.class )
   public void testMarkupToolTipTextWithMarkupEnabled() {
     GridColumn column = new GridColumn( grid, SWT.NONE );
     column.setData( RWT.TOOLTIP_MARKUP_ENABLED, Boolean.TRUE );
 
-    try {
-      column.setHeaderTooltip( "invalid xhtml: <<&>>" );
-      fail();
-    } catch( IllegalArgumentException expected ) {
-    }
+    column.setHeaderTooltip( "invalid xhtml: <<&>>" );
   }
 
   @Test

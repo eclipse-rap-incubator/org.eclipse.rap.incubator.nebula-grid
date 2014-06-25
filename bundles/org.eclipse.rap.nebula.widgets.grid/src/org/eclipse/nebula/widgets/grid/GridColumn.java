@@ -68,6 +68,8 @@ public class GridColumn extends Item {
   private Image footerImage;
   private Font footerFont;
   private boolean packed;
+  private boolean wordWrap;
+  private boolean headerWordWrap;
   int imageCount;
   int textCount;
 
@@ -774,6 +776,44 @@ public class GridColumn extends Item {
   }
 
   /**
+   * Returns the true if the cells in receiver wrap their text.
+   *
+   * @return true if the cells wrap their text.
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public boolean getWordWrap() {
+    checkWidget();
+    return wordWrap;
+  }
+
+  /**
+   * If the argument is true, wraps the text in the receiver's cells. This
+   * feature will not cause the row height to expand to accommodate the
+   * wrapped text. Please use <code>Grid#setItemHeight</code> to change the
+   * height of each row.
+   *
+   * @param wordWrap
+   *            true to make cells wrap their text.
+   * @throws org.eclipse.swt.SWTException
+   *             <ul>
+   *             <li>ERROR_WIDGET_DISPOSED - if the receiver has been disposed
+   *             </li>
+   *             <li>ERROR_THREAD_INVALID_ACCESS - if not called from the
+   *             thread that created the receiver</li>
+   *             </ul>
+   */
+  public void setWordWrap( boolean wordWrap ) {
+    checkWidget();
+    this.wordWrap = wordWrap;
+  }
+
+  /**
    * Sets the Font to be used when displaying the Header text.
    *
    * @param font
@@ -857,6 +897,32 @@ public class GridColumn extends Item {
   public String getHeaderTooltip() {
     checkWidget();
     return headerTooltip;
+  }
+
+  /**
+   * Sets whether or not text is word-wrapped in the header for this column.
+   * If Grid.setAutoHeight(true) is set, the row height is adjusted to
+   * accommodate word-wrapped text.
+   *
+   * @param wordWrap
+   *            Set to true to wrap the text, false otherwise
+   * @see #getHeaderWordWrap()
+   */
+  public void setHeaderWordWrap( boolean wordWrap ) {
+    checkWidget();
+    this.headerWordWrap = wordWrap;
+  }
+
+  /**
+   * Returns whether or not text is word-wrapped in the header for this
+   * column.
+   *
+   * @return true if the header wraps its text.
+   * @see GridColumn#setHeaderWordWrap(boolean)
+   */
+  public boolean getHeaderWordWrap() {
+    checkWidget();
+    return headerWordWrap;
   }
 
   /**
