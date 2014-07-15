@@ -44,6 +44,7 @@ import org.eclipse.swt.widgets.TypedListener;
 @SuppressWarnings( "restriction" )
 public class GridColumn extends Item {
 
+  static final String FOOTER_SPAN = "footerSpan";
   private static final int SORT_INDICATOR_WIDTH = 10;
   private static final int MARGIN_IMAGE = 3;
   private static final int DEFAULT_WIDTH = 10;
@@ -1086,8 +1087,21 @@ public class GridColumn extends Item {
 
   @Override
   public void setData( String key, Object value ) {
+    checkFooterSpan( key, value );
     if( !RWT.TOOLTIP_MARKUP_ENABLED.equals( key ) || !isToolTipMarkupEnabledFor( this ) ) {
       super.setData( key, value );
+    }
+  }
+
+  private void checkFooterSpan( String key, Object value ) {
+    if( FOOTER_SPAN.equals( key ) ) {
+      if( !( value instanceof Integer ) ) {
+        SWT.error( SWT.ERROR_INVALID_ARGUMENT );
+      }
+      int footerSpan = ( ( Integer )value ).intValue();
+      if( footerSpan < 1 || parent.indexOf( this ) + footerSpan > parent.getColumnCount() ) {
+        SWT.error( SWT.ERROR_INVALID_RANGE );
+      }
     }
   }
 

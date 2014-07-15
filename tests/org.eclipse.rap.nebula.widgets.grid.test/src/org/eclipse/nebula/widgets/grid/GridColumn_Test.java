@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.eclipse.nebula.widgets.grid;
 
+import static org.eclipse.nebula.widgets.grid.GridColumn.FOOTER_SPAN;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridColumns;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridItems;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
@@ -967,6 +968,50 @@ public class GridColumn_Test {
     column.setData( "foo", "bar" );
 
     assertEquals( "bar", column.getData( "foo" ) );
+  }
+
+  @Test
+  public void testFooterSpan_initial() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    assertNull( column.getData( FOOTER_SPAN ) );
+  }
+
+  @Test( expected = IllegalArgumentException.class )
+  public void testFooterSpan_nullValue() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    column.setData( FOOTER_SPAN, null );
+  }
+
+  @Test( expected = IllegalArgumentException.class )
+  public void testFooterSpan_notIntegerValue() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    column.setData( FOOTER_SPAN, "foo" );
+  }
+
+  @Test( expected = IllegalArgumentException.class )
+  public void testFooterSpan_zeroOrLessValue() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    column.setData( FOOTER_SPAN, Integer.valueOf( 0 ) );
+  }
+
+  @Test( expected = IllegalArgumentException.class )
+  public void testFooterSpan_outOfRangeValue() {
+    GridColumn[] columns = createGridColumns( grid, 5, SWT.NONE);
+
+    columns[ 1 ].setData( FOOTER_SPAN, Integer.valueOf( 5 ) );
+  }
+
+  @Test
+  public void testFooterSpan() {
+    GridColumn[] columns = createGridColumns( grid, 5, SWT.NONE);
+
+    columns[ 1 ].setData( FOOTER_SPAN, Integer.valueOf( 3 ) );
+
+    assertEquals( Integer.valueOf( 3 ), columns[ 1 ].getData( FOOTER_SPAN ) );
   }
 
   //////////////////
