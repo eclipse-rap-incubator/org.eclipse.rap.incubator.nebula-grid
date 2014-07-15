@@ -12,7 +12,11 @@ package org.eclipse.nebula.widgets.grid;
 
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridColumns;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 import org.eclipse.rap.rwt.internal.lifecycle.PhaseId;
 import org.eclipse.rap.rwt.testfixture.Fixture;
@@ -23,20 +27,23 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 
 @SuppressWarnings( {
   "deprecation", "restriction"
 } )
-public class GridColumnGroup_Test extends TestCase {
+public class GridColumnGroup_Test {
 
   private Display display;
   private Shell shell;
   private Grid grid;
   private GridColumnGroup group;
 
-  @Override
-  protected void setUp() throws Exception {
+  @Before
+  public void setUp() {
     Fixture.setUp();
     Fixture.fakePhase( PhaseId.PROCESS_ACTION );
     display = new Display();
@@ -45,17 +52,19 @@ public class GridColumnGroup_Test extends TestCase {
     group = new GridColumnGroup( grid, SWT.NONE );
   }
 
-  @Override
-  protected void tearDown() throws Exception {
+  @After
+  public void tearDown() {
     Fixture.tearDown();
   }
 
+  @Test
   public void testGridColumnGroupCreation() {
     assertSame( grid, group.getParent() );
     assertSame( group, grid.getColumnGroup( 0 ) );
     assertEquals( 0, group.getColumns().length );
   }
 
+  @Test
   public void testDispose() {
     group.dispose();
 
@@ -63,6 +72,7 @@ public class GridColumnGroup_Test extends TestCase {
     assertEquals( 0, grid.getColumnGroupCount() );
   }
 
+  @Test
   public void testDispose_DisposeColumns() {
     GridColumn[] columns = createGridColumns( group, 2, SWT.NONE );
 
@@ -72,16 +82,19 @@ public class GridColumnGroup_Test extends TestCase {
     assertTrue( columns[ 1 ].isDisposed() );
   }
 
+  @Test
   public void testGetExpanded_Initial() {
     assertTrue( group.getExpanded() );
   }
 
+  @Test
   public void testSetExpanded() {
     group.setExpanded( false );
 
     assertFalse( group.getExpanded() );
   }
 
+  @Test
   public void testAddRemoveTreeListener() {
     TreeListener listener = new TreeAdapter() {};
     group.addTreeListener( listener );
@@ -94,28 +107,29 @@ public class GridColumnGroup_Test extends TestCase {
     assertFalse( group.isListening( SWT.Collapse ) );
   }
 
+  @Test
   public void testGetHeaderText_Initial() {
     assertEquals( "", group.getText() );
   }
 
+  @Test
   public void testGetHeaderText() {
     group.setText( "foo" );
 
     assertEquals( "foo", group.getText() );
   }
 
+  @Test( expected = IllegalArgumentException.class )
   public void testSetHeaderText_NullArgument() {
-    try {
-      group.setText( null );
-      fail();
-    } catch( IllegalArgumentException expected ) {
-    }
+    group.setText( null );
   }
 
+  @Test
   public void testGetHeaderImage_Initial() {
     assertNull( group.getImage() );
   }
 
+  @Test
   public void testGetHeaderImage() {
     Image image = loadImage( display, Fixture.IMAGE1 );
 
@@ -124,21 +138,20 @@ public class GridColumnGroup_Test extends TestCase {
     assertSame( image, group.getImage() );
   }
 
+  @Test( expected = IllegalArgumentException.class )
   public void testSetHeaderImage_DisposedImage() {
     Image image = loadImage( display, Fixture.IMAGE1 );
     image.dispose();
 
-    try {
-      group.setImage( image );
-      fail();
-    } catch( IllegalArgumentException expected ) {
-    }
+    group.setImage( image );
   }
 
+  @Test
   public void testGetHeaderFont_Initial() {
     assertSame( grid.getFont(), group.getHeaderFont() );
   }
 
+  @Test
   public void testGetHeaderFont() {
     Font font = new Font( display, "Arial", 20, SWT.BOLD );
 
@@ -147,15 +160,12 @@ public class GridColumnGroup_Test extends TestCase {
     assertSame( font, group.getHeaderFont() );
   }
 
+  @Test( expected = IllegalArgumentException.class )
   public void testSetHeaderFont_DisposedFont() {
     Font font = new Font( display, "Arial", 20, SWT.BOLD );
     font.dispose();
 
-    try {
-      group.setHeaderFont( font );
-      fail();
-    } catch( IllegalArgumentException expected ) {
-    }
+    group.setHeaderFont( font );
   }
 
 }
