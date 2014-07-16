@@ -22,6 +22,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
@@ -46,7 +47,6 @@ import org.eclipse.rap.rwt.remote.OperationHandler;
 import org.eclipse.rap.rwt.testfixture.Fixture;
 import org.eclipse.rap.rwt.testfixture.TestMessage;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.internal.widgets.CellToolTipUtil;
@@ -54,6 +54,7 @@ import org.eclipse.swt.internal.widgets.ICellToolTipAdapter;
 import org.eclipse.swt.internal.widgets.ICellToolTipProvider;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Item;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
 import org.junit.After;
@@ -292,6 +293,44 @@ public class GridLCA_Test {
 
     TestMessage message = Fixture.getProtocolMessage();
     assertNull( message.findSetOperation( grid, "columnCount" ) );
+  }
+
+  @Test
+  public void testRenderInitialColumnOrder() throws IOException {
+    lca.render( grid );
+
+    TestMessage message = Fixture.getProtocolMessage();
+    CreateOperation operation = message.findCreateOperation( grid );
+    assertTrue( operation.getProperties().names().indexOf( "columnOrder" ) == -1 );
+  }
+
+  @Test
+  public void testRenderColumnOrder() throws IOException {
+    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
+    grid.setColumnOrder( new int[] { 2, 0, 1 } );
+
+    lca.renderChanges( grid );
+
+    TestMessage message = Fixture.getProtocolMessage();
+    JsonArray expected = new JsonArray()
+      .add( getId( columns[ 2 ] ) )
+      .add( getId( columns[ 0 ] ) )
+      .add( getId( columns[ 1 ] ) );
+    assertEquals( expected, message.findSetProperty( grid, "columnOrder" ) );
+  }
+
+  @Test
+  public void testRenderColumnOrderUnchanged() throws IOException {
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( grid );
+    createGridColumns( grid, 3, SWT.NONE );
+    grid.setColumnOrder( new int[] { 2, 0, 1 } );
+
+    Fixture.preserveWidgets();
+    lca.renderChanges( grid );
+
+    TestMessage message = Fixture.getProtocolMessage();
+    assertNull( message.findSetOperation( grid, "columnOrder" ) );
   }
 
   @Test
@@ -774,7 +813,7 @@ public class GridLCA_Test {
     Fixture.markInitialized( hScroll );
     Fixture.preserveWidgets();
 
-    hScroll.addSelectionListener( new SelectionAdapter() { } );
+    hScroll.addListener( SWT.Selection, mock( Listener.class ) );
     lca.renderChanges( grid );
 
     TestMessage message = Fixture.getProtocolMessage();
@@ -784,14 +823,14 @@ public class GridLCA_Test {
   @Test
   public void testRenderRemoveScrollBarsSelectionListener_Horizontal() throws Exception {
     ScrollBar hScroll = grid.getHorizontalBar();
-    SelectionListener listener = new SelectionAdapter() { };
-    hScroll.addSelectionListener( listener );
+    Listener listener = mock( Listener.class );
+    hScroll.addListener( SWT.Selection, listener );
     Fixture.markInitialized( display );
     Fixture.markInitialized( grid );
     Fixture.markInitialized( hScroll );
     Fixture.preserveWidgets();
 
-    hScroll.removeSelectionListener( listener );
+    hScroll.removeListener( SWT.Selection, listener );
     lca.renderChanges( grid );
 
     TestMessage message = Fixture.getProtocolMessage();
@@ -806,7 +845,7 @@ public class GridLCA_Test {
     Fixture.markInitialized( hScroll );
     Fixture.preserveWidgets();
 
-    hScroll.addSelectionListener( new SelectionAdapter() { } );
+    hScroll.addListener( SWT.Selection, mock( Listener.class ) );
     Fixture.preserveWidgets();
     lca.renderChanges( grid );
 
@@ -822,7 +861,7 @@ public class GridLCA_Test {
     Fixture.markInitialized( vScroll );
     Fixture.preserveWidgets();
 
-    vScroll.addSelectionListener( new SelectionAdapter() { } );
+    vScroll.addListener( SWT.Selection, mock( Listener.class ) );
     lca.renderChanges( grid );
 
     TestMessage message = Fixture.getProtocolMessage();
@@ -832,14 +871,14 @@ public class GridLCA_Test {
   @Test
   public void testRenderRemoveScrollBarsSelectionListener_Vertical() throws Exception {
     ScrollBar vScroll = grid.getVerticalBar();
-    SelectionListener listener = new SelectionAdapter() { };
-    vScroll.addSelectionListener( listener );
+    Listener listener = mock( Listener.class );
+    vScroll.addListener( SWT.Selection, listener );
     Fixture.markInitialized( display );
     Fixture.markInitialized( grid );
     Fixture.markInitialized( vScroll );
     Fixture.preserveWidgets();
 
-    vScroll.removeSelectionListener( listener );
+    vScroll.removeListener( SWT.Selection, listener );
     lca.renderChanges( grid );
 
     TestMessage message = Fixture.getProtocolMessage();
@@ -854,7 +893,7 @@ public class GridLCA_Test {
     Fixture.markInitialized( vScroll );
     Fixture.preserveWidgets();
 
-    vScroll.addSelectionListener( new SelectionAdapter() { } );
+    vScroll.addListener( SWT.Selection, mock( Listener.class ) );
     Fixture.preserveWidgets();
     lca.renderChanges( grid );
 
@@ -868,7 +907,7 @@ public class GridLCA_Test {
     Fixture.markInitialized( grid );
     Fixture.preserveWidgets();
 
-    grid.addSelectionListener( new SelectionAdapter() { } );
+    grid.addSelectionListener( mock( SelectionListener.class ) );
     lca.renderChanges( grid );
 
     TestMessage message = Fixture.getProtocolMessage();
@@ -878,7 +917,7 @@ public class GridLCA_Test {
 
   @Test
   public void testRenderRemoveSelectionListener() throws Exception {
-    SelectionListener listener = new SelectionAdapter() { };
+    SelectionListener listener = mock( SelectionListener.class );
     grid.addSelectionListener( listener );
     Fixture.markInitialized( display );
     Fixture.markInitialized( grid );
@@ -898,7 +937,7 @@ public class GridLCA_Test {
     Fixture.markInitialized( grid );
     Fixture.preserveWidgets();
 
-    grid.addSelectionListener( new SelectionAdapter() { } );
+    grid.addSelectionListener( mock( SelectionListener.class ) );
     Fixture.preserveWidgets();
     lca.renderChanges( grid );
 

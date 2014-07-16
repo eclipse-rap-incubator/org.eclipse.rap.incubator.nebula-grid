@@ -59,6 +59,7 @@ public class GridLCA extends AbstractWidgetLCA {
   private static final String PROP_ITEM_HEIGHT = "itemHeight";
   private static final String PROP_ITEM_METRICS = "itemMetrics";
   private static final String PROP_COLUMN_COUNT = "columnCount";
+  private static final String PROP_COLUMN_ORDER = "columnOrder";
   private static final String PROP_TREE_COLUMN = "treeColumn";
   private static final String PROP_HEADER_HEIGHT = "headerHeight";
   private static final String PROP_HEADER_VISIBLE = "headerVisible";
@@ -85,6 +86,7 @@ public class GridLCA extends AbstractWidgetLCA {
 
   private static final int ZERO = 0 ;
   private static final String[] DEFAULT_SELECTION = new String[ 0 ];
+  private static final String[] DEFAULT_COLUMN_ORDER = new String[ 0 ];
   private static final String DEFAULT_SORT_DIRECTION = "none";
 
   @Override
@@ -116,6 +118,7 @@ public class GridLCA extends AbstractWidgetLCA {
     preserveProperty( grid, PROP_ITEM_HEIGHT, grid.getItemHeight() );
     preserveProperty( grid, PROP_ITEM_METRICS, getItemMetrics( grid ) );
     preserveProperty( grid, PROP_COLUMN_COUNT, grid.getColumnCount() );
+    preserveProperty( grid, PROP_COLUMN_ORDER, getColumnOrder( grid ) );
     preserveProperty( grid, PROP_TREE_COLUMN, getTreeColumn( grid ) );
     preserveProperty( grid, PROP_HEADER_HEIGHT, grid.getHeaderHeight() );
     preserveProperty( grid, PROP_HEADER_VISIBLE, grid.getHeaderVisible() );
@@ -149,6 +152,7 @@ public class GridLCA extends AbstractWidgetLCA {
     renderProperty( grid, PROP_ITEM_HEIGHT, grid.getItemHeight(), ZERO );
     renderItemMetrics( grid );
     renderProperty( grid, PROP_COLUMN_COUNT, grid.getColumnCount(), ZERO );
+    renderProperty( grid, PROP_COLUMN_ORDER, getColumnOrder( grid ), DEFAULT_COLUMN_ORDER );
     renderProperty( grid, PROP_TREE_COLUMN, getTreeColumn( grid ), ZERO );
     renderProperty( grid, PROP_HEADER_HEIGHT, grid.getHeaderHeight(), ZERO );
     renderProperty( grid, PROP_HEADER_VISIBLE, grid.getHeaderVisible(), false );
@@ -245,6 +249,15 @@ public class GridLCA extends AbstractWidgetLCA {
       if( column.getSort() != SWT.NONE ) {
         result = column;
       }
+    }
+    return result;
+  }
+
+  private static String[] getColumnOrder( Grid grid ) {
+    int[] order = grid.getColumnOrder();
+    String[] result = new String[ order.length ];
+    for( int i = 0; i < result.length; i++ ) {
+      result[ i ] = getId( grid.getColumn( order[ i ] ) );
     }
     return result;
   }
