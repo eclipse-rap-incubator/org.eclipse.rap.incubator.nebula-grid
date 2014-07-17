@@ -876,13 +876,6 @@ public class GridColumn_Test {
     column.setData( FOOTER_SPAN, Integer.valueOf( 0 ) );
   }
 
-  @Test( expected = IllegalArgumentException.class )
-  public void testFooterSpan_outOfRangeValue() {
-    GridColumn[] columns = createGridColumns( grid, 5, SWT.NONE);
-
-    columns[ 1 ].setData( FOOTER_SPAN, Integer.valueOf( 5 ) );
-  }
-
   @Test
   public void testFooterSpan() {
     GridColumn[] columns = createGridColumns( grid, 5, SWT.NONE);

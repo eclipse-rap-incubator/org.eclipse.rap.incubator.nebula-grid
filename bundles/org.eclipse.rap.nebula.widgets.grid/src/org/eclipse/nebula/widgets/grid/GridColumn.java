@@ -1093,14 +1093,10 @@ public class GridColumn extends Item {
     }
   }
 
-  private void checkFooterSpan( String key, Object value ) {
+  private static void checkFooterSpan( String key, Object value ) {
     if( FOOTER_SPAN.equals( key ) ) {
-      if( !( value instanceof Integer ) ) {
+      if( !( value instanceof Integer ) || ( ( Integer )value ).intValue() < 1 ) {
         SWT.error( SWT.ERROR_INVALID_ARGUMENT );
-      }
-      int footerSpan = ( ( Integer )value ).intValue();
-      if( footerSpan < 1 || parent.indexOf( this ) + footerSpan > parent.getColumnCount() ) {
-        SWT.error( SWT.ERROR_INVALID_RANGE );
       }
     }
   }
