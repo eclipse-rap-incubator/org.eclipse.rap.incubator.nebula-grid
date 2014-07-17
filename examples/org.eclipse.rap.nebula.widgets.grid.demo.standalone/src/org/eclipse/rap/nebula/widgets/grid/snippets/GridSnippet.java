@@ -56,6 +56,7 @@ public class GridSnippet extends GridSnippetBase {
     createTopIndexButton( parent );
     createShowItemGroup( parent );
     createShowColumnGroup( parent );
+    createSetFooterSpanGroup( parent );
     createShowHeaderButton( parent );
     createShowFooterButton( parent );
     createWordWrapButton( parent );
@@ -325,6 +326,35 @@ public class GridSnippet extends GridSnippetBase {
         }
         if( index >= 0 && index < grid.getColumnCount() ) {
           grid.showColumn( grid.getColumn( index ) );
+        }
+      }
+    } );
+  }
+
+  private void createSetFooterSpanGroup( Composite parent ) {
+    Composite composite = new Composite( parent, SWT.NONE );
+    composite.setLayout( new GridLayout( 3, false ) );
+    final Text columnText = new Text( composite, SWT.BORDER );
+    columnText.setLayoutData( new GridData( 80, SWT.DEFAULT ) );
+    columnText.setMessage( "column" );
+    final Text spanText = new Text( composite, SWT.BORDER );
+    spanText.setLayoutData( new GridData( 80, SWT.DEFAULT ) );
+    spanText.setMessage( "footerSpan" );
+    final Button set = new Button( composite, SWT.PUSH );
+    set.setText( "Set" );
+    set.setLayoutData( new GridData( 67, SWT.DEFAULT ) );
+    set.addSelectionListener( new SelectionAdapter() {
+      @Override
+      public void widgetSelected( SelectionEvent event ) {
+        int index = -1;
+        int span = -1;
+        try {
+          index = Integer.parseInt( columnText.getText() );
+          span = Integer.parseInt( spanText.getText() );
+        } catch( NumberFormatException e ) {
+        }
+        if( index >= 0 && index < grid.getColumnCount() && span > 0) {
+          grid.getColumn( index ).setData( "footerSpan", span );
         }
       }
     } );
