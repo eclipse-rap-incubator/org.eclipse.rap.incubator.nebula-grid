@@ -51,6 +51,7 @@ public class GridColumnLCA extends AbstractWidgetLCA {
   private static final String PROP_FOOTER_FONT = "footerFont";
   private static final String PROP_FOOTER_TEXT = "footerText";
   private static final String PROP_FOOTER_IMAGE = "footerImage";
+  private static final String PROP_FOOTER_SPAN = "footerSpan";
   private static final String PROP_SELECTION_LISTENER = "Selection";
 
   private static final int ZERO = 0;
@@ -86,6 +87,7 @@ public class GridColumnLCA extends AbstractWidgetLCA {
     preserveProperty( column, PROP_FOOTER_FONT, column.getFooterFont() );
     preserveProperty( column, PROP_FOOTER_TEXT, column.getFooterText() );
     preserveProperty( column, PROP_FOOTER_IMAGE, column.getFooterImage() );
+    preserveProperty( column, PROP_FOOTER_SPAN, getFooterSpan( column ) );
     preserveListener( column, PROP_SELECTION_LISTENER, isListening( column, SWT.Selection ) );
   }
 
@@ -107,6 +109,7 @@ public class GridColumnLCA extends AbstractWidgetLCA {
     renderFont( column, PROP_FOOTER_FONT, column.getFooterFont() );
     renderProperty( column, PROP_FOOTER_TEXT, column.getFooterText(), "" );
     renderProperty( column, PROP_FOOTER_IMAGE, column.getFooterImage(), null );
+    renderProperty( column, PROP_FOOTER_SPAN, getFooterSpan( column ), 1 );
     renderListener( column, PROP_SELECTION_LISTENER, isListening( column, SWT.Selection ), false );
   }
 
@@ -140,6 +143,11 @@ public class GridColumnLCA extends AbstractWidgetLCA {
 
   private static int getIndex( GridColumn column ) {
     return column.getParent().indexOf( column );
+  }
+
+  private static int getFooterSpan( GridColumn column ) {
+    Integer value = ( Integer )column.getData( PROP_FOOTER_SPAN );
+    return value == null ? 1 : value.intValue();
   }
 
   private static IGridAdapter getGridAdapter( GridColumn column ) {

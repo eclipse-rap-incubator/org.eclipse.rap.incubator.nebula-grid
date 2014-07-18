@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 EclipseSource and others.
+ * Copyright (c) 2012, 2014 EclipseSource and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.eclipse.nebula.widgets.grid;
 
+import static org.eclipse.nebula.widgets.grid.GridColumn.FOOTER_SPAN;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridColumns;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridItems;
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.loadImage;
@@ -891,6 +892,55 @@ public class GridColumn_Test extends TestCase {
     column.setData( "foo", "bar" );
 
     assertEquals( "bar", column.getData( "foo" ) );
+  }
+
+  @Test
+  public void testFooterSpan_initial() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    assertNull( column.getData( FOOTER_SPAN ) );
+  }
+
+  @Test
+  public void testFooterSpan_nullValue() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    try {
+      column.setData( FOOTER_SPAN, null );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  @Test
+  public void testFooterSpan_notIntegerValue() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    try {
+      column.setData( FOOTER_SPAN, "foo" );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  @Test
+  public void testFooterSpan_zeroOrLessValue() {
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+
+    try {
+      column.setData( FOOTER_SPAN, Integer.valueOf( 0 ) );
+      fail();
+    } catch( IllegalArgumentException expected ) {
+    }
+  }
+
+  @Test
+  public void testFooterSpan() {
+    GridColumn[] columns = createGridColumns( grid, 5, SWT.NONE);
+
+    columns[ 1 ].setData( FOOTER_SPAN, Integer.valueOf( 3 ) );
+
+    assertEquals( Integer.valueOf( 3 ), columns[ 1 ].getData( FOOTER_SPAN ) );
   }
 
   //////////////////

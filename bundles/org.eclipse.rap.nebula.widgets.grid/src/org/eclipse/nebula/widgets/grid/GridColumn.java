@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 EclipseSource and others.
+ * Copyright (c) 2012, 2014 EclipseSource and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -44,6 +44,7 @@ import org.eclipse.swt.widgets.TypedListener;
 @SuppressWarnings( "restriction" )
 public class GridColumn extends Item {
 
+  static final String FOOTER_SPAN = "footerSpan";
   private static final int SORT_INDICATOR_WIDTH = 10;
   private static final int MARGIN_IMAGE = 3;
   private static final int DEFAULT_WIDTH = 10;
@@ -1016,8 +1017,17 @@ public class GridColumn extends Item {
 
   @Override
   public void setData( String key, Object value ) {
+    checkFooterSpan( key, value );
     if( !RWT.TOOLTIP_MARKUP_ENABLED.equals( key ) || !isToolTipMarkupEnabledFor( this ) ) {
       super.setData( key, value );
+    }
+  }
+
+  private static void checkFooterSpan( String key, Object value ) {
+    if( FOOTER_SPAN.equals( key ) ) {
+      if( !( value instanceof Integer ) || ( ( Integer )value ).intValue() < 1 ) {
+        SWT.error( SWT.ERROR_INVALID_ARGUMENT );
+      }
     }
   }
 

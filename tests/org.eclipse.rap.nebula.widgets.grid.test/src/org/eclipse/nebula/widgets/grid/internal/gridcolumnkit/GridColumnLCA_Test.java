@@ -800,6 +800,39 @@ public class GridColumnLCA_Test {
     TestMessage message = Fixture.getProtocolMessage();
     assertEquals( JsonObject.NULL, message.findSetProperty( column, "footerImage" ) );
   }
+  
+  @Test
+  public void testRenderInitialFooterSpan() throws IOException {
+    lca.renderChanges( column );
+
+    TestMessage message = Fixture.getProtocolMessage();
+    assertNull( message.findSetOperation( column, "footerSpan" ) );
+  }
+
+  @Test
+  public void testRenderFooterSpan() throws IOException {
+    createGridColumns( grid, 3, SWT.NONE );
+    column.setData( "footerSpan", Integer.valueOf( 2 ) );
+
+    lca.renderChanges( column );
+
+    TestMessage message = Fixture.getProtocolMessage();
+    assertEquals( 2, message.findSetProperty( column, "footerSpan" ).asInt() );
+  }
+
+  @Test
+  public void testRenderFooterSpanUnchanged() throws IOException {
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( column );
+    createGridColumns( grid, 3, SWT.NONE );
+    column.setData( "footerSpan", Integer.valueOf( 2 ) );
+
+    Fixture.preserveWidgets();
+    lca.renderChanges( column );
+
+    TestMessage message = Fixture.getProtocolMessage();
+    assertNull( message.findSetOperation( column, "footerSpan" ) );
+  }
 
   //////////////////
   // Helping classes
