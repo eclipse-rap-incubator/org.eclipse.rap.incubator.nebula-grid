@@ -168,4 +168,25 @@ public class GridColumnGroup_Test {
     group.setHeaderFont( font );
   }
 
+  @Test
+  public void testGetHeaderWordWrap_Initial() {
+    assertFalse( group.getHeaderWordWrap() );
+  }
+
+  @Test
+  public void testGetHeaderWordWrap() {
+    group.setHeaderWordWrap( true );
+
+    assertTrue( group.getHeaderWordWrap() );
+  }
+
+  @Test
+  public void testGetHeaderWordWrap_invalidatesCachedHeaderHeight() {
+    grid.getHeaderHeight();
+
+    group.setHeaderWordWrap( true );
+
+    assertFalse( grid.layoutCache.hasHeaderHeight() );
+  }
+
 }

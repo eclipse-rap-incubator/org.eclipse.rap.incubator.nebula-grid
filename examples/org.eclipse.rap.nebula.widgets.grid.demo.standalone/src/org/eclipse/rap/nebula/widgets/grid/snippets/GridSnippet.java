@@ -408,6 +408,9 @@ public class GridSnippet extends GridSnippetBase {
         for( GridColumn column : grid.getColumns() ) {
           column.setHeaderWordWrap( button.getSelection() );
         }
+        for( GridColumnGroup group : grid.getColumnGroups() ) {
+          group.setHeaderWordWrap( button.getSelection() );
+        }
       }
     } );
   }

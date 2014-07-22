@@ -436,4 +436,35 @@ public class GridColumnGroupLCA_Test {
     assertNull( message.findSetOperation( group, "customVariant" ) );
   }
 
+  @Test
+  public void testRenderInitialHeaderWordWrap() throws IOException {
+    lca.render( group );
+
+    TestMessage message = Fixture.getProtocolMessage();
+    CreateOperation operation = message.findCreateOperation( group );
+    assertTrue( operation.getProperties().names().indexOf( "headerWordWrap" ) == -1 );
+  }
+
+  @Test
+  public void testRenderHeaderWordWrap() throws IOException {
+    group.setHeaderWordWrap( true );
+    lca.renderChanges( group );
+
+    TestMessage message = Fixture.getProtocolMessage();
+    assertEquals( JsonValue.TRUE, message.findSetProperty( group, "headerWordWrap" ) );
+  }
+
+  @Test
+  public void testRenderHeaderWordWrapUnchanged() throws IOException {
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( group );
+
+    group.setHeaderWordWrap( true );
+    Fixture.preserveWidgets();
+    lca.renderChanges( group );
+
+    TestMessage message = Fixture.getProtocolMessage();
+    assertNull( message.findSetOperation( group, "headerWordWrap" ) );
+  }
+
 }

@@ -912,6 +912,8 @@ public class GridColumn extends Item {
   public void setHeaderWordWrap( boolean wordWrap ) {
     checkWidget();
     this.headerWordWrap = wordWrap;
+    parent.layoutCache.invalidateHeaderHeight();
+    parent.scheduleRedraw();
   }
 
   /**

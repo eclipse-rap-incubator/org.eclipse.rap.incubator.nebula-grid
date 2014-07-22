@@ -47,6 +47,7 @@ public class GridColumnGroupLCA extends AbstractWidgetLCA {
   private static final String PROP_VISIBLE = "visibility";
   private static final String PROP_FONT = "font";
   private static final String PROP_EXPANDED = "expanded";
+  private static final String PROP_HEADER_WORD_WRAP = "headerWordWrap";
   private static final String PROP_EXPAND_LISTENER = "Expand";
   private static final String PROP_COLLAPSE_LISTENER = "Collapse";
 
@@ -72,6 +73,7 @@ public class GridColumnGroupLCA extends AbstractWidgetLCA {
     preserveProperty( group, PROP_VISIBLE, isVisible( group ) );
     preserveProperty( group, PROP_FONT, group.getHeaderFont() );
     preserveProperty( group, PROP_EXPANDED, group.getExpanded() );
+    preserveProperty( group, PROP_HEADER_WORD_WRAP, group.getHeaderWordWrap() );
     preserveListener( group, PROP_EXPAND_LISTENER, hasExpandListener( group ) );
     preserveListener( group, PROP_COLLAPSE_LISTENER, hasCollapseListener( group ) );
   }
@@ -87,6 +89,7 @@ public class GridColumnGroupLCA extends AbstractWidgetLCA {
     renderProperty( group, PROP_VISIBLE, isVisible( group ), true );
     renderFont( group, PROP_FONT, group.getHeaderFont() );
     renderProperty( group, PROP_EXPANDED, group.getExpanded(), true );
+    renderProperty( group, PROP_HEADER_WORD_WRAP, group.getHeaderWordWrap(), false );
     renderListener( group, PROP_EXPAND_LISTENER, hasExpandListener( group ), false );
     renderListener( group, PROP_COLLAPSE_LISTENER, hasCollapseListener( group ), false );
   }

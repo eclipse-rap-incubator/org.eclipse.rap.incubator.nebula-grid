@@ -47,6 +47,7 @@ public class GridColumnGroup extends Item {
   private List<GridColumn> columns = new ArrayList<GridColumn>();
   private boolean expanded = true;
   private Font headerFont;
+  private boolean headerWordWrap;
 
   /**
    * Constructs a new instance of this class given its parent (which must be a Grid) and a style
@@ -266,6 +267,30 @@ public class GridColumnGroup extends Item {
     super.setImage( image );
     parent.layoutCache.invalidateHeaderHeight();
     parent.scheduleRedraw();
+  }
+
+  /**
+   * Sets whether or not text is word-wrapped in the header for this column group.
+   * If Grid.setAutoHeight(true) is set, the row height is adjusted to accommodate
+   * word-wrapped text.
+   * @param wordWrap Set to true to wrap the text, false otherwise
+   * @see #getHeaderWordWrap()
+   */
+  public void setHeaderWordWrap( boolean wordWrap ) {
+    checkWidget();
+    headerWordWrap = wordWrap;
+    parent.layoutCache.invalidateHeaderHeight();
+    parent.scheduleRedraw();
+  }
+
+  /**
+   * Returns whether or not text is word-wrapped in the header for this column group.
+   * @return true if the header wraps its text.
+   * @see GridColumn#setHeaderWordWrap(boolean)
+   */
+  public boolean getHeaderWordWrap() {
+    checkWidget();
+    return headerWordWrap;
   }
 
   void newColumn( GridColumn column ) {
