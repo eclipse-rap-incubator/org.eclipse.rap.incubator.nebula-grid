@@ -535,6 +535,38 @@ public class GridLCA_Test {
   }
 
   @Test
+  public void testRenderInitialAutoHeight() throws IOException {
+    lca.render( grid );
+
+    TestMessage message = Fixture.getProtocolMessage();
+    CreateOperation operation = message.findCreateOperation( grid );
+    assertTrue( operation.getProperties().names().indexOf( "autoHeight" ) == -1 );
+  }
+
+  @Test
+  public void testRenderAutoHeight() throws IOException {
+    Fixture.markInitialized( grid );
+    grid.setAutoHeight( true );
+    lca.renderChanges( grid );
+
+    TestMessage message = Fixture.getProtocolMessage();
+    assertEquals( JsonValue.TRUE, message.findSetProperty( grid, "autoHeight" ) );
+  }
+
+  @Test
+  public void testRenderAutoHeightUnchanged() throws IOException {
+    Fixture.markInitialized( display );
+    Fixture.markInitialized( grid );
+
+    grid.setAutoHeight( true );
+    Fixture.preserveWidgets();
+    lca.renderChanges( grid );
+
+    TestMessage message = Fixture.getProtocolMessage();
+    assertNull( message.findSetOperation( grid, "autoHeight" ) );
+  }
+
+  @Test
   public void testRenderInitialTopItemIndex() throws IOException {
     grid.setSize( 100, 100 );
 

@@ -70,6 +70,7 @@ public class GridLCA extends AbstractWidgetLCA {
   private static final String PROP_FOCUS_ITEM = "focusItem";
   private static final String PROP_SCROLL_LEFT = "scrollLeft";
   private static final String PROP_SELECTION = "selection";
+  private static final String PROP_AUTO_HEIGHT = "autoHeight";
   // TODO: [if] Sync sortDirection and sortColumn in GridColumnLCA when multiple sort columns are
   // possible on the client
   private static final String PROP_SORT_DIRECTION = "sortDirection";
@@ -129,6 +130,7 @@ public class GridLCA extends AbstractWidgetLCA {
     preserveProperty( grid, PROP_FOCUS_ITEM, grid.getFocusItem() );
     preserveProperty( grid, PROP_SCROLL_LEFT, getScrollLeft( grid ) );
     preserveProperty( grid, PROP_SELECTION, getSelection( grid ) );
+    preserveProperty( grid, PROP_AUTO_HEIGHT, grid.isAutoHeight() );
     preserveProperty( grid, PROP_SORT_DIRECTION, getSortDirection( grid ) );
     preserveProperty( grid, PROP_SORT_COLUMN, getSortColumn( grid ) );
     preserveListener( grid, PROP_SELECTION_LISTENER, isListening( grid, SWT.Selection ) );
@@ -163,6 +165,7 @@ public class GridLCA extends AbstractWidgetLCA {
     renderProperty( grid, PROP_FOCUS_ITEM, grid.getFocusItem(), null );
     renderProperty( grid, PROP_SCROLL_LEFT, getScrollLeft( grid ), ZERO );
     renderProperty( grid, PROP_SELECTION, getSelection( grid ), DEFAULT_SELECTION );
+    renderProperty( grid, PROP_AUTO_HEIGHT, grid.isAutoHeight(), false );
     renderProperty( grid, PROP_SORT_DIRECTION, getSortDirection( grid ), DEFAULT_SORT_DIRECTION );
     renderProperty( grid, PROP_SORT_COLUMN, getSortColumn( grid ), null );
     renderListener( grid, PROP_SELECTION_LISTENER, isListening( grid, SWT.Selection ), false );

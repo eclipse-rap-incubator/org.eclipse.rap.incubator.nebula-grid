@@ -771,12 +771,13 @@ public class GridColumn_Test {
   }
 
   @Test
-  public void testGetHeaderWordWrap_invalidatesCachedHeaderHeight() {
+  public void testGetHeaderWordWrap_invalidatesCachedHeights() {
     grid.getHeaderHeight();
 
     column.setHeaderWordWrap( true );
 
     assertFalse( grid.layoutCache.hasHeaderHeight() );
+    assertFalse( grid.layoutCache.hasFooterHeight() );
   }
 
   @Test

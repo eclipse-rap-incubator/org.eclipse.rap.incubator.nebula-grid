@@ -59,6 +59,7 @@ public class GridSnippet extends GridSnippetBase {
     createSetFooterSpanGroup( parent );
     createShowHeaderButton( parent );
     createShowFooterButton( parent );
+    createAutoHeightButton( parent );
     createWordWrapButton( parent );
     createHeaderWordWrapButton( parent );
     createQueryFocusItem( parent );
@@ -380,6 +381,18 @@ public class GridSnippet extends GridSnippetBase {
       @Override
       public void widgetSelected( SelectionEvent event ) {
         grid.setFooterVisible( button.getSelection() );
+      }
+    } );
+  }
+
+  private void createAutoHeightButton( Composite parent ) {
+    final Button button = new Button( parent, SWT.CHECK );
+    button.setText( "Item/Header/Footer auto height" );
+    button.setSelection( false );
+    button.addSelectionListener( new SelectionAdapter() {
+      @Override
+      public void widgetSelected( SelectionEvent event ) {
+        grid.setAutoHeight( button.getSelection() );
       }
     } );
   }

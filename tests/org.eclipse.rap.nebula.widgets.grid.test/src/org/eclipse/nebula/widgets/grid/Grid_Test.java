@@ -1899,6 +1899,28 @@ public class Grid_Test {
   }
 
   @Test
+  public void testGetHeaderHeight_withWordWrap_withAutoHeight() {
+    grid.setHeaderVisible( true );
+    grid.setAutoHeight( true );
+    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
+    columns[ 1 ].setHeaderWordWrap( true );
+    columns[ 1 ].setText( "foo bar" );
+
+    assertEquals( 52, grid.getHeaderHeight() );
+  }
+
+  @Test
+  public void testGetHeaderHeight_withWordWrap_withoutAutoHeight() {
+    grid.setHeaderVisible( true );
+    grid.setAutoHeight( false );
+    GridColumn[] columns = createGridColumns( grid, 3, SWT.NONE );
+    columns[ 1 ].setHeaderWordWrap( true );
+    columns[ 1 ].setText( "foo bar" );
+
+    assertEquals( 31, grid.getHeaderHeight() );
+  }
+
+  @Test
   public void testGetFooterHeight_Initial() {
     createGridColumns( grid, 3, SWT.NONE );
 
@@ -1983,6 +2005,60 @@ public class Grid_Test {
   }
 
   @Test
+  public void testGetFooterHeight_wrapsText_withAutoHeight() {
+    grid.setFooterVisible( true );
+    grid.setAutoHeight( true );
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+    column.setWidth( 40 );
+    column.setHeaderWordWrap( true );
+    column.setFooterText( "foo bar" );
+
+    assertEquals( 52, grid.getFooterHeight() );
+  }
+
+  @Test
+  public void testGetFooterHeight_doesNotWrapText_withoutAutoHeight() {
+    grid.setFooterVisible( true );
+    grid.setAutoHeight( false );
+    GridColumn column = new GridColumn( grid, SWT.NONE );
+    column.setWidth( 40 );
+    column.setHeaderWordWrap( true );
+    column.setFooterText( "foo bar" );
+
+    assertEquals( 31, grid.getFooterHeight() );
+  }
+
+  @Test
+  public void testGetFooterHeight_wrapsText_withFooterSpan() {
+    grid.setFooterVisible( true );
+    grid.setAutoHeight( true );
+    GridColumn column1 = new GridColumn( grid, SWT.NONE );
+    column1.setWidth( 20 );
+    GridColumn column2 = new GridColumn( grid, SWT.NONE );
+    column2.setWidth( 20 );
+    column1.setHeaderWordWrap( true );
+    column1.setFooterText( "foo bar" );
+    column1.setData( "footerSpan", Integer.valueOf( 2 ) );
+
+    assertEquals( 52, grid.getFooterHeight() );
+  }
+
+  @Test
+  public void testGetFooterHeight_doesNotWrapText_withFooterSpanAndEnoughSpace() {
+    grid.setFooterVisible( true );
+    grid.setAutoHeight( true );
+    GridColumn column1 = new GridColumn( grid, SWT.NONE );
+    column1.setWidth( 20 );
+    GridColumn column2 = new GridColumn( grid, SWT.NONE );
+    column2.setWidth( 100 );
+    column1.setHeaderWordWrap( true );
+    column1.setFooterText( "foofoo bar" );
+    column1.setData( "footerSpan", Integer.valueOf( 2 ) );
+
+    assertEquals( 35, grid.getFooterHeight() );
+  }
+
+  @Test
   public void testGetGroupHeaderHeight_Initial() {
     createGridColumns( grid, 1, SWT.NONE );
     GridColumnGroup group = new GridColumnGroup( grid, SWT.NONE );
@@ -2002,6 +2078,36 @@ public class Grid_Test {
     group.setText( "foo" );
 
     assertEquals( 67, grid.getGroupHeaderHeight() );
+  }
+
+  @Test
+  public void testGetGroupHeaderHeight_wrapsText_withAutoHeight() {
+    grid.setHeaderVisible( true );
+    grid.setAutoHeight( true );
+    GridColumnGroup group = new GridColumnGroup( grid, SWT.NONE );
+    GridColumn column1 = new GridColumn( group, SWT.NONE );
+    column1.setWidth( 20 );
+    GridColumn column2 = new GridColumn( group, SWT.NONE );
+    column2.setWidth( 20 );
+    group.setHeaderWordWrap( true );
+    group.setText( "foo bar" );
+
+    assertEquals( 52, grid.getGroupHeaderHeight() );
+  }
+
+  @Test
+  public void testGetGroupHeaderHeight_doesNotWrapText_withoutAutoHeight() {
+    grid.setHeaderVisible( true );
+    grid.setAutoHeight( false );
+    GridColumnGroup group = new GridColumnGroup( grid, SWT.NONE );
+    GridColumn column1 = new GridColumn( group, SWT.NONE );
+    column1.setWidth( 20 );
+    GridColumn column2 = new GridColumn( group, SWT.NONE );
+    column2.setWidth( 20 );
+    group.setHeaderWordWrap( true );
+    group.setText( "foo bar" );
+
+    assertEquals( 31, grid.getGroupHeaderHeight() );
   }
 
   @Test
@@ -2813,6 +2919,29 @@ public class Grid_Test {
     grid.getMaxContentWidth( column );
 
     assertEquals( 4, countResolvedGridItems() );
+  }
+
+  @Test
+  public void testIsAutoHeght_Initial() {
+    assertFalse( grid.isAutoHeight() );
+  }
+
+  @Test
+  public void testSetAutoHeght() {
+    grid.setAutoHeight( true );
+
+    assertTrue( grid.isAutoHeight() );
+  }
+
+  @Test
+  public void testSetAutoHeght_invalidatesHeaderFooterHeight() {
+    grid.getHeaderHeight();
+    grid.getFooterHeight();
+
+    grid.setAutoHeight( true );
+
+    assertFalse( grid.layoutCache.hasHeaderHeight() );
+    assertFalse( grid.layoutCache.hasFooterHeight() );
   }
 
   //////////////////

@@ -68,6 +68,7 @@ public class GridColumn extends Item {
   private String footerText = "";
   private Image footerImage;
   private Font footerFont;
+  private int footerSpan = 1;
   private boolean packed;
   private boolean wordWrap;
   private boolean headerWordWrap;
@@ -811,7 +812,10 @@ public class GridColumn extends Item {
    */
   public void setWordWrap( boolean wordWrap ) {
     checkWidget();
-    this.wordWrap = wordWrap;
+    if( this.wordWrap != wordWrap ) {
+      this.wordWrap = wordWrap;
+      parent.scheduleRedraw();
+    }
   }
 
   /**
@@ -911,9 +915,12 @@ public class GridColumn extends Item {
    */
   public void setHeaderWordWrap( boolean wordWrap ) {
     checkWidget();
-    this.headerWordWrap = wordWrap;
-    parent.layoutCache.invalidateHeaderHeight();
-    parent.scheduleRedraw();
+    if( headerWordWrap != wordWrap ) {
+      headerWordWrap = wordWrap;
+      parent.layoutCache.invalidateHeaderHeight();
+      parent.layoutCache.invalidateFooterHeight();
+      parent.scheduleRedraw();
+    }
   }
 
   /**
@@ -1089,16 +1096,21 @@ public class GridColumn extends Item {
 
   @Override
   public void setData( String key, Object value ) {
-    checkFooterSpan( key, value );
+    handleFooterSpan( key, value );
     if( !RWT.TOOLTIP_MARKUP_ENABLED.equals( key ) || !isToolTipMarkupEnabledFor( this ) ) {
       super.setData( key, value );
     }
   }
 
-  private static void checkFooterSpan( String key, Object value ) {
+  private void handleFooterSpan( String key, Object value ) {
     if( FOOTER_SPAN.equals( key ) ) {
       if( !( value instanceof Integer ) || ( ( Integer )value ).intValue() < 1 ) {
         SWT.error( SWT.ERROR_INVALID_ARGUMENT );
+      }
+      footerSpan = ( ( Integer )value ).intValue();
+      if( getHeaderWordWrap() ) {
+        parent.layoutCache.invalidateFooterHeight();
+        parent.scheduleRedraw();
       }
     }
   }
@@ -1111,14 +1123,55 @@ public class GridColumn extends Item {
 
   int getLeft() {
     int result = 0;
-    int[] columnOrder = parent.getColumnOrder();
     boolean found = false;
+    int[] columnOrder = parent.getColumnOrder();
     for( int i = 0; i < columnOrder.length && !found; i++ ) {
       GridColumn currentColumn = parent.getColumn( columnOrder[ i ] );
       if( currentColumn == this ) {
         found = true;
       } else if( currentColumn.isVisible() ) {
         result += currentColumn.getWidth();
+      }
+    }
+    return result;
+  }
+
+  int getHeaderWrapWidth() {
+    int result = width - parent.getHeaderPadding().width;
+    Image headerImage = getImage();
+    if( headerImage != null ) {
+      result -= headerImage.getBounds().width;
+      result -= MARGIN_IMAGE;
+    }
+    if( sortStyle != SWT.NONE ) {
+      result -= SORT_INDICATOR_WIDTH;
+      result -= MARGIN_IMAGE;
+    }
+    return result;
+  }
+
+  int getFooterWrapWidth() {
+    int result = getFooterWidth() - parent.getHeaderPadding().width;
+    if( footerImage != null ) {
+      result -= footerImage.getBounds().width;
+      result -= MARGIN_IMAGE;
+    }
+    return result;
+  }
+
+  private int getFooterWidth() {
+    int result = width;
+    if( footerSpan != 1 ) {
+      boolean found = false;
+      int nextColumns = 0;
+      int[] columnOrder = parent.getColumnOrder();
+      for( int i = 0; i < columnOrder.length; i++ ) {
+        GridColumn currentColumn = parent.getColumn( columnOrder[ i ] );
+        if( currentColumn == this ) {
+          found = true;
+        } else if( found && currentColumn.isVisible() && footerSpan > ++nextColumns ) {
+          result += currentColumn.getWidth();
+        }
       }
     }
     return result;
@@ -1163,8 +1216,11 @@ public class GridColumn extends Item {
       this.width = newWidth;
       packed = false;
       processControlEvents();
-      parent.invalidateScrollBars();
-      parent.redraw();
+      if( parent.isAutoHeight() && getHeaderWordWrap() ) {
+        parent.layoutCache.invalidateHeaderHeight();
+        parent.layoutCache.invalidateFooterHeight();
+      }
+      parent.scheduleRedraw();
     }
   }
 

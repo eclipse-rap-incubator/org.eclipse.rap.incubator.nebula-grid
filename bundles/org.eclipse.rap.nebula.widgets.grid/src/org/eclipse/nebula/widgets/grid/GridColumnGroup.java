@@ -42,6 +42,8 @@ import org.eclipse.swt.widgets.TypedListener;
 public class GridColumnGroup extends Item {
 
   private static final int CHEVRON_HEIGHT = 16;
+  private static final int CHEVRON_WIDTH = 12;
+  private static final int MARGIN_IMAGE = 3;
 
   private Grid parent;
   private List<GridColumn> columns = new ArrayList<GridColumn>();
@@ -313,4 +315,26 @@ public class GridColumnGroup extends Item {
   int getChevronHeight() {
     return ( getStyle() & SWT.TOGGLE ) != 0 ? CHEVRON_HEIGHT : 0;
   }
+
+  int getHeaderWrapWidth() {
+    int result = getGroupWidth() - parent.getHeaderPadding().width;
+    Image headerImage = getImage();
+    if( headerImage != null ) {
+      result -= headerImage.getBounds().width;
+      result -= MARGIN_IMAGE;
+    }
+    result -= ( getStyle() & SWT.TOGGLE ) != 0 ? CHEVRON_WIDTH : 0;
+    return result;
+  }
+
+  private int getGroupWidth() {
+    int width = 0;
+    for( GridColumn column : columns ) {
+      if( column.isVisible() ) {
+        width += column.getWidth();
+      }
+    }
+    return width;
+  }
+
 }

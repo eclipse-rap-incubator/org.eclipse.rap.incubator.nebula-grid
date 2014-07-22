@@ -79,6 +79,7 @@ public class Grid extends Composite {
   private boolean columnHeadersVisible;
   private boolean columnFootersVisible;
   private boolean linesVisible = true;
+  private boolean autoHeight;
   private int currentVisibleItems;
   private int selectionType = SWT.SINGLE;
   private boolean selectionEnabled = true;
@@ -2203,6 +2204,36 @@ public class Grid extends Composite {
     }
   }
 
+  /**
+   * Sets the value of the auto-height feature. When enabled, this feature resizes the height of
+   * rows to reflect the content of cells with word-wrapping enabled. Cell word-wrapping is enabled
+   * via the GridColumn.setWordWrap(boolean) method. If column headers have word-wrapping enabled,
+   * this feature will also resize the height of the column headers as necessary.
+   *
+   * @param autoHeight Set to true to enable this feature, false (default) otherwise.
+   */
+  public void setAutoHeight( boolean autoHeight ) {
+    checkWidget();
+    if( this.autoHeight != autoHeight ) {
+      this.autoHeight = autoHeight;
+      layoutCache.invalidateHeaderHeight();
+      layoutCache.invalidateFooterHeight();
+      scheduleRedraw();
+    }
+  }
+
+  /**
+   * Returns the value of the auto-height feature, which resizes row heights and column header
+   * heights based on word-wrapped content.
+   *
+   * @return Returns whether or not the auto-height feature is enabled.
+   * @see #setAutoHeight(boolean)
+   */
+  public boolean isAutoHeight() {
+    checkWidget();
+    return autoHeight;
+  }
+
   @Override
   @SuppressWarnings("unchecked")
   public <T> T getAdapter( Class<T> adapter ) {
@@ -2701,19 +2732,21 @@ public class Grid extends Composite {
       int columnHeaderHeight = 0;
       for( int i = 0; i < getColumnCount(); i++ ) {
         GridColumn column = columns.get( i );
-        Font headerFont = column.getHeaderFont();
-        String headerText = column.getText();
-        Image headerImage = column.getImage();
-        int computedHeight = computeColumnHeight( headerFont, headerText, headerImage, 0 );
+        Font font = column.getHeaderFont();
+        String text = column.getText();
+        Image image = column.getImage();
+        int wrapWidth = autoHeight && column.getHeaderWordWrap() ? column.getHeaderWrapWidth() : 0;
+        int computedHeight = computeColumnHeight( font, text, image, 0, wrapWidth );
         columnHeaderHeight = Math.max( columnHeaderHeight, computedHeight );
       }
       for( int i = 0; i < getColumnGroupCount(); i++ ) {
         GridColumnGroup group = columnGroups.get( i );
-        Font groupFont = group.getHeaderFont();
-        String groupText = group.getText();
-        Image groupImage = group.getImage();
+        Font font = group.getHeaderFont();
+        String text = group.getText();
+        Image image = group.getImage();
         int chevronHeight = group.getChevronHeight();
-        int computedHeight = computeColumnHeight( groupFont, groupText, groupImage, chevronHeight );
+        int wrapWidth = autoHeight && group.getHeaderWordWrap() ? group.getHeaderWrapWidth() : 0;
+        int computedHeight = computeColumnHeight( font, text, image, chevronHeight, wrapWidth );
         groupHeaderHeight = Math.max( groupHeaderHeight, computedHeight );
       }
       result = columnHeaderHeight + groupHeaderHeight;
@@ -2727,10 +2760,11 @@ public class Grid extends Composite {
       int columnFooterHeight = 0;
       for( int i = 0; i < getColumnCount(); i++ ) {
         GridColumn column = columns.get( i );
-        Font footerFont = column.getFooterFont();
-        String footerText = column.getFooterText();
-        Image footerImage = column.getFooterImage();
-        int computedHeight = computeColumnHeight( footerFont, footerText, footerImage, 0 );
+        Font font = column.getFooterFont();
+        String text = column.getFooterText();
+        Image image = column.getFooterImage();
+        int wrapWidth = autoHeight && column.getHeaderWordWrap() ? column.getFooterWrapWidth() : 0;
+        int computedHeight = computeColumnHeight( font, text, image, 0, wrapWidth );
         columnFooterHeight= Math.max( columnFooterHeight, computedHeight );
       }
       result = columnFooterHeight;
@@ -2738,11 +2772,16 @@ public class Grid extends Composite {
     return result;
   }
 
-  private int computeColumnHeight( Font font, String text, Image image, int minHeight ) {
+  private int computeColumnHeight( Font font,
+                                   String text,
+                                   Image image,
+                                   int minHeight,
+                                   int wrapWidth )
+  {
     int result = minHeight;
     int textHeight = 0;
-    if( text.contains( "\n" ) ) {
-      textHeight = TextSizeUtil.textExtent( font, text, 0 ).y;
+    if( text.contains( "\n" ) || wrapWidth > 0 ) {
+      textHeight = TextSizeUtil.textExtent( font, text, wrapWidth ).y;
     } else {
       textHeight = TextSizeUtil.getCharHeight( font );
     }
