@@ -25,6 +25,7 @@ public class GridItemOperationHandler extends WidgetOperationHandler<GridItem> {
 
   private static final String PROP_CELL_CHECKED = "cellChecked";
   private static final String PROP_EXPANDED = "expanded";
+  private static final String PROP_HEIGHT = "height";
 
   public GridItemOperationHandler( GridItem item ) {
     super( item );
@@ -34,6 +35,7 @@ public class GridItemOperationHandler extends WidgetOperationHandler<GridItem> {
   public void handleSet( GridItem item, JsonObject properties ) {
     handleSetChecked( item, properties );
     handleSetExpanded( item, properties );
+    handleSetHeight( item, properties );
   }
 
   /*
@@ -65,6 +67,18 @@ public class GridItemOperationHandler extends WidgetOperationHandler<GridItem> {
           preserveProperty( item, PROP_EXPANDED, item.isExpanded() );
         }
       } );
+    }
+  }
+
+  /*
+   * PROTOCOL SET height
+   *
+   * @param height (int) the actual item height measured by the client
+   */
+  public void handleSetHeight( GridItem item, JsonObject properties ) {
+    JsonValue value = properties.get( PROP_HEIGHT );
+    if( value != null ) {
+      item.setHeight( value.asInt() );
     }
   }
 

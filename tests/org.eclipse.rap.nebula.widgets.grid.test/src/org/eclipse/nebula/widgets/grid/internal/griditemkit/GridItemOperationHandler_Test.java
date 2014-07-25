@@ -11,6 +11,7 @@
 package org.eclipse.nebula.widgets.grid.internal.griditemkit;
 
 import static org.eclipse.nebula.widgets.grid.GridTestUtil.createGridColumns;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -86,6 +87,13 @@ public class GridItemOperationHandler_Test {
     handler.handleSet( new JsonObject().add( "expanded", false ) );
 
     assertFalse( item.isExpanded() );
+  }
+
+  @Test
+  public void testHandleSetHeight() {
+    handler.handleSet( new JsonObject().add( "height", 123 ) );
+
+    assertEquals( 123, item.getHeight() );
   }
 
 }
